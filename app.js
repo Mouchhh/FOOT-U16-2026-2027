@@ -18,7 +18,7 @@ function notify(msg){$('toast').textContent=msg;$('toast').classList.add('visibl
 function persist(){try{localStorage.setItem('vestiaire-draft',JSON.stringify(state));}catch{notify('Stockage plein : exportez votre composition.');}}
 function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
 function avatar(p,cls){const e=el('span',cls);if(p.photo){const img=el('img');img.src=p.photo;img.alt=p.name;e.append(img);if(cls==='token')e.append(el('span','number-badge',p.number));}else e.textContent=p.number;return e;}
-function render(){renderClub();document.documentElement.style.setProperty('--shirt',state.color);$('team').value=state.team;$('formation').value=state.formation;$('color').value=state.color;$('notes').value=state.notes;$('count').textContent=state.players.length+' joueurs';document.querySelector('.board-footer>span:last-child').textContent=state.players.filter(p=>p.role!=='sub').length+' SUR LE TERRAIN';$('players').replaceChildren();$('roster').replaceChildren();state.players.forEach(p=>{const token=el('button','player');token.dataset.id=p.id;token.setAttribute('aria-label',`${p.name}, numéro ${p.number}. Double-cliquez pour modifier. Flèches du clavier pour déplacer.`);token.style.left=p.x+'%';token.style.top=p.y+'%';token.append(avatar(p,'token'),el('span','player-name',p.name));token.addEventListener('dblclick',()=>openEditor(p.id));token.addEventListener('keydown',e=>{const steps={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};if(steps[e.key]){e.preventDefault();p.x=Math.max(5,Math.min(95,p.x+steps[e.key][0]));p.y=Math.max(6,Math.min(93,p.y+steps[e.key][1]));token.style.left=p.x+'%';token.style.top=p.y+'%';persist();}});if(p.role!=='sub')$('players').append(token);const row=el('button','roster-row');row.append(avatar(p,'roster-avatar'));const info=el('span','player-info',p.name);info.append(el('small','',`N° ${p.number} · ${p.role==='sub'?'Remplaçant':p.number===1?'Gardien':'Titulaire'}`));row.append(info,el('span','edit','↗'));row.onclick=()=>openEditor(p.id);$('roster').append(row);});drawArrows();renderBench();renderOpponents();}
+function render(){renderClub();document.documentElement.style.setProperty('--shirt',state.color);$('team').value=state.team;$('formation').value=state.formation;$('color').value=state.color;$('notes').value=state.notes;$('count').textContent=state.players.length+' joueurs';document.querySelector('.board-footer>span:last-child').textContent=state.players.filter(p=>p.role!=='sub').length+' SUR LE TERRAIN';$('players').replaceChildren();$('roster').replaceChildren();state.players.forEach(p=>{const token=el('button','player');token.dataset.id=p.id;token.setAttribute('aria-label',`${p.name}, numéro ${p.number}. Double-cliquez pour modifier. Flèches du clavier pour déplacer.`);token.style.left=p.x+'%';token.style.top=p.y+'%';token.append(avatar(p,'token'),el('span','player-name',p.name));token.addEventListener('dblclick',()=>openEditor(p.id));token.addEventListener('keydown',e=>{const steps={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};if(steps[e.key]){e.preventDefault();p.x=Math.max(5,Math.min(95,p.x+steps[e.key][0]));p.y=Math.max(6,Math.min(93,p.y+steps[e.key][1]));token.style.left=p.x+'%';token.style.top=p.y+'%';persist();}});if(p.role!=='sub')$('players').append(token);const row=el('button','roster-row');row.append(avatar(p,'roster-avatar'));const info=el('span','player-info',p.name);info.append(el('small','',`N° ${p.number} · ${p.role==='sub'?'Impacteur / Finisseur':p.number===1?'Gardien':'Titulaire'}`));row.append(info,el('span','edit','↗'));row.onclick=()=>openEditor(p.id);$('roster').append(row);});drawArrows();renderBench();renderOpponents();}
 function drawArrows(){const g=$('lines');g.replaceChildren();state.arrows.forEach(a=>{const line=document.createElementNS('http://www.w3.org/2000/svg','line');['x1','y1','x2','y2'].forEach((k,i)=>line.setAttribute(k,a[i]));line.setAttribute('stroke','#ffffff');line.setAttribute('stroke-width','.45');line.setAttribute('marker-end','url(#arrowhead)');g.append(line);});}
 function point(e){const r=$('pitch').getBoundingClientRect();return [Math.max(0,Math.min(100,(e.clientX-r.left)/r.width*100)),Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100))];}
 let drag=null;
@@ -72,9 +72,9 @@ function renderBench(){
  $('bench-toggle').setAttribute('aria-pressed',String(visible));
  renderPitchSubs();
  const subs=state.players.filter(p=>p.role==='sub');
- $('bench-count').textContent='· '+subs.length+' remplaçant'+(subs.length>1?'s':'');
+ $('bench-count').textContent='· '+subs.length+' joueur'+(subs.length>1?'s':'');
  $('bench-players').replaceChildren();
- if(!subs.length)$('bench-players').append(el('p','hint','Votre banc est prêt. Ajoutez vos remplaçants avec leur photo.'));
+ if(!subs.length)$('bench-players').append(el('p','hint','Votre banc est prêt. Ajoutez vos impacteurs / finisseurs avec leur photo.'));
  subs.forEach(p=>{
   const card=el('div','bench-card');
   const edit=el('button','bench-profile');edit.setAttribute('aria-label','Modifier '+p.name);
@@ -158,8 +158,8 @@ function renderPitchSubs(){
   if(p.benchY===undefined)p.benchY=20+(i%7)*10;
   const token=el('button','player pitch-sub');token.dataset.id=p.id;token.dataset.side='sub';
   token.style.left=p.benchX+'%';token.style.top=p.benchY+'%';
-  token.setAttribute('aria-label','Remplaçant '+p.name+', numéro '+p.number+'. Double-cliquez pour modifier. Flèches pour déplacer.');
-  token.append(avatar(p,'token'),el('span','player-name','R · '+p.name));token.ondblclick=()=>openEditor(p.id);
+  token.setAttribute('aria-label','Impacteur / Finisseur '+p.name+', numéro '+p.number+'. Double-cliquez pour modifier. Flèches pour déplacer.');
+  token.append(avatar(p,'token'),el('span','player-name','I/F · '+p.name));token.ondblclick=()=>openEditor(p.id);
   token.onkeydown=e=>{const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(!d)return;e.preventDefault();p.benchX=Math.max(5,Math.min(95,p.benchX+d[0]));p.benchY=Math.max(6,Math.min(93,p.benchY+d[1]));token.style.left=p.benchX+'%';token.style.top=p.benchY+'%';persist();};
   layer.append(token);
  });

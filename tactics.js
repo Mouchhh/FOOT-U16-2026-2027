@@ -34,7 +34,7 @@ $('tactics-search').oninput=showTactics;$('tactics-category').onchange=showTacti
 function applyTactic(t){
  const starters=state.players.filter(p=>p.role!=='sub');
  if(starters.length!==11){notify('Ce schéma nécessite 11 titulaires. Ajustez votre effectif avant de l’appliquer.');return;}
- if(!confirm('Appliquer « '+t.title+' » ? La formation, les positions, les flèches et les consignes actuelles seront remplacées. Les joueurs, photos et remplaçants seront conservés.'))return;
+ if(!confirm('Appliquer « '+t.title+' » ? La formation, les positions, les flèches et les consignes actuelles seront remplacées. Les joueurs, photos et impacteurs / finisseurs seront conservés.'))return;
  beforeTactic=structuredClone(state);
  // Conserver le gardien en dernier quand il est identifiable par son numéro.
  const keeper=starters.find(p=>p.number===1)||starters.at(-1);
