@@ -45,3 +45,13 @@ Le bouton « Parcourir les tactiques » ouvre 30 fiches réparties entre défend
 Les fiches sont une synthèse pédagogique des principes usuels du football, pas un inventaire exhaustif ou une méthode officielle FIFA/UEFA. Les liens de ressources permettent d’approfondir.
 
 Validation : les 21 formations ont chacune 11 positions valides ; les 30 plans ont été appliqués en navigateur avec vérification de la conservation des joueurs, de la validité de l’état et des flèches. Recherche, catégories, confirmation, annulation, rechargement, banc, mise en page PDF et mobile vérifiés.
+
+## Adversaires et remplaçants sur la pelouse
+
+« Adversaires » affiche ou masque 11 pions adverses. Le nom, la couleur et la formation adverse (21 systèmes) sont indépendants de votre équipe. Les adversaires attaquent vers le bas, votre équipe vers le haut. Leurs pions sont déplaçables à la souris, au doigt et avec les flèches du clavier ; « Replacer les adversaires » rétablit leur formation. Masquer l’adversaire conserve ses positions. Les tactiques du carnet modifient uniquement votre équipe.
+
+Les remplaçants apparaissent directement sur le terrain avec un repère « R », une bordure distincte et leur photo éventuelle. Ils se placent initialement le long du côté droit et peuvent être déplacés librement. Leurs positions sont indépendantes des positions des titulaires. « Remplaçants » masque/affiche ces pions et le panneau de gestion. « Faire entrer » conserve 11 titulaires en échangeant le statut des deux joueurs. Les pions R restent des remplaçants tant que le changement n’est pas effectué.
+
+La sauvegarde locale, les exports/imports JSON et les PDF reprennent les deux équipes et les remplaçants selon la visibilité choisie. Les anciens fichiers sans équipe adverse restent compatibles.
+
+Validation : choix de formation adverse, déplacements souris/clavier des deux nouveaux types de pions, visibilité persistante, conservation dans les tactiques, changement, sauvegarde/export/import, rendu PDF et écran mobile vérifiés dans Chromium.
