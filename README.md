@@ -75,3 +75,11 @@ Validation : trois vues, quatre scénarios et leurs douze étapes, déplacement 
 Le bouton « Terrain paysage » / « Terrain portrait » est disponible au-dessus des modes. Il pivote le jeu sans modifier les coordonnées enregistrées, maintient noms, portraits et numéros à l’endroit, et adapte les déplacements souris/tactiles et clavier. En paysage, votre équipe attaque vers la droite et les adversaires vers la gauche. La préférence est conservée dans le navigateur, indépendamment des exports JSON ; le PDF reprend l’orientation visible. Retour au portrait en un clic.
 
 Validation : conservation des positions au basculement, déplacements souris et clavier dans les deux vues, adversaires, PDF, écran mobile sans débordement et préférence après rechargement vérifiés avec Chromium.
+
+## Animations tactiques
+
+Dans « Explication · pions », « Lire la séquence » anime les étapes depuis le tableau courant ; « Cette étape » joue uniquement l’intention sélectionnée. Pause/reprise, retour au départ et vitesses 0,5× / 1× / 2× sont disponibles. Les déplacements sont interpolés ; une passe déplace le ballon, pas le joueur. Les actions de déplacement d’une étape sont simultanées. Le choix « Trouver le 6 » / « Revenir au gardien » sélectionne une seule des alternatives de la dernière étape de sortie courte.
+
+Les pions ajoutés restent présents ; les intentions prédéfinies concernent les pions du scénario. Retirer un pion retire son intention animée. La reprise manuelle d’un pion interrompt la lecture ; un changement de situation/étape repart d’un nouveau tableau. Changer d’onglet ou imprimer met en pause. Le PDF reste une image fixe de l’état visible ; pas d’export vidéo. La sauvegarde conserve les positions, pas un lecteur en cours. Cette première version anime les quatre situations pédagogiques du mode pions, pas les compositions avec photos ni les 30 fiches du catalogue.
+
+Validation : quatre séquences complètes, déplacements effectifs des pions et du ballon, pause/reprise, retour au départ, alternatives de passes, lecture d’une étape, interruption manuelle, conservation de la composition et affichage paysage/mobile vérifiés dans Chromium.
