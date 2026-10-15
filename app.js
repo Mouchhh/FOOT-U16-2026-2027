@@ -1,5 +1,14 @@
 const $=id=>document.getElementById(id);
 const layouts={'4-3-3':[[22,20],[50,15],[78,20],[25,43],[50,47],[75,43],[16,67],[38,71],[62,71],[84,67],[50,88]],'4-4-2':[[35,20],[65,20],[15,43],[38,46],[62,46],[85,43],[16,67],[38,71],[62,71],[84,67],[50,88]],'4-2-3-1':[[50,16],[20,33],[50,36],[80,33],[35,52],[65,52],[16,69],[38,73],[62,73],[84,69],[50,88]],'3-5-2':[[35,19],[65,19],[12,43],[32,46],[50,39],[68,46],[88,43],[25,69],[50,73],[75,69],[50,88]],'3-4-3':[[22,20],[50,15],[78,20],[15,46],[38,48],[62,48],[85,46],[25,69],[50,73],[75,69],[50,88]]};
+// Ajouter des formations à partir de leurs lignes, des attaquants vers le gardien.
+for(const name of formationNames){
+ if(Object.hasOwn(layouts,name))continue;
+ const lines=name.split('-').map(Number).reverse();
+ const points=[];
+ lines.forEach((count,row)=>{const y=18+row*(54/(lines.length-1));for(let i=0;i<count;i++)points.push([count===1?50:16+i*68/(count-1),y]);});
+ layouts[name]=[...points,[50,88]];
+}
+$('formation').replaceChildren(...Object.keys(layouts).map(name=>{const o=document.createElement('option');o.value=o.textContent=name;return o;}));
 const names=['Lucas','Hugo','Adam','Nathan','Louis','Raphaël','Arthur','Gabriel','Jules','Léo','Noah'];
 let state={team:'Stade Mayennais U16',formation:'4-3-3',color:'#2855a2',lanes:true,benchVisible:true,clubLogo:'',notes:'',arrows:[],players:names.map((name,i)=>({id:crypto.randomUUID(),name,number:[7,9,11,8,6,10,3,4,5,2,1][i],photo:'',x:layouts['4-3-3'][i][0],y:layouts['4-3-3'][i][1]}))};
 let saves=[],mode='move',editing=null,photo='',photoPending=false,toastTimer;

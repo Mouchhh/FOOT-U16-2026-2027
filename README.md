@@ -33,3 +33,15 @@ node --check app.js
 ```
 
 Les parcours fonctionnels ont été vérifiés avec Chromium : édition, formations, déplacement, flèches, photos, sauvegarde, rechargement, export/import et affichage mobile. Le banc, les remplacements, la persistance des portraits et de la visibilité, la compatibilité des anciennes compositions ainsi que la génération PDF A4 ont également été vérifiés.
+
+## Carnet du coach
+
+Le bouton « Parcourir les tactiques » ouvre 30 fiches réparties entre défendre, construire, attaquer, transitions et phases arrêtées. Recherche par mot-clé et filtre par catégorie. Le sélecteur de formation propose 21 systèmes.
+
+« Appliquer le schéma » nécessite 11 titulaires et demande confirmation avant de remplacer positions, formation, flèches et consignes. Les identités, photos et remplaçants sont conservés. L’attaque va vers le haut du terrain. Les schémas sont des supports pédagogiques sans adversaires, à adapter au contexte et au niveau des joueurs ; ils ne simulent pas un match. Le gardien portant le numéro 1 est conservé au but ; à défaut, le dernier titulaire sert de gardien.
+
+« Annuler la dernière tactique » restaure l’état précédent, y compris ses consignes. Cette annulation est disponible uniquement dans la session courante et remplace aussi les modifications faites depuis l’application. Enregistrer la compo permet de conserver durablement un plan. Les consignes sont incluses dans le PDF et l’export JSON.
+
+Les fiches sont une synthèse pédagogique des principes usuels du football, pas un inventaire exhaustif ou une méthode officielle FIFA/UEFA. Les liens de ressources permettent d’approfondir.
+
+Validation : les 21 formations ont chacune 11 positions valides ; les 30 plans ont été appliqués en navigateur avec vérification de la conservation des joueurs, de la validité de l’état et des flèches. Recherche, catégories, confirmation, annulation, rechargement, banc, mise en page PDF et mobile vérifiés.
