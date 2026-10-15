@@ -69,3 +69,9 @@ Les 30 fiches proposent désormais un déclencheur, une réussite observable, un
 Les consultations directes des domaines officiels FIFA Training Centre, UEFA, IFAB et England Football ont été refusées par le proxy réseau (HTTP CONNECT 403) le 15 octobre 2026. Les domaines nécessaires ont été ajoutés au brouillon de configuration de l’environnement, sans preuve d’application à la machine. Les liens affichés sont des ressources pour approfondir : ils ne constituent pas des sources consultées ni une validation officielle de nos fiches. Une revue documentaire avec citations précises reste à effectuer après déblocage de l’accès. Ne pas présenter ces fiches comme vérifiées ou approuvées par ces organismes.
 
 Validation : trois vues, quatre scénarios et leurs douze étapes, déplacement du ballon et des pions, nommage/ajout/retrait, opposition masquable, état séparé, 30 fiches enrichies, PDF A4 d’une page et affichage mobile vérifiés dans Chromium.
+
+## Orientation du terrain
+
+Le bouton « Terrain paysage » / « Terrain portrait » est disponible au-dessus des modes. Il pivote le jeu sans modifier les coordonnées enregistrées, maintient noms, portraits et numéros à l’endroit, et adapte les déplacements souris/tactiles et clavier. En paysage, votre équipe attaque vers la droite et les adversaires vers la gauche. La préférence est conservée dans le navigateur, indépendamment des exports JSON ; le PDF reprend l’orientation visible. Retour au portrait en un clic.
+
+Validation : conservation des positions au basculement, déplacements souris et clavier dans les deux vues, adversaires, PDF, écran mobile sans débordement et préférence après rechargement vérifiés avec Chromium.
