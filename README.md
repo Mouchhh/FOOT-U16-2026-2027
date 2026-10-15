@@ -55,3 +55,17 @@ Les impacteurs / finisseurs apparaissent directement sur le terrain avec un rep�
 La sauvegarde locale, les exports/imports JSON et les PDF reprennent les deux équipes et les impacteurs / finisseurs selon la visibilité choisie. Les anciens fichiers sans équipe adverse restent compatibles.
 
 Validation : choix de formation adverse, déplacements souris/clavier des deux nouveaux types de pions, visibilité persistante, conservation dans les tactiques, changement, sauvegarde/export/import, rendu PDF et écran mobile vérifiés dans Chromium.
+
+## Trois vues pour expliquer
+
+- Composition & plan de jeu : effectif et outils complets.
+- Vue épurée · mes joueurs : conserve les joueurs, photos, formations, flèches et boutons de visibilité. Cache les panneaux latéraux et le catalogue pour se concentrer sur le terrain. Les impacteurs / finisseurs restent sur le terrain si leur affichage est activé.
+- Explication · pions : tableau indépendant avec pions anonymes et ballon déplaçables, ajout/retrait/nommage et bouton avec/sans adversaires. Quatre situations, chacune en trois étapes : pressing collectif, piège latéral, sortie courte, troisième homme. Changer d’étape recharge son schéma et demande confirmation. Ce tableau conserve sa propre sauvegarde locale, distincte des compositions ; il n’est pas inclus dans leur export JSON. Son bouton PDF imprime l’étape et le terrain visibles.
+
+Les 30 fiches proposent désormais un déclencheur, une réussite observable, une progression de séance pour les U16 et une question au groupe. Les intentions hors phases arrêtées partent des pions réellement placés. Ces adaptations restent des supports pédagogiques, pas des simulations ni des prescriptions universelles.
+
+### État des références
+
+Les consultations directes des domaines officiels FIFA Training Centre, UEFA, IFAB et England Football ont été refusées par le proxy réseau (HTTP CONNECT 403) le 15 octobre 2026. Les domaines nécessaires ont été ajoutés au brouillon de configuration de l’environnement, sans preuve d’application à la machine. Les liens affichés sont des ressources pour approfondir : ils ne constituent pas des sources consultées ni une validation officielle de nos fiches. Une revue documentaire avec citations précises reste à effectuer après déblocage de l’accès. Ne pas présenter ces fiches comme vérifiées ou approuvées par ces organismes.
+
+Validation : trois vues, quatre scénarios et leurs douze étapes, déplacement du ballon et des pions, nommage/ajout/retrait, opposition masquable, état séparé, 30 fiches enrichies, PDF A4 d’une page et affichage mobile vérifiés dans Chromium.

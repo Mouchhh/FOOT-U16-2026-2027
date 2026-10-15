@@ -98,6 +98,7 @@ function chooseSub(id){
 }
 $('cancel-sub').onclick=()=>$('substitution').close();
 function preparePrint(){
+ if(document.body.classList.contains('simple-mode'))return;
  $('print-team').textContent=state.team||'Stade Mayennais';
  $('print-formation').textContent='Formation '+state.formation+' · '+state.players.filter(p=>p.role!=='sub').length+' titulaires'+(state.opponents?.visible?' · '+state.opponents.name+' : '+state.opponents.formation+' ↓':'');
  $('print-notes').textContent=state.notes;
