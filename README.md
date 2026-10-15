@@ -83,3 +83,17 @@ Dans « Explication · pions », « Lire la séquence » anime les étapes depui
 Les pions ajoutés restent présents ; les intentions prédéfinies concernent les pions du scénario. Retirer un pion retire son intention animée. La reprise manuelle d’un pion interrompt la lecture ; un changement de situation/étape repart d’un nouveau tableau. Changer d’onglet ou imprimer met en pause. Le PDF reste une image fixe de l’état visible ; pas d’export vidéo. La sauvegarde conserve les positions, pas un lecteur en cours. Cette première version anime les quatre situations pédagogiques du mode pions, pas les compositions avec photos ni les 30 fiches du catalogue.
 
 Validation : quatre séquences complètes, déplacements effectifs des pions et du ballon, pause/reprise, retour au départ, alternatives de passes, lecture d’une étape, interruption manuelle, conservation de la composition et affichage paysage/mobile vérifiés dans Chromium.
+
+## Exporter vers Canva
+
+Dans « Explication · pions » :
+
+- « Télécharger la vidéo » crée localement une vidéo Full HD 1920 × 1080, de l’étape visible à la fin du scénario, à la vitesse choisie. Utiliser « Revenir au départ » ou l’étape 1 pour exporter toute la séquence. Les positions, le choix de passe, l’orientation et la visibilité des adversaires sont repris.
+- L’encodage utilise MediaRecorder : MP4 H.264 quand le navigateur le propose, puis MP4 ou WebM en repli. Un navigateur récent est recommandé. Aucun son ni serveur de conversion.
+- Garder l’onglet visible pendant la création ; le masquage annule l’export. « Annuler l’export » interrompt sans modifier le tableau. La durée de création suit la durée de l’animation.
+- « Image PNG » télécharge l’état visible en Full HD pour une diapositive fixe.
+- Dans Canva, ouvrir la création, choisir « Importer » puis « Importer des fichiers », sélectionner le fichier téléchargé et le déposer sur la page. Le lien « Ouvrir Canva » ouvre simplement Canva : il ne transfère rien et ne requiert pas d’accès au compte.
+
+L’export est une vidéo ou une image aplatie : les pions ne sont pas des objets individuellement modifiables dans Canva. Cette fonction concerne le mode pions ; l’export des compositions avec photos reste disponible en PDF.
+
+Validation : PNG inspecté, MP4 H.264 1920 × 1080 décodé avec ffprobe/ffmpeg et comparaison de deux images distinctes, repli WebM, annulation, masquage d’onglet, conservation des données et affichage mobile vérifiés. L’import effectif dans un compte Canva n’a pas été exécuté.
