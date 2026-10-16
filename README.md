@@ -278,3 +278,7 @@ Validation : `python3 tests/tactical-tools-browser.py http://127.0.0.1:3016` vé
 ### Séquences nommées dans Explication · pions
 
 Saisir un nom puis « Enregistrer la séquence ». La bibliothèque par coach permet d’ouvrir, modifier, renommer (changer le nom puis enregistrer), copier et supprimer les séquences. Les pions, leur placement, le ballon, la visibilité adverse, la situation et son étape sont conservés. Pour une animation déjà lue, la sauvegarde reprend son départ avec vitesse et choix de dernière passe, afin de la relire. Ces séquences restent locales à l’appareil et sont incluses dans la sauvegarde complète du coach ; elles ne sont pas synchronisées dans Travail du club.
+
+### Créer une séquence avec les flèches des pions
+
+Dans Explication · pions, « Flèches de déplacement » crée une séquence personnalisée depuis les pions et le ballon présents. Glisser depuis un pion (bleu ou adverse) vers sa destination trace sa course ; glisser depuis le ballon trace sa passe. Chaque pion et le ballon peuvent avoir une destination par étape. « Étape suivante » reprend les positions d’arrivée pour préparer la suite (12 étapes maximum). Les boutons numérotés permettent de revenir modifier une étape ; les étapes suivantes repartent des positions recalculées. « Déplacer les pions » revient au départ pour ajuster le placement initial. Lecture, pause, retour au départ, vitesse, sauvegarde nommée, PNG/PDF et export vidéo fonctionnent aussi pour ces séquences. Les flèches du clavier permettent de régler une destination dans le mode flèches.

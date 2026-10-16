@@ -2,7 +2,7 @@
 let animationRun=null,animationStart=null,animationFrame=0,animationInternal=false;
 const animationMediaHelp=document.querySelector('.media-export>p').textContent;
 function animationButtons(){
- const free=!!simpleScenarios[simpleState.scenario].free;document.querySelector('.animation-controls').hidden=free;$('export-video').hidden=free;document.querySelector('.media-export>p').textContent=free?'Tableau libre : exportez l’image HD ou le PDF pour présenter vos explications.':animationMediaHelp;
+ const free=!!simpleScenario(simpleState).free;document.querySelector('.animation-controls').hidden=free;$('export-video').hidden=free;document.querySelector('.media-export>p').textContent=free?'Tableau libre : exportez l’image HD ou le PDF pour présenter vos explications.':animationMediaHelp;
  const running=animationRun?.playing===true;
  $('animation-pause').disabled=!running;$('animation-play').textContent=animationRun&&!running?'▶ Reprendre la séquence':'▶ Lire la séquence';
  $('animation-step').disabled=running;$('animation-restart').disabled=!animationStart;
@@ -18,14 +18,13 @@ const renderSimpleBeforeAnimation=renderSimple;
 renderSimple=function(){if(!animationInternal)stopAnimation(true);renderSimpleBeforeAnimation();animationButtons();};
 function animationRender(){animationInternal=true;try{renderSimple();}finally{animationInternal=false;}}
 function makeSegment(){
- const actions=simpleScenarios[simpleState.scenario].steps[simpleState.step][2];
- const moves=[],passes=[];
- actions.forEach(([index,x,y,type])=>{
-  const token=simpleState.tokens.find(p=>p.id==='s'+index);if(!token)return;
+ const actions=simpleActions(simpleState),moves=[],passes=[];
+ actions.forEach(({id,x,y,type})=>{
+  if(id==='ball'){passes.push({x,y});return;}
+  const token=simpleState.tokens.find(p=>p.id===id);if(!token)return;
   if(type==='move')moves.push({id:token.id,start:{x:token.x,y:token.y},end:{x,y}});
   else {const original=simpleScenarios[simpleState.scenario].tokens;const receiverIndex=original.findIndex(t=>t[1]===x&&t[2]===y);const receiver=receiverIndex<0?null:simpleState.tokens.find(p=>p.id==='s'+receiverIndex);passes.push(receiver?{x:receiver.x,y:receiver.y}:{x,y});}
  });
- // La sortie vers le 6 et le retour au gardien sont deux alternatives.
  const end=passes.length?passes[simpleState.scenario==='build'&&simpleState.step===2&&$('animation-choice').value==='back'?passes.length-1:0]:null;
  return {moves,ball:end?{start:{...simpleState.ball},end}:null,progress:0,last:null};
 }
@@ -44,19 +43,20 @@ function animateTick(time){
  positionAnimatedTokens();
  if(progress<1){animationFrame=requestAnimationFrame(animateTick);return;}
  saveSimple();
- if(run.sequence&&simpleState.step<2){simpleState.step++;animationRender();run.segment=makeSegment();$('animation-status').textContent='Lecture · étape '+(simpleState.step+1)+' / 3';animationFrame=requestAnimationFrame(animateTick);}
+ if(run.sequence&&simpleState.step<simpleScenario(simpleState).steps.length-1){simpleState.step++;animationRender();run.segment=makeSegment();$('animation-status').textContent='Lecture · étape '+(simpleState.step+1)+' / '+simpleScenario(simpleState).steps.length;animationFrame=requestAnimationFrame(animateTick);}
  else{animationRun=null;$('animation-status').textContent=run.sequence?'Séquence terminée':'Étape terminée';animationButtons();}
 }
 function startAnimation(sequence){
  if(animationRun?.playing)return;
  if(animationRun){animationRun.sequence=sequence;animationRun.playing=true;animationRun.segment.last=null;}
  else{
+  if(simpleState.scenario==='custom'){customRestoreStep(sequence?0:simpleState.step);animationRender();}
   // Une nouvelle lecture après la fin revient au tableau de départ de la dernière lecture.
-  if(animationStart&&simpleState.step===2&&sequence){simpleState=structuredClone(animationStart);animationRender();}
+  if(animationStart&&simpleState.step===simpleScenario(simpleState).steps.length-1&&sequence){simpleState=structuredClone(animationStart);animationRender();}
   animationStart=structuredClone(simpleState);
   animationRun={playing:true,sequence,segment:makeSegment()};
  }
- $('animation-status').textContent='Lecture · étape '+(simpleState.step+1)+' / 3';animationButtons();animationFrame=requestAnimationFrame(animateTick);
+ $('animation-status').textContent='Lecture · étape '+(simpleState.step+1)+' / '+simpleScenario(simpleState).steps.length;animationButtons();animationFrame=requestAnimationFrame(animateTick);
 }
 $('animation-play').onclick=()=>startAnimation(true);$('animation-step').onclick=()=>startAnimation(false);$('animation-pause').onclick=()=>stopAnimation();
 $('animation-restart').onclick=()=>{if(!animationStart)return;const start=structuredClone(animationStart);stopAnimation(true);simpleState=start;animationRender();saveSimple();$('animation-status').textContent='Retour au départ';};

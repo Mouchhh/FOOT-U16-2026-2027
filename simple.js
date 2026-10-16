@@ -22,11 +22,23 @@ const simpleElevenPositions=[[1,50,90],[2,84,78],[3,16,78],[4,38,81],[5,62,81],[
 simpleScenarios.eleven={title:'11 contre 11',goal:'Deux équipes numérotées de 1 à 11 pour expliquer vos principes collectifs.',free:true,
  tokens:[...simpleElevenPositions.map(([n,x,y])=>[String(n),x,y,'own']),...simpleElevenPositions.map(([n,x,y])=>[String(n),100-x,100-y,'away'])],ball:[57,50],
  steps:[['Placement libre','Déplacez les 22 pions et le ballon pour expliquer le pressing, la relance ou le déplacement du bloc.',[]],['Organisation','Chaque équipe possède les numéros 1 à 11. Les gardiens portent le numéro 1.',[]],['Ajustements','Vous pouvez masquer les adversaires, ajouter ou retirer des pions et adapter leurs numéros.',[]]]};
+simpleScenarios.custom={title:'Ma séquence',goal:'Tracez les déplacements des pions et du ballon, puis ajoutez les étapes et lancez la lecture.',tokens:simpleScenarios.eleven.tokens,ball:[57,50],steps:[['Étape 1','Tracez une flèche depuis un pion ou le ballon vers sa destination.',[]]]};
+function simpleScenario(snapshot){return snapshot.scenario==='custom'?{...simpleScenarios.custom,steps:snapshot.customSteps.map((_,i)=>['Étape '+(i+1),'Tracez les déplacements de cette étape. Les pions suivent leurs flèches pendant la lecture.',[]])}:simpleScenarios[snapshot.scenario];}
+function simpleActions(snapshot){
+ if(snapshot.scenario==='custom')return snapshot.customSteps[snapshot.step];
+ return simpleScenarios[snapshot.scenario].steps[snapshot.step][2].map(([index,x,y,type])=>({id:'s'+index,x,y,type}));
+}
+function simpleTokensValid(tokens){return Array.isArray(tokens)&&tokens.length<=40&&new Set(tokens.map(t=>t?.id)).size===tokens.length&&tokens.every(t=>t&&typeof t.id==='string'&&t.id!=='ball'&&typeof t.label==='string'&&t.label.length<=20&&['own','away'].includes(t.side)&&coords(t));}
+function customSequenceValid(s){
+ if(s.scenario!=='custom')return s.customSteps===undefined&&s.customBase===undefined;
+ return s.customBase&&simpleTokensValid(s.customBase.tokens)&&coords(s.customBase.ball)&&s.customBase.tokens.length===s.tokens.length&&s.customBase.tokens.every(t=>s.tokens.some(p=>p.id===t.id))&&Array.isArray(s.customSteps)&&s.customSteps.length>=1&&s.customSteps.length<=12&&s.customSteps.every(actions=>Array.isArray(actions)&&actions.length<=41&&new Set(actions.map(a=>a?.id)).size===actions.length&&actions.every(a=>a&&coords(a)&&['move','pass'].includes(a.type)&&(a.id==='ball'||s.tokens.some(t=>t.id===a.id))&&(a.id==='ball'?a.type==='pass':a.type==='move')));
+}
 let simpleState=null,simpleSelected=null,simpleDrag=null;
-function simpleValid(s){return s&&(s.sequenceId===undefined||(typeof s.sequenceId==='string'&&s.sequenceId.length<=100))&&(s.sequenceTitle===undefined||(typeof s.sequenceTitle==='string'&&s.sequenceTitle.length<=100))&&(s.showOpponents===undefined||typeof s.showOpponents==='boolean')&&Object.hasOwn(simpleScenarios,s.scenario)&&Number.isInteger(s.step)&&s.step>=0&&s.step<3&&Array.isArray(s.tokens)&&s.tokens.length<=40&&new Set(s.tokens.map(t=>t?.id)).size===s.tokens.length&&s.tokens.every(t=>t&&typeof t.id==='string'&&typeof t.label==='string'&&t.label.length<=20&&['own','away'].includes(t.side)&&coords(t))&&coords(s.ball);}
+function simpleValid(s){return s&&(s.sequenceId===undefined||(typeof s.sequenceId==='string'&&s.sequenceId.length<=100))&&(s.sequenceTitle===undefined||(typeof s.sequenceTitle==='string'&&s.sequenceTitle.length<=100))&&(s.showOpponents===undefined||typeof s.showOpponents==='boolean')&&Object.hasOwn(simpleScenarios,s.scenario)&&simpleTokensValid(s.tokens)&&coords(s.ball)&&customSequenceValid(s)&&Number.isInteger(s.step)&&s.step>=0&&s.step<(s.scenario==='custom'?s.customSteps.length:3);}
 function coords(t){return t&&Number.isFinite(t.x)&&t.x>=5&&t.x<=95&&Number.isFinite(t.y)&&t.y>=6&&t.y<=93;}
 function saveSimple(){try{coachStorageSet('vestiaire-simple',JSON.stringify(simpleState));}catch{notify('Tableau non sauvegardé : stockage indisponible.');}}
 function loadSimple(scenario,step=0){
+ if(scenario==='custom'){if(simpleState?.scenario==='custom')return customSelectStep(step);return createCustomSequence();}
  const showOpponents=simpleState?.showOpponents!==false;const s=simpleScenarios[scenario];simpleState={scenario,step,showOpponents,tokens:s.tokens.map(([label,x,y,side],i)=>({id:'s'+i,label,x,y,side})),ball:{x:s.ball[0],y:s.ball[1]}};
  // La dernière étape de la sortie courte part du ballon arrivé au défenseur.
  if(scenario==='build'&&step===2)simpleState.ball={x:25,y:70};
@@ -39,14 +51,14 @@ const simpleSvg=document.createElementNS('http://www.w3.org/2000/svg','svg');sim
 const defs=document.createElementNS(simpleSvg.namespaceURI,'defs');const marker=document.createElementNS(simpleSvg.namespaceURI,'marker');for(const [k,v] of Object.entries({id:'simple-head',markerWidth:4,markerHeight:4,refX:3,refY:2,orient:'auto'}))marker.setAttribute(k,v);const tip=document.createElementNS(simpleSvg.namespaceURI,'path');tip.setAttribute('d','M0 0L4 2L0 4');tip.setAttribute('fill','none');tip.setAttribute('stroke','#fff');tip.setAttribute('stroke-width','.7');marker.append(tip);defs.append(marker);simpleSvg.append(defs);const simpleLines=document.createElementNS(simpleSvg.namespaceURI,'g');simpleSvg.append(simpleLines);$('simple-pitch').append(simpleSvg);
 const simpleTokens=el('div','simple-tokens');$('simple-pitch').append(simpleTokens);
 function renderSimpleArrows(){
- simpleLines.replaceChildren();const s=simpleScenarios[simpleState.scenario];s.steps[simpleState.step][2].forEach(([index,x,y,type])=>{
- const p=simpleState.tokens.find(t=>t.id==='s'+index);if(!p)return;
+ simpleLines.replaceChildren();simpleActions(simpleState).forEach(({id,x,y,type})=>{
+ const p=id==='ball'?simpleState.ball:simpleState.tokens.find(t=>t.id===id);if(!p)return;
  const line=document.createElementNS(simpleSvg.namespaceURI,'line');for(const [k,v] of Object.entries({x1:p.x,y1:p.y,x2:x,y2:y,stroke:'#fff','stroke-width':.5,'marker-end':'url(#simple-head)'}))line.setAttribute(k,v);if(type==='pass')line.setAttribute('stroke-dasharray','1.4 1.2');simpleLines.append(line);
  });
 }
 function selectSimple(id){simpleSelected=id;const t=simpleState.tokens.find(t=>t.id===id);$('simple-label').value=t?.label||'';$('simple-label').disabled=!t;$('simple-remove').disabled=!t;simpleTokens.querySelectorAll('.simple-token').forEach(b=>b.classList.toggle('selected',b.dataset.id===id));}
 function renderSimple(){
- const s=simpleScenarios[simpleState.scenario];$('simple-scenario').value=simpleState.scenario;$('simple-title').textContent=s.title;$('simple-objective').textContent=s.goal;
+ const s=simpleScenario(simpleState);$('simple-scenario').value=simpleState.scenario;$('simple-title').textContent=s.title;$('simple-objective').textContent=s.goal;
  $('simple-step-title').textContent=(simpleState.step+1)+'. '+s.steps[simpleState.step][0];$('simple-step-text').textContent=s.steps[simpleState.step][1];
  $('simple-steps').hidden=!!s.free;$('simple-steps').replaceChildren();s.steps.forEach((step,i)=>{const b=el('button',i===simpleState.step?'active':'',String(i+1));b.setAttribute('aria-label',step[0]);b.setAttribute('aria-pressed',String(i===simpleState.step));b.onclick=()=>{if(confirm('Charger cette étape ? Les pions du tableau simple seront replacés.'))loadSimple(simpleState.scenario,i);};$('simple-steps').append(b);});
  const ownCount=simpleState.tokens.filter(t=>t.side==='own').length,awayCount=simpleState.tokens.filter(t=>t.side==='away').length;$('simple-team-count').textContent=ownCount+' bleus · '+awayCount+' adversaires'+(simpleState.showOpponents===false?' (masqués)':'');$('simple-eleven').setAttribute('aria-pressed',String(simpleState.scenario==='eleven'));

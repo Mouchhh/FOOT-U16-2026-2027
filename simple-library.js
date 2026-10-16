@@ -9,15 +9,15 @@ function renderSimpleLibrary(){
  $('simple-library').value=simpleLibrary.some(s=>s.id===selected)?selected:'';simpleLibraryButtons();
 }
 function simpleLibraryButtons(){const selected=simpleLibrary.some(s=>s.id===$('simple-library').value);$('simple-sequence-open').disabled=!selected;$('simple-sequence-delete').disabled=!selected;}
-function syncSimpleSequenceTitle(){$('simple-sequence-name').value=simpleState.sequenceTitle||'';$('simple-title').textContent=simpleState.sequenceTitle?.trim()||simpleScenarios[simpleState.scenario].title;}
+function syncSimpleSequenceTitle(){$('simple-sequence-name').value=simpleState.sequenceTitle||'';$('simple-title').textContent=simpleState.sequenceTitle?.trim()||simpleScenario(simpleState).title;}
 const renderSimpleBeforeLibrary=renderSimple;
 renderSimple=function(){renderSimpleBeforeLibrary();syncSimpleSequenceTitle();};
-$('simple-sequence-name').oninput=e=>{simpleState.sequenceTitle=e.target.value;$('simple-title').textContent=e.target.value.trim()||simpleScenarios[simpleState.scenario].title;saveSimple();};
+$('simple-sequence-name').oninput=e=>{simpleState.sequenceTitle=e.target.value;$('simple-title').textContent=e.target.value.trim()||simpleScenario(simpleState).title;saveSimple();};
 function saveSimpleSequence(copy=false){
  const title=$('simple-sequence-name').value.trim();if(!title){$('simple-sequence-name').focus();return notify('Donnez un nom à votre séquence.');}
  stopAnimation();
  const id=!copy&&simpleState.sequenceId?simpleState.sequenceId:crypto.randomUUID();
- const snapshot=structuredClone(animationStart||simpleState);snapshot.sequenceId=id;snapshot.sequenceTitle=title;
+ const snapshot=structuredClone(simpleState.scenario==='custom'?customRestoreSnapshot(structuredClone(simpleState),0):(animationStart||simpleState));snapshot.sequenceId=id;snapshot.sequenceTitle=title;
  const entry={id,title,updatedAt:new Date().toISOString(),state:snapshot,speed:$('animation-speed').value,choice:$('animation-choice').value};
  const next=[entry,...simpleLibrary.filter(s=>s.id!==id)];if(!simpleLibraryValid(next))return notify('200 séquences maximum. Supprimez une ancienne séquence avant de continuer.');
  try{coachStorageSet('vestiaire-simple-library',JSON.stringify(next));simpleLibrary=next;simpleState.sequenceId=id;simpleState.sequenceTitle=title;saveSimple();renderSimpleLibrary();$('simple-library').value=id;simpleLibraryButtons();notify('Séquence « '+title+' » enregistrée sur cet appareil dans votre espace coach.');}catch{notify('Séquence non enregistrée : stockage plein. Sauvegardez votre espace coach.');}
