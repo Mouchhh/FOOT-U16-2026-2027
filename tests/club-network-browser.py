@@ -79,7 +79,7 @@ def wait_sync(page):
  page.wait_for_function('!clubNetworkBusy && !clubNetworkSyncPromise')
  page.evaluate('async()=>{await clubNetworkQueue;}')
 
-def club(page):page.locator('#club-account-library').click();wait_sync(page)
+def club(page):page.locator('#view-club-network').click();wait_sync(page)
 errors=[]
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
@@ -140,7 +140,7 @@ with sync_playwright() as p:
  assert a.evaluate("!JSON.stringify(localStorage).includes('token-')")
  a.reload();a.wait_for_selector('#club-account-bar',state='visible');wait_sync(a);assert a.evaluate('activeCoach.id')=='account-'+A
  a.set_viewport_size({'width':390,'height':844});assert a.evaluate('document.documentElement.scrollWidth<=innerWidth');club(a);assert a.evaluate('document.documentElement.scrollWidth<=innerWidth')
- a.locator('#club-account-signout').click();a.wait_for_url('**/accueil.html');a.locator('#welcome-login').click();a.locator('#club-auth-gate').wait_for(state='visible');assert a.locator('#club-auth-gate').is_visible();assert not a.locator('main').is_visible();assert a.evaluate('clubNetworkSession===null')
+ a.locator('#view-home').click();a.locator('#club-account-signout').click();a.wait_for_url('**/accueil.html');a.locator('#welcome-login').click();a.locator('#club-auth-gate').wait_for(state='visible');assert a.locator('#club-auth-gate').is_visible();assert not a.locator('main').is_visible();assert a.evaluate('clubNetworkSession===null')
  # A different coach using the same browser tab loads their own namespace, never the preceding account.
  login(a,'b@example.test');assert a.evaluate('activeCoach.id')=='account-'+B;assert not a.evaluate("trainingLibrary.some(s=>s.title==='Séance A actualisée')")
  # Older Supabase installations still show verified green LEDs, without invented last-login dates.
