@@ -1,27 +1,20 @@
-// Photos extraites du fichier « smfc 6.pdf » fourni par le club.
+// Photos des publications ouvertes en grand dans les PDF fournis par le club.
+// Sources : smfc 2.pdf, smfc 3.pdf, smfc.pdf et smfc 6.pdf.
 window.CLUB_HOME_SLIDES=[
   {
-    "src": "assets/photos/collectif.jpg",
-    "alt": "Les joueurs du Stade Mayennais regroupés sur le terrain"
+    "src": "assets/photos/celebration-jeunes.jpg",
+    "alt": "Les joueurs du club célèbrent ensemble sur le terrain"
   },
   {
-    "src": "assets/photos/avant-match.jpg",
-    "alt": "Les joueurs du club avant le match"
+    "src": "assets/photos/celebration-equipe.jpg",
+    "alt": "Le groupe du Stade Mayennais réuni après une action"
   },
   {
-    "src": "assets/photos/consignes.jpg",
-    "alt": "Le groupe réuni sur le terrain"
-  },
-  {
-    "src": "assets/photos/vie-du-club.jpg",
-    "alt": "Un moment collectif dans les locaux du club"
+    "src": "assets/photos/groupe-rouge.jpg",
+    "alt": "Le collectif du club réuni en tenue rouge"
   },
   {
     "src": "assets/photos/encadrement.jpg",
-    "alt": "L’encadrement au bord du terrain"
-  },
-  {
-    "src": "assets/photos/bord-du-terrain.jpg",
-    "alt": "Le staff sur le terrain"
+    "alt": "L’encadrement du Stade Mayennais sur le terrain"
   }
 ];

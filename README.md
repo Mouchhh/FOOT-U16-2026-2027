@@ -291,7 +291,7 @@ L’annuaire conserve les éducateurs autorisés hors ligne. Une LED verte signa
 
 **Activation des dernières connexions :** réexécuter la version à jour de `supabase/club-presence.sql` dans Supabase → SQL Editor → Run. Le script est réexécutable et conserve les documents. Sans cette mise à jour, l’accueil fonctionne et les LED utilisent le service de présence déjà installé ; les dates restent « Non disponible », sans inventer d’historique. Aucun SQL n’a été exécuté sur le projet réel depuis cet environnement.
 
-Le compte Instagram public `@stademayennais` et le site du club ont été refusés par le proxy réseau (CONNECT 403). Les photos ont ensuite été fournies dans « smfc 6.pdf » : six images extraites de ce fichier alimentent désormais le fond défilant. Les photos sont hébergées par le site, sans chargement Instagram.
+Le compte Instagram public `@stademayennais` et le site du club ont été refusés par le proxy réseau (CONNECT 403). Les photos ont ensuite été fournies dans « smfc 6.pdf » : la sélection du fond défilant utilise désormais les photos ouvertes en grand dans les quatre PDF transmis. Les photos sont hébergées par le site, sans chargement Instagram.
 
 Validation : parcours navigateur avec Supabase simulé (accueil après connexion, navigation, sous-rubriques, LED/dernière connexion, migration absente, comptes isolés, accès révoqué, mobile) et tests d’autorisation sur PostgreSQL temporaire.
 
@@ -299,6 +299,6 @@ Validation : parcours navigateur avec Supabase simulé (accueil après connexion
 
 Le diaporama est prêt dans `home-slideshow.js` : fondu toutes les six secondes, photos précédente/suivante et pause, arrêt hors de l’accueil ou lorsque l’onglet est masqué. Le défilement démarre en pause si la réduction des animations est activée. Un voile bleu et des panneaux blancs gardent les textes lisibles.
 
-Les photos doivent être fournies et placées dans `assets/photos/`, puis référencées dans `assets/home-slides.js` (12 maximum). Seules les images du site réellement chargées sont affichées ; les images absentes sont ignorées. Les six photos intégrées proviennent du PDF « smfc 6.pdf » fourni par le club : elles ont été extraites sans modification et sont servies directement par le site. Les fichiers HTML Instagram renvoient à des dossiers d’images non joints ; leur contenu et les données du compte ne sont pas publiés.
+Les photos doivent être fournies et placées dans `assets/photos/`, puis référencées dans `assets/home-slides.js` (12 maximum). Seules les images du site réellement chargées sont affichées ; les images absentes sont ignorées. Les quatre photos intégrées correspondent aux publications ouvertes en grand dans « smfc 2.pdf », « smfc 3.pdf », « smfc.pdf » et « smfc 6.pdf ». Elles ont été extraites sans modification et sont servies directement par le site. Les fichiers HTML Instagram renvoient à des dossiers d’images non joints ; leur contenu et les données du compte ne sont pas publiés.
 
-Le fond défilant est activé avec six photographies du collectif et de l’encadrement, sans dépendance à Instagram. Les fichiers PDF et HTML sources restent hors du dépôt public.
+Le fond défilant est activé avec les quatre photographies sélectionnées par le club, sans dépendance à Instagram. Les fichiers PDF et HTML sources restent hors du dépôt public.
