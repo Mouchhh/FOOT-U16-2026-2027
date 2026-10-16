@@ -24,7 +24,7 @@ Ouvrir le site sur le port 3000. Aucun build nécessaire. Les polices Google son
 - « Enregistrer la compo » ajoute une sauvegarde à « Mes compositions ». Cliquer sur une sauvegarde la recharge. Le travail courant est aussi conservé automatiquement.
 - Exporter un JSON pour conserver ou partager une composition avec photos, positions, flèches et consignes. Importer ce JSON sur un autre appareil pour la modifier.
 
-Les sauvegardes sont propres au navigateur et à l’adresse du site. Exporter les compositions avant d’effacer les données du navigateur. Pas de synchronisation entre appareils.
+Les sauvegardes sont propres au navigateur et à l’adresse du site. Exporter les compositions avant d’effacer les données du navigateur. Sans activation de l’espace privé du club, pas de synchronisation entre appareils.
 
 ## Validation
 
@@ -125,7 +125,7 @@ La durée des nouveaux rapports reprend celle renseignée dans le profil d’éq
 
 Le brouillon est conservé automatiquement dans le navigateur après modification. « Enregistrer le rapport » ajoute ou met à jour sa version dans « Mes rapports ». Ouvrir ou importer un autre rapport demande confirmation avant de remplacer le brouillon. Export/import JSON permet le transfert entre appareils. Un export PDF complet est disponible via impression et « Enregistrer au format PDF ». Les textes longs peuvent occuper plusieurs pages. Le PDF n’inclut pas l’interface du terrain.
 
-Toutes les observations restent dans le stockage du navigateur et ne sont pas envoyées à GitHub. Pas de synchronisation cloud ou de compte utilisateur. Exporter les rapports avant de vider les données du navigateur. Le PDF source de référence reste en dehors du dépôt ; il n’est pas publié.
+Les observations restent dans le stockage du navigateur et ne sont pas envoyées à GitHub. Leur partage dans l’espace privé Supabase nécessite une activation et une connexion explicites. Exporter les rapports avant de vider les données du navigateur. Le PDF source de référence reste en dehors du dépôt ; il n’est pas publié.
 
 Validation Chromium : six rubriques, résultat automatique, notes 3,5/5, observations sportives/humaines, import d’effectif sans doublons, temps de jeu, fait de match, plan, bibliothèque, rechargement, import/export JSON, PDF complet de plusieurs pages (texte extrait et première page inspectée), conservation de la composition et affichage mobile. Aucun accès à un service externe requis.
 
@@ -181,7 +181,7 @@ Les données précédentes restent accessibles dans « Coach principal · donné
 
 « Sauvegarde du coach » télécharge un JSON regroupant les documents et les brouillons de son espace. « Restaurer un coach » vérifie le contenu puis crée un nouveau profil avec un identifiant neuf, sans écraser les profils existants. Les noms homonymes de restauration sont distingués. Le transfert entre ordinateurs se fait par ce fichier. Les nouvelles fiches de séance et les nouveaux rapports reprennent le nom du coach ; les rapports historiques gardent les informations qu’ils contenaient.
 
-Ces espaces sont nominatifs, pas des comptes avec mot de passe. Toute personne utilisant le même navigateur peut sélectionner un profil. Aucune synchronisation entre ordinateurs, authentification ou confidentialité inter-utilisateur n’est ajoutée ; les données restent dans le navigateur et ne sont pas envoyées à GitHub. Conserver les sauvegardes exportées avant de nettoyer les données du site.
+Ces espaces sont nominatifs, pas des comptes avec mot de passe. Toute personne utilisant le même navigateur peut sélectionner un profil. Ces profils locaux n’assurent pas la confidentialité entre utilisateurs du même appareil. L’espace privé optionnel ajoute une authentification pour les documents partagés entre appareils ; les documents locaux ne sont pas envoyés à GitHub. Conserver les sauvegardes exportées avant de nettoyer les données du site.
 
 Validation Chromium : profil historique, renommage, création de deux coachs, absence de mélange des compositions/rapports/séances, changements et rechargements, agendas distincts avec dates/horaires, ouverture des séances, export d’un coach et restauration dans un profil neuf, affichage mobile ; aucune erreur JavaScript.
 
@@ -195,7 +195,7 @@ Les compositions, rapports et séances disposent chacun d’un titre libre (100 
 
 Les boutons de renommage précisent le coach destinataire. L’espace du coach comprend aussi des accès directs aux compositions, rapports et séances. Les fichiers anciens sans titre restent compatibles et utilisent leur libellé précédent. Les sauvegardes globales d’un coach conservent les nouveaux titres et identifiants.
 
-Validation Chromium : titres des trois types, renommage, mise à jour sans doublon, copies distinctes, noms de fichiers, agenda, rechargement, passage à un autre coach sans accès aux sauvegardes du précédent, anciens documents et mobile. Les données restent locales et leur transfert vers un autre ordinateur nécessite l’export/restauration du coach.
+Validation Chromium : titres des trois types, renommage, mise à jour sans doublon, copies distinctes, noms de fichiers, agenda, rechargement, passage à un autre coach sans accès aux sauvegardes du précédent, anciens documents et mobile. Le transfert complet d’un espace local utilise l’export/restauration du coach ; les documents choisis peuvent aussi être partagés dans l’espace privé après son activation.
 
 ## Assistant ChatGPT manuel et extension sans clé API
 
@@ -223,3 +223,14 @@ Cet assistant utilise des règles et les fiches de la bibliothèque : ce n’est
 Un référentiel privé JSON peut être importé en option pour afficher les renvois paginés au projet sportif ; il reste dans ce navigateur et est partagé entre ses profils de coachs. Le document privé n’est pas publié. L’échange manuel avec ChatGPT reste accessible sous « Option avancée ». Les sauvegardes et leur transfert entre appareils utilisent les exports existants.
 
 Validation Chromium : 936 combinaisons de thèmes, durées, effectifs et niveaux, présence d’un schéma pour tous les exercices, fonctionnement avec réseau bloqué, aperçu et variante, application, sauvegarde et rechargement, adaptation au match proche, import privé et pages citées, export PDF avec schémas, mobile et absence d’erreurs JavaScript.
+
+
+## Espace privé des éducateurs (Supabase optionnel)
+
+L’onglet « Espace privé · éducateurs » permet la connexion par e-mail et mot de passe, le partage des séances, compositions et rapports, la consultation des documents du club et la récupération de copies indépendantes. L’auteur seul modifie ou retire son original. Une option par compte et profil local partage les prochains enregistrements explicites ; les brouillons restent locaux. Actualisation sur demande, sans collaboration en direct. Les échecs réseau conservent les sauvegardes locales et demandent de réessayer.
+
+**Activation requise** : créer un projet Supabase du club, appliquer [supabase/club.sql](supabase/club.sql), fermer l’inscription publique, précréer les comptes et autoriser les membres. Renseigner l’URL et la clé publique dans `club-cloud-config.js`. Sans ces valeurs, le site indique que l’espace privé attend son activation et ne contacte aucun service. [Guide complet](supabase/INSTALLATION.md). Aucun secret d’administration n’est requis dans le navigateur. Les mots de passe ne sont jamais enregistrés dans les exports ou les sauvegardes locales. Les jetons de session sont limités à sessionStorage dans l’onglet, avec liaison au profil local.
+
+Les règles PostgreSQL protègent lectures et écritures, y compris contre un client modifié : membres actifs uniquement, auteur imposé par `auth.uid()`, aucune modification de l’annuaire par les éducateurs. Les fonctions de publication/retrait contrôlent la version ; la publication vérifie aussi l’identifiant pour éviter les écrasements après retrait et recréation. Les copies n’altèrent pas l’original. Les documents partagés peuvent inclure leurs données de joueurs ; aucun document privé existant n’est embarqué dans le dépôt public.
+
+Validation : tests sur PostgreSQL 17 temporaire des visiteurs, membres, comptes externes et révoqués, refus de modification par un collègue et des écritures directes, conflits de versions et recréation. Parcours Chromium avec Supabase simulé : partage des trois types de documents, schémas, connexion et mot de passe, copies, récupération avec conservation du brouillon, conflits entre appareils, échec réseau, session et mobile. L’activation et les tests avec de vrais comptes du projet du club restent nécessaires.
