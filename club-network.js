@@ -9,6 +9,8 @@ function clubNetworkConfigValid(c){
 const clubNetworkReady=clubNetworkConfigValid(clubNetworkConfig);
 const clubNetworkBase=clubNetworkReady?clubNetworkConfig.url.replace(/\/$/,''):'';
 let clubNetworkSession=null,clubNetworkMember=null,clubNetworkMembers=[],clubNetworkRows=[],clubNetworkPreview=null,clubNetworkSources=[],clubNetworkRefreshPromise=null,clubNetworkGeneration=0,clubNetworkBusy=false,clubNetworkQueue=Promise.resolve(),clubNetworkSyncPromise=null,clubNetworkTimer=null,clubNetworkPageSize=50,clubNetworkCachedVersions=new Map();
+const clubNetworkPresenceSession=crypto.randomUUID();
+let clubNetworkPresenceState='loading',clubNetworkConnected=[];
 const clubNetworkSessionKey='vestiaire-private-session:'+clubNetworkBase;
 const clubNetworkBindingKey='vestiaire-account-binding:'+clubNetworkBase;
 const clubNetworkKinds={training:'Séance',report:'Rapport',composition:'Composition'};
@@ -70,12 +72,12 @@ async function clubNetworkRefreshSession(){
 function clubNetworkBound(){return !!clubNetworkMember&&activeCoach.id==='account-'+clubNetworkMember.user_id;}
 function clubNetworkRenderState(){
  const bound=clubNetworkBound();document.documentElement.classList.toggle('club-private-request',clubNetworkPrivateRequested);document.documentElement.classList.toggle('club-authenticated',bound);document.body.classList.toggle('club-private-active',bound);
- $('club-auth-gate').hidden=!clubNetworkPrivateRequested||bound;$('club-network-setup').hidden=clubNetworkReady;$('club-network-connected').hidden=!bound;$('club-account-bar').hidden=!bound;
+ $('club-auth-gate').hidden=!clubNetworkPrivateRequested||bound;$('club-network-setup').hidden=clubNetworkReady;$('club-network-connected').hidden=!bound;$('club-account-bar').hidden=!bound;$('club-connected').hidden=!bound;
  if(bound){renderCoachSelector();$('coach-profile').querySelector('p').textContent='Profil lié à votre compte. Consultez les autres éducateurs dans « Travail du club ».';$('club-account-name').textContent=clubNetworkMember.display_name;$('club-network-identity').textContent=clubNetworkMember.display_name;$('club-network-shortcut').textContent='Travail du club';clubNetworkRenderSources();}
  else $('club-network-shortcut').textContent='Connexion éducateurs';
 }
 function clubNetworkClear(){
- clubNetworkGeneration++;clearInterval(clubNetworkTimer);clubNetworkTimer=null;clubNetworkSession=null;clubNetworkMember=null;clubNetworkMembers=[];clubNetworkRows=[];clubNetworkPreview=null;clubNetworkSources=[];clubNetworkCachedVersions.clear();
+ clubNetworkGeneration++;clearInterval(clubNetworkTimer);clubNetworkTimer=null;clubNetworkSession=null;clubNetworkMember=null;clubNetworkMembers=[];clubNetworkRows=[];clubNetworkPreview=null;clubNetworkSources=[];clubNetworkCachedVersions.clear();clubNetworkConnected=[];clubNetworkPresenceState='loading';$('club-connected-names').replaceChildren();$('club-connected-count').textContent='';$('club-connected-status').textContent='';
  sessionStorage.removeItem(clubNetworkSessionKey);sessionStorage.removeItem(clubNetworkBindingKey);
  $('club-network-preview').close();$('club-network-preview-content').replaceChildren();$('club-network-preview-title').textContent='';$('club-network-preview-author').textContent='';$('club-network-list').replaceChildren();$('club-network-source').replaceChildren();$('club-network-author').replaceChildren();$('club-account-name').textContent='';
  for(const id of ['club-network-password','club-network-old-password','club-network-new-password','club-network-confirm-password','club-signup-password','club-signup-confirm','club-signup-code','club-signup-first-name','club-signup-last-name'])$(id).value='';
@@ -164,6 +166,7 @@ async function clubNetworkSync(){
  clubNetworkSyncPromise=(async()=>{
   try{
    if(!await clubNetworkLoadMember())return;
+   await clubNetworkUpdatePresence();
    await clubNetworkFlushPending();
    const all=[];for(let offset=0;;offset+=100){
     if(offset>=10000)throw Error('Trop de documents');
@@ -192,7 +195,7 @@ async function clubNetworkSync(){
    clubNetworkRenderSources();clubNetworkRenderRows();
    const pending=clubNetworkPendingJobs(),conflicts=pending.filter(j=>j.conflict).length;
    clubNetworkStatus(conflicts?conflicts+' conflit(s) à résoudre dans « Travail du club ». Vos versions locales sont conservées.':pending.length?pending.length+' enregistrement(s) en attente de synchronisation.':'Synchronisé avec le club · '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris'}));
-  }catch(error){if(error.status===401||error.status===403||error.code==='42501')clubNetworkClear();clubNetworkStatus(clubNetworkMessage(error));}
+  }catch(error){clubNetworkPresenceState='unavailable';clubNetworkConnected=[];clubNetworkRenderPresence();if(error.status===401||error.status===403||error.code==='42501')clubNetworkClear();clubNetworkStatus(clubNetworkMessage(error));}
   finally{clubNetworkSyncPromise=null;}
  })();return clubNetworkSyncPromise;
 }
@@ -266,7 +269,7 @@ async function clubNetworkAfterLogin(session){
 }
 async function clubNetworkLogout(){
  if(!flushCoachWorkspace())return;
- try{await clubNetworkRequest('/auth/v1/logout?scope=local',{method:'POST'});}finally{clubNetworkClear();location.reload();}
+ try{await clubNetworkLeavePresence();await clubNetworkRequest('/auth/v1/logout?scope=local',{method:'POST'});}finally{clubNetworkClear();location.reload();}
 }
 $('club-network-login').onsubmit=e=>{e.preventDefault();clubNetworkRun(async()=>{
  const email=$('club-network-email').value.trim(),password=$('club-network-password').value;$('club-network-password').value='';clubNetworkStatus('Connexion et récupération de votre espace…');
@@ -328,3 +331,30 @@ if(new URLSearchParams(location.search).get('auth')==='signup')clubAuthChoose('s
 if(clubNetworkReady&&!clubNetworkLocalMode){
  try{const saved=JSON.parse(sessionStorage.getItem(clubNetworkSessionKey)||'null');if(saved?.session?.user?.id)clubNetworkRun(()=>clubNetworkAfterLogin(saved.session));else if(!new URLSearchParams(location.search).has('auth')&&/^https?:$/.test(location.protocol))location.replace('accueil.html');else if(!$('club-network-signup').hidden)clubNetworkStatus('Renseignez votre prénom, votre nom et le code d’invitation remis par le club.');else clubNetworkStatus('Connectez-vous pour entrer dans l’espace privé du club.');}catch{clubNetworkClear();}
 }
+
+function clubNetworkRenderPresence(){
+ const root=$('club-connected-names');root.replaceChildren();const ready=clubNetworkPresenceState==='ready';
+ $('club-connected-title').textContent=ready?'Éducateurs connectés':'Éducateurs du club';$('club-connected-count').textContent=ready?clubNetworkConnected.length+' en ligne':'';
+ $('club-connected-status').textContent=ready?'Présence récente sur le site (90 dernières secondes). Cliquez sur un nom pour voir son profil.':clubNetworkPresenceState==='setup'?'Liste des éducateurs autorisés. Le statut de connexion attend son activation.':'Statut de connexion non actualisé. Liste des éducateurs autorisés.';
+ const people=ready?clubNetworkConnected:clubNetworkMembers.filter(m=>m.active);
+ if(!people.length)root.append(el('p','hint',ready?'Aucun éducateur détecté en ligne.':'Aucun éducateur à afficher.'));
+ for(const person of people){const button=el('button','club-connected-person');button.append(el('i',ready?'online':'unknown'),el('span','',person.display_name+(person.user_id===clubNetworkSession?.user.id?' · vous':'')));button.onclick=()=>{$('club-network-author').value=person.user_id;clubNetworkShowView();};root.append(button);}
+}
+async function clubNetworkUpdatePresence(){
+ if(!clubNetworkBound())return;
+ try{
+  if(!document.hidden)await clubNetworkRequest('/rest/v1/rpc/club_presence_ping',{method:'POST',body:{p_session_id:clubNetworkPresenceSession,p_online:true}});
+  const people=await clubNetworkRequest('/rest/v1/rpc/club_connected_coaches',{method:'POST',body:{}});if(!Array.isArray(people))throw Error('Réponse invalide');
+  clubNetworkConnected=people;clubNetworkPresenceState='ready';
+ }catch(error){
+  if(error.status===401||error.status===403||error.code==='42501')throw error;
+  clubNetworkConnected=[];clubNetworkPresenceState=error.code==='PGRST202'||error.status===404?'setup':'unavailable';
+ }clubNetworkRenderPresence();
+}
+async function clubNetworkLeavePresence(keepalive=false){
+ if(!clubNetworkBound()||!clubNetworkSession)return;
+ // Meilleur effort : une fermeture brutale expire aussi côté serveur après 90 secondes.
+ try{await fetch(clubNetworkBase+'/rest/v1/rpc/club_presence_ping',{method:'POST',headers:{apikey:clubNetworkConfig.publishableKey,Authorization:'Bearer '+clubNetworkSession.access_token,'Content-Type':'application/json'},body:JSON.stringify({p_session_id:clubNetworkPresenceSession,p_online:false}),credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store',keepalive,signal:AbortSignal.timeout(1500)});}catch{}
+}
+window.addEventListener('pagehide',()=>{void clubNetworkLeavePresence(true);});
+window.addEventListener('pageshow',event=>{if(event.persisted)clubNetworkResume();});

@@ -92,3 +92,12 @@ La version locale sans accès aux données du club reste disponible via `?mode=l
 - `python3 tests/club-network-browser.py http://127.0.0.1:3016` : Chromium avec Supabase simulé, accueil distinct, choix connexion/inscription, coach actif, site complet privé, séparation des comptes, synchronisation multi-PC, récupération des bibliothèques, schémas et copies, conflits, reprise réseau, inscriptions, mobile et déconnexion.
 
 Les accès HTTPS au vrai projet depuis l’environnement de développement sont bloqués par le proxy. L’installation des scripts dans le projet réel, ses paramètres Authentication et les essais avec deux vrais comptes restent à effectuer par le responsable avant de confirmer l’activation complète.
+
+
+## Activer les noms des éducateurs connectés
+
+Le bandeau des éducateurs affiche les noms du club. Pour activer le statut en ligne, copier [club-presence.sql](club-presence.sql) dans SQL Editor puis **Run**. Ce script peut être relancé et ne modifie ni comptes ni documents. Aucun réglage d’inscription supplémentaire n’est nécessaire pour cette présence.
+
+Le bandeau devient **Éducateurs connectés**, avec une pastille verte, un compteur et les noms. Cliquer sur un nom ouvre ses documents dans « Travail du club ». Le serveur détecte l’activité récente (90 secondes) ; le site actualise toutes les dix secondes dans un onglet visible. Une fermeture brutale ou une coupure peut rester affichée environ deux minutes. Plusieurs appareils du même éducateur n’ajoutent pas de doublon ; quitter l’un n’efface pas la présence des autres.
+
+Sans la migration ou pendant une panne, les noms des éducateurs autorisés restent disponibles avec une indication de statut non confirmé, sans inventer de pastille verte. Les visiteurs et comptes non autorisés ne peuvent pas lire les présences. Les horodatages et l’identité de chaque signal sont imposés par le serveur ; les identifiants des sessions ne sont pas diffusés aux éducateurs.

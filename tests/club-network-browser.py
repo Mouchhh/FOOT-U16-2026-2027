@@ -2,14 +2,14 @@
 Run against the static site: python3 tests/club-network-browser.py http://127.0.0.1:3016
 Requires Playwright Python and Chromium. No external service or credentials used.
 """
-import copy,json,sys,uuid
+import copy,json,sys,uuid,time
 from urllib.parse import urlparse,parse_qs
 from playwright.sync_api import sync_playwright
 URL=sys.argv[1] if len(sys.argv)>1 else 'http://127.0.0.1:3016'
 A='00000000-0000-4000-8000-000000000001';B='00000000-0000-4000-8000-000000000002'
 members=[dict(user_id=A,display_name='Coach A',active=True),dict(user_id=B,display_name='Coach B',active=True)]
 C='00000000-0000-4000-8000-000000000004'
-rows=[];calls=[];offline=False
+rows=[];calls=[];offline=False;presence={};presence_installed=True
 invitation='a-secure-one-time-code-for-coach-c'
 
 def api(route):
@@ -41,6 +41,13 @@ def api(route):
   if q.get('select')!=['*']:result=[{k:v for k,v in r.items() if k!='payload'} for r in result]
   return reply(result)
  if not allowed:return reply({'code':'42501'},403)
+ if path=='/rest/v1/rpc/club_presence_ping':
+  if not presence_installed:return reply({'code':'PGRST202'},404)
+  presence[(actor,body['p_session_id'])]=(time.time(),body.get('p_online',True));return reply(None)
+ if path=='/rest/v1/rpc/club_connected_coaches':
+  if not presence_installed:return reply({'code':'PGRST202'},404)
+  online={uid for (uid,sid),(seen,active) in presence.items() if active and time.time()-seen<90}
+  return reply([dict(user_id=m['user_id'],display_name=m['display_name'],last_seen='2026-10-16T12:00:00Z') for m in members if m['active'] and m['user_id'] in online])
  if path=='/rest/v1/rpc/club_publish_document':
   if offline:return route.abort()
   row=next((r for r in rows if r['owner_id']==actor and r['kind']==body['p_kind'] and r['source_id']==body['p_source_id']),None)
@@ -77,12 +84,12 @@ with sync_playwright() as p:
  # The whole app is private by default; the local tool remains explicitly available.
  ca,a=setup(browser);assert a.locator('#club-auth-gate').is_visible();assert not a.locator('main').is_visible()
  localctx,local=setup(browser,True);assert local.locator('main').is_visible();local.locator('#view-training').click();assert local.locator('#training-space').is_visible();localctx.close()
- login(a,'a@example.test');assert a.evaluate('activeCoach.id')=='account-'+A;assert a.locator('#club-auth-gate').is_hidden();assert a.locator('#coach-profile').is_visible();assert a.locator('#coach-select option:checked').inner_text()=='Coach A';assert a.locator('#coach-select').is_disabled();assert a.locator('#club-network-dialog').is_visible()
+ login(a,'a@example.test');assert a.locator('#club-connected').is_visible();assert 'Coach A' in a.locator('#club-connected-names').inner_text();assert a.evaluate('activeCoach.id')=='account-'+A;assert a.locator('#club-auth-gate').is_hidden();assert a.locator('#coach-profile').is_visible();assert a.locator('#coach-select option:checked').inner_text()=='Coach A';assert a.locator('#coach-select').is_disabled();assert a.locator('#club-network-dialog').is_visible()
  # Explicit saves automatically publish with no opt-in or separate Share click.
  a.locator('#view-training').click();a.locator('#training-title').fill('Séance du coach A');a.locator('#local-coach-propose').click();a.locator('#local-coach-use').click();a.locator('#training-save').click();wait_sync(a);source_id=a.evaluate('currentTraining.id');assert len(rows)==1;assert rows[0]['owner_id']==A
  a.locator('#training-notes').fill('Travail partagé automatiquement');a.locator('#training-save').click();wait_sync(a);assert rows[0]['revision']==2
  # A different PC sees the club's work and updates without pressing Refresh.
- cb,b=setup(browser);login(b,'b@example.test');assert b.evaluate('trainingLibrary.length')==0;club(b);assert b.locator('.club-network-card').count()==1;b.locator('.club-coach-card',has_text='Coach A').click();assert b.locator('#club-network-author').input_value()==A;b.locator('.club-coach-card',has_text='Tous les éducateurs').click()
+ cb,b=setup(browser);login(b,'b@example.test');a.evaluate('clubNetworkQueueSync()');wait_sync(a);assert 'Coach B' in a.locator('#club-connected-names').inner_text();assert a.locator('#club-connected-names .online').count()==2;assert b.evaluate('trainingLibrary.length')==0;club(b);assert b.locator('.club-network-card').count()==1;b.locator('.club-coach-card',has_text='Coach A').click();assert b.locator('#club-network-author').input_value()==A;b.locator('.club-coach-card',has_text='Tous les éducateurs').click()
  a.locator('#training-title').fill('Séance A actualisée');a.locator('#training-save').click();wait_sync(a)
  b.wait_for_function("document.querySelector('#club-network-list').textContent.includes('Séance A actualisée')",timeout=15000)
  before=b.evaluate('JSON.stringify(currentTraining)');b.locator('#club-network-list button',has_text='Consulter').click();b.wait_for_selector('#club-network-preview',state='visible');assert b.locator('#club-network-preview-content svg').count()>=6;assert b.evaluate('JSON.stringify(currentTraining)')==before
@@ -103,6 +110,11 @@ with sync_playwright() as p:
  # Deleting a saved document removes it on the other PC without overwriting its open draft.
  a.locator('#view-training').click();a.locator('#training-delete').click();wait_sync(a);assert not any(r['owner_id']==A and r['source_id']==source_id for r in rows)
  d.evaluate('clubNetworkQueueSync()');wait_sync(d);assert not d.evaluate('trainingLibrary.some(s=>s.id===currentTraining.id)')
+ # Presence expires by server time; absence of the optional SQL never fabricates green names.
+ for key,(seen,active) in list(presence.items()):
+  if key[0]==B:presence[key]=(time.time()-100,active)
+ a.evaluate('clubNetworkQueueSync()');wait_sync(a);assert 'Coach B' not in a.locator('#club-connected-names').inner_text()
+ presence_installed=False;a.evaluate('clubNetworkQueueSync()');wait_sync(a);assert a.locator('#club-connected-names .online').count()==0;assert 'Coach B' in a.locator('#club-connected-names').inner_text();assert 'activation' in a.locator('#club-connected-status').inner_text();presence_installed=True
  # Account cache and token are separate from local coach profiles, and logout gates the entire site.
  assert a.evaluate("!JSON.stringify(localStorage).includes('token-')")
  a.reload();a.wait_for_selector('#club-account-bar',state='visible');wait_sync(a);assert a.evaluate('activeCoach.id')=='account-'+A

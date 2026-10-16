@@ -253,3 +253,12 @@ Les URL et clés publiques du projet sont dans `club-cloud-config.js`. Les compt
 - Chromium avec Supabase simulé : accueil distinct, connexion/inscription, prénom/nom et coach actif, site complet privé, séparation de deux comptes sur le même navigateur, enregistrement et rafraîchissement entre ordinateurs, récupération automatique de sa bibliothèque, trois types de documents, schémas et copies, conflits préservant les brouillons, reprise après coupure, sessions, inscription invitée, révocation et mobile.
 
 L’accès au vrai projet Supabase depuis cet environnement est bloqué par le proxy. L’installation de la migration dans le projet du club, ses paramètres Authentication et un essai avec deux vrais comptes restent à effectuer avant de confirmer son activation complète. Le plan gratuit peut convenir au démarrage dans ses quotas ; la disponibilité et les conditions du fournisseur restent à vérifier.
+
+
+### Noms et présence des éducateurs
+
+Un bandeau visible dans toutes les rubriques affiche les éducateurs connectés récemment ; cliquer sur un nom ouvre son profil dans « Travail du club ». Installer [supabase/club-presence.sql](supabase/club-presence.sql) après le schéma de base pour activer les pastilles vertes. Sans cette migration, le bandeau affiche honnêtement les noms des éducateurs autorisés et indique que leur statut attend son activation.
+
+La présence est authentifiée et horodatée par le serveur, actualisée toutes les dix secondes dans un onglet actif. Elle expire après 90 secondes sans signal ; une fermeture brutale peut donc rester visible environ deux minutes avec le délai de rafraîchissement. Chaque page a sa propre session de présence : se déconnecter d’un appareil ne déconnecte pas un autre appareil du même coach. Les noms sont regroupés par compte, sans doublon entre appareils. Un départ est signalé au mieux à la déconnexion ou à la fermeture. Aucune adresse e-mail, IP ou liste de sessions n’est exposée. Les entrées anciennes sont nettoyées après un jour.
+
+`tests/club-presence-access.sql` contrôle dans PostgreSQL les sessions multiples, doublons, départs et expiration, ainsi que les refus d’accès anonymes/non membres/révoqués et les tentatives d’écriture directe d’un horodatage ou d’une identité. Le test navigateur vérifie l’affichage de plusieurs noms, la disparition d’une présence expirée et le repli sans faux indicateur en ligne lorsque la migration manque.
