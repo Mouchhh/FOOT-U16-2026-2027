@@ -285,7 +285,7 @@ Dans Explication · pions, « Flèches de déplacement » crée une séquence pe
 
 ## Accueil privé des éducateurs
 
-Après connexion autorisée, l’application ouvre l’accueil : logo du Stade Mayennais (extrait du projet sportif fourni), cinq grandes rubriques, leurs raccourcis et sous-rubriques, compteurs des documents du coach, et annuaire des éducateurs. Le bouton Accueil ou le logo ramène à cette page. Les outils existants et leurs sauvegardes restent accessibles par le bandeau.
+Après connexion autorisée, l’application ouvre l’accueil : logo du Stade Mayennais (extrait du projet sportif fourni), cinq cartes de rubriques, compteurs des documents du coach, et annuaire des éducateurs. Le bouton Accueil ou le logo ramène à cette page. Les outils existants et leurs sauvegardes restent accessibles par le bandeau.
 
 L’annuaire conserve les éducateurs autorisés hors ligne. Une LED verte signale une activité serveur dans les 90 dernières secondes ; le rafraîchissement suit la synchronisation habituelle. La dernière connexion provient de `auth.users.last_sign_in_at`, via une fonction sécurisée qui ne renvoie ni adresse e-mail ni autre donnée d’authentification.
 
@@ -302,3 +302,7 @@ Le diaporama est prêt dans `home-slideshow.js` : fondu toutes les six secondes,
 Les photos doivent être fournies et placées dans `assets/photos/`, puis référencées dans `assets/home-slides.js` (12 maximum). Seules les images du site réellement chargées sont affichées ; les images absentes sont ignorées. Les quatre photos intégrées correspondent aux publications ouvertes en grand dans « smfc 2.pdf », « smfc 3.pdf », « smfc.pdf » et « smfc 6.pdf ». Elles ont été extraites sans modification et sont servies directement par le site. Les fichiers HTML Instagram renvoient à des dossiers d’images non joints ; leur contenu et les données du compte ne sont pas publiés.
 
 Le fond défilant est activé avec les quatre photographies sélectionnées par le club, sans dépendance à Instagram. Les fichiers PDF et HTML sources restent hors du dépôt public.
+
+### Navigation épurée et animations
+
+La ligne de sous-rubriques sous le menu principal est supprimée. Chaque rubrique conserve ses outils internes. Les pages apparaissent avec un fondu et un léger glissement de 280 ms ; les menus, onglets et cartes ont un retour visuel au survol et au clic. Les changements restent immédiats, les animations précédentes sont annulées en cas de clics rapides et la préférence de réduction des animations est respectée.

@@ -90,12 +90,12 @@ with sync_playwright() as p:
  localctx,local=setup(browser,True);assert local.locator('main').is_visible();local.locator('#view-training').click();assert local.locator('#training-space').is_visible();localctx.close()
  login(a,'a@example.test');assert a.locator('#club-connected').is_visible();assert 'Coach A' in a.locator('#club-connected-names').inner_text();assert a.evaluate('activeCoach.id')=='account-'+A;assert a.locator('#club-auth-gate').is_hidden();assert a.locator('#coach-profile').is_visible();assert a.locator('#coach-select option:checked').inner_text()=='Coach A';assert a.locator('#coach-select').is_disabled();assert a.locator('#club-home').is_visible();assert a.locator('#club-network-dialog').is_hidden()
  a.screenshot(path='/tmp/private-club-home.png',full_page=True)
- # The post-login home has five sections, real sublinks, a club logo, and all approved educators.
+ # The post-login home has five sections, original tools, a club logo, and all approved educators.
  assert a.locator('.home-section-card').count()==5;assert a.locator('.brand .club-logo').is_visible();assert a.locator('#club-connected .club-connected-person').count()==2
  assert a.locator('#club-connected .online').count()==1;assert '15/10/2026' in a.locator('.club-connected-person[data-user-id="'+B+'"] .club-last-login').inner_text()
  for button,target in [('view-pitch','.workspace'),('view-training','#training-space'),('view-coach-agenda','#coach-agenda'),('view-reports','#after-match'),('view-club-network','#club-network-dialog')]:
-  a.locator('#'+button).click();assert a.locator(target).is_visible();assert a.locator('#section-subnav button').count()>=4;assert a.locator('#club-home').is_hidden();a.locator('#view-home').click();assert a.locator('#club-home').is_visible()
- a.locator('.home-section-card',has_text='Terrain & tactique').click();a.locator('#section-subnav').get_by_role('button',name='Explication · pions & séquences',exact=True).click();assert a.locator('#simple-board').is_visible();a.locator('#view-home').click()
+  a.locator('#'+button).click();assert a.locator(target).is_visible();assert a.locator('#section-subnav').count()==0;assert a.locator('#club-home').is_hidden();a.locator('#view-home').click();assert a.locator('#club-home').is_visible()
+ a.locator('.home-section-card',has_text='Terrain & tactique').click();a.locator('#mode-simple').click();assert a.locator('#simple-board').is_visible();a.locator('#view-home').click()
  a.set_viewport_size({'width':390,'height':844});assert a.evaluate('document.documentElement.scrollWidth<=innerWidth');a.set_viewport_size({'width':1440,'height':1000})
  # Explicit saves automatically publish with no opt-in or separate Share click.
  a.locator('#view-training').click();a.locator('#training-title').fill('Séance du coach A');a.locator('#local-coach-propose').click();a.locator('#local-coach-use').click();a.locator('#training-save').click();wait_sync(a);source_id=a.evaluate('currentTraining.id');assert len(rows)==1;assert rows[0]['owner_id']==A
@@ -143,5 +143,5 @@ with sync_playwright() as p:
  # Revocation is detected automatically, clearing the shared UI and gating the complete app.
  members[1]['active']=False;b.evaluate("dispatchEvent(new Event('focus'))");wait_sync(b);assert b.locator('#club-auth-gate').is_visible();assert not b.locator('main').is_visible();assert b.locator('#club-network-list').inner_text()==''
  assert not errors,errors
- print('PASS: post-login home and five sections/submenus, club logo, online LEDs and last login (including missing migration), full private app, account isolation, automatic save and cross-PC refresh, own-library download, all three kinds, schematics and copies, conflicts preserving drafts, persistent offline retry, reload/logout, approved signup with invitation code, revocation and mobile. Backend authorization tested separately on PostgreSQL.')
+ print('PASS: post-login home and five sections and original tools, club logo, online LEDs and last login (including missing migration), full private app, account isolation, automatic save and cross-PC refresh, own-library download, all three kinds, schematics and copies, conflicts preserving drafts, persistent offline retry, reload/logout, approved signup with invitation code, revocation and mobile. Backend authorization tested separately on PostgreSQL.')
  browser.close()
