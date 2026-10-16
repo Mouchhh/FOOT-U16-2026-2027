@@ -98,7 +98,7 @@ function chooseSub(id){
 }
 $('cancel-sub').onclick=()=>$('substitution').close();
 function preparePrint(){
- if(document.body.classList.contains('simple-mode')||document.body.classList.contains('reports-mode'))return;
+ if(document.body.classList.contains('simple-mode')||document.body.classList.contains('reports-mode')||document.body.classList.contains('training-mode'))return;
  $('print-team').textContent=state.team||'Stade Mayennais';
  $('print-formation').textContent=(state.category?state.category+' · ':'')+'Formation '+state.formation+' · '+state.players.filter(p=>p.role!=='sub').length+' titulaires'+(state.opponents?.visible?' · '+state.opponents.name+' : '+state.opponents.formation+(document.body.classList.contains('landscape-mode')?' ←':' ↓'):'');
  $('print-notes').textContent=state.notes;
