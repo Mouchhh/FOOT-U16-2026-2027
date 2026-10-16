@@ -314,3 +314,9 @@ Les boutons de téléchargement/restauration JSON des compositions, séances, ra
 ### Composition PDF : uniquement le terrain
 
 Les exports de composition affichent uniquement le terrain, les joueurs (photos, noms et numéros), et les options choisies : adversaires, flèches, impacteurs/finisseurs placés sur la pelouse. Le titre, le logo extérieur, les marges, le pied de page et le banc latéral sont retirés. Les formats 16:9, A4 portrait et paysage restent disponibles. Le bouton PDF de la composition ouvre désormais cet export autonome d’une page, sans passer par l’impression du site. Les PDF des séances et rapports ne changent pas.
+
+### Préparation du match dans Composition & plans de jeu
+
+Le champ de consignes libres est remplacé par un tableau inspiré de la photo fournie : date, type de rencontre, affiche, contexte, adversaire, quatre idées fortes, animation défensive, animation offensive et spécificités/CPA. « Préparer mon match » ouvre le formulaire ; les modifications restent en brouillon avec la composition. « Enregistrer avec la composition » utilise sa bibliothèque et sa synchronisation habituelles. Les collègues retrouvent la préparation dans l’aperçu du document partagé.
+
+Les anciennes compositions restent valides sans ce nouveau champ. Les anciennes notes et les consignes générées par le carnet tactique restent accessibles dans « Notes existantes / carnet tactique ». Le PDF de composition reste limité au terrain.

@@ -57,7 +57,7 @@ function clubNetworkComposition(payload){
  const pitch=el('div','club-network-pitch');pitch.setAttribute('aria-label','Composition en lecture seule');
  for(const p of payload.players.filter(p=>p.role!=='sub')){const token=el('div','club-network-player');token.style.left=p.x+'%';token.style.top=p.y+'%';if(p.photo){const img=el('img');img.src=p.photo;img.alt='';token.append(img);}token.append(el('strong','',String(p.number)),el('span','',p.name));pitch.append(token);}root.append(pitch);
  const bench=payload.players.filter(p=>p.role==='sub');if(bench.length)root.append(el('h3','','Impacteurs / Finisseurs'),el('p','',bench.map(p=>p.number+' · '+p.name).join(' / ')));
- root.append(el('p','',payload.notes));return root;
+ if(matchPreparationFilled(payload.matchPreparation))root.append(matchPreparationDocument(payload.matchPreparation));root.append(el('p','',payload.notes));return root;
 }
 function clubNetworkStoreSession(session){
  if(!session||typeof session.access_token!=='string'||typeof session.refresh_token!=='string'||!session.user?.id)throw Error('Session invalide.');
