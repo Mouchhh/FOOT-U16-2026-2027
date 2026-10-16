@@ -294,3 +294,9 @@ L’annuaire conserve les éducateurs autorisés hors ligne. Une LED verte signa
 Le compte Instagram public `@stademayennais` et le site du club ont été refusés par le proxy réseau (CONNECT 403). Le bloc « La vie du Stade Mayennais » renvoie au compte public ; aucune photo de joueur n’a pu être récupérée ou publiée. Des fichiers photo fournis par le club permettront de remplir cette galerie. Aucune photo fictive n’est présentée comme celle d’un joueur du club.
 
 Validation : parcours navigateur avec Supabase simulé (accueil après connexion, navigation, sous-rubriques, LED/dernière connexion, migration absente, comptes isolés, accès révoqué, mobile) et tests d’autorisation sur PostgreSQL temporaire.
+
+### Photos en fond de l’accueil
+
+Le diaporama est prêt dans `home-slideshow.js` : fondu toutes les six secondes, photos précédente/suivante et pause, arrêt hors de l’accueil ou lorsque l’onglet est masqué. Le défilement démarre en pause si la réduction des animations est activée. Un voile bleu et des panneaux blancs gardent les textes lisibles.
+
+Les photos doivent être fournies et placées dans `assets/photos/`, puis référencées dans `assets/home-slides.js` (12 maximum). Seules les images du site réellement chargées sont affichées ; les images absentes sont ignorées. La liste reste vide tant que les vraies photos ne sont pas disponibles : Instagram refuse toujours la consultation depuis l’environnement (CONNECT 403), et aucune photo fictive n’a été publiée à la place.
