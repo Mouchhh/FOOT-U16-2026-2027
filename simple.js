@@ -20,7 +20,7 @@ const simpleScenarios={
 let simpleState=null,simpleSelected=null,simpleDrag=null;
 function simpleValid(s){return s&&(s.showOpponents===undefined||typeof s.showOpponents==='boolean')&&Object.hasOwn(simpleScenarios,s.scenario)&&Number.isInteger(s.step)&&s.step>=0&&s.step<3&&Array.isArray(s.tokens)&&s.tokens.length<=40&&new Set(s.tokens.map(t=>t?.id)).size===s.tokens.length&&s.tokens.every(t=>t&&typeof t.id==='string'&&typeof t.label==='string'&&t.label.length<=20&&['own','away'].includes(t.side)&&coords(t))&&coords(s.ball);}
 function coords(t){return t&&Number.isFinite(t.x)&&t.x>=5&&t.x<=95&&Number.isFinite(t.y)&&t.y>=6&&t.y<=93;}
-function saveSimple(){try{localStorage.setItem('vestiaire-simple',JSON.stringify(simpleState));}catch{notify('Tableau non sauvegardé : stockage indisponible.');}}
+function saveSimple(){try{coachStorageSet('vestiaire-simple',JSON.stringify(simpleState));}catch{notify('Tableau non sauvegardé : stockage indisponible.');}}
 function loadSimple(scenario,step=0){
  const showOpponents=simpleState?.showOpponents!==false;const s=simpleScenarios[scenario];simpleState={scenario,step,showOpponents,tokens:s.tokens.map(([label,x,y,side],i)=>({id:'s'+i,label,x,y,side})),ball:{x:s.ball[0],y:s.ball[1]}};
  // La dernière étape de la sortie courte part du ballon arrivé au défenseur.
@@ -28,7 +28,7 @@ function loadSimple(scenario,step=0){
  if(scenario==='third'&&step===2){simpleState.tokens[2].x=67;simpleState.tokens[2].y=48;simpleState.ball={x:40,y:45};}
  simpleSelected=null;renderSimple();saveSimple();
 }
-try{const saved=JSON.parse(localStorage.getItem('vestiaire-simple')||'null');if(simpleValid(saved))simpleState=saved;}catch{}
+try{const saved=JSON.parse(coachStorageGet('vestiaire-simple')||'null');if(simpleValid(saved))simpleState=saved;}catch{}
 $('simple-pitch').append(document.querySelector('.markings').cloneNode(true));
 const simpleSvg=document.createElementNS('http://www.w3.org/2000/svg','svg');simpleSvg.id='simple-lines';simpleSvg.setAttribute('viewBox','0 0 100 100');simpleSvg.setAttribute('preserveAspectRatio','none');
 const defs=document.createElementNS(simpleSvg.namespaceURI,'defs');const marker=document.createElementNS(simpleSvg.namespaceURI,'marker');for(const [k,v] of Object.entries({id:'simple-head',markerWidth:4,markerHeight:4,refX:3,refY:2,orient:'auto'}))marker.setAttribute(k,v);const tip=document.createElementNS(simpleSvg.namespaceURI,'path');tip.setAttribute('d','M0 0L4 2L0 4');tip.setAttribute('fill','none');tip.setAttribute('stroke','#fff');tip.setAttribute('stroke-width','.7');marker.append(tip);defs.append(marker);simpleSvg.append(defs);const simpleLines=document.createElementNS(simpleSvg.namespaceURI,'g');simpleSvg.append(simpleLines);$('simple-pitch').append(simpleSvg);

@@ -170,3 +170,17 @@ Le menu « Atelier illustré » permet de choisir un groupe de la répartition c
 Dans le PDF, les variantes différentes d’effectif, de gardiens ou de surface sont affichées une seule fois chacune ; les ateliers identiques ne sont pas dupliqués. Les consignes et la liste complète des ateliers accompagnent ces schémas.
 
 Validation : les 24 fiches, 1 658 variantes d’ateliers vérifiées pour des effectifs de 4/5/11/17/23/32 joueurs et différents nombres de gardiens, comptes exacts des pions et gardiens, sélection de l’atelier, variantes PDF, SVG avec titre accessible et affichage mobile. Placement du gardien unique adapté aux finitions/relances et acteurs défensifs sur corner contrôlés.
+
+## Profils des coachs et agenda nominatif
+
+Le bandeau « Coach actif » permet de créer un profil avec prénom/nom, de le renommer et de passer d’un espace à l’autre. Compositions, profil d’équipe, rapports, séances, brouillons, tableau de pions et préférence d’orientation sont enregistrés sous des clés distinctes pour chaque coach. Changer de coach conserve les brouillons valides avant de recharger son espace. Les champs invalides ou un échec de stockage empêchent le changement afin d’éviter une perte silencieuse.
+
+Les données précédentes restent accessibles dans « Coach principal · données existantes », profil renommable. Ce profil utilise les clés de stockage historiques ; aucune migration ni suppression des anciennes sauvegardes n’est effectuée. La clé du coach est figée pour toute la durée de la page : un événement pagehide de l’ancien coach ne peut pas écrire dans le nouvel espace.
+
+« Agenda du coach » affiche son nom, les nombres de documents enregistrés, les séances classées par jour et horaire, un filtre mensuel et « Toutes les dates ». Cliquer sur une séance la rouvre dans l’espace de préparation. Seules les séances enregistrées dans la bibliothèque figurent dans l’agenda ; les brouillons ne créent pas d’événement.
+
+« Sauvegarde du coach » télécharge un JSON regroupant les documents et les brouillons de son espace. « Restaurer un coach » vérifie le contenu puis crée un nouveau profil avec un identifiant neuf, sans écraser les profils existants. Les noms homonymes de restauration sont distingués. Le transfert entre ordinateurs se fait par ce fichier. Les nouvelles fiches de séance et les nouveaux rapports reprennent le nom du coach ; les rapports historiques gardent les informations qu’ils contenaient.
+
+Ces espaces sont nominatifs, pas des comptes avec mot de passe. Toute personne utilisant le même navigateur peut sélectionner un profil. Aucune synchronisation entre ordinateurs, authentification ou confidentialité inter-utilisateur n’est ajoutée ; les données restent dans le navigateur et ne sont pas envoyées à GitHub. Conserver les sauvegardes exportées avant de nettoyer les données du site.
+
+Validation Chromium : profil historique, renommage, création de deux coachs, absence de mélange des compositions/rapports/séances, changements et rechargements, agendas distincts avec dates/horaires, ouverture des séances, export d’un coach et restauration dans un profil neuf, affichage mobile ; aucune erreur JavaScript.
