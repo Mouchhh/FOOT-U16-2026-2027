@@ -1,6 +1,6 @@
 # Espace privé du Stade Mayennais
 
-Les éducateurs utilisent le même site complet après connexion : terrain, tactiques, animations, séances, agenda, rapports et exports. Leur compte remplace le choix manuel d’un profil local. **Enregistrer** une séance, une composition ou un rapport synchronise son contenu avec le club. **Travail du club** permet de voir les documents des collègues, avec une actualisation automatique toutes les dix secondes dans un onglet actif.
+Le site démarre sur une page d’accueil distincte avec **Se connecter** et **S’inscrire**. Les éducateurs utilisent le même site complet après connexion : terrain, tactiques, animations, séances, agenda, rapports et exports. Le formulaire d’inscription demande leur prénom et leur nom. Après validation de l’accès, cette identité apparaît dans **Coach actif**, verrouillé sur leur propre compte ; les comptes existants gardent leur nom enregistré. **Enregistrer** une séance, une composition ou un rapport synchronise son contenu avec le club. **Travail du club** présente les profils des éducateurs et permet de voir les documents de chacun, avec une actualisation automatique toutes les dix secondes dans un onglet actif.
 
 Les documents des collègues sont consultables et copiables. Chacun modifie ses propres originaux. Un brouillon ouvert ne change jamais tout seul quand un autre appareil enregistre. Les échecs réseau conservent les données locales et une tâche à réessayer ; les conflits refusent l’écrasement de la version distante.
 
@@ -26,7 +26,7 @@ select * from public.club_authorize_educator(
 
 Le résultat contient l’adresse et un `activation_code` aléatoire. Transmettre individuellement ce code à la personne concernée, par un canal de confiance, avec le lien du site. Ne pas le publier, l’ajouter au dépôt GitHub ou le partager dans une conversation d’assistance : c’est une invitation confidentielle.
 
-Sur le site, l’éducateur choisit **Créer mon compte**, renseigne cette adresse, ce code et son propre mot de passe (12 caractères minimum). Le serveur crée son appartenance au club avec le nom approuvé. Après l’inscription, le code est consommé et retiré des métadonnées du compte ; les connexions suivantes utilisent seulement e-mail et mot de passe.
+Sur le site, l’éducateur choisit **Créer mon compte**, renseigne son prénom, son nom, cette adresse, ce code et son propre mot de passe (12 caractères minimum). Le serveur vérifie l’invitation et crée son appartenance au club avec le prénom et le nom du formulaire. Les noms ne sont pas des autorisations ; seuls l’adresse approuvée et son code permettent de créer le compte. Après l’inscription, le code est consommé et retiré des métadonnées du compte ; les connexions suivantes utilisent seulement e-mail et mot de passe.
 
 Relancer la requête d’autorisation renouvelle un code encore inutilisé. Cela ne réinitialise pas le mot de passe d’un compte qui existe déjà. Un éducateur peut changer son mot de passe dans **Travail du club → Changer mon mot de passe**, avec son mot de passe actuel. Pour un oubli, le responsable doit rétablir l’accès avec les outils d’administration Supabase ; aucune clé d’administration ne doit entrer dans le navigateur des éducateurs.
 
@@ -88,7 +88,7 @@ La version locale sans accès aux données du club reste disponible via `?mode=l
 ## Vérifications de développement
 
 - `tests/club-network-access.sql` : uniquement sur une base PostgreSQL temporaire **vide**, jamais dans le projet du club. Simule les rôles Supabase et `auth.uid()`, applique le vrai schéma, contrôle les droits, conflits, réinstallation sans perte et installation partielle (`psql -v partial_install=1`).
-- `tests/club-accounts-access.sql` : reprend ces tests puis vérifie les adresses autorisées, codes à usage unique, refus d’usurpation par le seul e-mail, noms imposés par le serveur, suppression des codes en métadonnées, invitations privées et révocation.
-- `python3 tests/club-network-browser.py http://127.0.0.1:3016` : Chromium avec Supabase simulé, site complet privé, séparation des comptes, synchronisation multi-PC, récupération des bibliothèques, schémas et copies, conflits, reprise réseau, inscriptions, mobile et déconnexion.
+- `tests/club-accounts-access.sql` : reprend ces tests puis vérifie les adresses autorisées, codes à usage unique, refus d’usurpation par le seul e-mail, validation et enregistrement du prénom et du nom, suppression des codes en métadonnées, invitations privées et révocation.
+- `python3 tests/club-network-browser.py http://127.0.0.1:3016` : Chromium avec Supabase simulé, accueil distinct, choix connexion/inscription, coach actif, site complet privé, séparation des comptes, synchronisation multi-PC, récupération des bibliothèques, schémas et copies, conflits, reprise réseau, inscriptions, mobile et déconnexion.
 
 Les accès HTTPS au vrai projet depuis l’environnement de développement sont bloqués par le proxy. L’installation des scripts dans le projet réel, ses paramètres Authentication et les essais avec deux vrais comptes restent à effectuer par le responsable avant de confirmer l’activation complète.

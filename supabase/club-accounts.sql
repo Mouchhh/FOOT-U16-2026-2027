@@ -18,12 +18,21 @@ insert into public.club_invitations(email,display_name,active)
 
 create or replace function public.club_guard_registration() returns trigger
 language plpgsql security definer set search_path='' as $$
+declare given_name text;family_name text;
 begin
  if new.email is null or not exists(
   select 1 from public.club_invitations i where i.email=lower(trim(new.email)) and i.active
    and i.activation_code_hash=encode(sha256(convert_to(coalesce(new.raw_user_meta_data->>'club_activation_code',''),'UTF8')),'hex')
  ) then
   raise exception 'Inscription réservée aux adresses autorisées par le club' using errcode='42501';
+ end if;
+ if new.raw_user_meta_data ? 'first_name' or new.raw_user_meta_data ? 'last_name' then
+  given_name:=case when jsonb_typeof(new.raw_user_meta_data->'first_name')='string' then trim(new.raw_user_meta_data->>'first_name') else '' end;
+  family_name:=case when jsonb_typeof(new.raw_user_meta_data->'last_name')='string' then trim(new.raw_user_meta_data->>'last_name') else '' end;
+  if length(given_name) not between 1 and 35 or length(family_name) not between 1 and 35 or length(given_name||' '||family_name)>70 then
+   raise exception 'Prénom et nom obligatoires, 70 caractères maximum au total' using errcode='22023';
+  end if;
+  new.raw_user_meta_data:=jsonb_set(jsonb_set(new.raw_user_meta_data,'{first_name}',to_jsonb(given_name)),'{last_name}',to_jsonb(family_name));
  end if;
  new.raw_user_meta_data:=coalesce(new.raw_user_meta_data,'{}'::jsonb)-'club_activation_code';
  return new;
@@ -37,7 +46,7 @@ create or replace function public.club_register_member() returns trigger
 language plpgsql security definer set search_path='' as $$
 begin
  insert into public.club_members(user_id,display_name,active)
- select new.id,i.display_name,true from public.club_invitations i
+ select new.id,case when new.raw_user_meta_data ? 'first_name' then (new.raw_user_meta_data->>'first_name')||' '||(new.raw_user_meta_data->>'last_name') else i.display_name end,true from public.club_invitations i
  where i.email=lower(trim(new.email)) and i.active
  on conflict(user_id) do nothing;
  update public.club_invitations set activation_code_hash=null where email=lower(trim(new.email));
@@ -87,5 +96,12 @@ language sql stable security definer set search_path='' as $$
 $$;
 revoke all on function public.club_registration_ready() from public;
 grant execute on function public.club_registration_ready() to anon,authenticated;
+-- Les nouveaux formulaires vérifient aussi la prise en charge des noms de profil.
+create or replace function public.club_profile_registration_ready() returns boolean
+language sql stable security definer set search_path='' as $$
+ select public.club_registration_ready();
+$$;
+revoke all on function public.club_profile_registration_ready() from public;
+grant execute on function public.club_profile_registration_ready() to anon,authenticated;
 notify pgrst,'reload schema';
 commit;

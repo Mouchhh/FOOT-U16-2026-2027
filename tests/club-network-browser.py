@@ -23,10 +23,10 @@ def api(route):
   if who not in [A,B,C,'outside']:return reply({'code':'invalid_credentials'},400)
   return reply(dict(access_token='token-'+who,refresh_token='refresh-'+who,expires_in=3600,user={'id':who,'email':body.get('email','a@example.test' if who==A else 'b@example.test')}))
  if path=='/auth/v1/settings':return reply({'disable_signup':False,'mailer_autoconfirm':True})
- if path=='/rest/v1/rpc/club_registration_ready':return reply(True)
+ if path in ['/rest/v1/rpc/club_registration_ready','/rest/v1/rpc/club_profile_registration_ready']:return reply(True)
  if path=='/auth/v1/signup':
   if body.get('email')!='c@example.test' or body.get('data',{}).get('club_activation_code')!=invitation:return reply({'code':'unexpected_failure'},500)
-  if not any(m['user_id']==C for m in members):members.append(dict(user_id=C,display_name='Coach C',active=True))
+  if not any(m['user_id']==C for m in members):members.append(dict(user_id=C,display_name=body.get('data',{}).get('first_name','')+' '+body.get('data',{}).get('last_name',''),active=True))
   return reply(dict(access_token='token-'+C,refresh_token='refresh-'+C,expires_in=3600,user={'id':C,'email':'c@example.test'}))
  if path.startswith('/auth/v1/logout'):return reply({})
  if path=='/auth/v1/user':return reply({'id':actor})
@@ -57,7 +57,7 @@ def setup(browser,local=False):
  context=browser.new_context(viewport={'width':1440,'height':1100})
  context.route('**/club-cloud-config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.CLUB_CLOUD_CONFIG={url:'https://club-test.supabase.co',publishableKey:'sb_publishable_test'};"))
  context.route('https://club-test.supabase.co/**',api)
- page=context.new_page();page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept());page.goto(URL+('?mode=local' if local else ''));return context,page
+ page=context.new_page();page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept());page.goto(URL+('?mode=local' if local else '?auth=login'));return context,page
 
 def login(page,email):
  page.locator('#club-network-email').fill(email);page.locator('#club-network-password').fill('MotDePasseTest!2026');page.locator('#club-network-signin').click()
@@ -72,15 +72,17 @@ def club(page):page.locator('#club-account-library').click();wait_sync(page)
 errors=[]
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
+ # A separate welcome page offers login and signup before any protected application content.
+ landingctx,landing=setup(browser);landing.goto(URL);landing.wait_for_url('**/accueil.html');assert landing.locator('#welcome-login').is_visible();assert landing.locator('#welcome-signup').is_visible();landing.set_viewport_size({'width':390,'height':844});assert landing.evaluate('document.documentElement.scrollWidth<=innerWidth');landing.locator('#welcome-signup').click();landing.locator('#club-network-signup').wait_for(state='visible');assert landing.locator('#club-network-signup').is_visible();assert landing.locator('#club-signup-first-name').is_visible();landingctx.close()
  # The whole app is private by default; the local tool remains explicitly available.
  ca,a=setup(browser);assert a.locator('#club-auth-gate').is_visible();assert not a.locator('main').is_visible()
  localctx,local=setup(browser,True);assert local.locator('main').is_visible();local.locator('#view-training').click();assert local.locator('#training-space').is_visible();localctx.close()
- login(a,'a@example.test');assert a.evaluate('activeCoach.id')=='account-'+A;assert a.locator('#club-auth-gate').is_hidden();assert a.locator('#coach-profile').is_hidden();assert a.locator('#pitch').is_visible()
+ login(a,'a@example.test');assert a.evaluate('activeCoach.id')=='account-'+A;assert a.locator('#club-auth-gate').is_hidden();assert a.locator('#coach-profile').is_visible();assert a.locator('#coach-select option:checked').inner_text()=='Coach A';assert a.locator('#coach-select').is_disabled();assert a.locator('#club-network-dialog').is_visible()
  # Explicit saves automatically publish with no opt-in or separate Share click.
  a.locator('#view-training').click();a.locator('#training-title').fill('Séance du coach A');a.locator('#local-coach-propose').click();a.locator('#local-coach-use').click();a.locator('#training-save').click();wait_sync(a);source_id=a.evaluate('currentTraining.id');assert len(rows)==1;assert rows[0]['owner_id']==A
  a.locator('#training-notes').fill('Travail partagé automatiquement');a.locator('#training-save').click();wait_sync(a);assert rows[0]['revision']==2
  # A different PC sees the club's work and updates without pressing Refresh.
- cb,b=setup(browser);login(b,'b@example.test');assert b.evaluate('trainingLibrary.length')==0;club(b);assert b.locator('.club-network-card').count()==1
+ cb,b=setup(browser);login(b,'b@example.test');assert b.evaluate('trainingLibrary.length')==0;club(b);assert b.locator('.club-network-card').count()==1;b.locator('.club-coach-card',has_text='Coach A').click();assert b.locator('#club-network-author').input_value()==A;b.locator('.club-coach-card',has_text='Tous les éducateurs').click()
  a.locator('#training-title').fill('Séance A actualisée');a.locator('#training-save').click();wait_sync(a)
  b.wait_for_function("document.querySelector('#club-network-list').textContent.includes('Séance A actualisée')",timeout=15000)
  before=b.evaluate('JSON.stringify(currentTraining)');b.locator('#club-network-list button',has_text='Consulter').click();b.wait_for_selector('#club-network-preview',state='visible');assert b.locator('#club-network-preview-content svg').count()>=6;assert b.evaluate('JSON.stringify(currentTraining)')==before
@@ -105,12 +107,12 @@ with sync_playwright() as p:
  assert a.evaluate("!JSON.stringify(localStorage).includes('token-')")
  a.reload();a.wait_for_selector('#club-account-bar',state='visible');wait_sync(a);assert a.evaluate('activeCoach.id')=='account-'+A
  a.set_viewport_size({'width':390,'height':844});assert a.evaluate('document.documentElement.scrollWidth<=innerWidth');club(a);assert a.evaluate('document.documentElement.scrollWidth<=innerWidth')
- a.locator('#club-account-signout').click();a.wait_for_selector('#club-auth-gate',state='visible');assert not a.locator('main').is_visible();assert a.evaluate('clubNetworkSession===null')
+ a.locator('#club-account-signout').click();a.wait_for_url('**/accueil.html');a.locator('#welcome-login').click();a.locator('#club-auth-gate').wait_for(state='visible');assert a.locator('#club-auth-gate').is_visible();assert not a.locator('main').is_visible();assert a.evaluate('clubNetworkSession===null')
  # A different coach using the same browser tab loads their own namespace, never the preceding account.
  login(a,'b@example.test');assert a.evaluate('activeCoach.id')=='account-'+B;assert not a.evaluate("trainingLibrary.some(s=>s.title==='Séance A actualisée')")
  # Signup requires both an approved address and its one-time code; the server owns membership/name.
- cc,c=setup(browser);c.locator('#club-auth-show-signup').click();c.locator('#club-signup-email').fill('c@example.test');c.locator('#club-signup-code').fill('wrong-code-long-enough');c.locator('#club-signup-password').fill('MotDePasseTest!2026');c.locator('#club-signup-confirm').fill('MotDePasseTest!2026');c.locator('#club-network-signup button[type=submit]').click();c.wait_for_function("document.querySelector('#club-network-status').textContent.includes('refusée')");assert not c.locator('main').is_visible()
- c.locator('#club-signup-code').fill(invitation);c.locator('#club-network-signup button[type=submit]').click();c.wait_for_selector('#club-account-bar',state='visible');wait_sync(c);assert c.evaluate('activeCoach.id')=='account-'+C
+ cc,c=setup(browser);c.locator('#club-auth-show-signup').click();c.locator('#club-signup-first-name').fill('Camille');c.locator('#club-signup-last-name').fill('Martin');c.locator('#club-signup-email').fill('c@example.test');c.locator('#club-signup-code').fill('wrong-code-long-enough');c.locator('#club-signup-password').fill('MotDePasseTest!2026');c.locator('#club-signup-confirm').fill('MotDePasseTest!2026');c.locator('#club-network-signup button[type=submit]').click();c.wait_for_function("document.querySelector('#club-network-status').textContent.includes('refusée')");assert not c.locator('main').is_visible()
+ c.locator('#club-signup-code').fill(invitation);c.locator('#club-network-signup button[type=submit]').click();c.wait_for_selector('#club-account-bar',state='visible');wait_sync(c);assert c.evaluate('activeCoach.id')=='account-'+C;assert c.locator('#coach-select option:checked').inner_text()=='Camille Martin';assert c.locator('#coach-profile').is_visible()
  co,o=setup(browser);login(o,'outside@example.test');assert not o.locator('main').is_visible();assert o.evaluate('clubNetworkSession===null')
  # Revocation is detected automatically, clearing the shared UI and gating the complete app.
  members[1]['active']=False;b.evaluate("dispatchEvent(new Event('focus'))");wait_sync(b);assert b.locator('#club-auth-gate').is_visible();assert not b.locator('main').is_visible();assert b.locator('#club-network-list').inner_text()==''

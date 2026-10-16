@@ -6,7 +6,7 @@ alter table auth.users add column raw_user_meta_data jsonb default '{}'::jsonb;
 \ir ../supabase/club-accounts.sql
 create temp table test_invitation as select * from public.club_authorize_educator('new@example.test','Nouveau Coach');
 do $$begin
- if not public.club_registration_ready() then raise exception 'Registration readiness missing';end if;
+ if not public.club_registration_ready() or not public.club_profile_registration_ready() then raise exception 'Registration readiness missing';end if;
  begin insert into auth.users(id,email) values('00000000-0000-4000-8000-000000000004','outside-new@example.test');raise exception 'Unapproved signup allowed';exception when insufficient_privilege then null;end;
  begin insert into auth.users(id,email) values('00000000-0000-4000-8000-000000000004','new@example.test');raise exception 'Email-only impersonation allowed';exception when insufficient_privilege then null;end;
  begin insert into auth.users(id,email,raw_user_meta_data) values('00000000-0000-4000-8000-000000000004','new@example.test','{"club_activation_code":"wrong-code","role":"admin"}');raise exception 'Wrong code allowed';exception when insufficient_privilege then null;end;
@@ -42,4 +42,23 @@ do $$begin
  begin perform * from public.club_authorize_educator('attack@example.test','Attack');raise exception 'Anonymous authorization';exception when insufficient_privilege then null;end;
 end $$;
 reset role;
-select 'PASS: approved address + one-time code, blocked impersonation, server-controlled name, private invitations, revocation and migration rerun' as result;
+create temp table profile_invitation as select * from public.club_authorize_educator('profile@example.test','Nom provisoire');
+do $$begin
+ begin
+  insert into auth.users(id,email,raw_user_meta_data)
+   select '00000000-0000-4000-8000-000000000006','profile@example.test',jsonb_build_object('club_activation_code',activation_code,'first_name','','last_name','Martin') from profile_invitation;
+  raise exception 'Empty first name allowed';
+ exception when invalid_parameter_value then null;end;
+ begin
+  insert into auth.users(id,email,raw_user_meta_data)
+   select '00000000-0000-4000-8000-000000000006','profile@example.test',jsonb_build_object('club_activation_code',activation_code,'first_name',repeat('a',36),'last_name','Martin') from profile_invitation;
+  raise exception 'Oversized first name allowed';
+ exception when invalid_parameter_value then null;end;
+end $$;
+insert into auth.users(id,email,raw_user_meta_data)
+ select '00000000-0000-4000-8000-000000000006','profile@example.test',jsonb_build_object('club_activation_code',activation_code,'first_name',' Léa ','last_name',' Martin ') from profile_invitation;
+do $$begin
+ if not exists(select 1 from public.club_members where user_id='00000000-0000-4000-8000-000000000006' and active and display_name='Léa Martin') then raise exception 'Registered name not used in coach profile';end if;
+ if exists(select 1 from auth.users where raw_user_meta_data ? 'club_activation_code') then raise exception 'Plaintext code in profile';end if;
+end $$;
+select 'PASS: approved registration, one-time invitation, names validated and saved to profile, no authority from names, invitations private and revocation' as result;

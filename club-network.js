@@ -71,14 +71,14 @@ function clubNetworkBound(){return !!clubNetworkMember&&activeCoach.id==='accoun
 function clubNetworkRenderState(){
  const bound=clubNetworkBound();document.documentElement.classList.toggle('club-private-request',clubNetworkPrivateRequested);document.documentElement.classList.toggle('club-authenticated',bound);document.body.classList.toggle('club-private-active',bound);
  $('club-auth-gate').hidden=!clubNetworkPrivateRequested||bound;$('club-network-setup').hidden=clubNetworkReady;$('club-network-connected').hidden=!bound;$('club-account-bar').hidden=!bound;
- if(bound){$('club-account-name').textContent=clubNetworkMember.display_name;$('club-network-identity').textContent=clubNetworkMember.display_name;$('club-network-shortcut').textContent='Travail du club';clubNetworkRenderSources();}
+ if(bound){renderCoachSelector();$('coach-profile').querySelector('p').textContent='Profil lié à votre compte. Consultez les autres éducateurs dans « Travail du club ».';$('club-account-name').textContent=clubNetworkMember.display_name;$('club-network-identity').textContent=clubNetworkMember.display_name;$('club-network-shortcut').textContent='Travail du club';clubNetworkRenderSources();}
  else $('club-network-shortcut').textContent='Connexion éducateurs';
 }
 function clubNetworkClear(){
  clubNetworkGeneration++;clearInterval(clubNetworkTimer);clubNetworkTimer=null;clubNetworkSession=null;clubNetworkMember=null;clubNetworkMembers=[];clubNetworkRows=[];clubNetworkPreview=null;clubNetworkSources=[];clubNetworkCachedVersions.clear();
  sessionStorage.removeItem(clubNetworkSessionKey);sessionStorage.removeItem(clubNetworkBindingKey);
  $('club-network-preview').close();$('club-network-preview-content').replaceChildren();$('club-network-preview-title').textContent='';$('club-network-preview-author').textContent='';$('club-network-list').replaceChildren();$('club-network-source').replaceChildren();$('club-network-author').replaceChildren();$('club-account-name').textContent='';
- for(const id of ['club-network-password','club-network-old-password','club-network-new-password','club-network-confirm-password','club-signup-password','club-signup-confirm','club-signup-code'])$(id).value='';
+ for(const id of ['club-network-password','club-network-old-password','club-network-new-password','club-network-confirm-password','club-signup-password','club-signup-confirm','club-signup-code','club-signup-first-name','club-signup-last-name'])$(id).value='';
  clubNetworkRenderState();
 }
 function clubNetworkVersionKey(kind,id){return 'vestiaire-private-version:'+clubNetworkBase+':'+activeCoach.id+':'+kind+':'+id;}
@@ -114,10 +114,10 @@ async function clubNetworkLoadMember(){
  const members=await clubNetworkRequest('/rest/v1/club_members?select=user_id,display_name,active&order=display_name');
  if(!Array.isArray(members))throw Error('Réponse invalide');const member=members.find(m=>m.user_id===clubNetworkSession.user.id&&m.active===true);if(!member)throw clubNetworkError('Compte non autorisé',403);
  clubNetworkMembers=members;clubNetworkMember=member;
- if(!clubNetworkBound()){
+ if(!clubNetworkBound()||activeCoach.name!==member.display_name){
   if(!flushCoachWorkspace())throw Error('Impossible de préserver le travail ouvert.');
   sessionStorage.setItem(clubNetworkBindingKey,JSON.stringify({userId:member.user_id,coach:{id:'account-'+member.user_id,name:member.display_name}}));
-  const url=new URL(location.href);url.searchParams.delete('mode');url.hash='educateurs';history.replaceState(null,'',url.href);location.reload();return false;
+  const url=new URL(location.href);url.searchParams.delete('mode');url.searchParams.delete('auth');url.hash='educateurs';history.replaceState(null,'',url.href);location.reload();return false;
  }
  const author=$('club-network-author'),previous=author.value;author.replaceChildren();const all=el('option','','Tous les éducateurs');all.value='';author.append(all);
  for(const m of members){const option=el('option','',m.display_name+(m.active?'':' · ancien membre'));option.value=m.user_id;author.append(option);}author.value=previous;
@@ -197,6 +197,9 @@ async function clubNetworkSync(){
  })();return clubNetworkSyncPromise;
 }
 function clubNetworkRenderRows(){
+ const profiles=$('club-network-coach-cards');profiles.replaceChildren();
+ const everyone=el('button','club-coach-card','Tous les éducateurs');everyone.setAttribute('aria-pressed',String(!$('club-network-author').value));everyone.onclick=()=>{$('club-network-author').value='';clubNetworkRenderRows();};profiles.append(everyone);
+ for(const member of clubNetworkMembers){const count=clubNetworkRows.filter(r=>r.owner_id===member.user_id).length;if(!member.active&&!count)continue;const button=el('button','club-coach-card');button.append(el('strong','',member.display_name),el('span','',(member.user_id===clubNetworkSession.user.id?'Mon profil · ':'')+count+' document(s)'));button.setAttribute('aria-pressed',String($('club-network-author').value===member.user_id));button.onclick=()=>{$('club-network-author').value=member.user_id;clubNetworkPageSize=50;clubNetworkRenderRows();};profiles.append(button);}
  const root=$('club-network-list'),author=$('club-network-author').value,kind=$('club-network-kind').value;root.replaceChildren();
  const rows=clubNetworkRows.filter(r=>(!author||r.owner_id===author)&&(!kind||r.kind===kind));
  if(!rows.length)root.append(el('p','report-panel','Aucun document enregistré pour ces filtres. Vos prochains enregistrements apparaîtront ici.'));
@@ -259,7 +262,7 @@ async function clubNetworkRun(action){
 async function clubNetworkAfterLogin(session){
  clubNetworkStoreSession(session);if(!await clubNetworkLoadMember())return;
  await clubNetworkSync();clearInterval(clubNetworkTimer);clubNetworkTimer=setInterval(()=>{if(!document.hidden)clubNetworkQueueSync();},10000);
- $('view-pitch').click();
+ const url=new URL(location.href);url.searchParams.delete('auth');history.replaceState(null,'',url.href);clubNetworkShowView();
 }
 async function clubNetworkLogout(){
  if(!flushCoachWorkspace())return;
@@ -269,14 +272,20 @@ $('club-network-login').onsubmit=e=>{e.preventDefault();clubNetworkRun(async()=>
  const email=$('club-network-email').value.trim(),password=$('club-network-password').value;$('club-network-password').value='';clubNetworkStatus('Connexion et récupération de votre espace…');
  const session=await clubNetworkRequest('/auth/v1/token?grant_type=password',{method:'POST',auth:false,body:{email,password}});await clubNetworkAfterLogin(session);
 });};
-$('club-auth-show-signup').onclick=()=>{$('club-network-login').hidden=true;$('club-network-signup').hidden=false;$('club-auth-show-signup').hidden=true;clubNetworkStatus('Votre adresse doit être autorisée par le responsable avant la création du compte.');};
-$('club-auth-show-login').onclick=()=>{$('club-network-login').hidden=false;$('club-network-signup').hidden=true;$('club-auth-show-signup').hidden=false;};
+function clubAuthChoose(mode){
+ const signup=mode==='signup';$('club-network-login').hidden=signup;$('club-network-signup').hidden=!signup;$('club-auth-show-signup').hidden=signup;
+ const url=new URL(location.href);url.searchParams.set('auth',signup?'signup':'login');history.replaceState(null,'',url.href);
+ if(signup)clubNetworkStatus('Renseignez votre prénom, votre nom et les accès autorisés par le club.');
+}
+$('club-auth-show-signup').onclick=()=>clubAuthChoose('signup');
+$('club-auth-show-login').onclick=()=>clubAuthChoose('login');
 $('club-network-signup').onsubmit=e=>{e.preventDefault();clubNetworkRun(async()=>{
+ const firstName=$('club-signup-first-name').value.trim(),lastName=$('club-signup-last-name').value.trim();if(!firstName||!lastName||(firstName+' '+lastName).length>70)return clubNetworkStatus('Renseignez un prénom et un nom, avec 70 caractères maximum au total.');
  const email=$('club-signup-email').value.trim(),password=$('club-signup-password').value;if(password!==$('club-signup-confirm').value)return clubNetworkStatus('Les deux mots de passe doivent être identiques.');
- const ready=await clubNetworkRequest('/rest/v1/rpc/club_registration_ready',{method:'POST',auth:false,body:{}});if(ready!==true)throw clubNetworkError('Installation nécessaire',400,'PGRST202');
+ const ready=await clubNetworkRequest('/rest/v1/rpc/club_profile_registration_ready',{method:'POST',auth:false,body:{}});if(ready!==true)throw clubNetworkError('Installation nécessaire',400,'PGRST202');
  const settings=await clubNetworkRequest('/auth/v1/settings',{auth:false});if(settings.disable_signup)throw clubNetworkError('Inscriptions fermées',400,'signup_disabled');
  // L'autorisation de l'adresse est vérifiée par les triggers serveur, jamais dans le navigateur.
- const session=await clubNetworkRequest('/auth/v1/signup',{method:'POST',auth:false,body:{email,password,data:{club_activation_code:$('club-signup-code').value.trim()}}});$('club-signup-code').value='';$('club-signup-password').value='';$('club-signup-confirm').value='';
+ const session=await clubNetworkRequest('/auth/v1/signup',{method:'POST',auth:false,body:{email,password,data:{club_activation_code:$('club-signup-code').value.trim(),first_name:firstName,last_name:lastName}}});$('club-signup-code').value='';$('club-signup-password').value='';$('club-signup-confirm').value='';
  if(session.access_token)await clubNetworkAfterLogin(session);else{$('club-auth-show-login').click();$('club-network-email').value=email;clubNetworkStatus('Compte demandé. Confirmez votre adresse avec le message reçu avant de vous connecter. Si vous ne recevez rien, contactez le responsable.');}
 });};
 $('club-network-password-form').onsubmit=e=>{e.preventDefault();clubNetworkRun(async()=>{
@@ -315,6 +324,7 @@ for(const event of ['online','focus'])window.addEventListener(event,clubNetworkR
 window.addEventListener('hashchange',()=>{if(location.hash==='#educateurs'&&!clubNetworkBound())clubNetworkRequestPrivate();});
 for(const profile of coachProfiles){const option=el('option','',profile.name);option.value=profile.id;$('club-network-legacy-profile').append(option);}
 clubNetworkRenderState();
+if(new URLSearchParams(location.search).get('auth')==='signup')clubAuthChoose('signup');
 if(clubNetworkReady&&!clubNetworkLocalMode){
- try{const saved=JSON.parse(sessionStorage.getItem(clubNetworkSessionKey)||'null');if(saved?.session?.user?.id)clubNetworkRun(()=>clubNetworkAfterLogin(saved.session));else clubNetworkStatus('Connectez-vous pour entrer dans l’espace privé du club.');}catch{clubNetworkClear();}
+ try{const saved=JSON.parse(sessionStorage.getItem(clubNetworkSessionKey)||'null');if(saved?.session?.user?.id)clubNetworkRun(()=>clubNetworkAfterLogin(saved.session));else if(!new URLSearchParams(location.search).has('auth')&&/^https?:$/.test(location.protocol))location.replace('accueil.html');else if(!$('club-network-signup').hidden)clubNetworkStatus('Renseignez votre prénom, votre nom et le code d’invitation remis par le club.');else clubNetworkStatus('Connectez-vous pour entrer dans l’espace privé du club.');}catch{clubNetworkClear();}
 }
