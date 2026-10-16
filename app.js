@@ -138,6 +138,7 @@ function positionOpponents(){
 function renderOpponents(){
  const o=state.opponents;const visible=!!o?.visible;
  $('opponents-controls').hidden=!visible;$('opponents').hidden=!visible;
+ $('opponents-toggle').textContent=visible?'Masquer les adversaires':'Afficher les adversaires';
  $('opponents-toggle').classList.toggle('active',visible);$('opponents-toggle').setAttribute('aria-pressed',String(visible));
  $('opponents').replaceChildren();
  if(!o)return;

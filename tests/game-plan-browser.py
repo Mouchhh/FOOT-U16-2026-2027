@@ -6,6 +6,11 @@ with sync_playwright() as p:
  page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept())
  page.goto('http://127.0.0.1:3016/?mode=local')
  page.evaluate("state.players[0].photo=document.createElement('canvas').toDataURL('image/png');state.players[0].number=27;state.players[0].x=31;state.players[0].y=42;state.arrows=[[20,20,30,30]];render();persist()")
+ assert page.locator('#opponents-toggle').is_visible()
+ page.locator('#opponents-toggle').click();assert page.locator('#opponents .player').count()==11
+ positions=page.evaluate('JSON.stringify(state.opponents.players)')
+ page.locator('#opponents-toggle').click();assert page.locator('#opponents .player').count()==0
+ page.locator('#opponents-toggle').click();assert page.evaluate('JSON.stringify(state.opponents.players)')==positions
  page.locator('#tactic-opponents-tab').click();page.select_option('#opponents-formation','3-5-2')
  original=page.evaluate('JSON.stringify(state)');starters=page.evaluate("state.players.filter(p=>p.role!=='sub')")
  page.locator('#mode-focus').click()
