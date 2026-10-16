@@ -1,24 +1,25 @@
--- Un projet Supabase dédié au club. À exécuter dans le SQL Editor, une seule fois.
--- Les utilisateurs sont invités dans Authentication avant leur inscription dans club_members.
+-- Un projet Supabase dédié au club. Script réexécutable sans supprimer les données.
+-- Les comptes sont créés dans Authentication puis autorisés dans club_members.
 begin;
-create table public.club_members (
+create table if not exists public.club_members (
  user_id uuid primary key references auth.users(id) on delete cascade,
  display_name text not null check (length(trim(display_name)) between 1 and 70),
  active boolean not null default true
 );
 alter table public.club_members enable row level security;
 
-create function public.club_is_member() returns boolean
+create or replace function public.club_is_member() returns boolean
 language sql stable security definer set search_path = ''
 as $$ select exists(select 1 from public.club_members where user_id = auth.uid() and active); $$;
 revoke all on function public.club_is_member() from public, anon;
 grant execute on function public.club_is_member() to authenticated;
+drop policy if exists members_read on public.club_members;
 create policy members_read on public.club_members for select to authenticated
  using ((select public.club_is_member()));
 revoke all on public.club_members from public, anon, authenticated;
 grant select on public.club_members to authenticated;
 
-create table public.club_documents (
+create table if not exists public.club_documents (
  id uuid primary key default gen_random_uuid(),
  owner_id uuid not null default auth.uid() references public.club_members(user_id) on delete cascade,
  kind text not null check (kind in ('training','report','composition')),
@@ -29,22 +30,26 @@ create table public.club_documents (
  updated_at timestamptz not null default now(),
  unique(owner_id,kind,source_id)
 );
-create index club_documents_recent on public.club_documents(updated_at desc,id);
+create index if not exists club_documents_recent on public.club_documents(updated_at desc,id);
 alter table public.club_documents enable row level security;
+drop policy if exists documents_read on public.club_documents;
 create policy documents_read on public.club_documents for select to authenticated
  using ((select public.club_is_member()));
+drop policy if exists documents_insert on public.club_documents;
 create policy documents_insert on public.club_documents for insert to authenticated
  with check ((select public.club_is_member()) and owner_id = (select auth.uid()));
+drop policy if exists documents_update on public.club_documents;
 create policy documents_update on public.club_documents for update to authenticated
  using ((select public.club_is_member()) and owner_id = (select auth.uid()))
  with check ((select public.club_is_member()) and owner_id = (select auth.uid()));
+drop policy if exists documents_delete on public.club_documents;
 create policy documents_delete on public.club_documents for delete to authenticated
  using ((select public.club_is_member()) and owner_id = (select auth.uid()));
 -- Écriture uniquement par RPC : protège également les versions contre les mises à jour concurrentes.
 revoke all on public.club_documents from public, anon, authenticated;
 grant select on public.club_documents to authenticated;
 
-create function public.club_publish_document(
+create or replace function public.club_publish_document(
  p_kind text,p_source_id text,p_title text,p_payload jsonb,p_expected_revision integer,p_expected_id uuid default null
 ) returns public.club_documents
 language plpgsql security definer set search_path = '' as $$
@@ -70,7 +75,7 @@ end; $$;
 revoke all on function public.club_publish_document(text,text,text,jsonb,integer,uuid) from public,anon;
 grant execute on function public.club_publish_document(text,text,text,jsonb,integer,uuid) to authenticated;
 
-create function public.club_remove_document(p_id uuid,p_expected_revision integer) returns void
+create or replace function public.club_remove_document(p_id uuid,p_expected_revision integer) returns void
 language plpgsql security definer set search_path = '' as $$
 begin
  if auth.uid() is null or not public.club_is_member() then
@@ -83,4 +88,5 @@ begin
 end; $$;
 revoke all on function public.club_remove_document(uuid,integer) from public,anon;
 grant execute on function public.club_remove_document(uuid,integer) to authenticated;
+notify pgrst, 'reload schema';
 commit;

@@ -10,6 +10,13 @@ create function auth.uid() returns uuid language sql stable as
  $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
 grant usage on schema auth,public to anon,authenticated;
 grant execute on function auth.uid() to anon,authenticated;
+\if :{?partial_install}
+create table public.club_members (
+ user_id uuid primary key references auth.users(id) on delete cascade,
+ display_name text not null check (length(trim(display_name)) between 1 and 70),
+ active boolean not null default true
+);
+\endif
 \ir ../supabase/club.sql
 insert into auth.users values
  ('00000000-0000-4000-8000-000000000001','a@example.test'),
@@ -70,4 +77,22 @@ do $$ declare original public.club_documents;changed public.club_documents; recr
  begin perform public.club_publish_document('training','invalid','Invalid','[]',0);raise exception 'Invalid payload accepted';exception when check_violation then null;end;
 end $$;
 reset role;
-select 'PASS: anonymous, outsider, revoked member, colleague and owner access; direct writes blocked; conflicts and delete/recreate protected' as result;
+-- Réinstaller deux fois avec des données, sans altérer les membres ni les documents.
+create temp table reinstall_snapshot as select
+ (select jsonb_agg(to_jsonb(m) order by user_id) from public.club_members m) as members,
+ (select jsonb_agg(to_jsonb(d) order by id) from public.club_documents d) as documents;
+\ir ../supabase/club.sql
+\ir ../supabase/club.sql
+do $$begin
+ if (select members from reinstall_snapshot) is distinct from (select jsonb_agg(to_jsonb(m) order by user_id) from public.club_members m) then raise exception 'Members altered on reinstall';end if;
+ if (select documents from reinstall_snapshot) is distinct from (select jsonb_agg(to_jsonb(d) order by id) from public.club_documents d) then raise exception 'Documents altered on reinstall';end if;
+end $$;
+set role authenticated;
+set request.jwt.claim.sub='00000000-0000-4000-8000-000000000003';
+do $$begin
+ if (select count(*) from public.club_documents)<>0 then raise exception 'Reinstall exposed documents';end if;
+ if (select count(*) from public.club_members)<>0 then raise exception 'Reinstall exposed members';end if;
+ begin perform public.club_publish_document('training','x','Attack','{}',0);raise exception 'Reinstall exposed RPC';exception when insufficient_privilege then null;end;
+end $$;
+reset role;
+select 'PASS: authorization, conflicts, partial installation and repeat installation preserving all rows' as result;

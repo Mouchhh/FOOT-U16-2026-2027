@@ -8,7 +8,7 @@ Créer un compte sur https://supabase.com puis un projet dans une région europ�
 
 ## 2. Installer les règles de sécurité
 
-Dans le **SQL Editor** du projet, créer une requête, copier tout le fichier [club.sql](club.sql) et exécuter une seule fois. La transaction crée deux tables, leurs règles d’accès et les fonctions de publication. Une erreur annule l’installation ; ne pas désactiver RLS pour la contourner.
+Dans le **SQL Editor** du projet, créer une requête, copier tout le fichier [club.sql](club.sql) et exécuter. Le script peut être relancé : il conserve les tables et leurs données, puis remet à jour ses fonctions et ses règles d’accès. La transaction crée deux tables, leurs règles d’accès et les fonctions de publication. Une erreur annule cette exécution ; ne pas désactiver RLS pour la contourner. Si une ancienne version indique que `club_members` existe déjà, remplacer tout le contenu de la requête par le script actuel et le relancer.
 
 Les règles s’appliquent côté serveur, même si quelqu’un modifie le JavaScript du site :
 
@@ -81,5 +81,5 @@ Avant d’ouvrir l’accès au club, essayer avec deux vrais comptes sur deux ap
 
 ## Vérifications de développement
 
-- `tests/club-network-access.sql` s’exécute avec `psql` sur une base PostgreSQL temporaire **vide**, jamais sur le projet de production. Il simule les rôles `anon`, `authenticated` et `auth.uid()` de Supabase, applique le vrai schéma et contrôle les autorisations et les conflits.
+- `tests/club-network-access.sql` s’exécute avec `psql` sur une base PostgreSQL temporaire **vide**, jamais sur le projet de production. Il simule les rôles `anon`, `authenticated` et `auth.uid()` de Supabase, applique le vrai schéma et contrôle les autorisations et les conflits. Il réinstalle aussi le schéma deux fois sur des données existantes et vérifie leur conservation. L’option psql `-v partial_install=1` teste le cas où seule la table `club_members` existe avant l’installation.
 - `python3 tests/club-network-browser.py http://127.0.0.1:3016` utilise Playwright et Chromium, avec un service Supabase simulé : connexion, changement de mot de passe, partage des trois types, consultation des schémas, copies, conflits entre appareils, récupération, coupure réseau, session, mobile, déconnexion et révocation. Aucun e-mail, compte ou document réel n’est transmis.
