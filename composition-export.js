@@ -37,14 +37,14 @@ async function renderCompositionExport(){
  const version=++compositionRenderVersion;compositionCanvas=null;for(const id of ['composition-export-png','composition-export-pdf'])$(id).disabled=true;
  $('composition-export-status').textContent='Préparation de l’aperçu…';
  try{
- const snapshot=structuredClone(state),format=$('composition-export-format').value;
+ const snapshot=structuredClone(state);if(snapshot.boardKind==='plan')snapshot.players.forEach(p=>p.photo='');const format=$('composition-export-format').value;
  const options={bench:$('composition-export-bench').checked,opponents:$('composition-export-opponents').checked,arrows:$('composition-export-arrows').checked};
  const images=await compositionImages(snapshot);if(version!==compositionRenderVersion)return;
  const canvas=document.createElement('canvas');const portrait=format==='portrait';[canvas.width,canvas.height]=format==='slides'?[2560,1440]:portrait?[2480,3508]:[3508,2480];const {width:W,height:H}=canvas;const ctx=canvas.getContext('2d');
  ctx.fillStyle='#f7f9fd';ctx.fillRect(0,0,W,H);const unit=W/2560,margin=70*unit,header=170*unit;
  ctx.fillStyle='#214d93';ctx.fillRect(0,0,W,18*unit);let titleX=margin;const logo=images.get(snapshot.clubLogo);
  if(logo){const size=108*unit,scale=Math.min(size/logo.naturalWidth,size/logo.naturalHeight);ctx.drawImage(logo,margin,45*unit,logo.naturalWidth*scale,logo.naturalHeight*scale);titleX+=140*unit;}
- ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle='#667892';ctx.font='bold '+Math.round(20*unit)+'px Arial';ctx.fillText('STADE MAYENNAIS · COMPOSITION',titleX,70*unit);ctx.fillStyle='#18345b';ctx.font='bold '+Math.round(48*unit)+'px Arial';ctx.fillText(compositionFit(ctx,snapshot.title||snapshot.team||'Mon équipe',W-titleX-margin),titleX,130*unit);
+ ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle='#667892';ctx.font='bold '+Math.round(20*unit)+'px Arial';ctx.fillText(snapshot.boardKind==='plan'?'STADE MAYENNAIS · PLAN DE JEU':'STADE MAYENNAIS · COMPOSITION',titleX,70*unit);ctx.fillStyle='#18345b';ctx.font='bold '+Math.round(48*unit)+'px Arial';ctx.fillText(compositionFit(ctx,snapshot.title||snapshot.team||'Mon équipe',W-titleX-margin),titleX,130*unit);
  ctx.font=Math.round(24*unit)+'px Arial';ctx.fillStyle='#526b8c';ctx.fillText((snapshot.category?snapshot.category+' · ':'')+'Formation '+snapshot.formation+' · '+snapshot.players.filter(p=>p.role!=='sub').length+' titulaires',margin,header+25*unit);
  const subs=options.bench?snapshot.players.filter(p=>p.role==='sub'):[];const top=header+65*unit,bottom=H-80*unit;
  let pitchSpace={x:margin,y:top,w:W-2*margin,h:bottom-top},bench=null;
@@ -66,7 +66,7 @@ async function compositionPDF(canvas){
  offsets[4]=length;add('4 0 obj\n<< /Type /XObject /Subtype /Image /Width '+canvas.width+' /Height '+canvas.height+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+image.length+' >>\nstream\n');add(image);add('\nendstream\nendobj\n');
  const stream='q\n'+w+' 0 0 '+h+' 0 0 cm\n/Im0 Do\nQ\n';object(5,'<< /Length '+enc.encode(stream).length+' >>\nstream\n'+stream+'endstream');const xref=length;add('xref\n0 6\n0000000000 65535 f \n');for(let i=1;i<=5;i++)add(String(offsets[i]).padStart(10,'0')+' 00000 n \n');add('trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF');return new Blob(parts,{type:'application/pdf'});
 }
-$('composition-export').onclick=()=>{$('composition-export-dialog').showModal();renderCompositionExport();};$('composition-export-close').onclick=()=>$('composition-export-dialog').close();
+$('composition-export').onclick=()=>{if(state.boardKind==='plan'){$('composition-export-arrows').checked=true;$('composition-export-opponents').checked=!!state.opponents?.visible;$('composition-export-bench').checked=false;}$('composition-export-dialog').showModal();renderCompositionExport();};$('composition-export-close').onclick=()=>$('composition-export-dialog').close();
 for(const id of ['composition-export-format','composition-export-bench','composition-export-opponents','composition-export-arrows'])$(id).onchange=renderCompositionExport;
 $('composition-export-png').onclick=()=>{const canvas=compositionCanvas;if(canvas)canvas.toBlob(blob=>{if(blob)mediaDownload(blob,namedDocumentFilename((state.title||state.team)+'-HD','png'));},'image/png');};
 $('composition-export-pdf').onclick=async()=>{const canvas=compositionCanvas;if(!canvas)return;try{mediaDownload(await compositionPDF(canvas),namedDocumentFilename(state.title||state.team,'pdf'));}catch{notify('Impossible de créer le PDF. Essayez l’image PNG.');}};

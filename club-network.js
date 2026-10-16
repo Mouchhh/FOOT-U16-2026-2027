@@ -50,7 +50,7 @@ function clubNetworkSource(kind,payload){
  const id=kind==='composition'?payload.documentId:payload.id;
  if(!id||!clubNetworkPayloadValid(kind,payload))return null;
  const fallback=kind==='training'?payload.date+' · '+payload.team:kind==='report'?(payload.info.date||'Match')+' · '+payload.info.team+' / '+payload.info.opponent:payload.team+' · '+payload.formation;
- return {kind,id,title:(payload.title?.trim()||fallback||clubNetworkKinds[kind]).slice(0,150),payload:structuredClone(payload)};
+ return {kind,id,title:((kind==='composition'&&payload.boardKind==='plan'&&!payload.title?.startsWith('Plan de jeu · ')?'Plan de jeu · ':'')+(payload.title?.trim()||fallback||clubNetworkKinds[kind])).slice(0,150),payload:structuredClone(payload)};
 }
 function clubNetworkComposition(payload){
  const root=el('article','report-document');root.append(el('h2','',payload.title||payload.team),el('p','',payload.team+' · '+(payload.category||'')+' · '+payload.formation));
@@ -182,7 +182,7 @@ async function clubNetworkSync(){
     const rows=await clubNetworkRequest('/rest/v1/club_documents?select=*&id=eq.'+encodeURIComponent(metadata.id)+'&limit=1'),row=rows?.[0];if(!row||!clubNetworkPayloadValid(row.kind,row.payload)||clubNetworkPayloadId(row.kind,row.payload)!==row.source_id)continue;
     const list=clubNetworkLibrary(row.kind),opened=row.kind==='training'?currentTraining:row.kind==='report'?currentReport:state;
     // Une mise à jour distante ne touche jamais le brouillon ouvert, ni sa version de départ.
-    const isOpen=clubNetworkPayloadId(row.kind,opened)===row.source_id;
+    const isOpen=row.kind==='composition'&&typeof terrainHasDraftId==='function'?terrainHasDraftId(row.source_id):clubNetworkPayloadId(row.kind,opened)===row.source_id;
     clubNetworkSetLibrary(row.kind,[structuredClone(row.payload),...list.filter(p=>clubNetworkPayloadId(row.kind,p)!==row.source_id)]);
     clubNetworkCachedVersions.set(row.kind+':'+row.source_id,{id:row.id,revision:row.revision});
     if(!isOpen)clubNetworkRememberVersion(row.kind,row.source_id,row.revision,row.id);
@@ -239,7 +239,7 @@ async function clubNetworkOpen(metadata){
 }
 function clubNetworkImport(openOwn=false){
  const row=clubNetworkPreview;if(!row||!clubNetworkBound())return;
- const kind=row.kind,own=row.owner_id===clubNetworkSession.user.id,payload=structuredClone(row.payload),opened=kind==='training'?currentTraining:kind==='report'?currentReport:state;
+ const kind=row.kind,own=row.owner_id===clubNetworkSession.user.id,payload=structuredClone(row.payload),opened=kind==='training'?currentTraining:kind==='report'?currentReport:(typeof getTerrainDraftFor==='function'?getTerrainDraftFor(row.payload):state);
  if(own){
   if(!confirm('Ouvrir cette version enregistrée ? Le brouillon courant sera conservé sur cet appareil dans une copie si nécessaire.'))return;
   if(document.body.classList.contains('training-mode')&&!applyTrainingForm())return;

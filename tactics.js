@@ -66,6 +66,6 @@ function applyTactic(t){
 }
 $('undo-tactic').onclick=()=>{
  if(!beforeTactic)return;
- if(!confirm('Restaurer la composition avant la dernière tactique ? Vos modifications effectuées depuis seront remplacées.'))return;
- state=beforeTactic;beforeTactic=null;render();persist();$('undo-tactic').hidden=true;notify('Composition précédente restaurée.');
+ if(!confirm('Restaurer le plan avant la dernière tactique ? Vos modifications effectuées depuis seront remplacées.'))return;
+ state=beforeTactic;beforeTactic=null;render();persist();$('undo-tactic').hidden=true;notify('Plan précédent restauré.');
 };
