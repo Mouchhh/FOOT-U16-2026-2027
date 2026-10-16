@@ -1,85 +1,94 @@
-# Activer l’espace privé des éducateurs
+# Espace privé du Stade Mayennais
 
-Le site public GitHub Pages reste en place. Les documents partagés et les comptes sont hébergés dans un **projet Supabase dédié au club**, accessible en HTTPS. Tant que la configuration publique n’est pas renseignée, aucun document n’est envoyé à Supabase.
+Les éducateurs utilisent le même site complet après connexion : terrain, tactiques, animations, séances, agenda, rapports et exports. Leur compte remplace le choix manuel d’un profil local. **Enregistrer** une séance, une composition ou un rapport synchronise son contenu avec le club. **Travail du club** permet de voir les documents des collègues, avec une actualisation automatique toutes les dix secondes dans un onglet actif.
 
-## 1. Créer le projet
+Les documents des collègues sont consultables et copiables. Chacun modifie ses propres originaux. Un brouillon ouvert ne change jamais tout seul quand un autre appareil enregistre. Les échecs réseau conservent les données locales et une tâche à réessayer ; les conflits refusent l’écrasement de la version distante.
 
-Créer un compte sur https://supabase.com puis un projet dans une région européenne. Garder le mot de passe de base de données dans un gestionnaire de mots de passe : il ne doit pas être envoyé dans une conversation ou ajouté au site. Le plan gratuit peut convenir à un démarrage ; vérifier ses quotas et conditions actuels. Il ne garantit pas une disponibilité permanente et les projets gratuits peuvent être mis en pause. Les photos comptent dans le stockage.
+## Si la base et les comptes existent déjà
 
-## 2. Installer les règles de sécurité
+1. Copier tout [club-accounts.sql](club-accounts.sql) dans **SQL Editor**, puis **Run**. Il ajoute les inscriptions privées sans supprimer vos utilisateurs, leurs mots de passe ou les documents. Il peut être relancé.
+2. Seulement après cette migration, dans **Authentication → Sign In / Providers → Email** (les intitulés peuvent varier), activer **Allow new users to sign up**.
+3. Pour fonctionner sans service e-mail, désactiver **Confirm email**. La première inscription est alors protégée par un **code d’invitation confidentiel et à usage unique, lié à une adresse autorisée**. Sans ce code, même connaître l’adresse d’un éducateur ne permet pas de créer son compte. Si la confirmation e-mail reste activée, configurer un SMTP opérationnel et attendre la confirmation avant connexion.
+4. Les comptes déjà autorisés se connectent avec leur e-mail et mot de passe actuels, sans invitation supplémentaire. Les nouveaux utilisent **Créer mon compte** avec le code individuel fourni par le responsable.
 
-Dans le **SQL Editor** du projet, créer une requête, copier tout le fichier [club.sql](club.sql) et exécuter. Le script peut être relancé : il conserve les tables et leurs données, puis remet à jour ses fonctions et ses règles d’accès. La transaction crée deux tables, leurs règles d’accès et les fonctions de publication. Une erreur annule cette exécution ; ne pas désactiver RLS pour la contourner. Si une ancienne version indique que `club_members` existe déjà, remplacer tout le contenu de la requête par le script actuel et le relancer.
+Le filtrage des inscriptions est installé côté serveur avant l’ouverture des inscriptions. Ne pas contourner une erreur en désactivant les règles RLS ou les triggers. La fonction publique de vérification d’installation ne révèle aucune adresse. Les éducateurs n’ont pas besoin d’un compte d’administration Supabase.
 
-Les règles s’appliquent côté serveur, même si quelqu’un modifie le JavaScript du site :
+## Inviter un nouvel éducateur
 
-- Visiteur, compte non autorisé ou membre désactivé : aucun document ni annuaire accessible.
-- Éducateur actif : lecture des documents partagés du club.
-- Publication et retrait : uniquement ses propres documents, avec contrôle de version et d’identifiant.
-- Aucun éducateur ne peut s’ajouter à la liste des membres, réactiver son compte ou y ajouter quelqu’un.
-- Le site n’a aucun droit d’écriture directe dans les tables. Les fonctions serveur vérifient l’auteur et refusent les versions périmées.
-
-## 3. Fermer l’inscription et créer les comptes
-
-Dans **Authentication**, les paramètres de connexion / fournisseurs permettent de désactiver **Allow new users to sign up** (l’intitulé peut varier). Conserver la connexion par e-mail et mot de passe.
-
-Dans **Authentication → Users → Add user → Create new user**, créer le compte de chaque éducateur avec son e-mail réel et un mot de passe initial long et unique. Cocher **Auto confirm user** pour que la première connexion ne dépende pas de l’envoi d’un e-mail. Transmettre les accès individuellement par un canal sûr. L’éducateur peut ensuite changer son mot de passe dans l’espace privé ; son mot de passe actuel est demandé.
-
-L’envoi d’invitations ou la récupération par e-mail demandent une configuration SMTP adaptée aux utilisateurs du club. Le service e-mail intégré à Supabase est restreint ; ce parcours par comptes précréés ne dépend pas de lui. Aucun bouton de récupération par e-mail n’est présenté comme fonctionnel. En cas d’oubli, le responsable doit rétablir l’accès avec les outils d’administration Supabase ; ne jamais communiquer une clé d’administration aux éducateurs.
-
-## 4. Autoriser les éducateurs
-
-Créer un compte ne suffit pas. Après sa création, exécuter dans SQL Editor pour chaque éducateur (remplacer les deux valeurs ; doubler les apostrophes dans un nom) :
+Le responsable du club ouvre **SQL Editor** et exécute, en remplaçant les deux valeurs :
 
 ```sql
-insert into public.club_members(user_id, display_name)
-select id, 'Prénom Nom'
-from auth.users where lower(email) = lower('educateur@exemple.fr')
+select * from public.club_authorize_educator(
+  'educateur@exemple.fr',
+  'Prénom Nom'
+);
+```
+
+Le résultat contient l’adresse et un `activation_code` aléatoire. Transmettre individuellement ce code à la personne concernée, par un canal de confiance, avec le lien du site. Ne pas le publier, l’ajouter au dépôt GitHub ou le partager dans une conversation d’assistance : c’est une invitation confidentielle.
+
+Sur le site, l’éducateur choisit **Créer mon compte**, renseigne cette adresse, ce code et son propre mot de passe (12 caractères minimum). Le serveur crée son appartenance au club avec le nom approuvé. Après l’inscription, le code est consommé et retiré des métadonnées du compte ; les connexions suivantes utilisent seulement e-mail et mot de passe.
+
+Relancer la requête d’autorisation renouvelle un code encore inutilisé. Cela ne réinitialise pas le mot de passe d’un compte qui existe déjà. Un éducateur peut changer son mot de passe dans **Travail du club → Changer mon mot de passe**, avec son mot de passe actuel. Pour un oubli, le responsable doit rétablir l’accès avec les outils d’administration Supabase ; aucune clé d’administration ne doit entrer dans le navigateur des éducateurs.
+
+Pour retirer l’accès :
+
+```sql
+update public.club_invitations set active=false
+where email=lower('educateur@exemple.fr');
+```
+
+L’appartenance du compte est désactivée dans la même transaction. Le serveur refuse immédiatement ses nouvelles lectures et écritures. L’interface se ferme à la prochaine vérification (dix secondes au plus dans un onglet actif). Les documents déjà lus ou copiés ne peuvent pas être retirés rétroactivement des appareils. Les documents déjà partagés restent disponibles aux membres actifs. Ne pas supprimer un compte sans conserver ses documents : les références de suppression en cascade du schéma suppriment aussi ses documents.
+
+## Première installation du projet
+
+1. Créer sur https://supabase.com un projet dédié au club, dans une région européenne. Conserver le mot de passe PostgreSQL dans un gestionnaire de mots de passe, jamais dans le site ou une conversation.
+2. Exécuter [club.sql](club.sql) dans **SQL Editor**. Ce script réexécutable installe les tables, RLS et fonctions de publication/retrait. Il conserve les membres et documents existants. Si une ancienne version signale que `club_members` existe déjà, remplacer tout le texte de la requête par la version actuelle.
+3. Exécuter [club-accounts.sql](club-accounts.sql), puis configurer les inscriptions comme décrit plus haut.
+4. Relever **Project URL** et **Publishable key** (`sb_publishable_…`, ou ancienne clé `anon`) dans les paramètres du projet et les placer dans [club-cloud-config.js](../club-cloud-config.js). Ce sont des informations publiques : elles ne donnent pas accès aux données privées sans connexion et autorisation. **Jamais de clé `secret`/`service_role`, jeton de gestion ou mot de passe PostgreSQL dans le site.**
+5. Autoriser chaque adresse avec `club_authorize_educator`, y compris celle du responsable, puis transmettre les codes individuellement. Un responsable disposant déjà d’un compte dans Authentication peut l’autoriser par la procédure ci-dessous.
+
+### Autoriser un compte déjà créé dans Authentication
+
+Pour les comptes existants seulement, dans SQL Editor :
+
+```sql
+insert into public.club_members(user_id,display_name)
+select id,'Prénom Nom' from auth.users
+where lower(email)=lower('educateur@exemple.fr')
 on conflict(user_id) do update
-set display_name=excluded.display_name, active=true;
+set display_name=excluded.display_name,active=true
+returning display_name;
 ```
 
-Vérifier que la requête a bien ajouté ou actualisé une ligne. Le responsable ajoute aussi son propre compte. Le site ne contient pas d’interface d’administration des invitations.
+Le nom doit apparaître ; zéro ligne signifie que l’e-mail ne correspond pas à un utilisateur existant. Pour ensuite administrer aussi son invitation avec la nouvelle procédure, exécuter `club_authorize_educator` pour cette même adresse. Cela ne change pas son mot de passe.
 
-Pour retirer l’accès d’un éducateur, désactiver son appartenance :
+## Utiliser et vérifier
 
-```sql
-update public.club_members set active=false
-where user_id=(select id from auth.users where lower(email)=lower('educateur@exemple.fr'));
-```
+1. Le premier éducateur se connecte au site et prépare une séance, puis clique **Enregistrer la séance**. Le bandeau doit indiquer **Synchronisé avec le club**.
+2. Sur un autre PC, le deuxième éducateur se connecte à son propre compte et ouvre **Travail du club**. La séance apparaît automatiquement, au plus dix secondes après l’enregistrement dans un onglet actif.
+3. Le premier modifie et enregistre : le titre et la version se mettent à jour dans la liste du deuxième. Un aperçu ou brouillon déjà ouvert n’est pas remplacé : rouvrir **Consulter** pour obtenir la version actuelle.
+4. Le même compte sur un autre appareil retrouve automatiquement ses bibliothèques. **Travail du club → Ouvrir pour modifier** récupère la dernière version ; les différences d’un brouillon sont conservées dans une copie locale avant ouverture. Reporter ensuite les changements voulus et enregistrer.
 
-Le serveur refuse immédiatement ses nouvelles lectures et écritures, même avec une session encore valide. Les documents déjà lus ou copiés ne peuvent pas être retirés rétroactivement d’un appareil. Ses documents déjà partagés restent lisibles par les éducateurs actifs. Ne pas supprimer son utilisateur sans vérifier les documents à conserver : une suppression du compte entraîne la suppression de ses documents par cascade.
+Les changements sont partagés **après Enregistrer**, pas pendant chaque frappe ou déplacement de pion. Les suppressions d’un document enregistré sont aussi synchronisées. Une tâche en attente après coupure est réessayée à la reconnexion. Un conflit reste signalé et conserve les deux versions ; il ne provoque pas d’écrasement automatique.
 
-## 5. Brancher le site
+### Récupérer les anciens travaux locaux
 
-Dans les paramètres du projet / API, relever :
+Dans **Travail du club**, ouvrir **Importer ou renvoyer un document enregistré**, sélectionner son ancien profil local puis **Importer mes anciens documents de cet appareil**. Confirmer uniquement pour ses propres documents destinés à être partagés. Les originaux locaux sont conservés et les copies importées sont synchronisées sous son compte. Sans cette action, les anciens documents locaux ne sont pas publiés silencieusement.
 
-- **Project URL** : `https://identifiant.supabase.co`.
-- **Publishable key** : commençant par `sb_publishable_` (ou ancienne clé JWT `anon`). C’est une clé publique ; elle n’autorise pas à lire les documents sans connexion et appartenance active au club.
+La version locale sans accès aux données du club reste disponible via `?mode=local`. Les profils locaux ne sont pas des comptes privés. Le compte connecté utilise des clés de stockage distinctes, même si plusieurs éducateurs emploient successivement le même navigateur.
 
-Renseigner uniquement ces deux valeurs dans [club-cloud-config.js](../club-cloud-config.js), puis publier le site :
+## Données et limites
 
-```js
-window.CLUB_CLOUD_CONFIG=Object.freeze({
-  url:'https://identifiant.supabase.co',
-  publishableKey:'sb_publishable_...'
-});
-```
-
-**Ne jamais utiliser une clé `secret` / `service_role`, le mot de passe PostgreSQL ou un jeton de gestion Supabase dans le site ou dans cette conversation.** Le code refuse les clés `secret` et les anciennes clés JWT dont le rôle n’est pas `anon`.
-
-## 6. Utiliser et contrôler
-
-Ouvrir **Espace privé · éducateurs**, puis se connecter. Enregistrer d’abord ses séances, compos ou rapports sur l’appareil. Choisir un document puis **Partager / mettre à jour**. Pour les changements suivants, cocher **Partager mes prochains enregistrements de ce profil coach** : seuls les enregistrements explicites de ce profil, pendant une session connectée, sont partagés. Les brouillons, sauvegardes complètes, référentiels privés et autres profils ne sont pas publiés automatiquement.
-
-Le contenu complet d’un document partagé peut comprendre des noms, photos et observations de joueurs. Tous les éducateurs actifs peuvent le lire : sélectionner les documents destinés au travail collectif du club. Les suppressions locales ne retirent pas un document du partage ; utiliser **Retirer du partage**.
-
-Les collègues utilisent **Consulter**, puis peuvent créer une copie indépendante dans leur espace. L’auteur peut récupérer sa version partagée sur un autre appareil pour la modifier. S’il a déjà ouvert le même document, les différences de son brouillon sont conservées dans une copie avant récupération. Les modifications d’un autre appareil provoquent un conflit au lieu d’un écrasement : récupérer la version partagée et reporter les changements voulus. Les versions de travail sont suivies par onglet pour protéger également les modifications dans deux onglets.
-
-**Actualiser** recharge les documents du club ; il n’y a pas de collaboration en direct à chaque frappe. Une coupure conserve l’enregistrement local et signale l’échec du partage : réessayer explicitement à la reconnexion. Un enregistrement hors connexion ou après déconnexion n’est pas téléversé silencieusement plus tard. Les sessions restent dans l’onglet du navigateur ; changer de profil local nécessite une nouvelle connexion. Se déconnecter sur un appareil partagé. Les données locales déjà enregistrées ou copiées restent sur cet appareil après déconnexion.
-
-Avant d’ouvrir l’accès au club, essayer avec deux vrais comptes sur deux appareils : connexion, publication, lecture d’un collègue, copie indépendante, modification de son propre original, refus d’un compte non membre, désactivation d’un éducateur. Les essais locaux ne remplacent pas cette vérification du projet réellement configuré. Garder des exports JSON et organiser les sauvegardes du projet Supabase : la synchronisation n’est pas une sauvegarde historique.
+- Le document complet enregistré peut contenir des noms, photos et observations de joueurs : il est lisible par les éducateurs actifs du club. Les brouillons, référentiels privés et exports globaux ne sont pas automatiquement transmis.
+- Le site public GitHub Pages héberge le code, pas les documents partagés. Les droits PostgreSQL protègent les données même contre un client modifié. Les invitations ne sont ni listables ni modifiables par les éducateurs.
+- Les mots de passe ne sont pas conservés dans les exports. Les jetons de session restent dans l’onglet. La déconnexion ferme l’espace privé ; les caches et brouillons locaux peuvent rester sur l’appareil : utiliser des appareils de confiance.
+- Les exports JSON et une sauvegarde du projet Supabase restent nécessaires. La synchronisation n’est pas une sauvegarde historique. Le plan gratuit peut convenir au démarrage, selon ses quotas et conditions actuels ; les photos comptent dans le stockage et des projets gratuits peuvent être mis en pause.
+- Le service e-mail fourni par défaut par Supabase est restreint. Le parcours par invitation confidentielle et confirmation e-mail désactivée évite cette dépendance ; ne présenter une récupération par e-mail comme fonctionnelle qu’après configuration d’un SMTP adapté.
 
 ## Vérifications de développement
 
-- `tests/club-network-access.sql` s’exécute avec `psql` sur une base PostgreSQL temporaire **vide**, jamais sur le projet de production. Il simule les rôles `anon`, `authenticated` et `auth.uid()` de Supabase, applique le vrai schéma et contrôle les autorisations et les conflits. Il réinstalle aussi le schéma deux fois sur des données existantes et vérifie leur conservation. L’option psql `-v partial_install=1` teste le cas où seule la table `club_members` existe avant l’installation.
-- `python3 tests/club-network-browser.py http://127.0.0.1:3016` utilise Playwright et Chromium, avec un service Supabase simulé : connexion, changement de mot de passe, partage des trois types, consultation des schémas, copies, conflits entre appareils, récupération, coupure réseau, session, mobile, déconnexion et révocation. Aucun e-mail, compte ou document réel n’est transmis.
+- `tests/club-network-access.sql` : uniquement sur une base PostgreSQL temporaire **vide**, jamais dans le projet du club. Simule les rôles Supabase et `auth.uid()`, applique le vrai schéma, contrôle les droits, conflits, réinstallation sans perte et installation partielle (`psql -v partial_install=1`).
+- `tests/club-accounts-access.sql` : reprend ces tests puis vérifie les adresses autorisées, codes à usage unique, refus d’usurpation par le seul e-mail, noms imposés par le serveur, suppression des codes en métadonnées, invitations privées et révocation.
+- `python3 tests/club-network-browser.py http://127.0.0.1:3016` : Chromium avec Supabase simulé, site complet privé, séparation des comptes, synchronisation multi-PC, récupération des bibliothèques, schémas et copies, conflits, reprise réseau, inscriptions, mobile et déconnexion.
+
+Les accès HTTPS au vrai projet depuis l’environnement de développement sont bloqués par le proxy. L’installation des scripts dans le projet réel, ses paramètres Authentication et les essais avec deux vrais comptes restent à effectuer par le responsable avant de confirmer l’activation complète.
