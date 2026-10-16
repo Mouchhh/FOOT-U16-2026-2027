@@ -21,14 +21,14 @@ $('coach-form').onsubmit=e=>{
  const next=coachEditMode==='add'?[...coachProfiles,profile]:coachProfiles.map(p=>p.id===activeCoach.id?profile:p);
  try{if(!flushCoachWorkspace())return;localStorage.setItem('vestiaire-coach-profiles',JSON.stringify(next));localStorage.setItem('vestiaire-active-coach',profile.id);location.reload();}catch{notify('Impossible d’enregistrer le coach. Exportez vos sauvegardes si le stockage est plein.');}
 };
-const coachWorkspaceKeys=['vestiaire-draft','vestiaire-saves','vestiaire-report-draft','vestiaire-reports','vestiaire-training-draft','vestiaire-training-library','vestiaire-simple','vestiaire-landscape','vestiaire-gameplan-draft','vestiaire-terrain-mode'];
+const coachWorkspaceKeys=['vestiaire-draft','vestiaire-saves','vestiaire-report-draft','vestiaire-reports','vestiaire-training-draft','vestiaire-training-library','vestiaire-simple','vestiaire-simple-library','vestiaire-landscape','vestiaire-gameplan-draft','vestiaire-terrain-mode'];
 function coachBackupValid(bundle){
  if(!bundle||bundle.version!==1||bundle.type!=='stade-mayennais-coach'||!validCoachProfile(bundle.coach)||!bundle.data||typeof bundle.data!=='object')return false;
  const validators={
  'vestiaire-gameplan-draft':v=>valid(v)&&v.boardKind==='plan','vestiaire-terrain-mode':v=>['composition','plan'].includes(v),'vestiaire-draft':valid,'vestiaire-saves':v=>Array.isArray(v)&&v.length<=500&&v.every(x=>x&&typeof x.date==='string'&&valid(x.state)),
  'vestiaire-report-draft':reportValid,'vestiaire-reports':v=>Array.isArray(v)&&v.length<=500&&v.every(reportValid),
  'vestiaire-training-draft':trainingValid,'vestiaire-training-library':v=>Array.isArray(v)&&v.length<=500&&v.every(trainingValid),
- 'vestiaire-simple':simpleValid,'vestiaire-landscape':v=>typeof v==='boolean'
+ 'vestiaire-simple':simpleValid,'vestiaire-simple-library':simpleLibraryValid,'vestiaire-landscape':v=>typeof v==='boolean'
  };
  return Object.keys(bundle.data).every(k=>Object.hasOwn(validators,k)&&validators[k](bundle.data[k]));
 }

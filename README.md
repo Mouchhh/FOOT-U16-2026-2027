@@ -274,3 +274,7 @@ Dans **Explication · pions**, le bouton **11 contre 11** charge un tableau ind�
 Ce tableau libre s’exporte en PNG ou PDF. Les quatre scénarios animés restent disponibles dans « Situation » ; leurs commandes d’animation et de vidéo réapparaissent lorsqu’un scénario est choisi. Elles sont masquées pour le tableau libre, qui ne prétend pas posséder une animation prédéfinie.
 
 Validation : `python3 tests/tactical-tools-browser.py http://127.0.0.1:3016` vérifie les onglets, les adversaires, le dessin/effacement, le clavier, les 22 numéros, les déplacements et la visibilité, l’ajout/retrait, la sauvegarde, le paysage et le mobile, les exports PNG/PDF et une animation existante, sans modification de la composition.
+
+### Séquences nommées dans Explication · pions
+
+Saisir un nom puis « Enregistrer la séquence ». La bibliothèque par coach permet d’ouvrir, modifier, renommer (changer le nom puis enregistrer), copier et supprimer les séquences. Les pions, leur placement, le ballon, la visibilité adverse, la situation et son étape sont conservés. Pour une animation déjà lue, la sauvegarde reprend son départ avec vitesse et choix de dernière passe, afin de la relire. Ces séquences restent locales à l’appareil et sont incluses dans la sauvegarde complète du coach ; elles ne sont pas synchronisées dans Travail du club.

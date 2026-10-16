@@ -23,7 +23,7 @@ simpleScenarios.eleven={title:'11 contre 11',goal:'Deux équipes numérotées de
  tokens:[...simpleElevenPositions.map(([n,x,y])=>[String(n),x,y,'own']),...simpleElevenPositions.map(([n,x,y])=>[String(n),100-x,100-y,'away'])],ball:[57,50],
  steps:[['Placement libre','Déplacez les 22 pions et le ballon pour expliquer le pressing, la relance ou le déplacement du bloc.',[]],['Organisation','Chaque équipe possède les numéros 1 à 11. Les gardiens portent le numéro 1.',[]],['Ajustements','Vous pouvez masquer les adversaires, ajouter ou retirer des pions et adapter leurs numéros.',[]]]};
 let simpleState=null,simpleSelected=null,simpleDrag=null;
-function simpleValid(s){return s&&(s.showOpponents===undefined||typeof s.showOpponents==='boolean')&&Object.hasOwn(simpleScenarios,s.scenario)&&Number.isInteger(s.step)&&s.step>=0&&s.step<3&&Array.isArray(s.tokens)&&s.tokens.length<=40&&new Set(s.tokens.map(t=>t?.id)).size===s.tokens.length&&s.tokens.every(t=>t&&typeof t.id==='string'&&typeof t.label==='string'&&t.label.length<=20&&['own','away'].includes(t.side)&&coords(t))&&coords(s.ball);}
+function simpleValid(s){return s&&(s.sequenceId===undefined||(typeof s.sequenceId==='string'&&s.sequenceId.length<=100))&&(s.sequenceTitle===undefined||(typeof s.sequenceTitle==='string'&&s.sequenceTitle.length<=100))&&(s.showOpponents===undefined||typeof s.showOpponents==='boolean')&&Object.hasOwn(simpleScenarios,s.scenario)&&Number.isInteger(s.step)&&s.step>=0&&s.step<3&&Array.isArray(s.tokens)&&s.tokens.length<=40&&new Set(s.tokens.map(t=>t?.id)).size===s.tokens.length&&s.tokens.every(t=>t&&typeof t.id==='string'&&typeof t.label==='string'&&t.label.length<=20&&['own','away'].includes(t.side)&&coords(t))&&coords(s.ball);}
 function coords(t){return t&&Number.isFinite(t.x)&&t.x>=5&&t.x<=95&&Number.isFinite(t.y)&&t.y>=6&&t.y<=93;}
 function saveSimple(){try{coachStorageSet('vestiaire-simple',JSON.stringify(simpleState));}catch{notify('Tableau non sauvegardé : stockage indisponible.');}}
 function loadSimple(scenario,step=0){
@@ -67,7 +67,7 @@ for(const [id,side] of [['simple-own','own'],['simple-away','away']])$(id).oncli
 $('simple-label').oninput=e=>{const t=simpleState.tokens.find(t=>t.id===simpleSelected);if(t){t.label=e.target.value;const b=[...simpleTokens.children].find(b=>b.dataset.id===t.id);b.textContent=t.label;saveSimple();}};
 $('simple-remove').onclick=()=>{simpleState.tokens=simpleState.tokens.filter(t=>t.id!==simpleSelected);simpleSelected=null;renderSimple();saveSimple();};
 $('simple-reset').onclick=()=>{if(confirm('Réinitialiser cette situation ?'))loadSimple(simpleState.scenario);};
-$('simple-pdf').onclick=()=>{document.title='Explication — '+simpleScenarios[simpleState.scenario].title;window.print();};
+$('simple-pdf').onclick=()=>{document.title='Explication — '+(simpleState.sequenceTitle?.trim()||simpleScenarios[simpleState.scenario].title);window.print();};
 $('simple-eleven').onclick=()=>{if(confirm('Charger 11 contre 11 ? Les pions actuels seront remplacés. Votre composition reste conservée.'))loadSimple('eleven');};
 if(!simpleState)loadSimple('eleven');else renderSimple();
 
