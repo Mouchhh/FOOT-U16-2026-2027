@@ -27,7 +27,7 @@ function showTactics(){
   const list=el('ol');t.steps.forEach(step=>list.append(el('li','',step)));card.append(list);
   const risk=el('p','tactic-attention');risk.append(el('strong','','Vigilance : '),document.createTextNode(t.attention));card.append(risk);
   const detail=el('details','coaching-detail');detail.append(el('summary','','Préparer la séance'));
-  for(const [label,text] of [['Déclencheur',t.coaching.trigger],['Réussite observable',t.coaching.success],['Progression U16',t.coaching.adapt],['Question au groupe',t.coaching.question]]){const item=el('p');item.append(el('strong','',label+' : '),document.createTextNode(text));detail.append(item);}
+  for(const [label,text] of [['Déclencheur',t.coaching.trigger],['Réussite observable',t.coaching.success],['Progression adaptée au groupe',t.coaching.adapt],['Question au groupe',t.coaching.question]]){const item=el('p');item.append(el('strong','',label+' : '),document.createTextNode(text));detail.append(item);}
   const link=el('a','','Ressource pour approfondir');link.href=t.coaching.source;link.target='_blank';link.rel='noopener noreferrer';detail.append(link);card.append(detail);
   const apply=el('button','primary','Appliquer le schéma');apply.onclick=()=>applyTactic(t);card.append(apply);$('tactics-results').append(card);
  });
@@ -61,7 +61,7 @@ function applyTactic(t){
   }).filter(a=>Math.hypot(a[2]-a[0],a[3]-a[1])>2);
  }
  state.notes=t.title+' — '+t.formation+'\nObjectif : '+t.goal+'\n\n'+t.steps.map((step,i)=>(i+1)+'. '+step).join('\n')+'\n\nVigilance : '+t.attention+'\n\nRepère : attaque vers le haut ; schéma pédagogique à adapter.';
- state.notes+='\n\nSéance U16\nDéclencheur : '+t.coaching.trigger+'\nRéussite observable : '+t.coaching.success+'\nProgression : '+t.coaching.adapt+'\nQuestion au groupe : '+t.coaching.question;
+ state.notes+='\n\nRepères de séance\nDéclencheur : '+t.coaching.trigger+'\nRéussite observable : '+t.coaching.success+'\nProgression : '+t.coaching.adapt+'\nQuestion au groupe : '+t.coaching.question;
  render();persist();$('undo-tactic').hidden=false;$('tactics-dialog').close();notify('Plan de jeu appliqué : '+t.title+'.');
 }
 $('undo-tactic').onclick=()=>{

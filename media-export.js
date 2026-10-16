@@ -8,7 +8,7 @@ function wrapMediaText(ctx,text,x,y,maxWidth,lineHeight){
 function renderMedia(canvas,snapshot,landscape){
  const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;const s=simpleScenarios[snapshot.scenario];
  ctx.fillStyle='#f0f4fb';ctx.fillRect(0,0,W,H);
- ctx.fillStyle='#2855a2';ctx.font='bold 22px Arial';ctx.fillText('STADE MAYENNAIS · TABLEAU TACTIQUE',48,48);
+ ctx.fillStyle='#2855a2';ctx.font='bold 22px Arial';ctx.fillText('STADE MAYENNAIS · '+(state.category||'FOOTBALL À 11')+' · TABLEAU TACTIQUE',48,48);
  ctx.fillStyle='#18345b';ctx.font='bold 36px Arial';ctx.fillText(s.title,48,100);
  const maxW=1250,maxH=860;const aspect=landscape?840/680:680/840;const w=Math.min(maxW,maxH*aspect),h=w/aspect;
  const x=48+(maxW-w)/2,y=148;

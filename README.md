@@ -121,10 +121,22 @@ L’espace « Après-match · rapports » complète le terrain sans modifier la 
 5. Plan d’action : priorité de la semaine, trois séances, critères de réussite, responsables, date de suivi et message au groupe.
 6. Synthèse : aperçu complet prêt à imprimer.
 
-La durée initiale est proposée à 80 minutes et reste modifiable. « Non évalué » ne signifie pas zéro. Aucune note ni donnée du match d’exemple n’est préremplie.
+La durée des nouveaux rapports reprend celle renseignée dans le profil d’équipe ; elle reste à saisir si le profil ne la précise pas. « Non évalué » ne signifie pas zéro. Aucune note ni donnée du match d’exemple n’est préremplie.
 
 Le brouillon est conservé automatiquement dans le navigateur après modification. « Enregistrer le rapport » ajoute ou met à jour sa version dans « Mes rapports ». Ouvrir ou importer un autre rapport demande confirmation avant de remplacer le brouillon. Export/import JSON permet le transfert entre appareils. Un export PDF complet est disponible via impression et « Enregistrer au format PDF ». Les textes longs peuvent occuper plusieurs pages. Le PDF n’inclut pas l’interface du terrain.
 
 Toutes les observations restent dans le stockage du navigateur et ne sont pas envoyées à GitHub. Pas de synchronisation cloud ou de compte utilisateur. Exporter les rapports avant de vider les données du navigateur. Le PDF source de référence reste en dehors du dépôt ; il n’est pas publié.
 
 Validation Chromium : six rubriques, résultat automatique, notes 3,5/5, observations sportives/humaines, import d’effectif sans doublons, temps de jeu, fait de match, plan, bibliothèque, rechargement, import/export JSON, PDF complet de plusieurs pages (texte extrait et première page inspectée), conservation de la composition et affichage mobile. Aucun accès à un service externe requis.
+
+## Toutes les catégories grand terrain du Stade Mayennais
+
+Le panneau « Mon équipe » est commun au terrain et à l’après-match. Catégorie libre (suggestions U14 à U20, Seniors, Vétérans, Loisirs), section masculine/féminine/mixte, groupe ou équipe (A, B, D1, R1…), nom personnalisé et durée habituelle sont configurables. Les suggestions ne déclarent pas l’existence de ces équipes au club et ne déterminent pas l’éligibilité ou les règlements d’une compétition.
+
+La durée n’est pas imposée selon l’âge : le coach renseigne une durée entre 1 et 180 minutes conformément à sa compétition. Un nouveau rapport reprend catégorie, nom, organisation et durée du profil. Les rapports enregistrés gardent leurs informations historiques. La première ouverture d’un rapport vierge reprend aussi le profil choisi.
+
+Le nom s’adapte automatiquement à la catégorie/section/groupe tant qu’il n’a pas été personnalisé. Le profil est inclus dans les compositions sauvegardées et exports JSON, et la catégorie figure dans l’en-tête et les exports. Les anciens fichiers sans ces champs restent acceptés ; une ancienne composition nommée U16 conserve son identité. Les nouveaux effectifs de démonstration utilisent « Joueur 1 », etc., et aucune catégorie n’est imposée à la première utilisation.
+
+Changer le profil ne remplace pas les joueurs et ne modifie pas un ancien rapport. Pour retrouver plusieurs effectifs sur le même navigateur, enregistrer leurs compositions avec des noms distincts puis charger la composition souhaitée. Les profils ne constituent pas des comptes partagés : chaque coach utilise le même site avec son propre stockage local, et les transferts entre appareils passent par les exports/imports.
+
+Les intitulés de séance ne sont plus limités aux U16 ; les propositions restent à adapter au niveau réel du groupe. Validation : seniors féminine B, catégorie de regroupement libre, nom personnalisé, durée validée, persistance, nouveaux rapports et rapports historiques, compatibilité U16, composition/export Canva et écran mobile testés dans Chromium.

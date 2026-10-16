@@ -45,7 +45,7 @@ async function renderCompositionExport(){
  ctx.fillStyle='#214d93';ctx.fillRect(0,0,W,18*unit);let titleX=margin;const logo=images.get(snapshot.clubLogo);
  if(logo){const size=108*unit,scale=Math.min(size/logo.naturalWidth,size/logo.naturalHeight);ctx.drawImage(logo,margin,45*unit,logo.naturalWidth*scale,logo.naturalHeight*scale);titleX+=140*unit;}
  ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle='#667892';ctx.font='bold '+Math.round(20*unit)+'px Arial';ctx.fillText('STADE MAYENNAIS · COMPOSITION',titleX,70*unit);ctx.fillStyle='#18345b';ctx.font='bold '+Math.round(48*unit)+'px Arial';ctx.fillText(compositionFit(ctx,snapshot.team||'Mon équipe',W-titleX-margin),titleX,130*unit);
- ctx.font=Math.round(24*unit)+'px Arial';ctx.fillStyle='#526b8c';ctx.fillText('Formation '+snapshot.formation+' · '+snapshot.players.filter(p=>p.role!=='sub').length+' titulaires',margin,header+25*unit);
+ ctx.font=Math.round(24*unit)+'px Arial';ctx.fillStyle='#526b8c';ctx.fillText((snapshot.category?snapshot.category+' · ':'')+'Formation '+snapshot.formation+' · '+snapshot.players.filter(p=>p.role!=='sub').length+' titulaires',margin,header+25*unit);
  const subs=options.bench?snapshot.players.filter(p=>p.role==='sub'):[];const top=header+65*unit,bottom=H-80*unit;
  let pitchSpace={x:margin,y:top,w:W-2*margin,h:bottom-top},bench=null;
  if(subs.length){if(portrait){const bh=100*unit+Math.ceil(subs.length/6)*185*unit;bench={x:margin,y:bottom-bh,w:W-2*margin,h:bh};pitchSpace.h-=bh+40*unit;}else{const bw=500*unit;bench={x:W-margin-bw,y:top,w:bw,h:Math.min(bottom-top,(100+Math.ceil(subs.length/2)*180)*unit)};pitchSpace.w-=bw+40*unit;}}
