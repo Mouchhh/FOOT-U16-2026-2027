@@ -184,3 +184,15 @@ Les données précédentes restent accessibles dans « Coach principal · donné
 Ces espaces sont nominatifs, pas des comptes avec mot de passe. Toute personne utilisant le même navigateur peut sélectionner un profil. Aucune synchronisation entre ordinateurs, authentification ou confidentialité inter-utilisateur n’est ajoutée ; les données restent dans le navigateur et ne sont pas envoyées à GitHub. Conserver les sauvegardes exportées avant de nettoyer les données du site.
 
 Validation Chromium : profil historique, renommage, création de deux coachs, absence de mélange des compositions/rapports/séances, changements et rechargements, agendas distincts avec dates/horaires, ouverture des séances, export d’un coach et restauration dans un profil neuf, affichage mobile ; aucune erreur JavaScript.
+
+## Noms personnalisés et sauvegardes dans l’espace du coach
+
+Les compositions, rapports et séances disposent chacun d’un titre libre (100 caractères maximum). Les titres sont distincts du nom de l’équipe et du nom du coach. Ils apparaissent dans les bibliothèques, l’agenda, les documents et les noms de fichiers exportés.
+
+- Composition : champ « Nom de la composition », sauvegarde dans l’espace du coach actif. Enregistrer met à jour le même document grâce à un identifiant ; « Enregistrer une copie » crée un autre identifiant. Le bouton « Renommer » d’une composition enregistrée permet de modifier son titre sans charger une autre composition ni modifier les autres sauvegardes. Les anciennes compositions sans identifiant sont identifiées lors de leur chargement.
+- Rapport : titre libre, bouton « Renommer », enregistrement qui met à jour le rapport courant et « Enregistrer une copie » qui conserve l’original.
+- Séance : titre libre, bouton « Renommer » et duplication dans un nouveau brouillon, à enregistrer ensuite. Les dates et horaires restent séparés du titre.
+
+Les boutons de renommage précisent le coach destinataire. L’espace du coach comprend aussi des accès directs aux compositions, rapports et séances. Les fichiers anciens sans titre restent compatibles et utilisent leur libellé précédent. Les sauvegardes globales d’un coach conservent les nouveaux titres et identifiants.
+
+Validation Chromium : titres des trois types, renommage, mise à jour sans doublon, copies distinctes, noms de fichiers, agenda, rechargement, passage à un autre coach sans accès aux sauvegardes du précédent, anciens documents et mobile. Les données restent locales et leur transfert vers un autre ordinateur nécessite l’export/restauration du coach.

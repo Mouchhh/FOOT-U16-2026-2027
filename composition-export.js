@@ -44,7 +44,7 @@ async function renderCompositionExport(){
  ctx.fillStyle='#f7f9fd';ctx.fillRect(0,0,W,H);const unit=W/2560,margin=70*unit,header=170*unit;
  ctx.fillStyle='#214d93';ctx.fillRect(0,0,W,18*unit);let titleX=margin;const logo=images.get(snapshot.clubLogo);
  if(logo){const size=108*unit,scale=Math.min(size/logo.naturalWidth,size/logo.naturalHeight);ctx.drawImage(logo,margin,45*unit,logo.naturalWidth*scale,logo.naturalHeight*scale);titleX+=140*unit;}
- ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle='#667892';ctx.font='bold '+Math.round(20*unit)+'px Arial';ctx.fillText('STADE MAYENNAIS · COMPOSITION',titleX,70*unit);ctx.fillStyle='#18345b';ctx.font='bold '+Math.round(48*unit)+'px Arial';ctx.fillText(compositionFit(ctx,snapshot.team||'Mon équipe',W-titleX-margin),titleX,130*unit);
+ ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle='#667892';ctx.font='bold '+Math.round(20*unit)+'px Arial';ctx.fillText('STADE MAYENNAIS · COMPOSITION',titleX,70*unit);ctx.fillStyle='#18345b';ctx.font='bold '+Math.round(48*unit)+'px Arial';ctx.fillText(compositionFit(ctx,snapshot.title||snapshot.team||'Mon équipe',W-titleX-margin),titleX,130*unit);
  ctx.font=Math.round(24*unit)+'px Arial';ctx.fillStyle='#526b8c';ctx.fillText((snapshot.category?snapshot.category+' · ':'')+'Formation '+snapshot.formation+' · '+snapshot.players.filter(p=>p.role!=='sub').length+' titulaires',margin,header+25*unit);
  const subs=options.bench?snapshot.players.filter(p=>p.role==='sub'):[];const top=header+65*unit,bottom=H-80*unit;
  let pitchSpace={x:margin,y:top,w:W-2*margin,h:bottom-top},bench=null;
@@ -68,5 +68,5 @@ async function compositionPDF(canvas){
 }
 $('composition-export').onclick=()=>{$('composition-export-dialog').showModal();renderCompositionExport();};$('composition-export-close').onclick=()=>$('composition-export-dialog').close();
 for(const id of ['composition-export-format','composition-export-bench','composition-export-opponents','composition-export-arrows'])$(id).onchange=renderCompositionExport;
-$('composition-export-png').onclick=()=>{const canvas=compositionCanvas;if(canvas)canvas.toBlob(blob=>{if(blob)mediaDownload(blob,'stade-mayennais-composition-HD.png');},'image/png');};
-$('composition-export-pdf').onclick=async()=>{const canvas=compositionCanvas;if(!canvas)return;try{mediaDownload(await compositionPDF(canvas),'stade-mayennais-composition.pdf');}catch{notify('Impossible de créer le PDF. Essayez l’image PNG.');}};
+$('composition-export-png').onclick=()=>{const canvas=compositionCanvas;if(canvas)canvas.toBlob(blob=>{if(blob)mediaDownload(blob,namedDocumentFilename((state.title||state.team)+'-HD','png'));},'image/png');};
+$('composition-export-pdf').onclick=async()=>{const canvas=compositionCanvas;if(!canvas)return;try{mediaDownload(await compositionPDF(canvas),namedDocumentFilename(state.title||state.team,'pdf'));}catch{notify('Impossible de créer le PDF. Essayez l’image PNG.');}};
