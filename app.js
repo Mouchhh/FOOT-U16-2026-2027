@@ -51,8 +51,6 @@ function saveNamedComposition(copy=false){
 $('save').onclick=()=>saveNamedComposition();
 $('composition-copy').onclick=()=>saveNamedComposition(true);
 $('composition-title').oninput=e=>{state.title=e.target.value;persist();};
-$('export').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));const a=el('a');a.href=url;a.download=namedDocumentFilename(state.title||state.team,'json');a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
-$('import').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>15*1024*1024)throw Error();const data=JSON.parse(await file.text());if(!valid(data))throw Error();state=data;render();persist();notify('Composition importée.');}catch{notify('Fichier de composition invalide.');}e.target.value='';};
 render();renderSaves();
 
 function renderClub(){

@@ -20,7 +20,7 @@ function saveSimpleSequence(copy=false){
  const snapshot=structuredClone(simpleState.scenario==='custom'?customRestoreSnapshot(structuredClone(simpleState),0):(animationStart||simpleState));snapshot.sequenceId=id;snapshot.sequenceTitle=title;
  const entry={id,title,updatedAt:new Date().toISOString(),state:snapshot,speed:$('animation-speed').value,choice:$('animation-choice').value};
  const next=[entry,...simpleLibrary.filter(s=>s.id!==id)];if(!simpleLibraryValid(next))return notify('200 séquences maximum. Supprimez une ancienne séquence avant de continuer.');
- try{coachStorageSet('vestiaire-simple-library',JSON.stringify(next));simpleLibrary=next;simpleState.sequenceId=id;simpleState.sequenceTitle=title;saveSimple();renderSimpleLibrary();$('simple-library').value=id;simpleLibraryButtons();notify('Séquence « '+title+' » enregistrée sur cet appareil dans votre espace coach.');}catch{notify('Séquence non enregistrée : stockage plein. Sauvegardez votre espace coach.');}
+ try{coachStorageSet('vestiaire-simple-library',JSON.stringify(next));simpleLibrary=next;simpleState.sequenceId=id;simpleState.sequenceTitle=title;saveSimple();renderSimpleLibrary();$('simple-library').value=id;simpleLibraryButtons();notify('Séquence « '+title+' » enregistrée sur cet appareil dans votre espace coach.');}catch{notify('Séquence non enregistrée : stockage plein. Vérifiez le stockage de cet appareil.');}
 }
 $('simple-sequence-save').onclick=()=>saveSimpleSequence();$('simple-sequence-copy').onclick=()=>saveSimpleSequence(true);
 $('simple-library').onchange=simpleLibraryButtons;

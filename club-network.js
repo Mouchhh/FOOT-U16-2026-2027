@@ -295,7 +295,6 @@ $('club-network-password-form').onsubmit=e=>{e.preventDefault();clubNetworkRun(a
  const password=$('club-network-old-password').value,next=$('club-network-new-password').value;if(next.length<12||next!==$('club-network-confirm-password').value)return clubNetworkStatus('Choisissez deux mots de passe identiques de 12 caractères minimum.');
  const session=await clubNetworkRequest('/auth/v1/token?grant_type=password',{method:'POST',auth:false,body:{email:clubNetworkSession.user.email,password}});if(session.user?.id!==clubNetworkSession.user.id)throw clubNetworkError('Compte différent',403);clubNetworkStoreSession(session);await clubNetworkRequest('/auth/v1/user',{method:'PUT',body:{password:next}});for(const id of ['club-network-old-password','club-network-new-password','club-network-confirm-password'])$(id).value='';clubNetworkStatus('Mot de passe modifié.');
 });};
-$('club-account-backup').onclick=()=>$('coach-backup').click();
 for(const id of ['club-network-logout','club-account-signout'])$(id).onclick=()=>clubNetworkRun(clubNetworkLogout);
 for(const id of ['view-club-network','club-account-library'])$(id).onclick=()=>clubNetworkShowView();
 $('club-network-shortcut').onclick=e=>{e.preventDefault();clubNetworkShowView();};$('club-network-close').onclick=()=>$('view-pitch').click();

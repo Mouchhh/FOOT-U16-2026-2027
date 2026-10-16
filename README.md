@@ -306,3 +306,7 @@ Le fond défilant est activé avec les quatre photographies sélectionnées par 
 ### Navigation épurée et animations
 
 La ligne de sous-rubriques sous le menu principal est supprimée. Chaque rubrique conserve ses outils internes. Les pages apparaissent avec un fondu et un léger glissement de 280 ms ; les menus, onglets et cartes ont un retour visuel au survol et au clic. Les changements restent immédiats, les animations précédentes sont annulées en cas de clics rapides et la préférence de réduction des animations est respectée.
+
+### Enregistrements sans export JSON
+
+Les boutons de téléchargement/restauration JSON des compositions, séances, rapports et espaces coach sont retirés. Les bibliothèques, brouillons automatiques et synchronisations Supabase sont conservés ; aucune donnée enregistrée n’est supprimée. Les exports PDF, image et vidéo restent disponibles. Le format JSON interne de stockage et les échanges de l’assistant ne sont pas modifiés.

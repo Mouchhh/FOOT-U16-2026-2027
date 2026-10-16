@@ -117,8 +117,7 @@ with sync_playwright() as p:
  # All original app tools are usable in the private workspace and all saved kinds synchronize.
  b.locator('#view-reports').click();b.locator('#report-title').fill('Rapport B');b.locator('#report-save').click();wait_sync(b);assert any(r['kind']=='report' and r['owner_id']==B for r in rows)
  b.locator('#view-pitch').click();b.locator('#composition-title').fill('Composition B');b.locator('#save').click();wait_sync(b);assert any(r['kind']=='composition' and r['owner_id']==B for r in rows)
- with b.expect_download() as backup:b.locator('#club-account-backup').click()
- exported=json.load(open(backup.value.path()));assert exported['coach']['id']=='account-'+B;assert 'token-' not in json.dumps(exported)
+ assert b.locator('#club-account-backup').count()==0;assert b.locator('#training-json').count()==0;assert b.locator('#report-export').count()==0
  # Deleting a saved document removes it on the other PC without overwriting its open draft.
  a.locator('#view-training').click();a.locator('#training-delete').click();wait_sync(a);assert not any(r['owner_id']==A and r['source_id']==source_id for r in rows)
  d.evaluate('clubNetworkQueueSync()');wait_sync(d);assert not d.evaluate('trainingLibrary.some(s=>s.id===currentTraining.id)')

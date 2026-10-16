@@ -18,12 +18,11 @@ with sync_playwright() as p:
  page.locator('#simple-sequence-save').click();assert page.evaluate('simpleLibrary.length')==3;animated_id=page.evaluate('simpleLibrary[0].id');assert page.evaluate('JSON.stringify(simpleLibrary[0].state.tokens)')==start
  page.reload();page.locator('#mode-simple').click();page.select_option('#simple-library',animated_id);page.locator('#simple-sequence-open').click();assert page.evaluate('simpleState.step')==0;assert page.locator('#animation-speed').input_value()=='2';assert page.locator('#animation-choice').input_value()=='back'
  page.locator('#animation-play').click();page.wait_for_function("document.querySelector('#animation-status').textContent==='Séquence terminée'",timeout=12000);assert page.evaluate('simpleState.ball.y')==86
- with page.expect_download() as export:page.locator('#coach-backup').click()
- bundle=json.loads(open(export.value.path()).read());assert len(bundle['data']['vestiaire-simple-library'])==3;assert page.evaluate('coachBackupValid('+json.dumps(bundle)+')')
+ assert page.locator('#coach-backup').count()==0;assert page.evaluate('simpleLibrary.length')==3
  page.locator('#simple-sequence-delete').click();assert page.evaluate('simpleLibrary.length')==2;assert page.locator('#simple-sequence-name').input_value()=='Relance gardien'
  assert page.evaluate('JSON.stringify(getCompositionBoard())')==original
  page.set_viewport_size({'width':390,'height':844});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
  page.evaluate("localStorage.setItem('vestiaire-coach-profiles',JSON.stringify([coachLegacyProfile,{id:'another',name:'Autre coach'}]));localStorage.setItem('vestiaire-active-coach','another')");page.reload();assert page.evaluate('simpleLibrary.length')==0
  assert not errors,errors
- print('PASS: named sequences, update/rename/copy/open/delete, preserved tokens and visibility, replay from saved start with settings, reload, coach isolation, full backup, mobile and unchanged composition.')
+ print('PASS: named sequences, update/rename/copy/open/delete, preserved tokens and visibility, replay from saved start with settings, reload, coach isolation, mobile and unchanged composition.')
  b.close()
