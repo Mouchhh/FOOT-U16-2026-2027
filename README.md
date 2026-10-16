@@ -160,3 +160,13 @@ La vue semaine liste les séances enregistrées de la semaine de la date sélect
 Le BMF, le BEF et le DES sont des diplômes d’entraîneur ; les exercices ne leur sont pas attribués ni classés selon eux. Le 16 octobre 2026, les accès HTTPS à https://maformation.fff.fr/ et https://www.fff.fr/ ont été refusés par le proxy (CONNECT 403), y compris après demande d’accès réseau. Les domaines ont été ajoutés au brouillon de configuration en préservant les autres domaines. Un enregistrement/publication des paramètres d’environnement et une nouvelle consultation restent nécessaires. Aucun texte officiel n’a pu être lu : les liens affichés sont des références à consulter, pas des citations vérifiées. Une revue et un rattachement à des ressources pédagogiques FFF précises restent à effectuer avant toute présentation comme contenus reconnus ou issus de ces formations.
 
 Validation Chromium : 61 344 combinaisons d’effectif/gardiens/âge/niveau/espace/exercice vérifiées pour une répartition exacte ; 24 fiches, dates et horaires, durées totales exactes 30/45/60/90/120/150 min, effectif impair, matériel et rotations, ajout/retrait, notes, bibliothèque et vue semaine, import/export, lien avec le rapport, illustration animée avec séance conservée, PDF complet (extraction de texte et inspection visuelle), navigation et mobile. Le PDF source privé fourni pour les rapports reste en dehors du dépôt. Les données de séance ne sont pas envoyées à GitHub.
+
+## Schémas des exercices
+
+Les 24 fiches incluent désormais un croquis vectoriel avec joueurs numérotés, gardiens G, appuis, coupelles, cibles et intentions. Traits pleins : déplacements ; pointillés : passes ou frappes. Les zones à occuper sont mises en évidence selon le principe de l’exercice.
+
+Le menu « Atelier illustré » permet de choisir un groupe de la répartition calculée : le schéma reprend son nombre exact de joueurs et de gardiens, ses dimensions et les rotations prévues. Les gardiens des jeux de conservation et circuits restent inclus dans les rôles au pied. Les dessins ne sont pas à l’échelle et représentent un principe, pas une séquence imposée ou une homologation fédérale.
+
+Dans le PDF, les variantes différentes d’effectif, de gardiens ou de surface sont affichées une seule fois chacune ; les ateliers identiques ne sont pas dupliqués. Les consignes et la liste complète des ateliers accompagnent ces schémas.
+
+Validation : les 24 fiches, 1 658 variantes d’ateliers vérifiées pour des effectifs de 4/5/11/17/23/32 joueurs et différents nombres de gardiens, comptes exacts des pions et gardiens, sélection de l’atelier, variantes PDF, SVG avec titre accessible et affichage mobile. Placement du gardien unique adapté aux finitions/relances et acteurs défensifs sur corner contrôlés.
