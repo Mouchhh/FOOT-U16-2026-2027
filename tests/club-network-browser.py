@@ -62,7 +62,7 @@ errors=[]
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
  # Unconfigured public site never calls a backend and clearly reports pending activation.
- plain=browser.new_page();plain.goto(URL);plain.locator('#view-club-network').click();assert plain.locator('#club-network-setup').is_visible();assert not plain.locator('#club-network-login').is_visible();assert not calls;plain.close()
+ plain=browser.new_page();plain.route('**/club-cloud-config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.CLUB_CLOUD_CONFIG={url:'',publishableKey:''};"));plain.goto(URL);plain.locator('#view-club-network').click();assert plain.locator('#club-network-setup').is_visible();assert not plain.locator('#club-network-login').is_visible();assert not calls;plain.close()
  ca,a=setup(browser)
  assert a.evaluate("!clubNetworkConfigValid({url:'https://evil.test',publishableKey:'sb_publishable_test'})")
  assert a.evaluate("!clubNetworkConfigValid({url:'https://club-test.supabase.co',publishableKey:'sb_secret_test'})")
