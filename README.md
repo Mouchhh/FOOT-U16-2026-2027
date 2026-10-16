@@ -97,3 +97,15 @@ Dans « Explication · pions » :
 L’export est une vidéo ou une image aplatie : les pions ne sont pas des objets individuellement modifiables dans Canva. Cette fonction concerne le mode pions ; l’export des compositions avec photos reste disponible en PDF.
 
 Validation : PNG inspecté, MP4 H.264 1920 × 1080 décodé avec ffprobe/ffmpeg et comparaison de deux images distinctes, repli WebM, annulation, masquage d’onglet, conservation des données et affichage mobile vérifiés. L’import effectif dans un compte Canva n’a pas été exécuté.
+
+## Composition propre pour Canva (photos et numéros)
+
+Dans le panneau de droite, « Compo propre pour Canva » ouvre un aperçu indépendant de la page web. Le format par défaut est une présentation paysage 16:9, 2560 × 1440 pixels. Des formats A4 portrait et paysage restent disponibles.
+
+- PNG HD : image nette avec noms, numéros, photos et logo incorporés. Importer le PNG dans Canva sur une présentation 16:9 et l’ajuster à la page.
+- PDF propre : téléchargement direct d’une page contenant le rendu incorporé, sans fenêtre d’impression ni dépendance aux polices/CSS lors de l’import. Le PDF paysage Canva conserve le ratio 16:9 (960 × 540 points) ; les variantes A4 utilisent les dimensions A4.
+- Les impacteurs / finisseurs sont regroupés dans une zone séparée ; ils n’encombrent pas le terrain de la composition. Adversaires et flèches sont masqués par défaut et activables dans l’aperçu. Les couloirs, panneaux et consignes ne figurent pas dans cet export de composition.
+- Le choix de format pivote le terrain pour exploiter la page ; les positions et sauvegardes de l’application restent inchangées.
+- Le PNG et le PDF sont aplatis : les pions ne sont pas modifiables séparément dans Canva. Modifier la compo dans l’application, puis exporter à nouveau si nécessaire. L’ancien PDF tactique via impression reste disponible pour les consignes.
+
+Validation : téléchargement PNG 2560 × 1440 inspecté, PDF 16:9 une page décodé par Poppler, PDF A4 portrait et paysage, portraits/numéros, impacteurs/finisseurs, options et affichage mobile vérifiés dans Chromium. Aucun import dans un compte Canva n’a été exécuté.
