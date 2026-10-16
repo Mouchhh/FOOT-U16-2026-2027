@@ -21,10 +21,10 @@ function persistTerrainWorkspace(){
 persist=persistTerrainWorkspace;
 function renderTerrainMode(){
  const plan=terrainBoardKind==='plan',simple=document.body.classList.contains('simple-mode');document.body.classList.toggle('game-plan-mode',plan&&!simple);
- $('game-plan-context').hidden=!plan||simple;$('mode-plan').classList.toggle('active',plan&&!simple);$('mode-plan').setAttribute('aria-pressed',String(plan&&!simple));$('mode-team').classList.toggle('active',!plan&&!simple);$('mode-team').setAttribute('aria-pressed',String(!plan&&!simple));
- $('save').textContent=plan?'Enregistrer le plan ↗':'Enregistrer la compo ↗';
+ document.body.classList.toggle('focus-mode',plan&&!simple);$('game-plan-context').hidden=!plan||simple;$('mode-focus').classList.toggle('active',plan&&!simple);$('mode-focus').setAttribute('aria-pressed',String(plan&&!simple));$('mode-team').classList.toggle('active',!plan&&!simple);$('mode-team').setAttribute('aria-pressed',String(!plan&&!simple));
+ $('save').textContent=plan?'Enregistrer la vue épurée ↗':'Enregistrer la compo ↗';
  if(plan)$('game-plan-title').value=state.title||'';
- if(typeof beforeTactic!=='undefined')$('undo-tactic').hidden=!(plan&&beforeTactic?.documentId===state.documentId);
+ if(typeof beforeTactic!=='undefined')$('undo-tactic').hidden=!(beforeTactic&&beforeTactic.documentId===state.documentId);
 }
 const renderBeforeTerrainWorkspace=render;
 render=function(){
@@ -47,20 +47,17 @@ function activateTerrainBoard(kind){
  $('move').click();return true;
 }
 setSimpleMode=function(on){if(on&&!activateTerrainBoard('composition'))return;setSimpleModeBeforeTerrain(on);renderTerrainMode();};
-$('mode-team').onclick=()=>activateTerrainBoard('composition');$('mode-plan').onclick=()=>activateTerrainBoard('plan');
-$('mode-focus').onclick=()=>{const on=!document.body.classList.contains('focus-mode');if(document.body.classList.contains('simple-mode'))setSimpleMode(false);document.body.classList.toggle('focus-mode',on);$('mode-focus').classList.toggle('active',on);$('mode-focus').setAttribute('aria-pressed',String(on));renderTerrainMode();};
+$('mode-team').onclick=()=>activateTerrainBoard('composition');
+$('mode-focus').onclick=()=>activateTerrainBoard('plan');
 $('game-plan-sync').onclick=()=>{
  const starters=compositionBoard.players.filter(p=>p.role!=='sub');if(starters.length!==11)return notify('La composition doit avoir exactement 11 titulaires.');
  if(!confirm('Reprendre le placement et les numéros des 11 titulaires de la composition ? Les positions bleues du plan seront remplacées ; ses flèches et ses adversaires seront conservés.'))return;
  gamePlanBoard.players=structuredClone(starters);gamePlanBoard.formation=compositionBoard.formation;if(compositionBoard.documentId)gamePlanBoard.sourceCompositionId=compositionBoard.documentId;
- if(terrainBoardKind==='plan'){state=gamePlanBoard;render();}persistTerrainWorkspace();notify('Les 11 pions du plan reprennent la composition.');
+ if(terrainBoardKind==='plan'){state=gamePlanBoard;render();}persistTerrainWorkspace();notify('Les 11 joueurs de la vue épurée reprennent la composition.');
 };
 $('game-plan-title').oninput=e=>{if(terrainBoardKind!=='plan')return;state.title=e.target.value;$('composition-title').value=state.title;persistTerrainWorkspace();};
 $('game-plan-save').onclick=()=>$('save').click();$('game-plan-export').onclick=()=>$('composition-export').click();
-// Les schémas du carnet s'appliquent exclusivement au plan, jamais à la composition.
-const applyTacticBeforeTerrain=applyTactic;
-applyTactic=function(tactic){if(terrainBoardKind!=='plan'&&!activateTerrainBoard('plan'))return;return applyTacticBeforeTerrain(tactic);};
 // Les pions du plan héritent de l'identité et du numéro ; la fiche joueur se modifie dans Composition.
-$('pitch').addEventListener('dblclick',event=>{if(terrainBoardKind==='plan'){event.preventDefault();event.stopImmediatePropagation();notify('Modifiez les joueurs dans Composition, puis reprenez vos 11 dans le plan.');}},true);
+$('pitch').addEventListener('dblclick',event=>{if(terrainBoardKind==='plan'){event.preventDefault();event.stopImmediatePropagation();notify('Modifiez les joueurs dans Composition, puis reprenez vos 11 dans la vue épurée.');}},true);
 try{if(gamePlanBoard&&JSON.parse(coachStorageGet('vestiaire-terrain-mode')||'null')==='plan')state=gamePlanBoard;}catch{}
 captureTerrainState();render();

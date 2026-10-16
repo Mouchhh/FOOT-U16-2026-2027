@@ -5,12 +5,17 @@ with sync_playwright() as p:
  page=b.new_page(viewport={'width':1440,'height':1100});errors=[]
  page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept())
  page.goto('http://127.0.0.1:3016/?mode=local')
- page.evaluate("state.players[0].number=27;state.players[0].x=31;state.players[0].y=42;state.arrows=[[20,20,30,30]];render();persist()")
+ page.evaluate("state.players[0].photo=document.createElement('canvas').toDataURL('image/png');state.players[0].number=27;state.players[0].x=31;state.players[0].y=42;state.arrows=[[20,20,30,30]];render();persist()")
  page.locator('#tactic-opponents-tab').click();page.select_option('#opponents-formation','3-5-2')
  original=page.evaluate('JSON.stringify(state)');starters=page.evaluate("state.players.filter(p=>p.role!=='sub')")
- page.locator('#mode-plan').click()
+ page.locator('#mode-focus').click()
+ assert page.locator('#mode-plan').count()==0
+ assert page.locator('#mode-focus').get_attribute('aria-pressed')=='true'
+ assert page.locator('#mode-team').get_attribute('aria-pressed')=='false'
  assert page.evaluate('state.boardKind')=='plan'
  assert page.evaluate('state.players')==starters
+ assert page.locator('#players .player').first.locator('img').is_visible()
+ assert page.locator('#players .player').first.locator('.number-badge').inner_text()=='27'
  assert page.evaluate('state.arrows')==[]
  assert page.locator('#opponents .player').count()==0
  assert page.evaluate('JSON.stringify(getCompositionBoard())')==original
@@ -22,12 +27,12 @@ with sync_playwright() as p:
  page.locator('#move').click();page.locator('#players .player').first.focus();page.keyboard.press('ArrowRight');assert page.evaluate('state.players[0].x')==32
  plan=page.evaluate('JSON.stringify(state)')
  page.locator('#mode-team').click();assert page.evaluate('JSON.stringify(state)')==original
- page.locator('#mode-plan').click();assert page.evaluate('JSON.stringify(state)')==plan
+ page.locator('#mode-focus').click();assert page.evaluate('JSON.stringify(state)')==plan
  page.reload();assert page.evaluate('state.boardKind')=='plan';assert page.evaluate('JSON.stringify(state)')==plan
  assert page.evaluate("coachStorageGet('vestiaire-draft')")==original
  page.locator('#mode-team').click();page.evaluate('state.players[0].number=29;state.players[0].x=37;render();persist()')
  changed=page.evaluate('JSON.stringify(state)')
- page.locator('#mode-plan').click();assert page.evaluate('state.players[0].number')==27
+ page.locator('#mode-focus').click();assert page.evaluate('state.players[0].number')==27
  arrows=page.evaluate('state.arrows');opponents=page.evaluate('state.opponents')
  page.locator('#game-plan-sync').click();assert page.evaluate('state.players[0].number')==29;assert page.evaluate('state.players[0].x')==37
  assert page.evaluate('state.arrows')==arrows;assert page.evaluate('state.opponents')==opponents
@@ -37,10 +42,10 @@ with sync_playwright() as p:
  page.locator('#save').click();assert page.evaluate('saves.length')==2
  assert page.evaluate('new Set(saves.map(s=>s.state.documentId)).size')==2
  before=page.evaluate('JSON.stringify(state)')
- page.evaluate('applyTactic(tacticsCatalogue[0])')
+ page.locator('#mode-focus').click();page.evaluate('applyTactic(tacticsCatalogue[0])')
  assert page.evaluate('state.boardKind')=='plan';assert page.evaluate('JSON.stringify(getCompositionBoard())')==before
  page.locator('#mode-simple').click();assert page.locator('#simple-board').is_visible()
- page.locator('#mode-plan').click();assert page.evaluate('state.boardKind')=='plan';assert page.evaluate('JSON.stringify(getCompositionBoard())')==before
+ page.locator('#mode-focus').click();assert page.evaluate('state.boardKind')=='plan';assert page.evaluate('JSON.stringify(getCompositionBoard())')==before
  page.locator('#game-plan-export').click();page.wait_for_function('compositionCanvas!==null');assert page.locator('#composition-export-arrows').is_checked()
  with page.expect_download() as png:page.locator('#composition-export-png').click()
  assert png.value.suggested_filename.endswith('.png')
