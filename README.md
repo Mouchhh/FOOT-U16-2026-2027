@@ -320,3 +320,9 @@ Les exports de composition affichent uniquement le terrain, les joueurs (photos,
 Le champ de consignes libres est remplacé par un tableau inspiré de la photo fournie : date, type de rencontre, affiche, contexte, adversaire, quatre idées fortes, animation défensive, animation offensive et spécificités/CPA. « Préparer mon match » ouvre le formulaire ; les modifications restent en brouillon avec la composition. « Enregistrer avec la composition » utilise sa bibliothèque et sa synchronisation habituelles. Les collègues retrouvent la préparation dans l’aperçu du document partagé.
 
 Les anciennes compositions restent valides sans ce nouveau champ. Les anciennes notes et les consignes générées par le carnet tactique restent accessibles dans « Notes existantes / carnet tactique ». Le PDF de composition reste limité au terrain.
+
+### Construire une séance de A à Z
+
+Le bouton « Créer ma séance de A à Z » ouvre une nouvelle séance vierge en gardant les paramètres du groupe. Le coach choisit effectif, gardiens, durée, jour, horaire et espace (terrain entier, demi-terrain, quart de terrain ou ancien espace réduit). « Mon exercice » permet de définir nom, durée, objectif, organisation, consignes, matériel, critère de réussite et dimensions. Un schéma indicatif est généré selon le type choisi et l’effectif ; il ne prétend pas interpréter les consignes libres.
+
+Les exercices libres et ceux du catalogue peuvent être mélangés, déplacés et retirés. Le total, l’heure de fin et le temps restant sont recalculés. Les séances libres se sauvegardent dans la même bibliothèque, se dupliquent, s’impriment en PDF et se partagent via le service existant. Les anciennes séances restent compatibles ; aucune migration SQL n’est nécessaire.
