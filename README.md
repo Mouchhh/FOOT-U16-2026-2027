@@ -210,3 +210,16 @@ Les sources génériques de l’extension Manifest V3 sont dans browser-extensio
 Le résumé du projet et l’objectif libre sont transmis à ChatGPT seulement si le coach les colle puis les envoie. Aucun effectif nominatif, photo ou rapport individuel n’est ajouté automatiquement. Relire l’objectif libre avant de le partager. Les propositions reprises portent leurs références et restent des documents du coach.
 
 Validation : import du référentiel réel, prompt avec contexte et pages, absence de requête OpenAI/ChatGPT automatique, rejet des mauvaises citations, contrôle de durée et du groupe, import et sauvegarde de proposition, passerelle du site et interface d’extension simulée en navigateur, affichage mobile. Aucune installation réelle de l’extension dans le navigateur du coach ni conversation sur son compte ChatGPT n’a été exécutée. Le prototype de serveur API non publié a été retiré, la version livrée n’en dépend pas.
+
+
+## Assistant de séance intégré et gratuit
+
+Dans les séances, renseigner le groupe, la date et la durée, choisir une priorité puis « Proposer ma séance ». La date du prochain match est facultative ; à J0–J2, la proposition privilégie la qualité technique et les récupérations. Relire l’aperçu, demander une autre proposition si besoin puis « Utiliser cette proposition ». Ajuster et enregistrer dans l’espace du coach.
+
+Chaque exercice proposé dispose d’un schéma adapté aux ateliers calculés, des consignes et de ses variantes. Ces schémas restent disponibles dans le déroulé sauvegardé et le PDF. Les propositions respectent la durée totale, avec activation et retour au calme.
+
+Cet assistant utilise des règles et les fiches de la bibliothèque : ce n’est pas un modèle conversationnel entraîné ni une validation fédérale. Il fonctionne dans le navigateur sans clé API, serveur IA, compte ou extension et sans appel réseau pour produire une proposition après chargement du site. Le coach reste responsable de l’adaptation et de la charge réelle.
+
+Un référentiel privé JSON peut être importé en option pour afficher les renvois paginés au projet sportif ; il reste dans ce navigateur et est partagé entre ses profils de coachs. Le document privé n’est pas publié. L’échange manuel avec ChatGPT reste accessible sous « Option avancée ». Les sauvegardes et leur transfert entre appareils utilisent les exports existants.
+
+Validation Chromium : 936 combinaisons de thèmes, durées, effectifs et niveaux, présence d’un schéma pour tous les exercices, fonctionnement avec réseau bloqué, aperçu et variante, application, sauvegarde et rechargement, adaptation au match proche, import privé et pages citées, export PDF avec schémas, mobile et absence d’erreurs JavaScript.
