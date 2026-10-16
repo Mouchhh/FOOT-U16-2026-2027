@@ -310,3 +310,7 @@ La ligne de sous-rubriques sous le menu principal est supprimée. Chaque rubriqu
 ### Enregistrements sans export JSON
 
 Les boutons de téléchargement/restauration JSON des compositions, séances, rapports et espaces coach sont retirés. Les bibliothèques, brouillons automatiques et synchronisations Supabase sont conservés ; aucune donnée enregistrée n’est supprimée. Les exports PDF, image et vidéo restent disponibles. Le format JSON interne de stockage et les échanges de l’assistant ne sont pas modifiés.
+
+### Composition PDF : uniquement le terrain
+
+Les exports de composition affichent uniquement le terrain, les joueurs (photos, noms et numéros), et les options choisies : adversaires, flèches, impacteurs/finisseurs placés sur la pelouse. Le titre, le logo extérieur, les marges, le pied de page et le banc latéral sont retirés. Les formats 16:9, A4 portrait et paysage restent disponibles. Le bouton PDF de la composition ouvre désormais cet export autonome d’une page, sans passer par l’impression du site. Les PDF des séances et rapports ne changent pas.

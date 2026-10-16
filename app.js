@@ -114,11 +114,6 @@ function preparePrint(){
  document.title=(state.team||'Composition')+' — '+state.formation;
 }
 window.addEventListener('beforeprint',preparePrint);
-$('pdf').onclick=async()=>{
- preparePrint();
- await Promise.all([...document.querySelectorAll('.board img,header img')].map(img=>img.decode().catch(()=>{})));
- window.print();
-};
 
 function validOpponents(o){
  if(o===undefined)return true;
