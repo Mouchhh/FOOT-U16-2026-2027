@@ -33,8 +33,9 @@ $('view-home').onclick=showClubHome;
 document.querySelector('.brand').addEventListener('click',event=>{event.preventDefault();showClubHome();});
 for(const section of homeSections){
  $(section.button).addEventListener('click',()=>{hideClubHome();homeSubnav(section);});
- const card=el('article','home-section-card'),heading=el('button','home-section-heading',section.title+' →');heading.onclick=()=>$(section.button).click();card.append(heading,el('p','',section.intro));const links=el('div','home-section-links');
- for(const [label,action] of section.items){const link=el('button','',label+' →');link.onclick=()=>{$(section.button).click();if(section.id!=='club'||clubNetworkBound())action();};links.append(link);}card.append(links);$('home-sections').append(card);
+ const card=el('button','home-section-card');card.type='button';
+ const text=el('span','home-card-copy');text.append(el('strong','',section.title),el('span','',section.intro));
+ const arrow=el('span','home-card-arrow','→');arrow.setAttribute('aria-hidden','true');card.append(text,arrow);card.onclick=()=>$(section.button).click();$('home-sections').append(card);
 }
 // Le répertoire reste dans l'accueil, sans multiplier les présences affichées.
 $('home-educators').append($('club-connected'));$('coach-profile').after($('club-home'));

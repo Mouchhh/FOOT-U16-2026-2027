@@ -95,7 +95,7 @@ with sync_playwright() as p:
  assert a.locator('#club-connected .online').count()==1;assert '15/10/2026' in a.locator('.club-connected-person[data-user-id="'+B+'"] .club-last-login').inner_text()
  for button,target in [('view-pitch','.workspace'),('view-training','#training-space'),('view-coach-agenda','#coach-agenda'),('view-reports','#after-match'),('view-club-network','#club-network-dialog')]:
   a.locator('#'+button).click();assert a.locator(target).is_visible();assert a.locator('#section-subnav button').count()>=4;assert a.locator('#club-home').is_hidden();a.locator('#view-home').click();assert a.locator('#club-home').is_visible()
- a.locator('.home-section-card',has_text='Terrain & tactique').get_by_role('button',name='Explication · pions & séquences →',exact=True).click();assert a.locator('#simple-board').is_visible();a.locator('#view-home').click()
+ a.locator('.home-section-card',has_text='Terrain & tactique').click();a.locator('#section-subnav').get_by_role('button',name='Explication · pions & séquences',exact=True).click();assert a.locator('#simple-board').is_visible();a.locator('#view-home').click()
  a.set_viewport_size({'width':390,'height':844});assert a.evaluate('document.documentElement.scrollWidth<=innerWidth');a.set_viewport_size({'width':1440,'height':1000})
  # Explicit saves automatically publish with no opt-in or separate Share click.
  a.locator('#view-training').click();a.locator('#training-title').fill('Séance du coach A');a.locator('#local-coach-propose').click();a.locator('#local-coach-use').click();a.locator('#training-save').click();wait_sync(a);source_id=a.evaluate('currentTraining.id');assert len(rows)==1;assert rows[0]['owner_id']==A
