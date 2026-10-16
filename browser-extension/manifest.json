@@ -1,0 +1,1 @@
+{"manifest_version":3,"name":"Stade Mayennais · Assistant ChatGPT","description":"Prépare une demande de séance depuis le site du club ; ouvre ChatGPT pour un échange manuel.","version":"1.0.0","permissions":["activeTab","scripting","clipboardWrite"],"action":{"default_popup":"popup.html"}}

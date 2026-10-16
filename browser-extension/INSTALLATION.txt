@@ -1,0 +1,13 @@
+STade Mayennais — extension Chrome / Edge, sans API
+
+1. Décompressez le ZIP dans un dossier que vous conserverez.
+2. Chrome : ouvrez chrome://extensions ; Edge : edge://extensions.
+3. Activez le mode développeur, puis « Charger l’extension non empaquetée ».
+4. Sélectionnez le dossier contenant manifest.json.
+5. Sur le site du club, ouvrez « Séances de la semaine », renseignez votre groupe puis ouvrez l’extension.
+6. Cliquez « Préparer depuis ma séance », puis « Copier et ouvrir ChatGPT ».
+7. Dans ChatGPT, collez (Ctrl+V) et envoyez vous-même la demande.
+8. Copiez la réponse JSON dans la rubrique ChatGPT de la séance, cliquez « Contrôler » puis « Utiliser cette proposition ».
+
+Ce paquet contient le référentiel privé du club (résumé sans les listes nominatives). Partagez-le uniquement avec les coachs concernés. Il n’est pas publié dans le dépôt public. Les sources génériques de l’extension y sont consultables, sans le fichier club-project.json.
+Aucune connexion automatique au compte ChatGPT et aucune garantie d’accès illimité : les limites de votre compte s’appliquent. L’extension n’est pas publiée dans le Chrome Web Store.

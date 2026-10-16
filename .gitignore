@@ -1,0 +1,5 @@
+
+# Référentiel privé : uniquement dans le paquet remis au club.
+browser-extension/club-project.json
+.env
+.env.*
