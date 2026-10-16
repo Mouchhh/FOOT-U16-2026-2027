@@ -1,6 +1,8 @@
 // Animation interpolée des intentions ; les passes alternatives restent des choix.
 let animationRun=null,animationStart=null,animationFrame=0,animationInternal=false;
+const animationMediaHelp=document.querySelector('.media-export>p').textContent;
 function animationButtons(){
+ const free=!!simpleScenarios[simpleState.scenario].free;document.querySelector('.animation-controls').hidden=free;$('export-video').hidden=free;document.querySelector('.media-export>p').textContent=free?'Tableau libre : exportez l’image HD ou le PDF pour présenter vos explications.':animationMediaHelp;
  const running=animationRun?.playing===true;
  $('animation-pause').disabled=!running;$('animation-play').textContent=animationRun&&!running?'▶ Reprendre la séquence':'▶ Lire la séquence';
  $('animation-step').disabled=running;$('animation-restart').disabled=!animationStart;
@@ -60,7 +62,7 @@ $('animation-play').onclick=()=>startAnimation(true);$('animation-step').onclick
 $('animation-restart').onclick=()=>{if(!animationStart)return;const start=structuredClone(animationStart);stopAnimation(true);simpleState=start;animationRender();saveSimple();$('animation-status').textContent='Retour au départ';};
 $('animation-choice').onchange=()=>stopAnimation(true);
 // Toute modification manuelle repart d’une nouvelle intention, sans mouvement concurrent.
-for(const id of ['simple-pitch','simple-label','simple-remove','simple-own','simple-away','simple-reset','simple-scenario','simple-opponents']){
+for(const id of ['simple-pitch','simple-label','simple-remove','simple-own','simple-away','simple-reset','simple-scenario','simple-opponents','simple-eleven']){
  $(id).addEventListener(id==='simple-pitch'?'pointerdown':'input',()=>{if(animationRun)stopAnimation(true);},true);
 }
 for(const id of ['mode-team','mode-focus'])$(id).addEventListener('click',()=>stopAnimation(),true);

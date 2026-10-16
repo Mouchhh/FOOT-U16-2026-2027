@@ -60,7 +60,7 @@ Validation : choix de formation adverse, déplacements souris/clavier des deux n
 
 - Composition & plan de jeu : effectif et outils complets.
 - Vue épurée · mes joueurs : conserve les joueurs, photos, formations, flèches et boutons de visibilité. Cache les panneaux latéraux et le catalogue pour se concentrer sur le terrain. Les impacteurs / finisseurs restent sur le terrain si leur affichage est activé.
-- Explication · pions : tableau indépendant avec pions anonymes et ballon déplaçables, ajout/retrait/nommage et bouton avec/sans adversaires. Quatre situations, chacune en trois étapes : pressing collectif, piège latéral, sortie courte, troisième homme. Changer d’étape recharge son schéma et demande confirmation. Ce tableau conserve sa propre sauvegarde locale, distincte des compositions ; il n’est pas inclus dans leur export JSON. Son bouton PDF imprime l’étape et le terrain visibles.
+- Explication · pions : tableau indépendant avec pions anonymes et ballon déplaçables, ajout/retrait/nommage et bouton avec/sans adversaires. Un tableau libre 11 contre 11, avec les numéros 1 à 11 dans chaque équipe, et quatre situations animées, chacune en trois étapes : pressing collectif, piège latéral, sortie courte, troisième homme. Changer d’étape recharge son schéma et demande confirmation. Ce tableau conserve sa propre sauvegarde locale, distincte des compositions ; il n’est pas inclus dans leur export JSON. Son bouton PDF imprime l’étape et le terrain visibles.
 
 Les 30 fiches proposent désormais un déclencheur, une réussite observable, une progression de séance pour les U16 et une question au groupe. Les intentions hors phases arrêtées partent des pions réellement placés. Ces adaptations restent des supports pédagogiques, pas des simulations ni des prescriptions universelles.
 
@@ -262,3 +262,14 @@ Un bandeau visible dans toutes les rubriques affiche les éducateurs connectés 
 La présence est authentifiée et horodatée par le serveur, actualisée toutes les dix secondes dans un onglet actif. Elle expire après 90 secondes sans signal ; une fermeture brutale peut donc rester visible environ deux minutes avec le délai de rafraîchissement. Chaque page a sa propre session de présence : se déconnecter d’un appareil ne déconnecte pas un autre appareil du même coach. Les noms sont regroupés par compte, sans doublon entre appareils. Un départ est signalé au mieux à la déconnexion ou à la fermeture. Aucune adresse e-mail, IP ou liste de sessions n’est exposée. Les entrées anciennes sont nettoyées après un jour.
 
 `tests/club-presence-access.sql` contrôle dans PostgreSQL les sessions multiples, doublons, départs et expiration, ainsi que les refus d’accès anonymes/non membres/révoqués et les tentatives d’écriture directe d’un horodatage ou d’une identité. Le test navigateur vérifie l’affichage de plusieurs noms, la disparition d’une présence expirée et le repli sans faux indicateur en ligne lorsque la migration manque.
+
+
+## Outils tactiques séparés et explication à 11 contre 11
+
+Le terrain de composition possède trois onglets d’outils : **Déplacements**, **Flèches**, **Adversaires**. Chaque onglet affiche ses commandes (replacer les joueurs ; tracer/effacer ; afficher/configurer la formation adverse). Le choix des onglets est accessible au clavier avec les flèches, Début et Fin. Les options de couloirs et impacteurs/finisseurs restent dans la barre de réglages.
+
+Dans **Explication · pions**, le bouton **11 contre 11** charge un tableau indépendant : 11 bleus et 11 adversaires, chacun numéroté de 1 à 11, avec gardien n° 1. Le placement initial est un 4-3-3 dans chaque moitié de terrain. Chaque pion et le ballon restent déplaçables ; les adversaires sont masquables et les pions ajoutés prennent un numéro libre. Le chargement demande confirmation et ne remplace pas la composition du coach. Les positions sont conservées dans le brouillon local du coach. Les nouveaux espaces commencent sur ce tableau ; les situations déjà sauvegardées restent compatibles.
+
+Ce tableau libre s’exporte en PNG ou PDF. Les quatre scénarios animés restent disponibles dans « Situation » ; leurs commandes d’animation et de vidéo réapparaissent lorsqu’un scénario est choisi. Elles sont masquées pour le tableau libre, qui ne prétend pas posséder une animation prédéfinie.
+
+Validation : `python3 tests/tactical-tools-browser.py http://127.0.0.1:3016` vérifie les onglets, les adversaires, le dessin/effacement, le clavier, les 22 numéros, les déplacements et la visibilité, l’ajout/retrait, la sauvegarde, le paysage et le mobile, les exports PNG/PDF et une animation existante, sans modification de la composition.

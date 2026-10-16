@@ -35,7 +35,7 @@ function renderMedia(canvas,snapshot,landscape){
  });
  const [ballX,ballY]=xy(snapshot.ball.x,snapshot.ball.y);ctx.beginPath();ctx.arc(ballX,ballY,12,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#142c22';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.arc(ballX,ballY,4,0,Math.PI*2);ctx.fillStyle='#142c22';ctx.fill();
  ctx.textAlign='left';ctx.textBaseline='alphabetic';const tx=1360,tw=510;
- ctx.fillStyle='#2855a2';ctx.font='bold 20px Arial';ctx.fillText('ÉTAPE '+(snapshot.step+1)+' / 3',tx,190);
+ ctx.fillStyle='#2855a2';ctx.font='bold 20px Arial';ctx.fillText(s.free?'TABLEAU LIBRE · 11 CONTRE 11':'ÉTAPE '+(snapshot.step+1)+' / 3',tx,190);
  ctx.fillStyle='#18345b';ctx.font='bold 30px Arial';let ty=wrapMediaText(ctx,s.steps[snapshot.step][0],tx,245,tw,40);
  ctx.font='24px Arial';ty=wrapMediaText(ctx,s.steps[snapshot.step][1],tx,ty+28,tw,36);
  ctx.fillStyle='#667892';ctx.font='20px Arial';wrapMediaText(ctx,s.goal,tx,ty+45,tw,30);
