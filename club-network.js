@@ -196,3 +196,9 @@ clubNetworkRenderState();
 if(clubNetworkReady){
  try{const saved=JSON.parse(sessionStorage.getItem(clubNetworkSessionKey)||'null');if(saved?.coachId===activeCoach.id&&saved.session?.user?.id){clubNetworkStoreSession(saved.session);clubNetworkRun(async()=>{await clubNetworkLoadMember();});}else sessionStorage.removeItem(clubNetworkSessionKey);}catch{clubNetworkClear();}
 }
+
+// Accès visible en tête de page et lien direct partageable vers la connexion.
+$('club-network-shortcut').onclick=e=>{e.preventDefault();history.replaceState(null,'','#educateurs');$('view-club-network').click();};
+function clubNetworkOpenFromLink(){if(location.hash==='#educateurs'&&!$('club-network-dialog').open)$('view-club-network').click();}
+window.addEventListener('hashchange',clubNetworkOpenFromLink);
+clubNetworkOpenFromLink();
