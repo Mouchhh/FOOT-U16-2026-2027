@@ -109,3 +109,22 @@ Dans le panneau de droite, « Compo propre pour Canva » ouvre un aperçu indép
 - Le PNG et le PDF sont aplatis : les pions ne sont pas modifiables séparément dans Canva. Modifier la compo dans l’application, puis exporter à nouveau si nécessaire. L’ancien PDF tactique via impression reste disponible pour les consignes.
 
 Validation : téléchargement PNG 2560 × 1440 inspecté, PDF 16:9 une page décodé par Poppler, PDF A4 portrait et paysage, portraits/numéros, impacteurs/finisseurs, options et affichage mobile vérifiés dans Chromium. Aucun import dans un compte Canva n’a été exécuté.
+
+## Après-match · rapports
+
+L’espace « Après-match · rapports » complète le terrain sans modifier la composition. Six rubriques reprennent et étendent le document de référence fourni par le coach :
+
+1. Le match : équipe, adversaire, compétition, journée, date/heure, lieu, staff, organisation, durée, scores final et à la pause, buteurs et contexte. Le résultat est calculé à partir du score final ; aucun résultat n’est déduit si le score manque.
+2. Suivi sportif : projet de jeu, animations défensive/offensive et état physique global, évalués sur 5 par demi-point avec observations. Tops et axes de progrès offensifs/défensifs, périodes, jeu avec/sans ballon, transitions et CPA.
+3. Suivi humain : cohésion, attitude/investissement et gestion émotionnelle, focus individuel et récit du staff.
+4. Joueurs & faits : import explicite des joueurs de la composition sans doublons, ajout manuel, statut, minutes jouées, note, observation et objectif individuel. Faits marquants avec minute/type/détail, triés chronologiquement dans la synthèse. Ces faits ne modifient pas automatiquement le score.
+5. Plan d’action : priorité de la semaine, trois séances, critères de réussite, responsables, date de suivi et message au groupe.
+6. Synthèse : aperçu complet prêt à imprimer.
+
+La durée initiale est proposée à 80 minutes et reste modifiable. « Non évalué » ne signifie pas zéro. Aucune note ni donnée du match d’exemple n’est préremplie.
+
+Le brouillon est conservé automatiquement dans le navigateur après modification. « Enregistrer le rapport » ajoute ou met à jour sa version dans « Mes rapports ». Ouvrir ou importer un autre rapport demande confirmation avant de remplacer le brouillon. Export/import JSON permet le transfert entre appareils. Un export PDF complet est disponible via impression et « Enregistrer au format PDF ». Les textes longs peuvent occuper plusieurs pages. Le PDF n’inclut pas l’interface du terrain.
+
+Toutes les observations restent dans le stockage du navigateur et ne sont pas envoyées à GitHub. Pas de synchronisation cloud ou de compte utilisateur. Exporter les rapports avant de vider les données du navigateur. Le PDF source de référence reste en dehors du dépôt ; il n’est pas publié.
+
+Validation Chromium : six rubriques, résultat automatique, notes 3,5/5, observations sportives/humaines, import d’effectif sans doublons, temps de jeu, fait de match, plan, bibliothèque, rechargement, import/export JSON, PDF complet de plusieurs pages (texte extrait et première page inspectée), conservation de la composition et affichage mobile. Aucun accès à un service externe requis.
