@@ -60,8 +60,8 @@ function renderClub(){
  $('lanes').hidden=!visible;
  $('lanes-toggle').classList.toggle('active',visible);
  $('lanes-toggle').setAttribute('aria-pressed',String(visible));
- document.querySelectorAll('.club-logo').forEach(img=>{img.hidden=!state.clubLogo;if(state.clubLogo)img.src=state.clubLogo;else img.removeAttribute('src');});
- document.querySelector('.club-monogram').hidden=!!state.clubLogo;
+ document.querySelectorAll('.club-logo').forEach(img=>{img.hidden=false;img.src=state.clubLogo||'assets/club-logo.jpg';});
+ document.querySelector('.club-monogram').hidden=true;
 }
 $('lanes-toggle').onclick=()=>{state.lanes=state.lanes===false;renderClub();persist();};
 $('club-logo-file').onchange=async e=>{

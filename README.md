@@ -282,3 +282,15 @@ Saisir un nom puis « Enregistrer la séquence ». La bibliothèque par coach pe
 ### Créer une séquence avec les flèches des pions
 
 Dans Explication · pions, « Flèches de déplacement » crée une séquence personnalisée depuis les pions et le ballon présents. Glisser depuis un pion (bleu ou adverse) vers sa destination trace sa course ; glisser depuis le ballon trace sa passe. Chaque pion et le ballon peuvent avoir une destination par étape. « Étape suivante » reprend les positions d’arrivée pour préparer la suite (12 étapes maximum). Les boutons numérotés permettent de revenir modifier une étape ; les étapes suivantes repartent des positions recalculées. « Déplacer les pions » revient au départ pour ajuster le placement initial. Lecture, pause, retour au départ, vitesse, sauvegarde nommée, PNG/PDF et export vidéo fonctionnent aussi pour ces séquences. Les flèches du clavier permettent de régler une destination dans le mode flèches.
+
+## Accueil privé des éducateurs
+
+Après connexion autorisée, l’application ouvre l’accueil : logo du Stade Mayennais (extrait du projet sportif fourni), cinq grandes rubriques, leurs raccourcis et sous-rubriques, compteurs des documents du coach, et annuaire des éducateurs. Le bouton Accueil ou le logo ramène à cette page. Les outils existants et leurs sauvegardes restent accessibles par le bandeau.
+
+L’annuaire conserve les éducateurs autorisés hors ligne. Une LED verte signale une activité serveur dans les 90 dernières secondes ; le rafraîchissement suit la synchronisation habituelle. La dernière connexion provient de `auth.users.last_sign_in_at`, via une fonction sécurisée qui ne renvoie ni adresse e-mail ni autre donnée d’authentification.
+
+**Activation des dernières connexions :** réexécuter la version à jour de `supabase/club-presence.sql` dans Supabase → SQL Editor → Run. Le script est réexécutable et conserve les documents. Sans cette mise à jour, l’accueil fonctionne et les LED utilisent le service de présence déjà installé ; les dates restent « Non disponible », sans inventer d’historique. Aucun SQL n’a été exécuté sur le projet réel depuis cet environnement.
+
+Le compte Instagram public `@stademayennais` et le site du club ont été refusés par le proxy réseau (CONNECT 403). Le bloc « La vie du Stade Mayennais » renvoie au compte public ; aucune photo de joueur n’a pu être récupérée ou publiée. Des fichiers photo fournis par le club permettront de remplir cette galerie. Aucune photo fictive n’est présentée comme celle d’un joueur du club.
+
+Validation : parcours navigateur avec Supabase simulé (accueil après connexion, navigation, sous-rubriques, LED/dernière connexion, migration absente, comptes isolés, accès révoqué, mobile) et tests d’autorisation sur PostgreSQL temporaire.

@@ -41,5 +41,20 @@ begin
 end; $$;
 revoke all on function public.club_connected_coaches() from public,anon;
 grant execute on function public.club_connected_coaches() to authenticated;
+-- Dernière authentification réelle : aucune adresse ni donnée auth n'est exposée.
+create or replace function public.club_educator_activity()
+ returns table(user_id uuid,display_name text,last_login timestamptz,is_online boolean)
+ language plpgsql security definer set search_path='' as $$
+begin
+ if auth.uid() is null or not public.club_is_member() then
+  raise exception 'Accès réservé aux éducateurs autorisés' using errcode='42501';
+ end if;
+ return query select m.user_id,m.display_name,u.last_sign_in_at,
+ exists(select 1 from public.club_presence p where p.user_id=m.user_id and p.is_online and p.last_seen>clock_timestamp()-interval '90 seconds')
+ from public.club_members m join auth.users u on u.id=m.user_id
+ where m.active order by m.display_name,m.user_id;
+end; $$;
+revoke all on function public.club_educator_activity() from public,anon;
+grant execute on function public.club_educator_activity() to authenticated;
 notify pgrst,'reload schema';
 commit;
