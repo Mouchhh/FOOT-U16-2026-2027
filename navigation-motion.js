@@ -16,7 +16,8 @@ function animateNavigation(kind){
   else if(kind==='tools')target=[...document.querySelectorAll('.tactic-tool-panel')].find(panel=>!panel.hidden);
   else target=navigationContent();
   if(!target||!target.getClientRects().length||typeof target.animate!=='function')return;
-  const animation=target.animate([{opacity:.45,transform:'translateY(10px)'},{opacity:1,transform:'translateY(0)'}],{duration:kind==='tools'?170:280,easing:'cubic-bezier(.2,.8,.2,1)'});
+  const frames=target.matches('.flow-root,.report-flow')||target.querySelector('.flow-root')?[{opacity:.45},{opacity:1}]:[{opacity:.45,transform:'translateY(10px)'},{opacity:1,transform:'translateY(0)'}];
+  const animation=target.animate(frames,{duration:kind==='tools'?170:280,easing:'cubic-bezier(.2,.8,.2,1)'});
   navigationEntryAnimation=animation;animation.finished.then(()=>{if(navigationEntryAnimation===animation)navigationEntryAnimation=null;}).catch(()=>{});
  });
 }

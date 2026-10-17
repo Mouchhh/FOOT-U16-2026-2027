@@ -326,3 +326,20 @@ Les anciennes compositions restent valides sans ce nouveau champ. Les anciennes 
 Le bouton « Créer ma séance de A à Z » ouvre une nouvelle séance vierge en gardant les paramètres du groupe. Le coach choisit effectif, gardiens, durée, jour, horaire et espace (terrain entier, demi-terrain, quart de terrain ou ancien espace réduit). « Mon exercice » permet de définir nom, durée, objectif, organisation, consignes, matériel, critère de réussite et dimensions. Un schéma indicatif est généré selon le type choisi et l’effectif ; il ne prétend pas interpréter les consignes libres.
 
 Les exercices libres et ceux du catalogue peuvent être mélangés, déplacés et retirés. Le total, l’heure de fin et le temps restant sont recalculés. Les séances libres se sauvegardent dans la même bibliothèque, se dupliquent, s’impriment en PDF et se partagent via le service existant. Les anciennes séances restent compatibles ; aucune migration SQL n’est nécessaire.
+
+## Parcours par rubrique
+
+Les rubriques utilisent des étapes avec Précédent / Suivant :
+accueil (tableau de bord, éducateurs), terrain (tableau, consignes et réglages,
+enregistrement et exports), agenda (vue d’ensemble, calendrier), rapports
+(les six rubriques existantes) et travail du club (éducateurs, documents,
+outils personnels de partage). Les séances conservent leur parcours en quatre étapes.
+
+Le module workspace-workflows.js déplace les éléments existants sans copier les
+formulaires ni modifier les formats de données. L’effectif, le carnet tactique
+et les rapports enregistrés peuvent être repliés. Sur ordinateur, les contenus
+longs défilent dans leur page et les commandes de navigation restent accessibles.
+
+Validation avec le site démarré sur le port 3016 :
+
+    python tests/workspace-workflows-browser.py
