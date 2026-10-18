@@ -343,3 +343,11 @@ longs défilent dans leur page et les commandes de navigation restent accessible
 Validation avec le site démarré sur le port 3016 :
 
     python tests/workspace-workflows-browser.py
+
+## La Bible de l’éduc
+
+Dans **Séances de la semaine → La Bible de l’éduc**, rechercher par moment du jeu, thème ou mots-clés. Le catalogue comprend 60 fiches et 30 références publiques. Chaque fiche présente un schéma proportionnel, l’objectif, les consignes et les séquences ; les dimensions, les quantités de matériel, le contexte de match, les principes tactiques et les sources se déplient à la demande.
+
+L’organisation adapte les ateliers à l’effectif (2 à 80 présents, gardiens inclus), aux compétences et à l’espace disponible, y compris des dimensions libres. Les installations incompatibles et les acteurs manquants sont signalés. « Créer ma variante » permet de choisir un nom, les dimensions, les ateliers, le nombre de séquences, les récupérations et les consignes. La variante est conservée dans sa séance et dans son rendu PDF ou partagé. « Ouvrir dans l’atelier libre » copie les placements d’un atelier pour modifier le schéma et créer ses propres déplacements ; le coach conserve aussi l’accès au terrain vierge.
+
+Les contenus sont des adaptations éditoriales du club, sans certification d’exercice BMF/BEF/DES ni entraînement d’un modèle d’IA. Les anciens identifiants d’exercices et les séances existantes restent compatibles. Aucune migration Supabase n’est nécessaire. [Référentiel, portée des sources et validation](docs/bible-sources.md).

@@ -243,7 +243,7 @@ const trainingExercises=[
     "rules": [
       "Conserver dans la zone.",
       "À chaque perte, les plus proches ferment les solutions courtes.",
-      "Si le groupe est trop étiré, revenir protéger la cible."
+      "Si le groupe est trop étiré, revenir protéger l’axe et la profondeur."
     ],
     "cues": [
       "Regarder les distances, pas seulement le ballon.",
@@ -512,7 +512,7 @@ const trainingExercises=[
     "theme": "CPA",
     "method": "Jeu",
     "kind": "duel",
-    "target": 6,
+    "target": 8,
     "width": 24,
     "length": 20,
     "goal": "Créer une solution courte, une profondeur et un soutien.",

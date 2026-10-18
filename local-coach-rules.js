@@ -13,15 +13,26 @@ function localCoachPlan(session,settings={},reference=null,variant=0){
  for(let i=0;i<count-1;i++){
   const theme=themes[i%themes.length],progression=localCoachProgressions[theme]||localCoachProgressions.Technique;
   const start=(themes.length===1?i:1)+variant;
-  const candidates=progression.map((_,offset)=>progression[(start+offset)%progression.length]);
-  let id=candidates.find(id=>!used.has(id))||progression[i%progression.length];
+  const preferred=progression.map((_,offset)=>progression[(start+offset)%progression.length]);
+  const themed=trainingExercises.filter(e=>e.theme===theme&&!['warm','cool','freegame'].includes(e.id)).map(e=>e.id);
+  const expanded=[...new Set([...preferred,...themed])];
+  // Ne pas recommander silencieusement une installation qui ne tient pas.
+  const compatible=typeof biblePlan==='function'?expanded.filter(id=>biblePlan(trainingExercises.find(e=>e.id===id),session).fits):expanded;
+  const candidates=compatible.length?compatible:expanded;
+  let id=candidates.find(id=>!used.has(id))||candidates[0]||'passes';
+  if(!compatible.length&&typeof biblePlan==='function'){
+   const compact=trainingExercises.filter(e=>!['warm','cool','freegame'].includes(e.id)&&!used.has(e.id)&&biblePlan(e,session).fits);
+   const replacement=compact.find(e=>e.theme==='Technique')||compact[0];
+   if(replacement){id=replacement.id;reasons.push('Le thème '+theme+' ne tient pas dans les contraintes saisies : proposition technique compacte à la place. Modifier l’espace ou l’organisation pour retrouver le thème.');}
+   else reasons.push('Aucune installation simultanée ne convient à ces contraintes. Revoir l’espace, l’effectif actif ou le format avant d’utiliser cette proposition.');
+  }
   if(session.keepers===0&&id==='keeper-duel'){id='build';reasons.push('Aucun gardien : le travail de sortie est remplacé par une relance au pied avec portes.');}
-  if(session.players<8&&['cpa-attack','cpa-defence'].includes(id)){id='touch';reasons.push('Effectif réduit : travailler les responsabilités sur une touche plutôt qu’une organisation complète de corner.');}
   if(light&&['transition','counter','duel'].includes(id)){id=theme==='Finition'?'finish':'passes';reasons.push('Match proche : privilégier qualité technique, repères et récupération entre les séries.');}
-  if(used.has(id)){const alternatives=['passes','support','rondo','cover','build','touch'];id=alternatives.find(x=>!used.has(x))||id;}
+  if(used.has(id)){const alternatives=['passes','support','rondo','cover','build','touch'];id=alternatives.find(x=>!used.has(x)&&(typeof biblePlan!=='function'||biblePlan(trainingExercises.find(e=>e.id===x),session).fits))||id;}
   used.add(id);const exercise=trainingExercises.find(e=>e.id===id);picks.push({id,theme,reason:(i===0?'Préparer les repères et la qualité d’exécution. ':i===1?'Mettre le principe sous opposition progressive. ':'Réinvestir avec une décision à prendre. ')+exercise.goal});
  }
- picks.push({id:'freegame',theme:themes.join(' / '),reason:'Observer le transfert en jeu : un seul bonus lié au thème, puis retirer l’aide.'});
+ const reinvest=typeof biblePlan==='function'&&!biblePlan(trainingExercises.find(e=>e.id==='freegame'),session).fits?(trainingExercises.find(e=>e.id==='rondo'&&biblePlan(e,session).fits)?.id||trainingExercises.find(e=>e.id==='passes'&&biblePlan(e,session).fits)?.id||'freegame'):'freegame';
+ picks.push({id:reinvest,theme:themes.join(' / '),reason:reinvest==='freegame'?'Observer le transfert en jeu : un seul bonus lié au thème, puis retirer l’aide.':'Effectif ou surface limités : réinvestissement dans un format plus compact ; ajuster le score au principe travaillé.'});
  const warm=Math.max(6,Math.round(session.duration*.14)),cool=5,remaining=session.duration-warm-cool,base=Math.floor(remaining/count),rest=remaining%count;
  const references=[];
  if(reference&&Array.isArray(reference.sections)){
