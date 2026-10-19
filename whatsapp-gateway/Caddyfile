@@ -1,0 +1,6 @@
+{$GATEWAY_DOMAIN} {
+  encode zstd gzip
+  header Strict-Transport-Security "max-age=31536000"
+  # Pas de journal d'accès : les jetons et les QR ne doivent jamais être journalisés.
+  reverse_proxy gateway:3000
+}

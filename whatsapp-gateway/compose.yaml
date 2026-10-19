@@ -1,0 +1,35 @@
+services:
+  gateway:
+    build: .
+    restart: unless-stopped
+    environment:
+      SUPABASE_URL: ${SUPABASE_URL:?Project URL Supabase requis}
+      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY:?Cle publique Supabase requise}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://mouchhh.github.io}
+      MAX_SESSIONS: ${MAX_SESSIONS:-4}
+    volumes:
+      - whatsapp-data:/data
+    shm_size: 512mb
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+  https:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      GATEWAY_DOMAIN: ${GATEWAY_DOMAIN:?Domaine HTTPS de la passerelle requis}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      gateway:
+        condition: service_healthy
+volumes:
+  whatsapp-data:
+  caddy-data:
+  caddy-config:
