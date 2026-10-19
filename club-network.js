@@ -16,8 +16,29 @@ const clubNetworkBindingKey='vestiaire-account-binding:'+clubNetworkBase;
 const clubNetworkKinds={training:'Séance',report:'Rapport',composition:'Composition'};
 const clubNetworkLocalMode=new URLSearchParams(location.search).get('mode')==='local';
 let clubNetworkPrivateRequested=clubNetworkReady&&!clubNetworkLocalMode;
+const clubSaveLocalErrors=new Set();
+let clubSaveState={state:'pending',detail:'Vérification des documents enregistrés…',conflict:false};
+function clubSaveStatus(state,detail,conflict=false){if(clubSaveLocalErrors.size&&state!=='error'){state='error';detail='Une sauvegarde locale ou sa mise en attente a échoué. Enregistrez à nouveau le document concerné ; le partage n’est pas confirmé.';}clubSaveState={state,detail,conflict};clubSaveRender();}
+function clubSaveRender(){
+ let root=$('club-save-indicator');
+ if(!root){
+  root=el('details','club-save-indicator');root.id='club-save-indicator';
+  const summary=el('summary'),label=el('span');label.id='club-save-label';label.setAttribute('role','status');label.setAttribute('aria-live','polite');summary.append(label);
+  const panel=el('div','club-save-panel'),detail=el('p');detail.id='club-save-detail';
+  const retry=el('button','export','Réessayer');retry.id='club-save-retry';retry.type='button';retry.onclick=()=>{if(clubNetworkSyncPromise)return;clubSaveStatus('pending','Nouvelle tentative de synchronisation…');clubNetworkQueueSync();};
+  const resolve=el('button','export','Voir le conflit');resolve.id='club-save-resolve';resolve.type='button';resolve.onclick=()=>{$('view-club-network').click();root.open=false;};
+  panel.append(el('strong','','Documents enregistrés'),detail,el('p','hint','Les brouillons restent sur cet appareil jusqu’au clic sur « Enregistrer ». Le partage est réservé aux éducateurs autorisés.'),retry,resolve);root.append(summary,panel);document.querySelector('.header-actions').prepend(root);
+ }
+ root.hidden=!clubNetworkBound();root.dataset.state=clubSaveState.state;
+ const label={saved:'Enregistré et partagé',pending:'En attente',error:'Échec'}[clubSaveState.state];
+ if($('club-save-label').textContent!==label)$('club-save-label').textContent=label;
+ $('club-save-detail').textContent=clubSaveState.detail;
+ $('club-save-retry').hidden=clubSaveState.state==='saved'||clubSaveState.conflict||clubSaveLocalErrors.size>0;
+ $('club-save-resolve').hidden=!clubSaveState.conflict;
+}
 function clubNetworkStatus(message){for(const id of ['club-network-status','club-sync-status','club-network-list-status'])$(id).textContent=message;}
 function clubNetworkMessage(error){
+ if(error?.code==='document_invalid')return 'Le document à partager est introuvable ou invalide sur cet appareil. Ouvrez-le et enregistrez-le à nouveau.';
  if(error?.code==='40001')return 'Conflit de version : une autre version existe. Ouvrez « Travail du club » et récupérez votre version partagée avant de reporter vos changements. Rien n’a été écrasé.';
  if(error?.code==='signup_disabled')return 'La création des comptes doit être activée par le responsable après installation de la liste des adresses autorisées.';
  if(error?.code==='PGRST202')return 'La mise à jour des inscriptions privées doit être installée par le responsable dans Supabase.';
@@ -71,12 +92,14 @@ async function clubNetworkRefreshSession(){
 }
 function clubNetworkBound(){return !!clubNetworkMember&&activeCoach.id==='account-'+clubNetworkMember.user_id;}
 function clubNetworkRenderState(){
+ clubSaveRender();
  const bound=clubNetworkBound();document.documentElement.classList.toggle('club-private-request',clubNetworkPrivateRequested);document.documentElement.classList.toggle('club-authenticated',bound);document.body.classList.toggle('club-private-active',bound);
  $('club-auth-gate').hidden=!clubNetworkPrivateRequested||bound;$('club-network-setup').hidden=clubNetworkReady;$('club-network-connected').hidden=!bound;$('club-account-bar').hidden=!bound;$('club-connected').hidden=!bound;
  if(bound){renderCoachSelector();$('coach-profile').querySelector('p').textContent='Profil lié à votre compte. Consultez les autres éducateurs dans « Travail du club ».';$('club-account-name').textContent=clubNetworkMember.display_name;$('club-network-identity').textContent=clubNetworkMember.display_name;$('club-network-shortcut').textContent='Travail du club';clubNetworkRenderSources();}
  else $('club-network-shortcut').textContent='Connexion éducateurs';
 }
 function clubNetworkClear(){
+ clubSaveLocalErrors.clear();clubSaveState={state:'pending',detail:'Vérification des documents enregistrés…',conflict:false};if($('club-save-indicator'))$('club-save-indicator').hidden=true;
  clubNetworkGeneration++;clearInterval(clubNetworkTimer);clubNetworkTimer=null;clubNetworkSession=null;clubNetworkMember=null;clubNetworkMembers=[];clubNetworkRows=[];clubNetworkPreview=null;clubNetworkSources=[];clubNetworkCachedVersions.clear();clubNetworkConnected=[];clubNetworkActivity=[];clubNetworkActivityState='loading';clubNetworkPresenceState='loading';clubNetworkPresenceWriteState='loading';$('club-connected-names').replaceChildren();$('club-connected-count').textContent='';$('club-connected-status').textContent='';
  sessionStorage.removeItem(clubNetworkSessionKey);sessionStorage.removeItem(clubNetworkBindingKey);
  $('club-network-preview').close();$('club-network-preview-content').replaceChildren();$('club-network-preview-title').textContent='';$('club-network-preview-author').textContent='';$('club-network-list').replaceChildren();$('club-network-source').replaceChildren();$('club-network-author').replaceChildren();$('club-account-name').textContent='';
@@ -105,6 +128,7 @@ function clubNetworkPending(kind,id){try{return JSON.parse(localStorage.getItem(
 function clubNetworkMarkPending(kind,id,op){
  const previous=clubNetworkPending(kind,id),expected=previous?.expected||clubNetworkKnownVersion(kind,id);
  localStorage.setItem(clubNetworkPendingKey(kind,id),JSON.stringify({kind,id,op,expected,stamp:crypto.randomUUID(),conflict:false}));
+ clubSaveStatus('pending',navigator.onLine?'Enregistré sur cet appareil ; envoi au club en cours.':'Hors connexion : enregistrement conservé sur cet appareil, en attente de partage.');
 }
 function clubNetworkAuthor(id){return clubNetworkMembers.find(m=>m.user_id===id)?.display_name||'Éducateur du club';}
 function clubNetworkRenderSources(){
@@ -145,7 +169,7 @@ async function clubNetworkFlushPending(){
      clubNetworkRememberVersion(job.kind,job.id,0);
     }else{
      const raw=JSON.parse(coachStorageGet(clubNetworkLibraryKey(job.kind))||'[]'),payload=raw.map(x=>job.kind==='composition'?x.state:x).find(x=>clubNetworkPayloadId(job.kind,x)===job.id),source=payload&&clubNetworkSource(job.kind,payload);
-     if(!source)continue;row=await clubNetworkPublish(source,job.expected);
+     if(!source)throw clubNetworkError('Document local introuvable ou invalide',400,'document_invalid');row=await clubNetworkPublish(source,job.expected);
     }
     const latest=clubNetworkPending(job.kind,job.id);
     if(latest?.stamp===job.stamp)localStorage.removeItem(clubNetworkPendingKey(job.kind,job.id));
@@ -194,8 +218,9 @@ async function clubNetworkSync(){
    }
    clubNetworkRenderSources();clubNetworkRenderRows();
    const pending=clubNetworkPendingJobs(),conflicts=pending.filter(j=>j.conflict).length;
+   clubSaveStatus(conflicts?'error':pending.length?'pending':'saved',conflicts?'Conflit de version : votre copie locale est conservée. Ouvrez le document partagé avant de reporter vos changements.':pending.length?pending.length+' document(s) conservé(s) sur cet appareil, en attente de partage.':'Confirmation du serveur à '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris'})+'. Les documents enregistrés sont partagés avec le club.',conflicts>0);
    clubNetworkStatus(conflicts?conflicts+' conflit(s) à résoudre dans « Travail du club ». Vos versions locales sont conservées.':pending.length?pending.length+' enregistrement(s) en attente de synchronisation.':'Synchronisé avec le club · '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris'}));
-  }catch(error){clubNetworkPresenceState='unavailable';clubNetworkConnected=[];clubNetworkActivity=[];clubNetworkActivityState='unavailable';clubNetworkRenderPresence();if(error.status===401||error.status===403||error.code==='42501')clubNetworkClear();clubNetworkStatus(clubNetworkMessage(error));}
+  }catch(error){clubSaveStatus(!navigator.onLine||error instanceof TypeError||error.name==='TimeoutError'?'pending':'error',!navigator.onLine||error instanceof TypeError||error.name==='TimeoutError'?'Connexion indisponible : les enregistrements locaux restent en attente. Nouvelle tentative au retour de la connexion.':clubNetworkMessage(error));clubNetworkPresenceState='unavailable';clubNetworkConnected=[];clubNetworkActivity=[];clubNetworkActivityState='unavailable';clubNetworkRenderPresence();if(error.status===401||error.status===403||error.code==='42501')clubNetworkClear();clubNetworkStatus(clubNetworkMessage(error));}
   finally{clubNetworkSyncPromise=null;}
  })();return clubNetworkSyncPromise;
 }
@@ -256,7 +281,7 @@ function clubNetworkImport(openOwn=false){
  }else{
   if(!confirm('Créer une copie indépendante dans votre espace ? L’original du collègue sera conservé.'))return;
   if(kind==='composition')payload.documentId=crypto.randomUUID();else payload.id=crypto.randomUUID();payload.title=('Copie · '+(payload.title||row.title)).slice(0,100);if(kind==='training')payload.coach=activeCoach.name;if(kind==='report')payload.info.coach=activeCoach.name;
-  clubNetworkSetLibrary(kind,[payload,...clubNetworkLibrary(kind)]);clubNetworkMarkPending(kind,clubNetworkPayloadId(kind,payload),'save');clubNetworkQueueSync();notify('Copie ajoutée dans votre bibliothèque et synchronisée avec votre compte.');
+  clubNetworkSetLibrary(kind,[payload,...clubNetworkLibrary(kind)]);clubNetworkMarkPending(kind,clubNetworkPayloadId(kind,payload),'save');clubNetworkQueueSync();notify('Copie ajoutée dans votre bibliothèque ; partage en attente de confirmation.');
  }
  $('club-network-preview').close();clubNetworkRenderSources();
 }
@@ -313,16 +338,17 @@ $('club-network-import-local').onclick=()=>clubNetworkRun(async()=>{
 });
 // Enregistrer dans le site privé signifie enregistrer sur le compte et rendre visible au club.
 coachStorageSet=function(key,value){
- const previous=coachStorageGet(key);clubNetworkOriginalStorageSet(key,value);if(!clubNetworkBound())return;
+ const previous=coachStorageGet(key);try{clubNetworkOriginalStorageSet(key,value);clubSaveLocalErrors.delete(key);}catch(error){clubSaveLocalErrors.add(key);clubSaveStatus('error','Le stockage sur cet appareil a échoué : cette modification n’est pas enregistrée. Libérez de l’espace et enregistrez à nouveau.');throw error;}if(!clubNetworkBound())return;
  const kind=key==='vestiaire-training-library'?'training':key==='vestiaire-reports'?'report':key==='vestiaire-saves'?'composition':null;if(!kind)return;
  try{
   const unwrap=x=>kind==='composition'?x.state:x,old=JSON.parse(previous||'[]').map(unwrap),next=JSON.parse(value).map(unwrap),oldMap=new Map(old.map(p=>[clubNetworkPayloadId(kind,p),JSON.stringify(p)])),ids=new Set(next.map(p=>clubNetworkPayloadId(kind,p)));
   for(const payload of next){const s=clubNetworkSource(kind,payload);if(s&&oldMap.get(s.id)!==JSON.stringify(payload))clubNetworkMarkPending(kind,s.id,'save');}
   for(const payload of old){const id=clubNetworkPayloadId(kind,payload);if(id&&!ids.has(id))clubNetworkMarkPending(kind,id,'delete');}
-  clubNetworkStatus('Enregistré sur cet appareil · synchronisation avec le club…');clubNetworkQueueSync();
- }catch{clubNetworkStatus('Enregistré sur cet appareil, mais la synchronisation doit être réessayée.');}
+  clubSaveLocalErrors.delete('queue:'+key);clubNetworkStatus('Enregistré sur cet appareil · synchronisation avec le club…');clubNetworkQueueSync();
+ }catch{clubSaveLocalErrors.add('queue:'+key);clubSaveStatus('error','Le document est conservé sur cet appareil, mais sa mise en attente de partage a échoué. Enregistrez-le à nouveau.');clubNetworkStatus('Enregistré sur cet appareil, mais la synchronisation doit être réessayée.');}
 };
 function clubNetworkResume(){if(clubNetworkSession&&!clubNetworkMember&&!clubNetworkBusy)clubNetworkRun(()=>clubNetworkAfterLogin(clubNetworkSession));else clubNetworkQueueSync();}
+window.addEventListener('offline',()=>{if(clubNetworkBound())clubSaveStatus('pending','Hors connexion : le partage et la vérification sont en attente. Les documents déjà partagés restent disponibles au club.');});
 for(const event of ['online','focus'])window.addEventListener(event,clubNetworkResume);document.addEventListener('visibilitychange',()=>{if(!document.hidden)clubNetworkQueueSync();});
 window.addEventListener('hashchange',()=>{if(location.hash==='#educateurs'&&!clubNetworkBound())clubNetworkRequestPrivate();});
 for(const profile of coachProfiles){const option=el('option','',profile.name);option.value=profile.id;$('club-network-legacy-profile').append(option);}
