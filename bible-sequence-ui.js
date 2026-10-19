@@ -46,8 +46,23 @@ bibleExerciseDetail=function(exercise,session=currentTraining,options={}){
  const editGroup=el('button','bible-edit-present','Modifier les présents ou l’espace disponible');editGroup.type='button';editGroup.onclick=()=>{root.closest('dialog')?.close();window.trainingWizard?.go(2);};settings.append(editGroup);
  const actions=el('div','bible-criteria-actions'),autoSize=el('button','export','Proposer les dimensions'),all=el('button','export','Appliquer à toutes les séquences'),saved=el('p','bible-criteria-status');autoSize.type=all.type='button';actions.append(autoSize,all);settings.append(actions,saved);
  if(!options.printing)selector.after(settings);
+ const distributions=el('details','bible-distributions'),distributionSummary=el('summary','','Comment répartir ce groupe ?'),distributionChoices=el('div','bible-distribution-choices');
+ distributions.append(distributionSummary,el('p','hint','Choisissez un jeu commun ou plusieurs ateliers. Les effectifs sont répartis avec un écart d’un joueur maximum ; équilibrez aussi les niveaux et les postes avec votre connaissance du groupe.'),distributionChoices);
+ if(!options.printing)settings.after(distributions);
  const buttons=timeline.sequences.map((s,i)=>{const b=el('button',i===0?'active':'',String(i+1));b.type='button';b.setAttribute('aria-label','Séquence '+(i+1)+' : '+s.title);b.onclick=()=>{if(timer&&applyFields()===false)return;show(i,true);};selector.append(b);return b;});
  function contextAt(i){return bibleSequenceContext(exercise,session,variant,i);}
+ function renderDistributions(context){
+  distributionChoices.replaceChildren();if(options.printing||!context.valid)return;
+  const effective=context.session,automatic=biblePlan(exercise,effective,{organisation:'auto'}),counts=[...new Set([1,2,3,4,automatic.groups.length,context.plan.groups.length])].filter(n=>n<=Math.floor(effective.players/2)).sort((a,b)=>a-b);
+  for(const count of counts){
+   const organisation=count===1?'single':'stations',basis=biblePlan(exercise,effective,{organisation,groups:count}),proposed=biblePlan(exercise,effective,{organisation,groups:count,width:Math.max(...basis.groups.map(g=>g.width)),length:Math.max(...basis.groups.map(g=>g.length))}),button=el('button','bible-distribution-choice');button.type='button';button.dataset.groups=String(count);button.disabled=!proposed.fits;
+   const selected=context.plan.groups.length===count;button.setAttribute('aria-pressed',String(selected));
+   button.append(el('strong','',count===1?'Tous ensemble':count+' ateliers équilibrés'),el('span','',proposed.groups.map(g=>g.players).join(' + ')+' joueurs · gardiens inclus'),el('small','',proposed.fits?proposed.groups.map(g=>g.width+' × '+g.length+' m').filter((v,i,a)=>a.indexOf(v)===i).join(' / '):'Effectif ou espace insuffisant'));
+   button.onclick=()=>{const g=proposed.groups[0];writeSettings({...variant.sequenceSettings?.[index],players:context.activePlayers,keepers:context.activeKeepers,organisation:count===1?'single':'stations',groups:count,width:g.width,length:g.length});persist();show(index,true);saved.textContent='Répartition appliquée à cette séquence. Les autres séquences restent modifiables.';};
+   distributionChoices.append(button);
+  }
+  const list=el('ul','bible-team-breakdown');for(const g of context.plan.groups)list.append(el('li','',(context.plan.groups.length>1?'Atelier '+g.index+' : ':'')+g.roles));distributionChoices.append(list,el('p','hint',context.plan.groups.map(g=>g.rotation).filter((v,i,a)=>a.indexOf(v)===i).join(' ')));
+ }
  function writeSettings(value){variant.sequenceSettings=Array.from({length:4},(_,i)=>({...variant.sequenceSettings?.[i]}));variant.sequenceSettings[index]=value;}
  function persist(){
   if(!bibleVariantValid(variant))return;
@@ -77,7 +92,7 @@ bibleExerciseDetail=function(exercise,session=currentTraining,options={}){
   else{figure=bibleDiagram(exercise,c.session,{plan:c.plan,sequenceControls:false,showSequenceRule:false,sequenceIndex:index,animation:!options.printing});stage.append(figure);if(!c.fits)alert.append(el('p','training-alert',c.plan.warnings.join(' ')));else if(c.plan.warnings.some(w=>w.includes('format conseillé')))alert.append(el('p','hint',c.plan.warnings.filter(w=>w.includes('format conseillé')).join(' ')));}
   active.replaceChildren(el('h4','','Séquence '+(index+1)+' · '+s.title),el('p','bible-sequence-time',bibleTime(s.workSeconds)+' de jeu'+(s.restSeconds?' puis '+bibleTime(s.restSeconds)+' de récupération / retour coach':'')),el('p','bible-sequence-rule',s.rule));if(s.observe)active.append(el('p','bible-observe','À observer : '+s.observe));
   if(c.offPlayers>0)active.append(el('p','bible-off-players',c.offPlayers+' hors exercice, dont '+c.offKeepers+' G : organiser leur rotation.'));
-  bibleInstallationContents(installation,c,session);renderProgression();root.bibleContext=c;
+  bibleInstallationContents(installation,c,session);renderProgression();renderDistributions(c);root.bibleContext=c;
  }
  autoSize.onclick=()=>{const values=readFields(),effective={...session,players:values.players,keepers:values.keepers};const check=bibleSequenceContext(exercise,session,{sequenceSettings:[{players:values.players,keepers:values.keepers}]},0);if(!check.valid){alert.replaceChildren(el('p','training-alert',check.errors.join(' ')));return;}const p=biblePlan(exercise,effective,{organisation:mode.value,groups:values.groups}),g=p.groups[0];inputs.width.value=Math.min(105,g.width);inputs.length.value=Math.min(120,g.length);applyFields();};
  settings.addEventListener('focusout',()=>{if(timer)applyFields();});

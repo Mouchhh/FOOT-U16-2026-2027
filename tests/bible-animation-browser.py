@@ -47,8 +47,15 @@ with sync_playwright() as p:
             assert(Math.hypot(atStart.ball.x-after.ball.x,atStart.ball.y-after.ball.y)<.01,exercise.id+' ball teleports at step');
             for(const motion of step.motions.filter(m=>m.kind==='ball')){
               const state=bibleAnimationState(plan,step.start+step.duration/2),ball=state.balls.find(b=>b.id===motion.id),middle={x:(motion.from.x+motion.to.x)/2,y:(motion.from.y+motion.to.y)/2};
-              assert(ball&&Math.hypot(ball.x-middle.x,ball.y-middle.y)<1e-6,exercise.id+' pass does not travel through midpoint');continuousPasses++;
+              if(motion.follow!==undefined){const carrier=state.players.find(p=>p.number===motion.follow);assert(carrier&&Math.hypot(ball.x-carrier.x,ball.y-carrier.y)<scene.playerRadius+13,exercise.id+' carried ball detaches from player');}
+              else{assert(ball&&Math.hypot(ball.x-middle.x,ball.y-middle.y)<1e-6,exercise.id+' pass does not travel through midpoint');continuousPasses++;}
             }
+            if(step.action==='pass'){
+              const before=bibleAnimationState(plan,step.start),after=bibleAnimationState(plan,step.end),from=before.players.find(p=>p.number===step.from),to=after.players.find(p=>p.number===step.to);
+              assert(Math.hypot(before.ball.x-from.x,before.ball.y-from.y)<scene.playerRadius+13,exercise.id+' pass starts away from passer');
+              assert(Math.hypot(after.ball.x-to.x,after.ball.y-to.y)<scene.playerRadius+13,exercise.id+' pass misses receiver');
+            }
+            for(const m of step.motions.filter(m=>m.kind==='player'))assert(Math.hypot(m.to.x-m.from.x,m.to.y-m.from.y)/plan.field.scale/step.duration<=4.201,exercise.id+' impossible running pace');
           }
           cases++;
         }
