@@ -37,7 +37,7 @@ bibleExerciseDetail=function(exercise,session=currentTraining,options={}){
  const facts=root.querySelector('.bible-facts'),oldSelector=root.querySelector('.bible-sequence-tabs'),selector=el('div','bible-sequence-tabs'),stage=el('div','bible-sequence-stage'),oldDiagram=root.querySelector('.bible-diagram'),active=root.querySelector('.bible-active-sequence'),installation=root.querySelector('.bible-installation'),progression=root.querySelector('.bible-progression');
  oldDiagram?.bibleDispose?.();oldDiagram.replaceWith(stage);oldSelector.replaceWith(selector);selector.setAttribute('role','group');selector.setAttribute('aria-label','Séquences de '+exercise.title);selector.append(el('span','','Les séquences'));
  const alert=el('div','bible-sequence-warning');stage.before(alert);
- const guide=el('div','bible-coach-guide-host');stage.before(guide);
+ const guide=el('div','bible-coach-guide-host');stage.before(active);stage.after(guide);
  const oldRules=root.querySelector('.bible-essential-rules');if(typeof bibleCoachGuide==='function'&&oldRules){oldRules.previousElementSibling?.remove();oldRules.remove();}
  let index=0,figure=null,timer=0;
  const inputs={},settings=el('details','bible-sequence-settings'),settingsTitle=el('summary','','Mon groupe & mon terrain · séquence 1');settings.append(settingsTitle);

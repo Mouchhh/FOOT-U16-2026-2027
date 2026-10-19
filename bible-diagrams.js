@@ -13,7 +13,14 @@ function bibleDiagramMechanism(exercise){
   'thirdman-depth':['third','Appui-remise pour libérer une passe vers le troisième joueur.'],
   'wall-pass':['third','Donner, recevoir la remise puis trouver le partenaire suivant.'],
   support:['support','Sortir de l’ombre du défenseur avant de recevoir.'],
-  'receive-back':['support','Se déplacer pour recevoir avec un angle de passe ouvert.'],
+  'receive-back':['back','Recevoir dos à la cible, protéger puis remettre si le retournement est fermé.'],
+  'escape-turn':['turn','Regarder avant de recevoir ; se retourner côté libre ou utiliser le soutien.'],
+  'rondo-direction':['split','Repérer une fenêtre de passe ouverte avant de franchir la pression.'],
+  'defend-outnumbered':['delay','Ralentir le porteur ; couvrir l’axe sans sortir tous sur le ballon.'],
+  'finish-rebound':['rebound','Préparer un soutien derrière le tir puis jouer le ballon repoussé.'],
+  trap:['trap','Approcher depuis l’intérieur, orienter sur le côté et garder une couverture.'],
+  'wide-isolate':['isolate','Servir le joueur large ; garder un soutien si le duel devient défavorable.'],
+  'box-combine':['combine','Appui, remise et déplacement pour créer une frappe face au but.'],
   switch:['switch','Attirer d’un côté, puis transmettre vers le côté opposé.'],
   'build-switch':['switch','Fixer la pression puis trouver la cible du côté opposé.'],
   'attract-release':['switch','Attirer un adversaire avant de libérer le partenaire éloigné.'],
@@ -90,6 +97,10 @@ function bibleDiagramActors(exercise,group,field,goalPositions=[]){
  const relocate=(t,long,wide)=>{if(!t)return;const p=px(long,wide);Object.assign(t,p,{long,wide});};
  const a=blue[0],relay=neutral[0]||blue[1],third=neutral.length?blue[1]:blue[2];
  if(mechanism.type==='third'&&template!=='circuit'&&a&&relay&&third){relocate(a,length*.18,width*.67);relocate(relay,length*.47,width*.28);relocate(third,length*.73,width*.65);relocate(red[0],length*.43,width*.53);}
+ if(['back','turn'].includes(mechanism.type)){relocate(a,length*.2,width*.6);relocate(blue[1]||neutral[0],length*.52,width*.5);relocate(red[0],length*.65,width*.5);relocate(blue[2],length*.3,width*.22);}
+ if(mechanism.type==='split'){relocate(a,length*.12,width*.5);relocate(blue[1],length*.88,width*.5);red.forEach((p,i)=>relocate(p,length*(.42+Math.floor(i/2)*.15),width*(i%2?.78:.22)));}
+ if(['trap','isolate'].includes(mechanism.type)){relocate(a,length*.35,width*.16);relocate(blue[1],length*.58,width*.14);relocate(blue[2],length*.3,width*.62);relocate(red[0],length*.52,width*.32);relocate(red[1],length*.69,width*.35);}
+ if(mechanism.type==='delay'){relocate(a,length*.32,width*.32);relocate(blue[1],length*.4,width*.76);relocate(red[0],length*.57,width*.39);relocate(red[1],length*.72,width*.61);}
  if(mechanism.type==='support'&&blue.length>1){relocate(a,length*.2,width*.6);relocate(blue[1],length*.62,width*.55);relocate(red[0],length*.43,width*.56);}
  if(mechanism.type==='switch'&&blue.length>1){relocate(a,length*.28,width*.14);relocate(blue[blue.length-1],length*.65,width*.84);if(blue.length>2)relocate(blue[1],length*.44,width*.25);}
  if(['cover','block'].includes(mechanism.type)){relocate(a,length*.3,width*.28);relocate(red[0],length*.55,width*.3);relocate(red[1],length*.73,width*.58);}
@@ -216,6 +227,11 @@ function bibleDiagramSVG(exercise,group,options={}){
  // Une à trois actions de principe, rattachées au mécanisme football travaillé.
  let ballOwner=blue[0]||neutral[0]||red[0]||keepers[0],ballPoint=ballOwner?ballFeet(ballOwner):px(length*.5,width*.5);
  if(mechanism.type==='third'&&a&&relay&&third){clearArrow(a,relay,true,'1');returnArrow(relay,a,'2');clearArrow(a,third,true,'3');ballPoint=ballFeet(a);}
+ else if(['back','turn'].includes(mechanism.type)&&(blue[1]||neutral[0])){const receiver=blue[1]||neutral[0];clearArrow(a,receiver,true,'1');returnArrow(receiver,a,'2 · soutien');ballPoint=ballFeet(a);}
+ else if(mechanism.type==='split'&&blue.length>1){clearArrow(a,blue[1],true,'fenêtre');ballPoint=ballFeet(a);}
+ else if(mechanism.type==='delay'&&red[0]){clearArrow(a,px(length*.46,width*.32),false,'avancer');clearArrow(red[0],px(length*.64,width*.37),false,'temporiser');ballPoint=ballFeet(a);}
+ else if(mechanism.type==='trap'&&red[0]){clearArrow(red[0],px(length*.43,width*.22),false,'fermer l’axe');if(red[1])clearArrow(red[1],px(length*.58,width*.31),false,'couvrir');ballPoint=ballFeet(a);}
+ else if(mechanism.type==='isolate'&&blue[1]){clearArrow(a,blue[1],true,'servir large');clearArrow(a,px(length*.45,width*.32),false,'soutenir');ballPoint=ballFeet(a);}
  else if(mechanism.type==='support'&&blue.length>1){const receive=px(length*.62,width*.24);clearArrow(blue[1],receive,false,'1');clearArrow(a,receive,true,'2');ballPoint=ballFeet(a);}
  else if(mechanism.type==='switch'&&blue.length>1){const far=blue[blue.length-1];if(blue.length>2){clearArrow(a,blue[1],true,'1');clearArrow(blue[1],far,true,'2');}else clearArrow(a,far,true);ballPoint=ballFeet(a);}
  else if(mechanism.type==='cover'&&red.length){clearArrow(red[0],px(length*.43,width*.29),false,'Presser');if(red[1])clearArrow(red[1],px(length*.6,width*.43),false,'Couvrir');if(exercise.id==='press-cover-three'&&red[2])clearArrow(red[2],px(length*.68,width*.73),false,'Équilibrer');ballPoint=ballFeet(a);}

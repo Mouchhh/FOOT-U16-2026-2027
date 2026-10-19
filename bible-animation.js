@@ -37,6 +37,7 @@ function bibleAnimationPlan(exercise,group,options={}){
  const move=(p,target)=>p&&!p.rotation?{player:p.number,to:safeRun(target,p.number)}:null;
  const advance=(p,dx,dy)=>{const at=current(p);return at?move(p,{x:at.x+dx*field.fw,y:at.y+dy*field.fh}):null;};
  function add(title,caption,seconds,moves=[],ballTarget=null){
+  if(exercise.id==='cpa-attack'&&!(Number(options.sequenceIndex)||0))moves=moves.filter(change=>change&&players.find(p=>p.number===change.player)?.team!=='red');
   const motions=[];
   const moving=new Set(moves.filter(Boolean).map(m=>m.player)),reserved=active.filter(p=>!moving.has(p.number)).map(p=>positions.get(p.number)),clearance=scene.playerRadius*2.15;
   for(const change of moves.filter(Boolean)){
@@ -79,6 +80,42 @@ function bibleAnimationPlan(exercise,group,options={}){
   add('2 · Continuer sa course','Le passeur avance après sa passe ; l’appui le regarde avant de remettre.',1.8,[advance(a,.07,-.025)]);
   pass(b,a,'3 · Remettre dans la course','L’appui remet devant le joueur lancé pour conserver la continuité.',1.8,[advance(a,.035,.025)]);
   if(c)pass(a,c,'4 · Relier au poste suivant','La combinaison se termine par une passe au troisième poste, puis les fonctions tournent.');
+ }else if(['back','turn'].includes(mechanism.type)&&a&&(b||neutrals[0])){
+  const receiver=b||neutrals[0];
+  add('1 · Regarder avant de recevoir','Le receveur repère la pression derrière lui et garde le soutien visible.',1.2);
+  pass(a,receiver,'2 · Recevoir en protégeant','Le défenseur reste derrière le receveur ; celui-ci ne se retourne pas par obligation.',1.8,Number(options.sequenceIndex)>0?[advance(red[0],-.025,0)]:[]);
+  if(mechanism.type==='back'||Number(options.sequenceIndex)===2){
+   add('3 · Ouvrir le soutien','Le passeur se décale pour recevoir hors de la pression, plutôt que rester sur la même ligne.',1.4,[advance(a,.025,-.12)]);
+   pass(receiver,a,'4 · Remettre puis accompagner','La remise conserve le ballon et remet un partenaire face au jeu ; le receveur accompagne.',1.8,[advance(receiver,.035,.08)]);
+  }else carry(receiver,point(.7,.27),'3 · Orienter côté libre','Le premier contact éloigne le ballon du défenseur ; si ce côté était fermé, le soutien resterait une solution.',1.8,[advance(red[0],.04,-.025)]);
+ }else if(mechanism.type==='split'&&a&&b){
+  add('1 · Repérer la fenêtre','Le passeur identifie le partenaire de l’autre côté de la pression ; la passe ne doit pas traverser un défenseur.',1.2);
+  pass(a,b,'2 · Franchir la pression','Dans cet exemple, l’intervalle est ouvert : le ballon passe dans cette fenêtre vers un soutien visible.',2,[advance(red[0],.015,-.025),advance(red[1],-.015,.025)]);
+  add('3 · Redonner un angle','Le passeur redevient disponible ; conserver autour reste possible si la fenêtre se ferme.',1.5,[advance(a,0,.1)]);
+ }else if(mechanism.type==='delay'&&a&&red[0]){
+  carry(a,point(.45,.29),'1 · Lire le surnombre','L’attaque avance avec une solution de passe ; la défense garde l’axe et la profondeur.',1.8,[move(red[0],point(.6,.36)),advance(b,.06,0)]);
+  carry(a,point(.53,.23),'2 · Temporiser sans se jeter','Le premier défenseur reste entre ballon et cible ; son partenaire, s’il est présent, couvre à l’intérieur.',1.8,[move(red[0],point(.68,.31)),red[1]?move(red[1],point(.78,.54)):null]);
+  add('3 · Garder la couverture','Le porteur est ralenti ; gagner du temps ne signifie pas récupérer à chaque action.',1.2);
+ }else if(mechanism.type==='trap'&&a&&red[0]){
+  add('1 · Fermer la passe intérieure','Le premier défenseur approche depuis l’intérieur pour orienter le porteur vers le côté.',1.8,[move(red[0],point(.43,.22)),red[1]?move(red[1],point(.59,.31)):null]);
+  if(b)pass(a,b,'2 · Jouer vers le côté','La passe latérale déclenche la sortie ; le partenaire défensif reste en couverture.',1.8,[move(red[0],point(.61,.24)),red[1]?move(red[1],point(.72,.33)):null]);
+  if(c)pass(b||a,c,'3 · Réagir si la relance ressort','Si l’adversaire trouve le soutien, le bloc coulisse ; les défenseurs ne poursuivent pas tous le même joueur.',2,[advance(red[0],0,.13),advance(red[1],-.03,.11)]);
+ }else if(mechanism.type==='isolate'&&a&&b){
+  pass(a,b,'1 · Servir le joueur large','Le receveur dispose d’un espace sur le côté ; le passeur propose une sécurité à l’intérieur.',1.8,[move(a,point(.44,.34))]);
+  if(Number(options.sequenceIndex)===2){
+   add('2 · Reconnaître la fermeture','La défense réduit l’espace ; le soutien reste disponible.',1.6,[move(red[0],point(.65,.23)),red[1]?move(red[1],point(.73,.35)):null]);
+   pass(b,a,'3 · Ressortir plutôt que forcer','Le porteur réutilise son soutien ; le duel n’est pas une obligation quand l’espace se ferme.');
+  }else carry(b,point(.78,.14),'2 · Exploiter le côté favorable','Le couloir reste accessible ; le soutien accompagne sans prendre le même espace.',1.8,[advance(red[0],.07,-.025)]);
+ }else if(mechanism.type==='combine'&&a&&b){
+  pass(a,b,'1 · Trouver l’appui','L’appui attire l’attention de la défense ; le passeur poursuit son déplacement.',1.8,[advance(a,.06,-.04)]);
+  pass(b,a,'2 · Remettre face au but','La remise rejoint le partenaire lancé ; on ne l’impose pas si la frappe directe est déjà ouverte.',1.8,[advance(a,.06,.025),advance(red[0],.025,.035)]);
+  add('3 · Finir après avoir créé l’angle','Le joueur face au but peut frapper ; les autres préparent la seconde action.',1.5,[],goalPoint());
+ }else if(mechanism.type==='rebound'&&a){
+  const shooter=blue.slice().sort((p,q)=>q.x-p.x)[0],support=blue.find(p=>p!==shooter);
+  if(support)add('1 · Préparer le second ballon','Un soutien reste derrière le finisseur, avec un angle différent ; tous ne partent pas vers le but.',1.8,[move(support,point(.58,.65))]);
+  possession(shooter);add('2 · Frapper vers la cible','Le tireur termine ; cet exemple illustre un ballon repoussé, pas un but automatique.',1.3,[],goalPoint());
+  add('3 · Lire le ballon repoussé','La trajectoire ressort devant le but ; les partenaires réagissent après avoir lu la déviation.',1.3,[],point(.7,.6));
+  if(support){add('4 · Maîtriser la seconde action','Le soutien rejoint le ballon repoussé ; il contrôle avant de décider de rejouer ou de finir.',1.6,[move(support,point(.7,.6))],()=>feet(support));ballOwner=support.number;Object.assign(steps.at(-1),{action:'control',to:support.number,owner:support.number});}
  }else if(mechanism.type==='third'&&a&&relay&&third){
   pass(a,relay,'1 · Trouver l’appui','Le premier porteur joue sur un partenaire disponible entre les lignes.');
   pass(relay,a,'2 · Remettre et déclencher','La remise remet le jeu face à la cible ; le troisième joueur déclenche son appel.',1.6,[advance(third,.09,-.08),advance(red[0],-.035,-.035)]);

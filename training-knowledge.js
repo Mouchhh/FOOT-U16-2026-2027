@@ -2706,6 +2706,7 @@ const bibleKnowledge={
     "sourceNote": "Fiche originale du club inspirée des principes des références citées. Organisation, dimensions, séquences et variantes sont des propositions éditoriales à ajuster au groupe ; elles ne constituent pas une reproduction ni une validation fédérale.",
     "template": "finish",
     "format": {
+      "requiresKeeper": true,
       "min": 5,
       "max": 12,
       "ideal": 8,
