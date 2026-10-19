@@ -84,7 +84,7 @@ with sync_playwright() as p:
       window.printStart=figure.querySelector('.training-diagram-print').innerHTML;
     }''')
     assert page.locator('figure').get_attribute('data-animation-state')=='idle'
-    assert page.locator('.bible-animation-play').inner_text()=='▶ Lire'
+    assert page.locator('.bible-animation-play').inner_text()=='▶ Voir l’exemple'
     page.locator('.bible-animation-play').click()
     page.wait_for_timeout(1600)
     assert page.locator('figure').get_attribute('data-animation-state')=='playing'

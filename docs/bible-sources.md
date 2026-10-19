@@ -306,3 +306,9 @@ python tests/bible-library-browser.py
 ```
 
 Les tests vérifient les totaux de joueurs et de gardiens, les rôles et le matériel, les surfaces annoncées compatibles, la durée exacte des blocs, les schémas, la recherche, les variantes, les sauvegardes, la création libre, le PDF et le rendu de lecture partagée. Le service Supabase du test de partage est simulé ; il ne certifie pas la configuration du projet Supabase réel.
+
+## Relecture pédagogique du 19 octobre 2026
+
+Ressources relues intégralement pour les parties organisation / explication / coaching : John Peacock (réception et angles ; 4v4+3), coordination défensive en petits groupes (pression, couverture, équilibre), prévention de la progression axiale (déclenchement et coordination du pressing). Les fiches terrain du club formulent leurs propres lancements, scores, remises en jeu et interventions, sans les présenter comme la reproduction de ces séances.
+
+Le rondo 4v2 démarre sur un repère éditorial de 12 × 12 m, ajustable ; le rondo orienté possède son propre repère. Les circuits affichent leurs vrais postes, ballons et files, avec un repère de séparation de 3 m et de surface utile de 6 × 6 m par circuit. Ces valeurs sont des choix d’installation du club, pas des normes de certification. Aucun modèle n’a été entraîné.

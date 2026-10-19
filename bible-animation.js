@@ -29,22 +29,24 @@ function bibleAnimationPlan(exercise,group,options={}){
  let ball={...scene.ball},time=0,ballOwner=scene.balls[0]?.owner??active.slice().sort((a,b)=>Math.hypot(a.x-ball.x,a.y-ball.y)-Math.hypot(b.x-ball.x,b.y-ball.y))[0]?.number;const extraBalls=new Map(scene.balls.filter(b=>b.id!=='ball').map(b=>[b.id,{...b}]));
  const point=(long,wide)=>({x:field.fx+long*field.fw,y:field.fy+wide*field.fh});
  const safe=(p,margin=0)=>({x:Math.max(field.fx+margin,Math.min(field.fx+field.fw-margin,p.x)),y:Math.max(field.fy+margin,Math.min(field.fy+field.fh-margin,p.y))});
+ const circuits=template==='circuit'&&!['warm','cool'].includes(exercise.id)?bibleCircuitStations(group,field):[];
+ const safeRun=(target,id,margin=scene.playerRadius+2)=>{const cell=circuits.find(s=>id>s.offset&&id<=s.offset+s.players);if(!cell)return safe(target,margin);const mx=Math.min(margin,cell.w*.2),my=Math.min(margin,cell.h*.2);return{x:Math.max(cell.x+mx,Math.min(cell.x+cell.w-mx,target.x)),y:Math.max(cell.y+my,Math.min(cell.y+cell.h-my,target.y))};};
  const current=p=>p?positions.get(p.number):null;
  const feet=p=>{const at=current(p);return at?bibleDiagramBallSpot({...p,...at},field,scene.playerRadius):{...ball};};
  const friends=p=>active.filter(t=>t.number!==p.number&&!t.keeper&&(t.team===p.team||t.team==='neutral'));
- const move=(p,target)=>p&&!p.rotation?{player:p.number,to:safe(target,Math.min(8,field.fh*.035))}:null;
+ const move=(p,target)=>p&&!p.rotation?{player:p.number,to:safeRun(target,p.number)}:null;
  const advance=(p,dx,dy)=>{const at=current(p);return at?move(p,{x:at.x+dx*field.fw,y:at.y+dy*field.fh}):null;};
  function add(title,caption,seconds,moves=[],ballTarget=null){
   const motions=[];
   const moving=new Set(moves.filter(Boolean).map(m=>m.player)),reserved=active.filter(p=>!moving.has(p.number)).map(p=>positions.get(p.number)),clearance=scene.playerRadius*2.15;
   for(const change of moves.filter(Boolean)){
-   const from=positions.get(change.player);if(!from)continue;let to=safe(change.to,scene.playerRadius+2);
+   const from=positions.get(change.player);if(!from)continue;let to=safeRun(change.to,change.player);
    const clear=p=>reserved.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>=clearance);
-   if(!clear(to))search:for(let ring=1;ring<=10;ring++)for(let angle=0;angle<16;angle++){const p=safe({x:change.to.x+Math.cos(angle*Math.PI/8)*clearance*ring*.55,y:change.to.y+Math.sin(angle*Math.PI/8)*clearance*ring*.55},scene.playerRadius+2);if(clear(p)){to=p;break search;}}
+   if(!clear(to))search:for(let ring=1;ring<=10;ring++)for(let angle=0;angle<16;angle++){const p=safeRun({x:change.to.x+Math.cos(angle*Math.PI/8)*clearance*ring*.55,y:change.to.y+Math.sin(angle*Math.PI/8)*clearance*ring*.55},change.player);if(clear(p)){to=p;break search;}}
    const middle={x:(from.x+to.x)/2,y:(from.y+to.y)/2},distance=Math.hypot(to.x-from.x,to.y-from.y)||1;
    let control=null,best=Infinity;
    for(const offset of [0,clearance*2,-clearance*2,clearance*4,-clearance*4]){
-    const candidate=safe({x:middle.x-(to.y-from.y)/distance*offset,y:middle.y+(to.x-from.x)/distance*offset},scene.playerRadius+2);
+    const candidate=safeRun({x:middle.x-(to.y-from.y)/distance*offset,y:middle.y+(to.x-from.x)/distance*offset},change.player);
     let penalty=0;for(const t of [.15,.3,.45,.6,.75,.9]){const p={x:(1-t)**2*from.x+2*(1-t)*t*candidate.x+t*t*to.x,y:(1-t)**2*from.y+2*(1-t)*t*candidate.y+t*t*to.y};for(const other of reserved)penalty+=Math.max(0,clearance-Math.hypot(p.x-other.x,p.y-other.y))**2;}
     const score=penalty*100+Math.abs(offset);if(score<best){best=score;control=offset?candidate:null;}
    }
@@ -72,7 +74,12 @@ function bibleAnimationPlan(exercise,group,options={}){
  const result=()=>({version:1,exerciseId:exercise.id,groupIndex:group.index,sequenceIndex:Number(options.sequenceIndex)||0,field:{...field},initial,steps,duration:Math.round(time*100)/100,available:steps.length>0&&group.fits!==false&&group.pedagogyFits!==false&&scene.activeBalls>0,label:'Démonstration du principe',sequenceRule:sequence.rule||'',note:'Exemple d’action pour comprendre le principe ; les décisions restent libres dans le jeu.'});
  if(group.fits===false||group.pedagogyFits===false||!active.length||!scene.activeBalls)return result();
  add('Observer le départ','Repérez le porteur, ses partenaires et les adversaires.',.9);
- if(mechanism.type==='third'&&a&&relay&&third){
+ if(exercise.id==='wall-pass'&&a&&b){
+  pass(a,b,'1 · Donner à l’appui','Le porteur trouve l’appui avec une passe dosée.');
+  add('2 · Continuer sa course','Le passeur avance après sa passe ; l’appui le regarde avant de remettre.',1.8,[advance(a,.07,-.025)]);
+  pass(b,a,'3 · Remettre dans la course','L’appui remet devant le joueur lancé pour conserver la continuité.',1.8,[advance(a,.035,.025)]);
+  if(c)pass(a,c,'4 · Relier au poste suivant','La combinaison se termine par une passe au troisième poste, puis les fonctions tournent.');
+ }else if(mechanism.type==='third'&&a&&relay&&third){
   pass(a,relay,'1 · Trouver l’appui','Le premier porteur joue sur un partenaire disponible entre les lignes.');
   pass(relay,a,'2 · Remettre et déclencher','La remise remet le jeu face à la cible ; le troisième joueur déclenche son appel.',1.6,[advance(third,.09,-.08),advance(red[0],-.035,-.035)]);
   pass(a,third,'3 · Trouver le troisième joueur','La passe suivante exploite l’angle ouvert par l’appui-remise.',2,[advance(red[0],.035,.03)]);
@@ -202,19 +209,21 @@ const bibleAnimationControllers=new Set();
 let bibleAnimationObserver=null;
 function bibleAnimationMount(root,svg,exercise,group,options={}){
  const plan=bibleAnimationPlan(exercise,group,{...options,scene:svg.bibleScene}),box=document.createElement('div');box.className='bible-animation';
+ const coaching=typeof bibleCoachScenario==='function'?bibleCoachScenario(exercise,group,options.sequenceIndex):null;
  if(!plan.available){const message=document.createElement('p');message.className='bible-animation-unavailable';message.textContent='Ajustez l’effectif et l’espace avant la démonstration.';box.append(message);root.dataset.animationState='idle';return {element:box,dispose(){},plan};}
  // Cadrer le terrain dans le lecteur ; la copie imprimée garde sa légende complète.
  const f=plan.field;svg.setAttribute('viewBox',[f.fx-50,f.fy-40,f.fw+100,f.fh+110].join(' '));
  const row=document.createElement('div');row.className='bible-animation-controls';
  const button=(name,text,label)=>{const b=document.createElement('button');b.type='button';b.className='bible-animation-'+name;b.textContent=text;b.setAttribute('aria-label',label);return b;};
- const play=button('play','▶ Lire','Lire la démonstration'),reset=button('reset','↺','Revenir au départ'),previous=button('previous','‹','Étape précédente'),next=button('next','›','Étape suivante');play.setAttribute('aria-pressed','false');
+ const play=button('play','▶ Voir l’exemple','Lire la démonstration'),reset=button('reset','↺ Installation','Revenir au départ'),previous=button('previous','‹','Étape précédente'),next=button('next','›','Étape suivante');play.setAttribute('aria-pressed','false');
  const speed=document.createElement('select');speed.className='bible-animation-speed';speed.setAttribute('aria-label','Vitesse de démonstration');for(const value of [.5,1,1.5,2]){const option=document.createElement('option');option.value=String(value);option.textContent=String(value).replace('.',',')+'×';speed.append(option);}speed.value='1';
  const progress=document.createElement('input');progress.type='range';progress.className='bible-animation-progress';progress.min='0';progress.max=String(plan.duration);progress.step='.01';progress.value='0';progress.setAttribute('aria-label','Avancement de la démonstration');
  const caption=document.createElement('p');caption.className='bible-animation-caption';caption.setAttribute('role','status');caption.setAttribute('aria-live','polite');
  const status=document.createElement('span');status.className='bible-animation-status';status.textContent='Démonstration du principe';
  const phases=document.createElement('div');phases.className='bible-animation-phases';phases.setAttribute('role','group');phases.setAttribute('aria-label','Actions de la démonstration');
  const key=document.createElement('p');key.className='bible-animation-key';key.textContent='Bleus / rouges · appuis blancs · G jaunes · pointillés : passe · trait plein : course';
- row.append(play,reset,previous,next,speed,status);box.append(key,row,progress,caption,phases);
+ const observe=document.createElement('p');observe.className='bible-animation-observe';if(coaching)observe.textContent='À observer dans cet exemple : '+coaching.look;
+ row.append(play,reset,previous,next,speed,status);box.append(key,row,progress,caption,observe,phases);
  const tokenElements=new Map([...svg.querySelectorAll('.bible-player')].map(e=>[Number(e.dataset.number),e])),ballElements=[...svg.querySelectorAll('[data-equipment="ball"][data-reserve="false"]')],traces=[...svg.querySelectorAll('.bible-action-pass,.bible-action-move,.bible-action-label')];
  const ballStarts=ballElements.map(el=>{const circle=el.querySelector('circle');return{x:Number(circle?.getAttribute('cx')),y:Number(circle?.getAttribute('cy'))};});
  const trail=document.createElementNS('http://www.w3.org/2000/svg','line');for(const [key,value]of Object.entries({stroke:'#ffe39a','stroke-width':2.1,'stroke-dasharray':'6 5','stroke-linecap':'round','pointer-events':'none',opacity:0}))trail.setAttribute(key,String(value));trail.dataset.animationDecoration='true';svg.append(trail);
@@ -244,11 +253,12 @@ function bibleAnimationMount(root,svg,exercise,group,options={}){
   halo.setAttribute('cx',state.ball.x);halo.setAttribute('cy',state.ball.y);halo.setAttribute('opacity',time>0?'1':'0');traces.forEach(t=>t.style.opacity='0');
   const activeStep=plan.steps[state.step],flight=activeStep?.motions.find(m=>m.kind==='ball');if(flight&&time>activeStep.start&&time<activeStep.end){trail.setAttribute('x1',flight.from.x);trail.setAttribute('y1',flight.from.y);trail.setAttribute('x2',state.ball.x);trail.setAttribute('y2',state.ball.y);trail.setAttribute('opacity','.8');}else trail.setAttribute('opacity','0');
   if(lastStep!==state.step||time===0){const illustrated=activeStep?.reference===undefined?activeStep:plan.steps[activeStep.reference],involved=new Set(time>0?[...(illustrated?.motions||[]).filter(m=>m.kind==='player').map(m=>m.id),illustrated?.from,illustrated?.to].filter(Number.isFinite):[]);for(const [id,ring]of actorHalos){ring.setAttribute('opacity',involved.has(id)?'.8':'0');tokenElements.get(id).style.opacity=involved.size&&!involved.has(id)?'.58':'1';}drawAction(time>0?illustrated:null);for(const [id,b]of actionButtons)b.setAttribute('aria-pressed',String(time>0&&id===illustrated?.index));lastStep=state.step;}
-  const text=state.title+' · '+state.caption;if(text!==lastCaption){const title=document.createElement('strong'),description=document.createElement('span');title.textContent=state.title;description.textContent=state.caption;caption.replaceChildren(title,description);lastCaption=text;}
+  svg.querySelectorAll('.bible-start-ring,.bible-installation-note').forEach(e=>e.style.opacity=time>0?'0':'1');const heading=root.querySelector('.training-diagram-controls>strong'),headingText=(time>0?'Exemple d’action':'Installation')+' · atelier '+group.index;if(heading&&heading.textContent!==headingText)heading.textContent=headingText;
+  const text=state.title+' · '+state.caption+(time===0?' installation':'');if(text!==lastCaption){const title=document.createElement('strong'),description=document.createElement('span');title.textContent=time===0&&coaching?'Installation · le départ':state.title;description.textContent=time===0&&coaching?coaching.start:state.caption;caption.replaceChildren(title,description);lastCaption=text;}
   const timeLabel=format(time)+' / '+format(plan.duration);if(status.textContent!==timeLabel)status.textContent=timeLabel;progress.value=String(time);progress.setAttribute('aria-valuetext',state.title+' · '+format(time)+' sur '+format(plan.duration));previous.disabled=time<=0;next.disabled=time>=plan.duration;
   root.dataset.animationState=playing?'playing':time>=plan.duration?'ended':time>0?'paused':'idle';root.dataset.animationStep=String(state.step);return state;
  }
- function pause(){playing=false;cancelAnimationFrame(raf);raf=0;lastTimestamp=0;play.textContent='▶ Lire';play.setAttribute('aria-label','Lire la démonstration');play.setAttribute('aria-pressed','false');if(!disposed)render();}
+ function pause(){playing=false;cancelAnimationFrame(raf);raf=0;lastTimestamp=0;play.textContent='▶ Voir l’exemple';play.setAttribute('aria-label','Lire la démonstration');play.setAttribute('aria-pressed','false');if(!disposed)render();}
  function hidden(){const parentDialog=root.closest('dialog');return document.hidden||!root.isConnected||root.closest('[hidden],details:not([open])')!==null||Boolean(parentDialog&&!parentDialog.open)||getComputedStyle(root).display==='none'||!root.getClientRects().length||!svg.getClientRects().length;}
  function tick(timestamp){
   if(!playing||disposed)return;if(hidden()){pause();return;}

@@ -4,7 +4,7 @@ const bibleSources={
     "title": "John Peacock: Passing and receiving",
     "organisation": "FIFA Training Centre",
     "url": "https://www.fifatrainingcentre.com/en/practice/elite-sessions/in-possession/john-peacock-passing-and-receiving.php",
-    "checkedAt": "2026-10-17",
+    "checkedAt": "2026-10-19",
     "scope": "Prise d’information, posture ouverte, dosage de passe et progression avec appuis ; organisations 4v4+3 présentées dans la source."
   },
   "receiving": {
@@ -18,7 +18,7 @@ const bibleSources={
     "title": "Developing defensive coordination in small groups",
     "organisation": "FIFA Training Centre",
     "url": "https://www.fifatrainingcentre.com/en/practice/talent-coach-programme/zonal-defending/developing-defensive-coordination-in-small-groups.php",
-    "checkedAt": "2026-10-17",
+    "checkedAt": "2026-10-19",
     "scope": "Pression du défenseur proche, couverture, équilibre côté opposé et coordination de petits groupes."
   },
   "bvb": {
@@ -67,7 +67,7 @@ const bibleSources={
     "title": "Preventing progression through central areas",
     "organisation": "FIFA Training Centre",
     "url": "https://www.fifatrainingcentre.com/en/practice/talent-coach-programme/sessions/preventing-progression-through-central-areas.php",
-    "checkedAt": "2026-10-17",
+    "checkedAt": "2026-10-19",
     "scope": "Protéger les espaces centraux en coordonnant pression et fermeture des lignes de passe."
   },
   "cross": {
@@ -250,13 +250,13 @@ const bibleKnowledge={
     "sequences": [
       {
         "title": "Se mettre en mouvement",
-        "rule": "Conduites et passes à faible intensité ; chacun rejoint un espace libre après sa passe.",
+        "rule": "Chacun conduit son ballon à faible intensité et rejoint un espace libre sans gêner un partenaire.",
         "observe": "Tête relevée et contacts maîtrisés."
       },
       {
-        "title": "Ouvrir la réception",
-        "rule": "Avant de recevoir, annoncer un espace libre puis orienter le premier contact.",
-        "observe": "Le joueur voit la suite avant la passe."
+        "title": "Regarder avant de changer de direction",
+        "rule": "Au signal, annoncer une couleur ou un partenaire visible, puis orienter sa conduite vers un espace libre.",
+        "observe": "Le regard quitte le ballon avant le changement de direction."
       },
       {
         "title": "Accélérer progressivement",
@@ -265,7 +265,7 @@ const bibleKnowledge={
       },
       {
         "title": "Relier au thème du jour",
-        "rule": "Les joueurs cherchent le geste de séance : remise, contrôle vers l’avant ou soutien.",
+        "rule": "Identifier l’espace avant un changement de direction puis ajuster le premier contact de conduite au thème de séance.",
         "observe": "Chaque joueur est prêt sans fatigue inutile."
       }
     ],
@@ -374,9 +374,9 @@ const bibleKnowledge={
         "observe": "L’angle de soutien reste utilisable."
       },
       {
-        "title": "Décider avec une gêne",
-        "rule": "Un joueur gêne les lignes de passe à vitesse modérée ; le passeur attend ou change de solution.",
-        "observe": "La décision passe avant la vitesse."
+        "title": "Choisir le sens sur un signal",
+        "rule": "Au signal du coach, choisir le poste disponible dans l’autre sens ; annoncer sa solution avant le contrôle. Le circuit reste sans défenseur.",
+        "observe": "Le regard et l’orientation précèdent la transmission."
       }
     ],
     "tags": [
@@ -3782,8 +3782,8 @@ trainingExercises.push(...[
     "method": "Jeu",
     "kind": "possession",
     "target": 7,
-    "width": 22,
-    "length": 20,
+    "width": 16,
+    "length": 14,
     "goal": "Identifier le moment où une passe peut dépasser la pression.",
     "rules": [
       "Les conservateurs se répartissent autour des défenseurs dans la zone.",

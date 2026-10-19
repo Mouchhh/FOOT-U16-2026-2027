@@ -42,6 +42,11 @@ function bibleDiagramMechanism(exercise){
  };
  const definition=patterns[exercise.id];return definition?{type:definition[0],caption:definition[1]}:{type:'',caption:''};
 }
+function bibleCircuitStations(group,field){
+ const count=Math.max(1,Number(group.material?.activeBalls||1)),cols=Math.min(count,Math.max(1,Math.ceil(Math.sqrt(count*field.fw/field.fh)))),rows=Math.ceil(count/cols),size=Math.floor(group.players/count),rest=group.players%count;
+ const gap=Math.min(3*field.scale,field.fw/(cols*2),field.fh/(rows*2)),w=(field.fw-gap*(cols-1))/cols,h=(field.fh-gap*(rows-1))/rows;
+ let offset=0;return Array.from({length:count},(_,i)=>{const players=size+(i<rest?1:0),x=field.fx+(i%cols)*(w+gap),y=field.fy+Math.floor(i/cols)*(h+gap),points=[[.2,.72],[.5,.22],[.8,.72]].map(([a,b])=>({x:x+w*a,y:y+h*b})),station={index:i,offset,players,x,y,w,h,points};offset+=players;return station;});
+}
 // Pure starting layout shared by static drawings and the demonstration player.
 function bibleDiagramActors(exercise,group,field,goalPositions=[]){
  const knowledge=bibleDiagramKnowledge(exercise),mechanism=bibleDiagramMechanism(exercise),template=group.template||knowledge.template||'possession';
@@ -57,6 +62,10 @@ function bibleDiagramActors(exercise,group,field,goalPositions=[]){
  if(template==='rondo'){
   const n=Number(teams.blue||0);for(let i=0;i<n;i++){const a=-Math.PI/2+i*Math.PI*2/n;add(length/2+length*.39*Math.cos(a),width/2+width*.37*Math.sin(a),'blue');}
   grid(Number(teams.red||0),length*.32,length*.68,'red');
+ }else if(template==='circuit'&&!['warm','cool'].includes(exercise.id)){
+  for(const station of bibleCircuitStations(group,field))for(let i=0;i<station.players;i++){const p=station.points[i]||{x:station.x+station.w*(.16+(i-3)*.12),y:station.y+station.h*.9},dx=station.x+station.w/2-p.x,dy=station.y+station.h/2-p.y,d=Math.hypot(dx,dy)||1,offset=i<3?Math.min(24,station.w*.12,station.h*.12):0;add((p.x+dx/d*offset-fx)/scale,(p.y+dy/d*offset-fy)/scale,'blue');}
+ }else if(template==='circuit'&&exercise.id==='warm'){
+  grid(Number(teams.blue||0),length*.02,length*.98,'blue',width*.02,width*.98);
  }else if(template==='circuit'){
   const n=Number(teams.blue||0);for(let i=0;i<n;i++){const a=-Math.PI/2+i*Math.PI*2/n;add(length/2+length*.37*Math.cos(a),width/2+width*.35*Math.sin(a),'blue');}
   grid(Number(teams.red||0),length*.35,length*.65,'red');
@@ -80,7 +89,7 @@ function bibleDiagramActors(exercise,group,field,goalPositions=[]){
  const blue=tokens.filter(t=>t.team==='blue'&&!t.rotation),red=tokens.filter(t=>t.team==='red'&&!t.rotation),neutral=tokens.filter(t=>t.team==='neutral'&&!t.rotation),keepers=tokens.filter(t=>t.keeper&&!t.rotation);
  const relocate=(t,long,wide)=>{if(!t)return;const p=px(long,wide);Object.assign(t,p,{long,wide});};
  const a=blue[0],relay=neutral[0]||blue[1],third=neutral.length?blue[1]:blue[2];
- if(mechanism.type==='third'&&a&&relay&&third){relocate(a,length*.18,width*.67);relocate(relay,length*.47,width*.28);relocate(third,length*.73,width*.65);relocate(red[0],length*.43,width*.53);}
+ if(mechanism.type==='third'&&template!=='circuit'&&a&&relay&&third){relocate(a,length*.18,width*.67);relocate(relay,length*.47,width*.28);relocate(third,length*.73,width*.65);relocate(red[0],length*.43,width*.53);}
  if(mechanism.type==='support'&&blue.length>1){relocate(a,length*.2,width*.6);relocate(blue[1],length*.62,width*.55);relocate(red[0],length*.43,width*.56);}
  if(mechanism.type==='switch'&&blue.length>1){relocate(a,length*.28,width*.14);relocate(blue[blue.length-1],length*.65,width*.84);if(blue.length>2)relocate(blue[1],length*.44,width*.25);}
  if(['cover','block'].includes(mechanism.type)){relocate(a,length*.3,width*.28);relocate(red[0],length*.55,width*.3);relocate(red[1],length*.73,width*.58);}
@@ -99,13 +108,14 @@ function bibleDiagramActors(exercise,group,field,goalPositions=[]){
  // grid. Keep the main actors first, then find the nearest free starting spot.
  // This is deterministic installation spacing, never an invented game action.
  const radius=Math.max(9,Math.min(group.players<=12?18:15,Math.min(fw,fh)/13)),gap=radius*2.3,placed=[],priority=[...tokens.filter(t=>t.keeper&&!t.fieldKeeper&&!t.rotation),...blue.slice(0,3),...red.slice(0,3),...neutral.slice(0,2),...tokens],seen=new Set();
- const clampPoint=p=>({x:Math.max(fx+radius+2,Math.min(fx+fw-radius-2,p.x)),y:Math.max(fy+radius+2,Math.min(fy+fh-radius-2,p.y))});
+ const circuits=template==='circuit'&&!['warm','cool'].includes(exercise.id)?bibleCircuitStations(group,field):[];
+ const clampPoint=(p,number)=>{const cell=circuits.find(s=>number>s.offset&&number<=s.offset+s.players)||{x:fx,y:fy,w:fw,h:fh},mx=Math.min(radius+2,cell.w*.2),my=Math.min(radius+2,cell.h*.2);return{x:Math.max(cell.x+mx,Math.min(cell.x+cell.w-mx,p.x)),y:Math.max(cell.y+my,Math.min(cell.y+cell.h-my,p.y))};};
  const clear=p=>placed.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>=gap);
  for(const token of priority){
   if(seen.has(token.number)||token.rotation)continue;seen.add(token.number);
-  const original=clampPoint(token);let best=original;
+  const original=clampPoint(token,token.number);let best=original;
   if(!clear(original))search:for(let ring=1;ring<=8;ring++)for(let i=0;i<24;i++){
-   const angle=i*Math.PI/12,candidate=clampPoint({x:original.x+Math.cos(angle)*gap*ring*.55,y:original.y+Math.sin(angle)*gap*ring*.55});
+   const angle=i*Math.PI/12,candidate=clampPoint({x:original.x+Math.cos(angle)*gap*ring*.55,y:original.y+Math.sin(angle)*gap*ring*.55},token.number);
    if(clear(candidate)){best=candidate;break search;}
   }
   Object.assign(token,best,{long:(best.x-fx)/scale,wide:(best.y-fy)/scale});placed.push(token);
@@ -122,7 +132,7 @@ function bibleDiagramBallSpot(token,field,radius){
 }
 function bibleDiagramBallActors(tokens,count){
  const active=tokens.filter(t=>!t.rotation),taken=new Set();
- return Array.from({length:Math.min(count,active.length)},(_,i)=>{let index=count===active.length?i:i*3;if(index>=active.length||taken.has(index))index=active.findIndex((t,j)=>!taken.has(j));taken.add(index);return active[index];});
+ return Array.from({length:Math.min(count,active.length)},(_,i)=>{let index=i*Math.floor(active.length/count)+Math.min(i,active.length%count);if(index>=active.length||taken.has(index))index=active.findIndex((t,j)=>!taken.has(j));taken.add(index);return active[index];});
 }
 function bibleDiagramSVG(exercise,group,options={}){
  const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),serial=++bibleDiagramSerial;
@@ -187,7 +197,10 @@ function bibleDiagramSVG(exercise,group,options={}){
  discs.slice(0,discCount).forEach(([x,y])=>{const g=make('g',{'class':'bible-equipment','data-equipment':'disc'});g.append(make('ellipse',{cx:x,cy:y+1.5,rx:6,ry:3.2,fill:'#e8a135',stroke:'#fff0c7','stroke-width':1}),make('ellipse',{cx:x,cy:y,rx:2,ry:1,fill:'#a26920'}));svg.append(g);placement('disc',x,y);});
  const cones=[];
  targetSlots.slice(fullGoal+smallGoal).forEach(g=>{const opening=3,long=g.side==='left'?0:length;cones.push(point(long,g.wide-opening/2),point(long,g.wide+opening/2));goalPositions.push({...g,type:'gate',width:opening});});
- const coneCount=Number(material.cones||0),circuitCones=Number(material.circuitCones||0);for(let i=0;i<circuitCones;i++){const a=-Math.PI/2+i*Math.PI*2/circuitCones;cones.push(point(length/2+length*.41*Math.cos(a),width/2+width*.4*Math.sin(a)));}while(cones.length<coneCount){const i=cones.length;cones.push([fx+10+i*15,fy+fh+15]);}
+ const coneCount=Number(material.cones||0),circuitCones=Number(material.circuitCones||0),stations=template==='circuit'&&!['warm','cool'].includes(exercise.id)?bibleCircuitStations(group,{fx,fy,fw,fh,scale}):[];
+ const stationPoints=stations.flatMap(s=>s.points);for(let i=0;i<circuitCones;i++){const p=stationPoints[i];if(p)cones.push([p.x,p.y]);else{const a=-Math.PI/2+i*Math.PI*2/circuitCones;cones.push(point(length/2+length*.41*Math.cos(a),width/2+width*.4*Math.sin(a)));}}
+ for(const s of stations){svg.append(make('text',{'class':'bible-station-label',x:s.x+s.w/2,y:s.y+s.h*.52,'text-anchor':'middle',fill:'#def0e7','font-size':11},'Circuit '+(s.index+1)+' · '+s.players+' j.'));if(s.index%Math.max(1,Math.round(fw/s.w))>0)svg.append(make('line',{x1:s.x,y1:s.y+6,x2:s.x,y2:s.y+s.h-6,stroke:'#b6d4c5','stroke-width':1,'stroke-dasharray':'4 6',opacity:.45}));}
+ while(cones.length<coneCount){const i=cones.length;cones.push([fx+10+i*15,fy+fh+15]);}
  cones.slice(0,coneCount).forEach(([x,y])=>{const cone=make('g',{'class':'bible-equipment','data-equipment':'cone'});cone.append(make('ellipse',{cx:x,cy:y+4,rx:6,ry:2.8,fill:'#9e541d',opacity:.6}),make('path',{d:'M'+(x-5)+' '+(y+3)+'L'+x+' '+(y-9)+'L'+(x+5)+' '+(y+3)+'Z',fill:'#ffa64c',stroke:'#fff0d7','stroke-width':1}),make('path',{d:'M'+(x-2.6)+' '+(y-3)+'H'+(x+2.6),stroke:'#fff','stroke-width':1.6}));svg.append(cone);placement('cone',x,y);});
  const tokens=bibleDiagramActors(exercise,group,{fx,fy,fw,fh,scale},goalPositions);
  const playerRadius=Math.max(9,Math.min(group.players<=12?18:15,Math.min(fw,fh)/13)),blue=tokens.filter(t=>t.team==='blue'&&!t.rotation),red=tokens.filter(t=>t.team==='red'&&!t.rotation),neutral=tokens.filter(t=>t.team==='neutral'&&!t.rotation),keepers=tokens.filter(t=>t.keeper&&!t.rotation);
@@ -261,6 +274,12 @@ function bibleDiagramSVG(exercise,group,options={}){
  const firstOwner=tokens.filter(t=>!t.rotation).slice().sort((a,b)=>{const pa=ballFeet(a),pb=ballFeet(b);return Math.hypot(pa.x-ballPoint.x,pa.y-ballPoint.y)-Math.hypot(pb.x-ballPoint.x,pb.y-ballPoint.y);})[0];
  const balls=activeBallCircles.map((circle,i)=>({id:i?'ball-'+i:'ball',x:Number(circle.getAttribute('cx')),y:Number(circle.getAttribute('cy')),owner:ballActors[i]?.number??(!i?firstOwner?.number:undefined)}));
  svg.bibleScene={tokens:tokens.map(t=>({...t})),ball:balls[0]?{x:balls[0].x,y:balls[0].y}:{...ballPoint},balls,field:{fx,fy,fw,fh,scale,width,length},goals:goalPositions.map(g=>({...g})),playerRadius,activeBalls,template,mechanism};
+ if(typeof bibleCoachScenario==='function'){
+  const coachX=fx+fw*.5,coachY=fy+fh+24;svg.append(make('circle',{'data-feature':'coach',cx:coachX,cy:coachY,r:10,fill:'#173c58',stroke:'#c4d8e7','stroke-width':1.5}),make('text',{x:coachX,y:coachY+4,'text-anchor':'middle',fill:'#fff','font-size':11,'font-weight':700},'C'));
+  const owner=template==='circuit'?ballActors[0]:firstOwner,player=owner?svg.querySelector('.bible-player[data-number="'+owner.number+'"]'):null;
+  if(player)player.prepend(make('circle',{'class':'bible-start-ring',cx:0,cy:0,r:playerRadius+5,fill:'none',stroke:'#ffe298','stroke-width':2,'stroke-dasharray':'4 3'}));
+  svg.append(make('text',{'class':'bible-installation-note',x:440,y:fy+fh+65,'text-anchor':'middle',fill:'#355278','font-size':10},'C : coach et réserve hors terrain · départ : '+(owner?'n° '+owner.number:'au signal du coach')));
+ }
  const keyY=590;
  const legend=[{x:135,color:'#3679dd',text:'Équipe bleue'},{x:325,color:'#df5a65',text:'Équipe rouge'},{x:520,color:'#f5f8ff',text:'Appui neutre'},{x:700,color:'#ffd166',text:'Gardien · G'}];
  legend.filter(k=>k.text==='Équipe bleue'?teams.blue:k.text==='Équipe rouge'?teams.red:k.text==='Appui neutre'?teams.neutral:group.keepers).forEach((k,i,list)=>{k.x=viewLeft+24+i*(viewWidth-32)/list.length;svg.append(make('circle',{cx:k.x-13,cy:keyY-4,r:5.5,fill:k.color,stroke:'#8293aa','stroke-width':.8}),make('text',{x:k.x,y:keyY,fill:'#3d5777','font-size':11},k.text));});

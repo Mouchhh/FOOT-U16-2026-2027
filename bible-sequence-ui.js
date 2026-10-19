@@ -11,9 +11,9 @@ function bibleInitialVariant(exercise,session,source=null,legacy=false){
  return {version:1,title:exercise.title,width:Math.max(6,Math.min(105,group.width)),length:Math.max(6,Math.min(120,group.length)),groups:plan.groups.length,sequences:time.sequences.length,restSeconds:60,organisation,sequenceRules:['','','','']};
 }
 function biblePreviewState(exercise,session=currentTraining){
- const key=session.id+'|'+exercise.id;
- if(!biblePreviewDrafts.has(key))biblePreviewDrafts.set(key,{variant:bibleInitialVariant(exercise,session,exercise.bibleVariant),duration:12});
- return biblePreviewDrafts.get(key);
+ const key=session.id+'|'+exercise.id,signature=JSON.stringify([session.players,session.keepers,session.space,session.spaceWidth,session.spaceLength,session.age,session.level]);
+ if(!biblePreviewDrafts.has(key))biblePreviewDrafts.set(key,{variant:bibleInitialVariant(exercise,session,exercise.bibleVariant),duration:12,signature,customised:!!exercise.bibleVariant});
+ const preview=biblePreviewDrafts.get(key);if(preview.signature!==signature){if(!preview.customised)preview.variant=bibleInitialVariant(exercise,session,exercise.bibleVariant);preview.signature=signature;}return preview;
 }
 function bibleDisposeDiagrams(container){container.querySelectorAll('.bible-detail').forEach(detail=>detail.bibleDispose?.());container.querySelectorAll('.bible-diagram').forEach(figure=>figure.bibleDispose?.());}
 function bibleInstallationContents(container,context,session){
@@ -36,6 +36,8 @@ bibleExerciseDetail=function(exercise,session=currentTraining,options={}){
  const facts=root.querySelector('.bible-facts'),oldSelector=root.querySelector('.bible-sequence-tabs'),selector=el('div','bible-sequence-tabs'),stage=el('div','bible-sequence-stage'),oldDiagram=root.querySelector('.bible-diagram'),active=root.querySelector('.bible-active-sequence'),installation=root.querySelector('.bible-installation'),progression=root.querySelector('.bible-progression');
  oldDiagram?.bibleDispose?.();oldDiagram.replaceWith(stage);oldSelector.replaceWith(selector);selector.setAttribute('role','group');selector.setAttribute('aria-label','Séquences de '+exercise.title);selector.append(el('span','','Les séquences'));
  const alert=el('div','bible-sequence-warning');stage.before(alert);
+ const guide=el('div','bible-coach-guide-host');stage.before(guide);
+ const oldRules=root.querySelector('.bible-essential-rules');if(typeof bibleCoachGuide==='function'&&oldRules){oldRules.previousElementSibling?.remove();oldRules.remove();}
  let index=0,figure=null,timer=0;
  const inputs={},settings=el('details','bible-sequence-settings'),settingsTitle=el('summary','','Mon groupe & mon terrain · séquence 1');settings.append(settingsTitle);
  const grid=el('div','bible-criteria-grid');
@@ -67,7 +69,7 @@ bibleExerciseDetail=function(exercise,session=currentTraining,options={}){
  function persist(){
   if(!bibleVariantValid(variant))return;
   if(options.blockId){const block=currentTraining.blocks.find(b=>b.id===options.blockId);if(block&&block.exerciseId===exercise.id){block.bibleVariant=structuredClone(variant);saveTrainingDraft();saved.textContent='Réglages conservés dans le brouillon. Enregistrez la séance pour les synchroniser.';}}
-  else if(preview){preview.variant=structuredClone(variant);saved.textContent='Réglages prêts : ajoutez cet exercice à la séance pour les conserver.';}
+  else if(preview){preview.variant=structuredClone(variant);preview.customised=true;saved.textContent='Réglages prêts : ajoutez cet exercice à la séance pour les conserver.';}
  }
  function readFields(){return{players:Number(inputs.players.value),keepers:Number(inputs.keepers.value),width:Number(inputs.width.value),length:Number(inputs.length.value),organisation:mode.value,groups:mode.value==='single'?1:Number(groups.value)||1};}
  function applyFields(){
@@ -89,11 +91,12 @@ bibleExerciseDetail=function(exercise,session=currentTraining,options={}){
   facts.replaceChildren(el('span','',c.activePlayers+' joueurs · '+c.activeKeepers+' G'),el('span','',c.plan?(c.plan.groups.length===1?'Tous ensemble · 1 terrain':c.plan.groups.length+' ateliers'):'Critères à revoir'),el('span','',duration+' min · '+timeline.sequences.length+' séquences'));
   if(c.offPlayers>0)facts.append(el('span','bible-off-players',c.offPlayers+' hors exercice'));
   if(!c.valid){alert.append(el('p','training-alert',c.errors.join(' ')));figure=null;}
-  else{figure=bibleDiagram(exercise,c.session,{plan:c.plan,sequenceControls:false,showSequenceRule:false,sequenceIndex:index,animation:!options.printing});stage.append(figure);if(!c.fits)alert.append(el('p','training-alert',c.plan.warnings.join(' ')));else if(c.plan.warnings.some(w=>w.includes('format conseillé')))alert.append(el('p','hint',c.plan.warnings.filter(w=>w.includes('format conseillé')).join(' ')));}
+  else{figure=bibleDiagram(exercise,c.session,{plan:c.plan,sequenceControls:false,showSequenceRule:false,sequenceIndex:index,animation:!options.printing,onGroupChange:groupIndex=>renderGuide(c,groupIndex)});stage.append(figure);if(!c.fits)alert.append(el('p','training-alert',c.plan.warnings.join(' ')));else if(c.plan.warnings.some(w=>w.includes('format conseillé')))alert.append(el('p','hint',c.plan.warnings.filter(w=>w.includes('format conseillé')).join(' ')));}
   active.replaceChildren(el('h4','','Séquence '+(index+1)+' · '+s.title),el('p','bible-sequence-time',bibleTime(s.workSeconds)+' de jeu'+(s.restSeconds?' puis '+bibleTime(s.restSeconds)+' de récupération / retour coach':'')),el('p','bible-sequence-rule',s.rule));if(s.observe)active.append(el('p','bible-observe','À observer : '+s.observe));
   if(c.offPlayers>0)active.append(el('p','bible-off-players',c.offPlayers+' hors exercice, dont '+c.offKeepers+' G : organiser leur rotation.'));
-  bibleInstallationContents(installation,c,session);renderProgression();renderDistributions(c);root.bibleContext=c;
+  bibleInstallationContents(installation,c,session);renderProgression();renderDistributions(c);renderGuide(c,0);root.bibleContext=c;
  }
+ function renderGuide(context,groupIndex){if(typeof bibleCoachGuide!=='function')return;guide.replaceChildren(bibleCoachGuide(exercise,context,index,groupIndex,timeline.sequences[index]?.rule));if(options.printing)guide.querySelectorAll('details').forEach(d=>d.open=true);}
  autoSize.onclick=()=>{const values=readFields(),effective={...session,players:values.players,keepers:values.keepers};const check=bibleSequenceContext(exercise,session,{sequenceSettings:[{players:values.players,keepers:values.keepers}]},0);if(!check.valid){alert.replaceChildren(el('p','training-alert',check.errors.join(' ')));return;}const p=biblePlan(exercise,effective,{organisation:mode.value,groups:values.groups}),g=p.groups[0];inputs.width.value=Math.min(105,g.width);inputs.length.value=Math.min(120,g.length);applyFields();};
  settings.addEventListener('focusout',()=>{if(timer)applyFields();});
  all.onclick=()=>{if(applyFields()===false)return;const c=contextAt(index);if(!c.valid)return;const value={...variant.sequenceSettings[index]};variant.sequenceSettings=Array.from({length:4},()=>({...value}));persist();show(index,false);saved.textContent='Les mêmes critères sont appliqués à toutes les séquences.';};

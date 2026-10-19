@@ -72,7 +72,7 @@ function bibleMaterial(exercise,format,group,template){
  const balls=Math.max(activeBalls,template==='circuit'?Math.ceil(group.players/2):Math.max(2,Math.ceil(group.players/4)));
  const equipment=format.equipment||{},extra={};
  for(const key of ['hurdles','poles','ladders','hoops','dummies'])if(Number.isInteger(equipment[key])&&equipment[key]>=0&&equipment[key]<=12)extra[key]=equipment[key];
- const circuitCones=template==='circuit'?Math.max(3,Math.min(6,group.players)):0;
+ const circuitCones=template==='circuit'&&!['warm','cool'].includes(exercise.id)?3*activeBalls:0;
  const discs=4+2*(format.zones-1),cones=2*gates+circuitCones;
  return {balls,activeBalls,reserveBalls:balls-activeBalls,discs,cones,circuitCones,bibsBlue:group.teams.blue,bibsRed:group.teams.red,bibsNeutral:group.teams.neutral,bibsKeeper:group.activeKeepers+group.rotatingKeepers,goals,miniGoals,gates,...extra};
 }
@@ -160,6 +160,11 @@ function biblePlan(exercise,session={},options={}){
   const fits=layout.fits&&raw.pedagogyFits&&!belowRecommended;
   const g={...raw,...dims,tight:reduced,fits,layout:{x:layout.footprint.margin+(i%layout.footprint.cols)*(layout.footprint.cellWidth+layout.footprint.gap),y:layout.footprint.margin+Math.floor(i/layout.footprint.cols)*(layout.footprint.cellLength+layout.footprint.gap),rotation:layout.footprint.rotated?90:0},notes:[]};
   g.material=bibleMaterial(exercise,format,g,template);g.zoneDimensions=bibleZones(g,format,template);
+  if(template==='circuit'&&!['warm','cool'].includes(exercise.id)){
+   const count=g.material.activeBalls,cols=Math.min(count,Math.max(1,Math.ceil(Math.sqrt(count*g.length/g.width)))),rows=Math.ceil(count/cols);
+   g.circuitLayout={cols,rows,gap:3,width:(g.width-3*(rows-1))/rows,length:(g.length-3*(cols-1))/cols};g.circuitFits=g.circuitLayout.width>=6&&g.circuitLayout.length>=6;
+   if(!g.circuitFits){g.fits=false;g.notes.push('Circuits trop serrés : prévoir au moins 6 × 6 m par circuit et 3 m entre circuits. Agrandir ou organiser des ateliers séparés.');}
+  }
   if(reduced)g.notes.push('Dimensions resserrées par rapport au repère initial ; vérifier que les solutions de jeu restent possibles.');
   if(g.teams.neutral>format.neutrals)g.notes.push('Nombre d’appuis ajusté pour équilibrer les équipes avec l’effectif présent ; changer les appuis à chaque séquence.');
   if(belowRecommended)g.notes.push('Dimensions choisies en dessous du repère pédagogique : agrandir ou sélectionner une autre situation.');
@@ -180,6 +185,7 @@ function biblePlan(exercise,session={},options={}){
  if(!layout.fits)warnings.push('Installation impossible dans '+available.width+' × '+available.length+' m avec les dégagements : emprise requise '+layout.footprint.width+' × '+layout.footprint.length+' m. Réduire le nombre d’ateliers simultanés, alterner les groupes ou choisir une situation plus compacte.');
  if(groups.some(g=>g.width<g.recommendedMinimum.width||g.length<g.recommendedMinimum.length))warnings.push('Dimensions personnalisées trop serrées pour conserver l’intention de cette fiche ; agrandir ou choisir un format plus compact.');
  if(groups.some(g=>g.rotatingKeepers))warnings.push('Les gardiens supplémentaires sont comptés en rotation, jamais ajoutés aux joueurs en jeu.');
+ if(groups.some(g=>g.circuitFits===false))warnings.push('Les circuits ne tiennent pas avec 6 × 6 m utiles par circuit et 3 m de séparation : agrandir la zone ou choisir plusieurs ateliers.');
  if(format.goalType==='full'&&format.goals>0&&keepers===0)warnings.push(template==='keeper'?'Sans gardien, cette fiche ne permet pas le travail spécifique annoncé. Choisir un exercice de jeu au pied ou prévoir un gardien.':'Sans gardien : les cibles deviennent des portes de cônes ; le travail de finition avec gardien n’est pas reproduit.');
  if(template==='keeper'&&groups.some(g=>g.activeKeepers===0))warnings.push('Chaque atelier de travail spécifique gardien nécessite un gardien actif : regrouper les joueurs, faire tourner les ateliers ou choisir un autre thème.');
  const totalMaterial={};groups.forEach(g=>{for(const [key,value] of Object.entries(g.material))if(Number.isFinite(value))totalMaterial[key]=(totalMaterial[key]||0)+value;});

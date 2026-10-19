@@ -12,15 +12,15 @@ const trainingExercises=[
     "goal": "Préparer le groupe avec ballon et prises d’informations.",
     "rules": [
       "Conduire librement puis changer de direction au signal.",
-      "Passer à un partenaire disponible puis occuper un espace libre.",
+      "Au signal, lever la tête, identifier un espace libre et y orienter sa conduite avec son propre ballon.",
       "Augmenter progressivement le rythme."
     ],
     "cues": [
-      "Lever la tête avant de recevoir.",
+      "Lever la tête avant de changer de direction.",
       "Faire varier les surfaces de contact."
     ],
     "easier": "Réduire le rythme, supprimer les contraintes de pied.",
-    "harder": "Ajouter une prise d’information sur une couleur avant la passe.",
+    "harder": "Ajouter une prise d’information sur une couleur avant le changement de direction.",
     "success": "Chaque joueur est en mouvement avec une maîtrise du ballon adaptée au rythme."
   },
   {
@@ -76,8 +76,8 @@ const trainingExercises=[
     "method": "Jeu",
     "kind": "possession",
     "target": 6,
-    "width": 20,
-    "length": 20,
+    "width": 12,
+    "length": 12,
     "goal": "Garder des solutions autour du porteur.",
     "rules": [
       "Les joueurs extérieurs conservent dans la zone.",
