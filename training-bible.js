@@ -6,11 +6,13 @@ function bibleVariantValid(v){
  v.width>=6&&v.width<=105&&v.length>=6&&v.length<=120&&v.groups>=1&&v.groups<=40&&
  v.sequences>=1&&v.sequences<=4&&v.restSeconds>=0&&v.restSeconds<=300&&
  (v.organisation===undefined||['single','auto','stations'].includes(v.organisation))&&
+ (v.autoProfile===undefined||typeof v.autoProfile==='boolean')&&(v.profileKey===undefined||typeof v.profileKey==='string'&&v.profileKey.length<=1000)&&
  (v.sequenceSettings===undefined||Array.isArray(v.sequenceSettings)&&v.sequenceSettings.length<=4&&Array.from(v.sequenceSettings).every(bibleSequenceSettingValid))&&
  (v.sequenceRules===undefined||Array.isArray(v.sequenceRules)&&v.sequenceRules.length===4&&v.sequenceRules.every(s=>typeof s==='string'&&s.length<=1500));
 }
 const bibleNormalise=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,' ');
 const bibleTime=seconds=>{const s=Math.round(seconds);return Math.floor(s/60)+'′'+(s%60?String(s%60).padStart(2,'0')+'″':'');};
+const bibleIntervalText=sequence=>sequence.intervals?.length>1?sequence.intervals.length+' répétitions de '+[...new Set(sequence.intervals.map(i=>bibleTime(i.workSeconds)))].join(' à ')+' de jeu · '+bibleTime(sequence.intervals[0].restSeconds)+' de récupération entre répétitions, comprise dans la séquence.':'';
 let bibleCataloguePage=0,bibleCatalogueSignature='',bibleVariantEditing=null;
 
 function bibleMaterialText(material){
@@ -187,7 +189,7 @@ function openBibleVariant(exercise,block=null){
  const inputs={};for(const [key,labelText,value,min,max]of fields){const label=el('label','bible-field',labelText),input=el('input');input.type='number';input.id='bible-variant-'+key;input.value=value;input.min=min;input.max=max;input.step=1;input.required=true;inputs[key]=input;label.append(input);grid.append(label);}form.append(grid);
  const preview=el('div','bible-variant-preview');preview.id='bible-variant-preview';preview.setAttribute('aria-live','polite');form.append(preview);
  const custom=el('details','bible-extra');custom.append(el('summary','','Personnaliser les consignes par séquence'));const rules=[];for(let i=0;i<4;i++){const label=el('label','bible-field','Séquence '+(i+1)),input=el('textarea');input.id='bible-variant-rule-'+i;input.rows=2;input.maxLength=1500;input.value=previous.sequenceRules?.[i]||'';input.placeholder=bibleKnowledge[original.id].sequences[i]?.rule||'';label.append(input);custom.append(label);rules.push(input);}form.append(custom,el('p','hint','La durée du bloc inclut les pauses. Le temps de jeu est réparti entre les séquences. Les dimensions restent à valider selon votre terrain et votre matériel.'));
- function values(){return{...previous,version:1,title:name.value.trim(),width:Number(inputs.width.value),length:Number(inputs.length.value),groups:Number(inputs.groups.value),organisation:mode.value,sequences:Number(inputs.sequences.value),restSeconds:Number(inputs.rest.value),sequenceRules:rules.map(input=>input.value.trim())};}
+ function values(){return{...previous,autoProfile:false,version:1,title:name.value.trim(),width:Number(inputs.width.value),length:Number(inputs.length.value),groups:Number(inputs.groups.value),organisation:mode.value,sequences:Number(inputs.sequences.value),restSeconds:Number(inputs.rest.value),sequenceRules:rules.map(input=>input.value.trim())};}
  function refresh(){const variant=values();preview.replaceChildren();if(!bibleVariantValid(variant))return;const c=bibleSequenceContext(original,currentTraining,variant,0),p=c.plan,time=bibleEffectiveTimeline(original,Number(inputs.duration.value),currentTraining,variant);if(!c.valid){preview.append(el('p','training-alert',c.errors.join(' ')));return;}
   preview.append(el('strong','','Emprise : '+p.footprint.width+' × '+p.footprint.length+' m'),el('p','',p.groups.map(g=>g.players+' joueurs').join(' / ')),el('p','',time.sequences.map(s=>bibleTime(s.workSeconds)+' de jeu'+(s.restSeconds?' + '+bibleTime(s.restSeconds)+' de pause':'')).join(' · ')));
   if(!p.fits)preview.append(el('p','training-alert',p.warnings.join(' ')));else preview.append(el('p','bible-fit-ok','Installation compatible avec l’espace renseigné.'));

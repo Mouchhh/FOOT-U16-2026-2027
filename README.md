@@ -374,3 +374,9 @@ Chaque fiche distingue l’objectif, la mise en place réelle, le lancement, le 
 Les circuits de passes possèdent désormais trois postes matérialisés et un ballon par circuit, avec les joueurs supplémentaires derrière les postes. Les déplacements de la démonstration restent dans leur circuit. Le plan compte trois plots par circuit et contrôle un repère éditorial de 6 × 6 m utiles et 3 m entre circuits. L’activation individuelle garde un ballon par joueur, sans consigne de passes contradictoire. Les aperçus non personnalisés recalculent leurs dimensions lorsque le groupe change ; les choix explicites du coach restent conservés.
 
 Les ressources FIFA de John Peacock, de coordination défensive en petits groupes et de prévention de la progression axiale ont été relues le 19 octobre 2026. Elles éclairent les observations et principes ; les organisations et règles proposées ici restent éditoriales, distinctes des séances précises publiées par FIFA.
+
+### Adaptation à la catégorie et aux compétences
+
+La catégorie (U13–U15, U16–U18 ou seniors, y compris les libellés mixtes) et le niveau de compétences pilotent la proposition : choix d’exercices, effectif souhaitable par atelier, espace proposé, règles, rapports d’opposition du rondo et rythme de répétition. Exemple à six joueurs : 5v1 en découverte, 4v2 en confirmé. Le classement de compétition ne transforme pas automatiquement un groupe en confirmé. Les repères restent éditoriaux et ajustables.
+
+Chaque fiche affiche « Adapté à… » et la consigne retenue. Les longues séquences pédagogiques sont fractionnées en répétitions avec récupérations internes, sans dépasser la durée du bloc. Les variantes automatiques nouvelles suivent les changements de profil ; après personnalisation, les dimensions, consignes et temps choisis par le coach restent conservés. Les anciennes variantes sans indication d’origine automatique restent préservées. Aucune migration Supabase n’est nécessaire.

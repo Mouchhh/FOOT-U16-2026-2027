@@ -48,6 +48,7 @@ function applyTrainingForm(){
  const mapping={team:'team',category:'category',date:'date',time:'time',duration:'duration',players:'players',keepers:'keepers',age:'age',level:'level',context:'context','space-size':'space',notes:'notes'},candidate=structuredClone(currentTraining);let invalid=false;
  for(const [id,key] of Object.entries(mapping)){const input=$('training-'+id);input.setCustomValidity('');if(!input.checkValidity()){input.reportValidity();invalid=true;break;}candidate[key]=['duration','players','keepers','age'].includes(key)?Number(input.value):input.value;}
  if(invalid)return false;
+ if(candidate.category!==currentTraining.category){const ages=[...candidate.category.matchAll(/\bU\s*(\d{2})(?!\d)/gi)].map(m=>Number(m[1]));if(ages.length){candidate.age=Math.max(12,Math.min(65,Math.max(...ages)));$('training-age').value=candidate.age;}else if(/s[ée]niors?|v[ée]t[ée]rans?/i.test(candidate.category)&&candidate.age<18){candidate.age=18;$('training-age').value=18;}}
  if(candidate.keepers>Math.min(12,candidate.players-2)){$('training-keepers').setCustomValidity('Gardez au moins deux joueurs de champ ; 12 gardiens maximum.');$('training-keepers').reportValidity();return false;}
  if(candidate.space==='custom'){for(const [id,key] of [['training-space-width','spaceWidth'],['training-space-length','spaceLength']]){const input=$(id);if(input){if(!input.checkValidity()){input.reportValidity();return false;}candidate[key]=Number(input.value);}}}else{delete candidate.spaceWidth;delete candidate.spaceLength;}
  if(!trainingValid(candidate))return false;currentTraining=candidate;saveTrainingDraft();renderTrainingBlocks();renderTrainingCatalogue();renderTrainingWeek();return true;
@@ -64,6 +65,7 @@ function trainingExerciseDetail(exercise,session=currentTraining,options={}){
 }
 function renderTrainingBlocks(){
  if(typeof bibleDisposeDiagrams==='function')bibleDisposeDiagrams($('training-blocks'));
+ for(const block of currentTraining.blocks)if(block.bibleVariant?.autoProfile===true){const exercise=trainingExercises.find(e=>e.id===block.exerciseId);if(exercise)block.bibleVariant=bibleInitialVariant(exercise,currentTraining,block.bibleVariant);}
  const total=trainingTotal();$('training-total').textContent=total+' / '+currentTraining.duration+' min prévues · fin '+trainingFinish();$('training-total').classList.toggle('training-alert',total!==currentTraining.duration);
  $('training-blocks').replaceChildren();if(!currentTraining.blocks.length)$('training-blocks').append(el('p','hint','Ajoutez vos propres exercices ou choisissez des fiches dans la bibliothèque pour construire votre séance.'));
  let overview=$('training-block-overview');if(!overview){overview=el('div','training-block-overview');overview.id='training-block-overview';$('training-blocks').before(overview);}overview.replaceChildren();overview.hidden=!currentTraining.blocks.length;

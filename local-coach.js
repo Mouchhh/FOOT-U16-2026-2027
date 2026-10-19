@@ -1,5 +1,5 @@
 let localCoachProposal=null,localCoachSnapshot=null,localCoachVariant=0;
-function localCoachContext(){return JSON.stringify({team:currentTraining.team,category:currentTraining.category,date:currentTraining.date,duration:currentTraining.duration,players:currentTraining.players,keepers:currentTraining.keepers,age:currentTraining.age,level:currentTraining.level,space:currentTraining.space,themes:currentTraining.themes,notes:currentTraining.notes});}
+function localCoachContext(){return JSON.stringify({team:currentTraining.team,category:currentTraining.category,date:currentTraining.date,duration:currentTraining.duration,players:currentTraining.players,keepers:currentTraining.keepers,age:currentTraining.age,level:currentTraining.level,space:currentTraining.space,spaceWidth:currentTraining.spaceWidth,spaceLength:currentTraining.spaceLength,context:currentTraining.context,themes:currentTraining.themes,notes:currentTraining.notes});}
 function localCoachReference(){return typeof manualAIReference!=='undefined'&&manualAIReference?manualAIReference:null;}
 function openLocalCoachProposal(other=false){
  if(!applyTrainingForm())return notify('Vérifiez le rendez-vous et le groupe.');
@@ -8,7 +8,7 @@ function openLocalCoachProposal(other=false){
   const proposal=localCoachPlan(currentTraining,{goal:$('local-coach-goal').value,matchDate:$('local-coach-match').value},localCoachReference(),localCoachVariant);
   localCoachProposal=proposal;localCoachSnapshot=localCoachContext();
   const root=$('local-coach-preview');root.replaceChildren(el('h3','',proposal.title),el('p','local-coach-reason',proposal.summary));
-  let minute=0;proposal.blocks.forEach(b=>{const exercise=trainingExercises.find(e=>e.id===b.exerciseId),card=el('article','local-coach-preview-block');card.append(el('strong','',minute+'′ — '+(minute+b.duration)+'′ · '+exercise.title),el('p','',b.notes));minute+=b.duration;const details=el('details');details.append(el('summary','','Voir le schéma et les consignes'),trainingExerciseDetail(exercise,{...currentTraining,coachingLoad:proposal.load}));card.append(details);root.append(card);});
+  let minute=0;proposal.blocks.forEach(b=>{const exercise=trainingExercises.find(e=>e.id===b.exerciseId),card=el('article','local-coach-preview-block');card.append(el('strong','',minute+'′ — '+(minute+b.duration)+'′ · '+exercise.title),el('p','',b.notes));minute+=b.duration;const details=el('details');details.append(el('summary','','Voir le schéma et les consignes'),trainingExerciseDetail(exercise,{...currentTraining,coachingLoad:proposal.load},{duration:b.duration}));card.append(details);root.append(card);});
   $('local-coach-result').textContent=minute+' minutes · '+currentTraining.players+' joueurs répartis · proposition modifiable';
   if(!$('local-coach-dialog').open)$('local-coach-dialog').showModal();
  }catch(error){notify(error.message||'Impossible de proposer une séance.');}

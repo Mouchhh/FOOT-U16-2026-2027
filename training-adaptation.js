@@ -1,5 +1,34 @@
 // Adaptations éditoriales du club. Ces repères d'installation ne sont pas des normes fédérales.
 // Fonctions sans DOM : un même plan alimente la fiche, le schéma et l'export.
+function bibleTrainingProfile(session={}){
+ const category=String(session.category||'').trim(),ages=[...category.matchAll(/\bU\s*(\d{2})(?!\d)/gi)].map(m=>Number(m[1])).filter(n=>n>=12&&n<=23),senior=/s[ée]niors?|v[ée]t[ée]rans?/i.test(category),age=senior?Math.max(18,session.age||18):ages.length?Math.max(...ages):session.age||18;
+ const band=senior?'adult':age<=15?'young':age<=18?'youth':'adult',level=['discovery','developing','advanced'].includes(session.level)?session.level:'developing',novice=level==='discovery',advanced=level==='advanced';
+ const workSeconds=novice?(band==='young'?120:150):band==='young'?150:band==='youth'?180:advanced?240:210,restSeconds=session.coachingLoad==='light'?90:novice?(band==='young'?75:90):advanced?75:60;
+ return {category:category||'Âge repère '+age+' ans',age,band,level,label:novice?'Découverte / reprise des bases':advanced?'Confirmé':'En développement',workSeconds:session.coachingLoad==='light'?Math.min(150,workSeconds):workSeconds,restSeconds,spaceFactor:(band==='young'?.9:1)*(novice?1.2:advanced?.95:1),idealFactor:(band==='young'?.9:1)*(novice?.8:advanced?1.1:1),passTarget:novice?3:advanced?6:5,focus:novice?'Une seule priorité observable ; stabiliser les réussites avant de compliquer.':advanced?'Lire la pression et choisir la solution ; vérifier le transfert sans aide.':'Relier la qualité technique à une décision sous opposition.',context:session.context||'Autre'};
+}
+function bibleExerciseLearning(exercise,session={}){
+ const profile=bibleTrainingProfile(session),template=bibleExerciseKnowledge(exercise).template||'possession',index={discovery:0,developing:1,advanced:2}[profile.level];
+ const rules={
+  rondo:['Touches libres ; rechercher deux solutions et 3 passes maîtrisées avant de compliquer.','Après la passe, changer d’angle ; rechercher 5 passes sous une pression réelle.','Chercher la passe qui traverse la pression si elle existe ; 6 passes ou une sortie maîtrisée de la densité.'],
+  possession:['Touches libres ; 3 passes pour un point et une priorité : rendre un soutien visible.','5 passes pour un point ; le receveur prépare sa solution suivante avant le contrôle.','6 passes pour un point ; valoriser la sortie de pression, puis retirer le bonus pour vérifier le transfert.'],
+  build:['Les opposants déclenchent après le premier contrôle ; touches libres et deux soutiens visibles.','La pression démarre sur la passe ; relier une solution courte et une solution plus haute.','Pression active dès la mise en jeu ; choisir jeu court ou passe qui élimine la première ligne sans circuit imposé.'],
+  press:['Un seul signal annoncé : la passe latérale. Un joueur presse, un partenaire couvre ; rejouer après le retour du coach.','Reconnaître passe latérale ou contrôle fermé ; coordonner pression et couverture.','Choisir le déclencheur selon la pression sur le ballon ; si la première ligne est éliminée, se réorganiser plutôt que poursuivre seul.'],
+  endzones:['Touches libres ; identifier le sens de jeu avant d’imposer l’arrivée dans la cible sur un appel.','Recevoir dans la cible sur un appel ; garder un soutien si la passe devant est fermée.','Coordonner l’appel avec la pression sur le passeur ; conserver, changer de côté ou jouer derrière selon l’espace.'],
+  'four-goals':['Touches libres ; repérer la cible libre et donner de la largeur, sans obligation de renverser.','Attirer sur un côté puis chercher la cible opposée si elle devient accessible.','Le relais décide de renverser ou de poursuivre ; retirer tout bonus pour vérifier la lecture du côté faible.'],
+  transition:['Première priorité : maîtriser le premier ballon après récupération. Nommer une solution devant et une sécurité.','À la récupération, choisir progression ou sécurité ; à la perte, le proche ralentit et les autres protègent l’axe.','Adapter la projection à l’équilibre conservé derrière le ballon ; si l’attaque rapide est fermée, reconstruire.'],
+  duel:['Touches libres et départ à distance pour voir l’adversaire ; fixer avant de choisir passe ou conduite.','Le défenseur intervient sur la réception ; le porteur lit l’espace et le soutien reste disponible.','Opposition active dès la passe ; enchaîner feinte, passe ou conduite selon la réaction réelle du défenseur.'],
+  finish:['Contrôle autorisé et service précis ; observer le dernier contact avant la frappe, sans contrainte de vitesse.','Préparer la frappe sous opposition et proposer une solution de remise.','Décider frappe, remise ou passe sous pression ; suivre le ballon repoussé avec un soutien complémentaire.'],
+  'wide-finish':['Le centreur peut contrôler et regarder ; un receveur attaque une zone annoncée avant de multiplier les courses.','Deux courses complémentaires ; le centreur choisit son service en regardant les positions.','Adapter centre en retrait, premier ou second poteau à la défense ; conserver si aucune réception n’est accessible.'],
+  circuit:['Contrôle autorisé, rythme modéré et précision ; ne pas imposer une touche.','Prise d’information et contrôle orienté avant la passe suivante.','Choisir contrôle ou remise directe selon le service ; varier le sens sans dégrader la précision.'],
+  corner:['Annoncer une responsabilité par joueur et répéter le signal à vitesse maîtrisée avant l’opposition.','Coordonner le signal, les courses et la couverture du second ballon.','Adapter les zones attaquées ou protégées au placement adverse ; enchaîner la transition sur le second ballon.'],
+  keeper:['Service prévisible au départ ; replacer le gardien et stabiliser sa posture avant de varier.','Varier les angles de service ; le gardien lit le ballon et communique avec ses partenaires.','Le gardien choisit sa réponse selon la trajectoire et la pression ; relier son intervention à la relance si elle est disponible.']
+ };
+ let constraint=(rules[template]||rules.possession)[index];
+ if(exercise.id==='warm')constraint=['Chacun garde son ballon ; conduire doucement et regarder avant de changer de direction.','Chacun garde son ballon ; adapter la conduite à l’espace repéré avant le changement de direction.','Chacun garde son ballon ; annoncer une information visuelle puis changer de direction sans accélérer inutilement.'][index];
+ if(exercise.id==='cool')constraint=profile.level==='advanced'?'Faire expliquer une décision du thème et le contexte où elle serait utile en match.':'Faire citer une réussite et un point à reprendre, sans nouvelle charge physique.';
+ if(exercise.id==='rondo-direction')constraint=profile.level==='discovery'?'Touches libres ; donner un point à une passe qui franchit la pression, sans la forcer si la ligne est fermée.':'Identifier le moment de franchir la pression ; la passe traversante maîtrisée vaut un point, la conservation reste possible.';
+ return {profile,constraint,success:profile.level==='discovery'?'Faire évoluer seulement après 3 répétitions maîtrisées sur le critère observé.':profile.level==='advanced'?'Retirer l’aide ou le bonus et vérifier que le comportement reste présent dans le jeu.':'Faire évoluer une seule contrainte quand les réussites deviennent régulières.'};
+}
 function bibleAvailable(session={}){
  const spaces={small:[32,24],quarter:[34,52],half:[68,52],full:[68,105],custom:[40,30]};
  const base=spaces[session.space]||spaces.half;
@@ -12,8 +41,8 @@ function bibleExerciseKnowledge(exercise){
  return {template,format:{min:template==='circuit'||template==='duel'?2:4,max:Math.max(4,Math.ceil((exercise.target||8)*1.6)),ideal:exercise.target||8,neutrals:0,keeperMode:['finish','corner'].includes(template)?'single':template==='endzones'?'goals':'feet',goals:['finish','corner'].includes(template)?1:template==='endzones'?2:0,goalType:template==='endzones'?'gate':'full',zones:template==='endzones'?3:1},sequences:[],sourceIds:[]};
 }
 function bibleInteger(value,fallback,min,max){return Number.isInteger(value)?Math.max(min,Math.min(max,value)):fallback;}
-function bibleFormat(exercise,knowledge){
- const raw=knowledge.format||{},ideal=bibleInteger(raw.ideal,exercise.target||8,2,40),min=bibleInteger(raw.min,2,2,40);
+function bibleFormat(exercise,knowledge,session={}){
+ const raw=knowledge.format||{},min=bibleInteger(raw.min,2,2,40),ideal=Math.max(min,Math.min(raw.max||40,Math.round(bibleInteger(raw.ideal,exercise.target||8,2,40)*bibleTrainingProfile(session).idealFactor)));
  return {...raw,min,max:Math.max(min,bibleInteger(raw.max,Math.max(ideal,min),2,40)),ideal,neutrals:bibleInteger(raw.neutrals,0,0,4),requiresKeeper:raw.requiresKeeper===true||knowledge.template==='keeper',keeperMode:['feet','goals','single'].includes(raw.keeperMode)?raw.keeperMode:'feet',goals:[0,1,2,4].includes(raw.goals)?raw.goals:0,goalType:['mini','full','gate'].includes(raw.goalType)?raw.goalType:'gate',zones:[1,2,3,5].includes(raw.zones)?raw.zones:1};
 }
 function bibleDistribute(players,keepers,count){
@@ -26,7 +55,7 @@ function bibleDistribute(players,keepers,count){
  }
  return groups;
 }
-function bibleRolePlan(exercise,format,group,template){
+function bibleRolePlan(exercise,format,group,template,profile={level:'developing'}){
  const circuit=exercise.kind==='circuit'||template==='circuit';
  const fullGoals=format.goalType==='full'?format.goals:0;
  const feet=circuit||format.keeperMode==='feet'||fullGoals===0;
@@ -38,7 +67,7 @@ function bibleRolePlan(exercise,format,group,template){
  if(circuit||format.opposition==='none')blue=field;
  else if(template==='rondo'){
   // Rondo : une véritable supériorité, avec un rapport de pression raisonnable.
-  red=Math.max(1,Math.min(Math.floor(field/3),field-2));
+  red=Math.max(1,Math.min(profile.level==='discovery'?Math.floor(field/4):profile.level==='advanced'?Math.ceil(field/3):Math.floor(field/3),Math.floor((field-1)/2),field-2));
   if(field<3)red=Math.min(1,field);blue=field-red;
  }else if(Number.isInteger(format.attackAdvantage)&&format.attackAdvantage>0){
   neutral=Math.min(format.neutrals,Math.max(0,field-3));
@@ -79,7 +108,7 @@ function bibleMaterial(exercise,format,group,template){
 function bibleDimensions(exercise,session,group,template,options){
  const minima={rondo:[6,6,6],possession:[10,12,15],endzones:[14,18,22],'four-goals':[14,18,22],build:[16,20,28],press:[16,20,28],transition:[16,20,28],finish:[12,18,22],'wide-finish':[20,24,32],circuit:[6,6,7],duel:[8,10,16],corner:[22,26,25],keeper:[10,14,20]};
  const basis=minima[template]||minima.possession;
- const factor=(session.age<15?.9:1)*(session.level==='discovery'?.95:1);
+ const factor=bibleTrainingProfile(session).spaceFactor;
  const scaling=Math.sqrt(group.players/Math.max(2,exercise.target||8))*factor;
  const desiredW=Math.max(basis[0],Math.round((exercise.width||24)*scaling)),desiredL=Math.max(basis[1],Math.round((exercise.length||24)*scaling));
  const densityFactor=Math.sqrt((basis[2]*group.players)/(desiredW*desiredL));
@@ -123,7 +152,7 @@ function bibleLayout(groups,available,allowReduce){
  return best;
 }
 function biblePlan(exercise,session={},options={}){
- const knowledge=bibleExerciseKnowledge(exercise),format=bibleFormat(exercise,knowledge),template=knowledge.template||'possession';
+ const knowledge=bibleExerciseKnowledge(exercise),format=bibleFormat(exercise,knowledge,session),template=knowledge.template||'possession',learning=bibleExerciseLearning(exercise,session);
  const players=bibleInteger(session.players,8,2,80),keepers=bibleInteger(session.keepers,0,0,Math.min(12,players));
  const available=bibleAvailable(session),warnings=[];
  // Les anciennes fiches conservent leur répartition. Le coach peut désormais garder
@@ -140,12 +169,12 @@ function biblePlan(exercise,session={},options={}){
  for(const count of counts){
   const distributed=bibleDistribute(players,keepers,count);
   const groups=distributed.map((group,i)=>{
-   const rolePlan=bibleRolePlan(exercise,format,group,template),dims=bibleDimensions(exercise,session,group,template,options);
+   const rolePlan=bibleRolePlan(exercise,format,group,template,learning.profile),dims=bibleDimensions(exercise,session,group,template,options);
    const opposition=template==='circuit'||format.opposition==='none'?rolePlan.teams.blue>0:rolePlan.teams.blue>0&&rolePlan.teams.red>0;
    const keeperPresent=!format.requiresKeeper||rolePlan.activeKeepers+rolePlan.fieldKeepers>0;
    const appuiPresent=format.neutrals===0||rolePlan.teams.neutral>0;
    const superiority=!format.attackAdvantage||rolePlan.teams.blue>rolePlan.teams.red,actors=bibleActors(format,rolePlan,template);
-   return {...group,...rolePlan,...dims,...actors,index:i+1,template,format,pedagogyFits:group.players>=format.min&&(organisation==='single'||group.players<=format.max)&&opposition&&keeperPresent&&appuiPresent&&superiority&&actors.actorsFit};
+   return {...group,...rolePlan,...dims,...actors,index:i+1,template,format,learning,pedagogyFits:group.players>=format.min&&(organisation==='single'||group.players<=format.max)&&opposition&&keeperPresent&&appuiPresent&&superiority&&actors.actorsFit};
   });
   const layout=bibleLayout(groups,available,true);
   const sizePenalty=groups.reduce((sum,g)=>sum+Math.abs(g.players-format.ideal)/format.ideal,0)/count;
@@ -228,11 +257,15 @@ function bibleSequenceContext(exercise,session={},variant={},index=0){
  if(offPlayers)warnings.push(offPlayers+' joueur'+(offPlayers>1?'s':'')+' hors de cette séquence : '+offFieldPlayers+' de champ et '+offKeepers+' gardien'+(offKeepers>1?'s':'')+'. Prévoir leur activité et les faire entrer à la séquence suivante ; ils restent comptés dans le groupe présent.');
  return {session:effectiveSession,options,plan,activePlayers,activeKeepers,offPlayers,offKeepers,offFieldPlayers,warnings,errors,valid:true,fits:plan.fits};
 }
+function bibleSequenceIntervals(seconds,profile){
+ const count=seconds>profile.workSeconds*1.5?Math.max(2,Math.ceil((seconds+profile.restSeconds)/(profile.workSeconds+profile.restSeconds))):1;
+ const rest=count>1?Math.min(profile.restSeconds,Math.max(0,Math.floor((seconds-count*30)/(count-1)))):0,available=seconds-rest*(count-1),base=Math.floor(available/count),remainder=available%count;
+ return Array.from({length:count},(_,i)=>({workSeconds:base+(i<remainder?1:0),restSeconds:i<count-1?rest:0}));
+}
 function bibleTimeline(exercise,minutes,session={},options={}){
  const knowledge=bibleExerciseKnowledge(exercise),contents=Array.isArray(knowledge.sequences)?knowledge.sequences:[];
  const totalSeconds=Math.max(60,Math.round((Number.isFinite(minutes)?minutes:12)*60)),warnings=[];
- const light=session.coachingLoad==='light',young=session.age<15||session.level==='discovery';
- const nominalWork=light||young?150:210,nominalRest=light?90:60;
+ const learning=bibleExerciseLearning(exercise,session),nominalWork=learning.profile.workSeconds,nominalRest=learning.profile.restSeconds;
  const requestedCount=Number.isInteger(options.sequences)?Math.max(1,Math.min(4,options.sequences)):null;
  const count=requestedCount??Math.max(1,Math.min(contents.length||3,Math.round((totalSeconds+nominalRest)/(nominalWork+nominalRest)),4));
  let rest=count>1?Number.isInteger(options.restSeconds)?Math.max(0,Math.min(300,options.restSeconds)):nominalRest:0;
@@ -246,7 +279,8 @@ function bibleTimeline(exercise,minutes,session={},options={}){
  let elapsed=0;
  const sequences=Array.from({length:count},(_,i)=>{
   const source=contents[i]||fallback[Math.min(i,fallback.length-1)],workSeconds=base+(i<remainder?1:0),restSeconds=i<count-1?rest:0;
-  const sequence={index:i+1,title:source.title||'Séquence '+(i+1),rule:source.rule||'',observe:source.observe||'',workSeconds,restSeconds,startSeconds:elapsed,endSeconds:elapsed+workSeconds};elapsed+=workSeconds+restSeconds;return sequence;
+  const intervals=['warm','cool'].includes(exercise.id)?[{workSeconds,restSeconds:0}]:bibleSequenceIntervals(workSeconds,learning.profile);
+  const sequence={index:i+1,title:source.title||'Séquence '+(i+1),rule:(source.rule||'')+' Repère de difficulté : '+learning.constraint,observe:source.observe||'',workSeconds,restSeconds,intervals,startSeconds:elapsed,endSeconds:elapsed+workSeconds};elapsed+=workSeconds+restSeconds;return sequence;
  });
  return {sequences,totalSeconds,workSeconds:availableWork,restSeconds:rest*(count-1),totalWorkSeconds:availableWork,totalRestSeconds:rest*(count-1),warnings,requested:{sequences:requestedCount,workSeconds:options.workSeconds,restSeconds:options.restSeconds}};
 }
