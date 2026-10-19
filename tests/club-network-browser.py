@@ -93,7 +93,11 @@ with sync_playwright() as p:
  # The post-login home has five sections, original tools, a club logo, and all approved educators.
  assert a.locator('.home-section-card').count()==5;assert a.locator('.brand .club-logo').is_visible();assert a.locator('#club-connected .club-connected-person').count()==2
  assert a.locator('#club-connected .online').count()==1;assert '15/10/2026' in a.locator('.club-connected-person[data-user-id="'+B+'"] .club-last-login').inner_text()
- a.locator('#home-step-link-0').click()
+ a.locator('#view-club-network').click();a.locator('#club-step-link-0').click()
+ card_a=a.locator('.club-coach-card[data-user-id="'+A+'"]');card_b=a.locator('.club-coach-card[data-user-id="'+B+'"]')
+ assert card_a.locator('.club-coach-status').inner_text()=='En ligne';assert card_b.locator('.club-coach-status').inner_text()=='Hors ligne'
+ assert '15/10/2026' in card_b.locator('.club-last-login').inner_text();assert '20:30' in card_b.locator('.club-last-login').inner_text()
+ a.locator('#view-home').click();a.locator('#home-step-link-0').click()
  for button,target in [('view-pitch','.workspace'),('view-training','#training-space'),('view-coach-agenda','#coach-agenda'),('view-reports','#after-match'),('view-club-network','#club-network-dialog')]:
   a.locator('#'+button).click();assert a.locator(target).is_visible();assert a.locator('#section-subnav').count()==0;assert a.locator('#club-home').is_hidden();a.locator('#view-home').click();assert a.locator('#club-home').is_visible()
  a.locator('.home-section-card',has_text='Terrain & tactique').click();a.locator('#mode-simple').click();assert a.locator('#simple-board').is_visible();a.locator('#view-home').click()
@@ -135,8 +139,8 @@ with sync_playwright() as p:
  # Presence expires by server time; absence of the optional SQL never fabricates green names.
  for key,(seen,active) in list(presence.items()):
   if key[0]==B:presence[key]=(time.time()-100,active)
- a.evaluate('clubNetworkQueueSync()');wait_sync(a);assert a.locator('.club-connected-person[data-user-id="'+B+'"] .online').count()==0;assert 'Hors ligne' in a.locator('.club-connected-person[data-user-id="'+B+'"]').inner_text()
- presence_installed=False;a.evaluate('clubNetworkQueueSync()');wait_sync(a);assert a.locator('#club-connected-names .online').count()==0;assert 'Coach B' in a.locator('#club-connected-names').inner_text();assert 'indisponible' in a.locator('#club-connected-status').inner_text();presence_installed=True;activity_installed=True
+ a.evaluate('clubNetworkQueueSync()');wait_sync(a);assert a.locator('.club-coach-card[data-user-id="'+B+'"] .club-coach-status').inner_text()=='Hors ligne';assert a.locator('.club-coach-card[data-user-id="'+B+'"] .online').count()==0;assert a.locator('.club-connected-person[data-user-id="'+B+'"] .online').count()==0;assert 'Hors ligne' in a.locator('.club-connected-person[data-user-id="'+B+'"]').inner_text()
+ presence_installed=False;a.evaluate('clubNetworkQueueSync()');wait_sync(a);assert a.locator('#club-connected-names .online').count()==0;assert 'Coach B' in a.locator('#club-connected-names').inner_text();assert 'indisponible' in a.locator('#club-connected-status').inner_text();assert a.locator('.club-coach-card[data-user-id="'+B+'"] .club-coach-status').inner_text()=='Statut indisponible';presence_installed=True;activity_installed=True
  # Account cache and token are separate from local coach profiles, and logout gates the entire site.
  assert a.evaluate("!JSON.stringify(localStorage).includes('token-')")
  a.reload();a.wait_for_selector('#club-account-bar',state='visible');wait_sync(a);assert a.evaluate('activeCoach.id')=='account-'+A
@@ -145,7 +149,7 @@ with sync_playwright() as p:
  # A different coach using the same browser tab loads their own namespace, never the preceding account.
  login(a,'b@example.test');assert a.evaluate('activeCoach.id')=='account-'+B;assert not a.evaluate("trainingLibrary.some(s=>s.title==='Séance A actualisée')")
  # Older Supabase installations still show verified green LEDs, without invented last-login dates.
- activity_installed=False;a.evaluate('clubNetworkQueueSync()');wait_sync(a);a.locator('#view-home').click();a.locator('#home-step-link-1').click();assert a.locator('#club-connected .online').count()>=1;assert 'Non disponible' in a.locator('#club-connected .club-last-login').first.inner_text();activity_installed=True
+ activity_installed=False;a.evaluate('clubNetworkQueueSync()');wait_sync(a);a.locator('#view-home').click();a.locator('#home-step-link-1').click();assert a.locator('#club-connected .online').count()>=1;assert 'Non disponible' in a.locator('#club-connected .club-last-login').first.inner_text();assert a.locator('.club-coach-card[data-user-id="'+B+'"] .online').count()==1;assert 'Non disponible' in a.locator('.club-coach-card[data-user-id="'+B+'"] .club-last-login').inner_text();activity_installed=True
  # Signup requires both an approved address and its one-time code; the server owns membership/name.
  cc,c=setup(browser);c.locator('#club-auth-show-signup').click();c.locator('#club-signup-first-name').fill('Camille');c.locator('#club-signup-last-name').fill('Martin');c.locator('#club-signup-email').fill('c@example.test');c.locator('#club-signup-code').fill('wrong-code-long-enough');c.locator('#club-signup-password').fill('MotDePasseTest!2026');c.locator('#club-signup-confirm').fill('MotDePasseTest!2026');c.locator('#club-network-signup button[type=submit]').click();c.wait_for_function("document.querySelector('#club-network-status').textContent.includes('refusée')");assert not c.locator('main').is_visible()
  c.locator('#club-signup-code').fill(invitation);c.locator('#club-network-signup button[type=submit]').click();c.wait_for_selector('#club-account-bar',state='visible');wait_sync(c);assert c.evaluate('activeCoach.id')=='account-'+C;assert c.locator('#coach-select option:checked').inner_text()=='Camille Martin';assert c.locator('#coach-profile').is_visible()

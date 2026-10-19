@@ -136,3 +136,10 @@ body:not(.home-mode) #club-account-bar,body:not(.home-mode) #coach-profile,body:
 body:not(.home-mode).coach-agenda-mode main>#club-profile,body:not(.home-mode).club-network-mode main>#club-profile{display:block!important}
 @media(min-width:1000px) and (min-height:650px){body:not(.home-mode) .training-step-heading>.eyebrow{display:none}body:not(.home-mode) .training-step-heading h2{margin-top:0}body:not(.home-mode) #training-step-2 .training-week{padding:9px 12px;gap:6px;margin-bottom:8px}body:not(.home-mode) #training-step-2 .training-week strong{width:auto;margin-right:8px}body:not(.home-mode) #training-step-2 .training-week .hint{margin:0;flex:1}body:not(.home-mode) #training-step-2>.report-panel{padding:12px;margin-bottom:8px}body:not(.home-mode) #training-step-2 .report-field{margin-top:8px;font-size:11px}body:not(.home-mode) #training-step-2 #training-notes{height:58px;min-height:58px;resize:vertical;padding:8px 10px}body:not(.home-mode) #training-step-2 #training-report-link{margin-top:5px}}
 @media(max-width:700px){body:not(.home-mode)>header{min-height:52px;flex-wrap:nowrap}body:not(.home-mode)>header .header-actions{width:auto;flex-wrap:nowrap;gap:6px}body:not(.home-mode)>header .brand>span:last-child{display:none}body:not(.home-mode)>header #save{font-size:10px;padding:9px 10px}body:not(.home-mode)>header .club-monogram{width:30px;height:30px}}
+
+.club-coach-card .club-coach-activity{display:grid;gap:7px;width:100%;padding-top:9px;margin-top:3px;border-top:1px solid #e1e8f2}
+.club-coach-card .club-coach-presence{display:flex;align-items:center;gap:7px}
+.club-coach-presence i{width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:#98a6b8}
+.club-coach-presence i.online{background:#23804c;box-shadow:0 0 0 3px #23804c14}
+.club-coach-card .club-coach-status{font-size:11px;color:#365475;font-weight:600}
+.club-coach-card .club-last-login{display:block;font-size:10px;color:#667892;line-height:1.6}
