@@ -63,6 +63,7 @@ function trainingExerciseDetail(exercise,session=currentTraining,options={}){
  for(const [title,text] of [['Adapter au niveau',adaptation.level],['Rythme proposé',adaptation.load],['Rotations',adaptation.rotation],['Gardiens',adaptation.keeper]]){const p=el('p');p.append(el('strong','',title+' : '),document.createTextNode(text));root.append(p);}return root;
 }
 function renderTrainingBlocks(){
+ if(typeof bibleDisposeDiagrams==='function')bibleDisposeDiagrams($('training-blocks'));
  const total=trainingTotal();$('training-total').textContent=total+' / '+currentTraining.duration+' min prévues · fin '+trainingFinish();$('training-total').classList.toggle('training-alert',total!==currentTraining.duration);
  $('training-blocks').replaceChildren();if(!currentTraining.blocks.length)$('training-blocks').append(el('p','hint','Ajoutez vos propres exercices ou choisissez des fiches dans la bibliothèque pour construire votre séance.'));
  let elapsed=0;currentTraining.blocks.forEach((block,index)=>{
@@ -72,7 +73,7 @@ function renderTrainingBlocks(){
  if(block.exerciseId!=='custom'&&typeof openBibleVariant==='function'){const edit=el('button','export','Personnaliser');edit.onclick=()=>openBibleVariant(trainingExerciseForBlock(block),block);controls.append(edit);}
  if(block.exerciseId==='custom'){const edit=el('button','export','Modifier mon exercice');edit.onclick=()=>openCustomTrainingExercise(block);controls.append(edit);}
  const remove=el('button','export','Retirer');remove.onclick=()=>{currentTraining.blocks.splice(index,1);saveTrainingDraft();renderTrainingBlocks();};controls.append(remove);card.append(controls);
- const detail=el('details');detail.open=true;detail.append(el('summary','','Organisation, consignes et adaptations'),trainingExerciseDetail(exercise,currentTraining,{duration:block.duration,variant:block.bibleVariant}),trainingFieldNote(block));card.append(detail);const illustration=trainingIllustration(exercise);if(illustration)card.append(illustration);$('training-blocks').append(card);
+ const detail=el('details');detail.open=true;detail.append(el('summary','','Organisation, consignes et adaptations'),trainingExerciseDetail(exercise,currentTraining,{duration:block.duration,variant:block.bibleVariant,blockId:block.id}),trainingFieldNote(block));card.append(detail);const illustration=trainingIllustration(exercise);if(illustration)card.append(illustration);$('training-blocks').append(card);
  });
 }
 function renderTrainingCatalogue(){

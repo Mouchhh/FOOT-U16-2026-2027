@@ -68,6 +68,62 @@ context.bibleKnowledge['test-corner']={template:'corner',format:{min:6,max:14,id
 const cornerInsufficient=plan({...game,id:'test-corner',kind:'cpa'},{players:6,keepers:4},{groups:1});assert.equal(cornerInsufficient.fits,false,'Le total présents ne masque pas un manque de livreur et de receveurs');
 const excessiveGroups=plan(exercise,{players:5,keepers:1},{groups:40});assert.equal(excessiveGroups.groups.length,2);assert.equal(excessiveGroups.fits,false);assert.ok(excessiveGroups.warnings.length);
 const immutableSession={...base},immutableOptions={groups:2},before=JSON.stringify([exercise,immutableSession,immutableOptions]);context.biblePlan(exercise,immutableSession,immutableOptions);assert.equal(JSON.stringify([exercise,immutableSession,immutableOptions]),before,'Le calcul ne modifie pas le groupe ou le brouillon du coach');
+// Le choix du coach prime sur la proposition de diviser le groupe.
+const single=plan(exercise,{players:16,keepers:2,space:'full'},{organisation:'single',groups:4});
+audit(single,16,2);assert.equal(single.groups.length,1,'Un jeu unique ne sépare pas les présents en ateliers');assert.equal(single.fits,true,'Le maximum de la fiche reste un repère, pas une interdiction du jeu unique');assert.ok(single.warnings.some(w=>w.includes('repère conseillé')));
+const singleSmall=plan(exercise,{players:16,keepers:2,spaceWidth:8,spaceLength:8},{organisation:'single'});
+assert.equal(singleSmall.groups.length,1);assert.equal(singleSmall.fits,false,'Le moteur avertit du manque d’espace sans diviser le groupe en secret');assert.ok(singleSmall.warnings.some(w=>w.includes('Installation impossible')));
+assert.equal(plan(exercise,{players:2,keepers:0},{organisation:'single'}).fits,false,'Un jeu unique ne supprime pas les besoins minimums de l’exercice');
+const autoWithOldGroup=plan(exercise,{players:16,keepers:2,space:'full'},{organisation:'auto',groups:1});
+assert.ok(autoWithOldGroup.groups.length>1,'Choisir explicitement automatique recalcule les ateliers même si une ancienne valeur groups est conservée');
+assert.equal(plan(exercise,{players:16,keepers:2,space:'full'},{groups:1}).groups.length,1,'Une ancienne variante sans organisation conserve ses ateliers enregistrés');
+assert.equal(plan(exercise,{players:16,keepers:2,space:'full'},{organisation:'stations',groups:2}).groups.length,2,'Le nombre explicite d’ateliers est respecté');
+// Chaque séquence prélève des personnes réellement présentes, avec un compte séparé
+// des gardiens et des joueurs de champ qui restent hors de l'exercice.
+const sequenceSession={...base,players:20,keepers:2,space:'full',spaceWidth:68,spaceLength:105};
+const sequenceVariant={version:1,title:'Progression du groupe',organisation:'single',groups:4,width:36,length:42,sequences:4,restSeconds:60,sequenceSettings:[{players:10,keepers:1,width:24,length:30},{players:18,keepers:0,width:42,length:55},{players:20,keepers:2},{players:16,keepers:2,organisation:'stations',groups:2,width:24,length:30}]};
+const snapshot=JSON.stringify([game,sequenceSession,sequenceVariant]);
+for(let i=0;i<4;i++){
+ const c=context.bibleSequenceContext(game,sequenceSession,sequenceVariant,i);
+ assert.equal(c.valid,true,c.errors.join(' '));assert.ok(c.plan);audit(c.plan,c.activePlayers,c.activeKeepers);
+ assert.equal(c.activePlayers+c.offPlayers,20,'Actifs et joueurs hors séquence retrouvent exactement les présents');
+ assert.equal(c.activeKeepers+c.offKeepers,2,'Actifs et gardiens hors séquence retrouvent exactement les gardiens présents');
+ assert.equal(c.activePlayers-c.activeKeepers+c.offFieldPlayers,18,'Un gardien hors séquence ne devient pas un joueur de champ');
+ assert.equal(c.offFieldPlayers+c.offKeepers,c.offPlayers);assert.equal(c.plan.available.width,68);assert.equal(c.plan.available.length,105,'Le terrain disponible n’est pas remplacé par les dimensions de l’exercice');
+ assert.equal(c.plan.groups.length,i===3?2:1);
+ if(c.offPlayers)assert.ok(c.warnings.some(w=>w.includes('hors de cette séquence')),'Les joueurs hors de l’exercice gardent une place explicite dans les rotations');
+}
+assert.equal(JSON.stringify([game,sequenceSession,sequenceVariant]),snapshot,'Calculer les séquences ne modifie ni la séance ni les réglages enregistrés');
+const firstContext=context.bibleSequenceContext(game,sequenceSession,sequenceVariant,0);assert.equal(firstContext.plan.groups[0].width,24);assert.equal(firstContext.plan.groups[0].length,30);assert.equal(firstContext.activePlayers,10);
+const unchanged=context.bibleSequenceContext(game,sequenceSession,{groups:2,width:24,length:30},0),oldPlan=context.biblePlan(game,sequenceSession,{groups:2,width:24,length:30});
+assert.equal(JSON.stringify(unchanged.plan),JSON.stringify(oldPlan),'Les variantes historiques sans réglages par séquence gardent strictement le même plan');
+const inherited=context.bibleSequenceContext(game,sequenceSession,{organisation:'single',width:36,length:42,sequenceSettings:[{}, {players:12,keepers:1}]},0);assert.equal(inherited.activePlayers,20);assert.equal(inherited.activeKeepers,2);assert.equal(inherited.options.width,36);
+for(const settings of [
+ {players:21,keepers:2}, // plus de présents
+ {players:12,keepers:3}, // plus de gardiens
+ {players:19,keepers:0}, // un gardien hors séquence ne complète pas les 19 joueurs de champ
+ {players:2,keepers:1}, // pas assez de champ
+ {players:10.5,keepers:1},
+ {players:10,keepers:1,width:5},
+ {players:10,keepers:1,length:121},
+ {players:10,keepers:1,organisation:'inconnue'},
+ {players:10,keepers:1,groups:0}
+]){
+ const c=context.bibleSequenceContext(game,sequenceSession,{organisation:'single',sequenceSettings:[settings]},0);
+ assert.equal(c.valid,false,JSON.stringify(settings));assert.equal(c.fits,false);assert.equal(c.plan,null,'Une demande invalide ne produit pas un plan corrigé silencieusement');assert.ok(c.errors.length);
+}
+for(const settings of [null,[],3]){const c=context.bibleSequenceContext(game,sequenceSession,{sequenceSettings:[settings]},0);assert.equal(c.valid,false);assert.equal(c.plan,null);}
+assert.equal(context.bibleSequenceContext(game,sequenceSession,{sequenceSettings:[{},{},{},{},{}]},0).valid,false);
+assert.equal(context.bibleSequenceContext(game,sequenceSession,{},4).valid,false);
+for(const total of [2,3,5,9,14,27,40,61,80])for(const gk of [0,Math.min(12,total-2)]){
+ const session={...base,players:total,keepers:gk,space:'full'};
+ // Réduire le groupe conserve assez de joueurs de champ et prélève explicitement
+ // les gardiens actifs, même pour de grands groupes et des effectifs impairs.
+ for(const active of [2,Math.max(2,Math.ceil(total/2)),total]){
+  const activeGk=Math.max(0,active-(total-gk)),c=context.bibleSequenceContext(game,session,{organisation:'single',sequenceSettings:[{players:active,keepers:activeGk}]},0);
+  assert.equal(c.valid,true);audit(c.plan,active,activeGk);assert.equal(c.activePlayers+c.offPlayers,total);assert.equal(c.activeKeepers+c.offKeepers,gk);
+ }
+}
 // Une durée de bloc reste exacte, y compris avec un nombre de séquences et un repos choisis.
 for(const minutes of [1,2,5,8,12,17,30,120])for(const options of [{},{sequences:1},{sequences:4,workSeconds:180,restSeconds:60},{sequences:3,restSeconds:300}]){
  const t=context.bibleTimeline(exercise,minutes,base,options);

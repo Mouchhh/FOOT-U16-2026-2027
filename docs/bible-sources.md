@@ -16,7 +16,7 @@ La recherche distingue avec ballon, sans ballon, récupération, perte, phases a
 
 La répartition prend en compte tous les joueurs, gardiens inclus, et annonce les rôles, appuis, rotations, largeur, longueur, dégagements et emprise totale. Les repères d’espace sont des propositions pédagogiques ; une installation qui ne tient pas ou ne dispose pas des acteurs nécessaires est signalée. La limite technique de la séance est de 2 à 80 présents, sans plage obligatoire de 14 à 40.
 
-Les schémas représentent l’installation et des actions de principe, pas une simulation de match ni une animation automatique des quatre séquences. Les placements peuvent être copiés vers l’atelier libre pour être modifiés ou animés. Une variante nommée reste attachée à sa séance, dans la bibliothèque du coach et son document partagé.
+Les schémas représentent l’installation et proposent une démonstration guidée d’une action de principe, avec lecture, pause, pas à pas, vitesse et retour au départ. Ils ne simulent pas toutes les décisions d’un match. Chaque séquence peut définir ses participants, gardiens, dimensions et organisation ; les joueurs hors exercice restent explicitement comptés. Le mode terrain unique est proposé pour les nouvelles fiches ; le coach peut choisir des ateliers ou une proposition automatique. Les anciennes séances conservent leur organisation. Les placements peuvent être copiés vers l’atelier libre pour être modifiés ou animés. Une variante nommée reste attachée à sa séance, dans la bibliothèque du coach et son document partagé.
 
 ## Références consultées
 

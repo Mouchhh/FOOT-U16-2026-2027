@@ -351,3 +351,11 @@ Dans **Séances de la semaine → La Bible de l’éduc**, rechercher par moment
 L’organisation adapte les ateliers à l’effectif (2 à 80 présents, gardiens inclus), aux compétences et à l’espace disponible, y compris des dimensions libres. Les installations incompatibles et les acteurs manquants sont signalés. « Créer ma variante » permet de choisir un nom, les dimensions, les ateliers, le nombre de séquences, les récupérations et les consignes. La variante est conservée dans sa séance et dans son rendu PDF ou partagé. « Ouvrir dans l’atelier libre » copie les placements d’un atelier pour modifier le schéma et créer ses propres déplacements ; le coach conserve aussi l’accès au terrain vierge.
 
 Les contenus sont des adaptations éditoriales du club, sans certification d’exercice BMF/BEF/DES ni entraînement d’un modèle d’IA. Les anciens identifiants d’exercices et les séances existantes restent compatibles. Aucune migration Supabase n’est nécessaire. [Référentiel, portée des sources et validation](docs/bible-sources.md).
+
+### Démonstrations et critères par séquence
+
+Les fiches proposent une démonstration guidée avec ballon et courses animés, lecture/pause, retour au départ, pas à pas, vitesse et avancement. Les schémas gardent leurs cotes et leur matériel. Le lecteur s’arrête quand la fiche est fermée, masquée ou remplacée ; le PDF conserve l’installation de départ.
+
+« Mon groupe & mon terrain » permet de choisir pour chaque séquence le nombre de participants (gardiens compris), les gardiens, les dimensions et l’organisation : terrain unique, ateliers parallèles ou proposition automatique. Les joueurs hors exercice restent indiqués pour préparer leurs rotations. « Proposer les dimensions » recalcule un repère selon le groupe actif ; « Appliquer à toutes les séquences » copie explicitement les critères. Les nouvelles fiches commencent sur un terrain unique et les sauvegardes précédentes conservent leur organisation.
+
+Les critères sont gardés dans le brouillon du bloc puis dans sa séance enregistrée, son PDF et son rendu partagé. Les aperçus de la bibliothèque conservent leurs réglages pendant la préparation ; ajouter l’exercice à la séance permet de les sauvegarder. Des participants absents ou un manque d’acteurs sont signalés sans inventer de joueurs ni forcer une division du groupe. Aucune migration Supabase n’est nécessaire.

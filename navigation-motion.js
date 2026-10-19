@@ -21,9 +21,16 @@ function animateNavigation(kind){
   navigationEntryAnimation=animation;animation.finished.then(()=>{if(navigationEntryAnimation===animation)navigationEntryAnimation=null;}).catch(()=>{});
  });
 }
+// Constater l'onglet actif avant que son gestionnaire ne mette à jour les boutons.
+// Un clic répété conserve la vue sans relancer son animation d'entrée.
+const navigationRepeatedClicks=new WeakSet();
+document.addEventListener('click',event=>{
+ const button=event.target.closest('.app-navigation>button');
+ if(button?.getAttribute('aria-pressed')==='true')navigationRepeatedClicks.add(event);
+},true);
 document.addEventListener('click',event=>{
  const button=event.target.closest('button');if(!button||button.disabled)return;
- if(button.matches('.app-navigation>button'))animateNavigation('main');
+ if(button.matches('.app-navigation>button')){if(!navigationRepeatedClicks.has(event))animateNavigation('main');}
  else if(button.matches('.mode-switch button'))animateNavigation('mode');
  else if(button.matches('#report-tabs button'))animateNavigation('report');
  else if(button.matches('.tactic-tabs button'))animateNavigation('tools');

@@ -5,6 +5,8 @@ function bibleVariantValid(v){
  ['width','length','groups','sequences','restSeconds'].every(k=>Number.isInteger(v[k]))&&
  v.width>=6&&v.width<=105&&v.length>=6&&v.length<=120&&v.groups>=1&&v.groups<=40&&
  v.sequences>=1&&v.sequences<=4&&v.restSeconds>=0&&v.restSeconds<=300&&
+ (v.organisation===undefined||['single','auto','stations'].includes(v.organisation))&&
+ (v.sequenceSettings===undefined||Array.isArray(v.sequenceSettings)&&v.sequenceSettings.length<=4&&Array.from(v.sequenceSettings).every(bibleSequenceSettingValid))&&
  (v.sequenceRules===undefined||Array.isArray(v.sequenceRules)&&v.sequenceRules.length===4&&v.sequenceRules.every(s=>typeof s==='string'&&s.length<=1500));
 }
 const bibleNormalise=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,' ');
@@ -39,7 +41,7 @@ function bibleExerciseDetail(exercise,session=currentTraining,options={}){
  root.append(summary);
  if(!plan.fits)root.append(el('p','training-alert','Installation à revoir : '+plan.warnings.join(' ')));
  const selector=el('div','bible-sequence-tabs');selector.setAttribute('role','group');selector.setAttribute('aria-label','Séquences de '+exercise.title);
- const diagram=bibleDiagram(exercise,session,{plan,sequenceControls:false,showSequenceRule:false,sequenceIndex:0});
+ const diagram=bibleDiagram(exercise,session,{plan,sequenceControls:false,showSequenceRule:false,sequenceIndex:0,animation:false});
  const active=el('section','bible-active-sequence');active.setAttribute('aria-live','polite');
  const buttons=timeline.sequences.map((sequence,index)=>{
   const button=el('button',index===0?'active':'',''+(index+1));button.type='button';button.setAttribute('aria-label','Séquence '+(index+1)+' : '+sequence.title);button.setAttribute('aria-pressed',String(index===0));
@@ -123,8 +125,8 @@ function renderBibleCatalogue(){
  const query=$('training-search').value.trim(),theme=$('training-filter').value,phase=$('bible-phase').value,method=$('bible-method').value,fit=$('bible-fit-only').checked;
  const signature=JSON.stringify([query,theme,phase,method,fit,currentTraining.players,currentTraining.keepers,currentTraining.space,currentTraining.spaceWidth,currentTraining.spaceLength,currentTraining.level,currentTraining.age]);if(signature!==bibleCatalogueSignature){bibleCataloguePage=0;bibleCatalogueSignature=signature;}
  const all=trainingExercises.filter(e=>bibleKnowledge[e.id]&&(!theme||e.theme===theme)&&(!phase||bibleKnowledge[e.id].phase===phase)&&(!method||e.method===method)&&bibleSearchMatches(e,query));
- const plans=new Map(),getPlan=e=>{if(!plans.has(e.id))plans.set(e.id,biblePlan(e,currentTraining));return plans.get(e.id);};
- const matches=fit?all.filter(e=>getPlan(e).fits):all,pageSize=8,visible=matches.slice(0,(bibleCataloguePage+1)*pageSize),root=$('training-catalogue');root.replaceChildren();
+ const plans=new Map(),getPlan=e=>{if(!plans.has(e.id)){const v=biblePreviewState(e).variant,contexts=Array.from({length:v.sequences},(_,i)=>bibleSequenceContext(e,currentTraining,v,i)),first=contexts[0].plan||biblePlan(e,currentTraining,{organisation:'single'});plans.set(e.id,{...first,fits:contexts.every(c=>c.valid&&c.fits)});}return plans.get(e.id);};
+ const matches=fit?all.filter(e=>getPlan(e).fits):all,pageSize=8,visible=matches.slice(0,(bibleCataloguePage+1)*pageSize),root=$('training-catalogue');bibleDisposeDiagrams(root);root.replaceChildren();
  const available=bibleAvailable(currentTraining);$('bible-group-context').textContent=currentTraining.players+' joueurs · '+currentTraining.keepers+' G · '+available.width+' × '+available.length+' m';
  if($('bible-intro'))$('bible-intro').textContent=trainingExercises.length+' fiches · schémas, séquences & variantes';
  $('bible-results').textContent=matches.length+' exercice'+(matches.length>1?'s':'')+' trouvé'+(matches.length>1?'s':'');
@@ -132,7 +134,7 @@ function renderBibleCatalogue(){
  for(const exercise of visible){
   const k=bibleKnowledge[exercise.id],plan=getPlan(exercise),card=el('article','training-catalogue-card bible-card');card.dataset.exercise=exercise.id;
   card.append(el('span','eyebrow',biblePhases[k.phase]+' · '+exercise.theme),el('h3','',exercise.title),el('p','',exercise.goal));
-  const first=plan.groups[0];card.append(el('p','bible-card-format',plan.groups.length+' atelier'+(plan.groups.length>1?'s':'')+' · '+first.width+' × '+first.length+' m / atelier'));
+  const first=plan.groups[0];card.append(el('p','bible-card-format',(plan.groups.length===1?'Terrain unique':plan.groups.length+' ateliers')+' · '+first.width+' × '+first.length+' m'+(plan.groups.length>1?' par atelier':'')));
   if(!plan.fits)card.append(el('span','bible-fit-warning','Espace ou organisation à revoir'));
   const details=el('details','bible-card-preview');details.append(el('summary','','Voir la fiche adaptée'));
   let rendered=false;details.addEventListener('toggle',()=>{if(!details.open||rendered)return;rendered=true;details.append(trainingExerciseDetail(exercise));const bigger=el('button','export','Agrandir la fiche');bigger.type='button';bigger.onclick=()=>openBibleSheet(exercise);details.append(bigger);});
@@ -145,20 +147,20 @@ function renderBibleCatalogue(){
 function addBibleExercise(exercise,variant=null,duration=12){
  if(!applyTrainingForm())return notify('Vérifiez le groupe et le rendez-vous.');
  if(currentTraining.blocks.length>=20)return notify('20 blocs maximum.');
- const block={id:crypto.randomUUID(),exerciseId:exercise.id,duration,notes:''};if(variant)block.bibleVariant=variant;
+ const block={id:crypto.randomUUID(),exerciseId:exercise.id,duration,notes:'',bibleVariant:structuredClone(variant||biblePreviewState(exercise).variant)};
  currentTraining.blocks.push(block);saveTrainingDraft();renderTrainingBlocks();notify('Exercice ajouté au déroulé.');return block;
 }
 function openBibleSheet(exercise){
  let dialog=$('bible-sheet-dialog');if(!dialog){dialog=el('dialog','bible-sheet-dialog');dialog.id='bible-sheet-dialog';document.body.append(dialog);}
- dialog.replaceChildren();const heading=el('div','bible-dialog-heading'),title=el('h2','',exercise.title);title.id='bible-sheet-title';dialog.setAttribute('aria-labelledby',title.id);const close=el('button','export','Fermer');close.type='button';close.onclick=()=>dialog.close();heading.append(title,close);
+ bibleDisposeDiagrams(dialog);dialog.replaceChildren();const heading=el('div','bible-dialog-heading'),title=el('h2','',exercise.title);title.id='bible-sheet-title';dialog.setAttribute('aria-labelledby',title.id);const close=el('button','export','Fermer');close.type='button';close.onclick=()=>dialog.close();heading.append(title,close);
  const actions=el('div','bible-card-actions'),add=el('button','primary','+ Ajouter à la séance'),adapt=el('button','export','Créer ma variante'),free=el('button','export','Ouvrir dans l’atelier libre');add.type=adapt.type=free.type='button';add.onclick=()=>addBibleExercise(exercise);adapt.onclick=()=>{dialog.close();openBibleVariant(exercise);};free.onclick=()=>{dialog.close();bibleOpenInStudio(exercise);};actions.append(add,adapt,free);
- dialog.append(heading,bibleExerciseDetail(exercise,currentTraining),actions);dialog.showModal();
+ dialog.append(heading,bibleExerciseDetail(exercise,currentTraining),actions);dialog.onclose=()=>{bibleDisposeDiagrams(dialog);renderTrainingCatalogue();};dialog.showModal();
 }
 
 function bibleOpenInStudio(exercise){
  if(!applyTrainingForm())return;
  if(currentTraining.blocks.length>=20)return notify('20 blocs maximum.');
- const plan=biblePlan(exercise,currentTraining,exercise.bibleVariant||{}),group=plan.groups[0],board=bibleEditableBoard(exercise,group);
+ const variant=exercise.bibleVariant||biblePreviewState(exercise).variant,context=bibleSequenceContext(exercise,currentTraining,variant,0);if(!context.valid)return notify(context.errors.join(' '));const plan=context.plan,group=plan.groups[0],board=bibleEditableBoard(exercise,group);
  if(!board||!validExerciseBoard(board))return notify('Ce schéma est trop dense pour l’atelier libre. Créez un atelier plus petit ou partez d’un terrain vierge.');
  openCustomTrainingExercise();if(!$('custom-training-dialog').open)return;
  const time=bibleEffectiveTimeline(exercise,12,currentTraining,exercise.bibleVariant||{});
@@ -173,26 +175,28 @@ function bibleOpenInStudio(exercise){
 function openBibleVariant(exercise,block=null){
  if(!applyTrainingForm())return notify('Vérifiez le groupe et le rendez-vous.');
  if(!block&&currentTraining.blocks.length>=20)return notify('20 blocs maximum.');
- const original=trainingExercises.find(e=>e.id===exercise.id),previous=block?.bibleVariant||{},plan=biblePlan(original,currentTraining,previous),first=plan.groups[0],duration=block?.duration||12;
+ const original=trainingExercises.find(e=>e.id===exercise.id),previous=block?.bibleVariant||biblePreviewState(exercise).variant,plan=biblePlan(original,currentTraining,previous),first=plan.groups[0],duration=block?.duration||12;
  bibleVariantEditing={exercise:original,blockId:block?.id||null};
  let dialog=$('bible-variant-dialog');if(!dialog){dialog=el('dialog','bible-variant-dialog');dialog.id='bible-variant-dialog';dialog.setAttribute('aria-labelledby','bible-variant-title');document.body.append(dialog);}
  dialog.replaceChildren();const form=el('form'),head=el('div','bible-dialog-heading');head.append(el('div','',""));head.firstElementChild.append(el('span','eyebrow','VOTRE VARIANTE'),el('h2','','Adapter l’exercice'));head.querySelector('h2').id='bible-variant-title';
  const close=el('button','export','Fermer');close.type='button';close.onclick=()=>dialog.close();head.append(close);form.append(head,el('p','hint',original.title+' · votre variante sera conservée dans la séance.'));
  const nameLabel=el('label','bible-field','Nom de ma variante'),name=el('input');name.id='bible-variant-name';name.value=previous.title||original.title;name.maxLength=100;name.required=true;nameLabel.append(name);form.append(nameLabel);
  const grid=el('div','bible-variant-grid');
+ const modeLabel=el('label','bible-field','Organisation par défaut'),mode=el('select');mode.id='bible-variant-organisation';for(const [value,label]of [['single','Tous ensemble · 1 terrain'],['stations','Ateliers parallèles'],['auto','Proposition automatique']])mode.append(new Option(label,value));mode.value=previous.organisation||(previous.groups>1?'stations':'single');modeLabel.append(mode);form.append(modeLabel);
  const fields=[['width','Largeur par atelier (m)',previous.width||first.width,6,105],['length','Longueur par atelier (m)',previous.length||first.length,6,120],['groups','Nombre d’ateliers',previous.groups||plan.groups.length,1,Math.min(40,Math.floor(currentTraining.players/2))],['duration','Durée totale du bloc (min)',duration,1,120],['sequences','Nombre de séquences',previous.sequences||4,1,4],['rest','Repos entre séquences (s)',previous.restSeconds??60,0,300]];
  const inputs={};for(const [key,labelText,value,min,max]of fields){const label=el('label','bible-field',labelText),input=el('input');input.type='number';input.id='bible-variant-'+key;input.value=value;input.min=min;input.max=max;input.step=1;input.required=true;inputs[key]=input;label.append(input);grid.append(label);}form.append(grid);
  const preview=el('div','bible-variant-preview');preview.id='bible-variant-preview';preview.setAttribute('aria-live','polite');form.append(preview);
  const custom=el('details','bible-extra');custom.append(el('summary','','Personnaliser les consignes par séquence'));const rules=[];for(let i=0;i<4;i++){const label=el('label','bible-field','Séquence '+(i+1)),input=el('textarea');input.id='bible-variant-rule-'+i;input.rows=2;input.maxLength=1500;input.value=previous.sequenceRules?.[i]||'';input.placeholder=bibleKnowledge[original.id].sequences[i]?.rule||'';label.append(input);custom.append(label);rules.push(input);}form.append(custom,el('p','hint','La durée du bloc inclut les pauses. Le temps de jeu est réparti entre les séquences. Les dimensions restent à valider selon votre terrain et votre matériel.'));
- function values(){return{version:1,title:name.value.trim(),width:Number(inputs.width.value),length:Number(inputs.length.value),groups:Number(inputs.groups.value),sequences:Number(inputs.sequences.value),restSeconds:Number(inputs.rest.value),sequenceRules:rules.map(input=>input.value.trim())};}
- function refresh(){const variant=values();preview.replaceChildren();if(!bibleVariantValid(variant))return;const p=biblePlan(original,currentTraining,variant),time=bibleEffectiveTimeline(original,Number(inputs.duration.value),currentTraining,variant);
+ function values(){return{...previous,version:1,title:name.value.trim(),width:Number(inputs.width.value),length:Number(inputs.length.value),groups:Number(inputs.groups.value),organisation:mode.value,sequences:Number(inputs.sequences.value),restSeconds:Number(inputs.rest.value),sequenceRules:rules.map(input=>input.value.trim())};}
+ function refresh(){const variant=values();preview.replaceChildren();if(!bibleVariantValid(variant))return;const c=bibleSequenceContext(original,currentTraining,variant,0),p=c.plan,time=bibleEffectiveTimeline(original,Number(inputs.duration.value),currentTraining,variant);if(!c.valid){preview.append(el('p','training-alert',c.errors.join(' ')));return;}
   preview.append(el('strong','','Emprise : '+p.footprint.width+' × '+p.footprint.length+' m'),el('p','',p.groups.map(g=>g.players+' joueurs').join(' / ')),el('p','',time.sequences.map(s=>bibleTime(s.workSeconds)+' de jeu'+(s.restSeconds?' + '+bibleTime(s.restSeconds)+' de pause':'')).join(' · ')));
   if(!p.fits)preview.append(el('p','training-alert',p.warnings.join(' ')));else preview.append(el('p','bible-fit-ok','Installation compatible avec l’espace renseigné.'));
  }
  Object.values(inputs).forEach(input=>input.addEventListener('input',refresh));
+ inputs.groups.addEventListener('input',()=>{if(Number(inputs.groups.value)>1&&mode.value==='single')mode.value='stations';refresh();});mode.addEventListener('change',refresh);
  const submit=el('button','primary',block?'Enregistrer ma variante':'Ajouter ma variante à la séance');submit.type='submit';form.append(submit);
  form.onsubmit=event=>{event.preventDefault();const variant=values(),minutes=Number(inputs.duration.value);if(!bibleVariantValid(variant)||!Number.isInteger(minutes)||minutes<1||minutes>120)return;
-  const candidate=biblePlan(original,currentTraining,variant);if(!candidate.fits){notify('Cette installation ne tient pas : ajustez les dimensions ou le nombre d’ateliers.');return;}
+  const invalid=Array.from({length:variant.sequences},(_,i)=>({i,context:bibleSequenceContext(original,currentTraining,variant,i)})).find(item=>!item.context.valid||!item.context.fits);if(invalid){notify('Séquence '+(invalid.i+1)+' à revoir : '+(invalid.context.errors[0]||invalid.context.plan.warnings[0]||'ajustez les dimensions ou les ateliers.'));return;}
   if((variant.sequences-1)*variant.restSeconds+variant.sequences*30>minutes*60){notify('Prévoyez au moins 30 secondes de jeu par séquence, en plus des pauses.');return;}
   if(bibleVariantEditing.blockId){const target=currentTraining.blocks.find(b=>b.id===bibleVariantEditing.blockId);if(!target)return notify('Cet exercice n’est plus dans le déroulé.');target.bibleVariant=variant;target.duration=minutes;saveTrainingDraft();renderTrainingBlocks();notify('Variante enregistrée.');}
   else if(!addBibleExercise(original,variant,minutes))return;
