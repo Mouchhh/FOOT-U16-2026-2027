@@ -11,7 +11,7 @@ with sync_playwright() as p:
     page.locator('#training-bible-tab').click();page.locator('#training-search').fill('Conserver sous pression')
     card=page.locator('[data-exercise="rondo"]');card.locator('.bible-card-preview>summary').click();root=card.locator('.bible-detail')
     assert 'U14' in root.locator('.bible-learning-profile').inner_text()
-    assert '3 passes' in root.locator('.bible-learning-profile').inner_text()
+    assert '3 passes' in root.locator('.bible-coach-grid').inner_text()  # Score in the rules, separate from profile guidance.
     assert root.evaluate('r=>r.bibleContext.plan.groups[0].teams.red')==1
     width=root.evaluate('r=>r.bibleContext.plan.groups[0].width')
     card.get_by_role('button',name='+ Ajouter à la séance',exact=True).click();page.locator('#training-catalogue-close').click()

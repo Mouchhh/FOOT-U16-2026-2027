@@ -280,7 +280,7 @@ function bibleTimeline(exercise,minutes,session={},options={}){
  const sequences=Array.from({length:count},(_,i)=>{
   const source=contents[i]||fallback[Math.min(i,fallback.length-1)],workSeconds=base+(i<remainder?1:0),restSeconds=i<count-1?rest:0;
   const intervals=['warm','cool'].includes(exercise.id)?[{workSeconds,restSeconds:0}]:bibleSequenceIntervals(workSeconds,learning.profile);
-  const sequence={index:i+1,title:source.title||'Séquence '+(i+1),rule:(source.rule||'')+' Repère de difficulté : '+learning.constraint,observe:source.observe||'',workSeconds,restSeconds,intervals,startSeconds:elapsed,endSeconds:elapsed+workSeconds};elapsed+=workSeconds+restSeconds;return sequence;
+  const sequence={index:i+1,title:source.title||'Séquence '+(i+1),rule:(source.rule||'')+' '+learning.profile.focus,observe:source.observe||'',workSeconds,restSeconds,intervals,startSeconds:elapsed,endSeconds:elapsed+workSeconds};elapsed+=workSeconds+restSeconds;return sequence;
  });
  return {sequences,totalSeconds,workSeconds:availableWork,restSeconds:rest*(count-1),totalWorkSeconds:availableWork,totalRestSeconds:rest*(count-1),warnings,requested:{sequences:requestedCount,workSeconds:options.workSeconds,restSeconds:options.restSeconds}};
 }

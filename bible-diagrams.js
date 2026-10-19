@@ -109,7 +109,7 @@ function bibleDiagramActors(exercise,group,field,goalPositions=[]){
  // This is deterministic installation spacing, never an invented game action.
  const radius=Math.max(9,Math.min(group.players<=12?18:15,Math.min(fw,fh)/13)),gap=radius*2.3,placed=[],priority=[...tokens.filter(t=>t.keeper&&!t.fieldKeeper&&!t.rotation),...blue.slice(0,3),...red.slice(0,3),...neutral.slice(0,2),...tokens],seen=new Set();
  const circuits=template==='circuit'&&!['warm','cool'].includes(exercise.id)?bibleCircuitStations(group,field):[];
- const clampPoint=(p,number)=>{const cell=circuits.find(s=>number>s.offset&&number<=s.offset+s.players)||{x:fx,y:fy,w:fw,h:fh},mx=Math.min(radius+2,cell.w*.2),my=Math.min(radius+2,cell.h*.2);return{x:Math.max(cell.x+mx,Math.min(cell.x+cell.w-mx,p.x)),y:Math.max(cell.y+my,Math.min(cell.y+cell.h-my,p.y))};};
+ const clampPoint=(p,number)=>{const endzone=template==='endzones'&&!goalPositions.length&&group.zoneDimensions?.length===3,cell=circuits.find(s=>number>s.offset&&number<=s.offset+s.players)||(endzone?{x:fx+group.zoneDimensions[1].x*scale,y:fy,w:group.zoneDimensions[1].length*scale,h:fh}:{x:fx,y:fy,w:fw,h:fh}),mx=Math.min(radius+2,cell.w*.2),my=Math.min(radius+2,cell.h*.2);return{x:Math.max(cell.x+mx,Math.min(cell.x+cell.w-mx,p.x)),y:Math.max(cell.y+my,Math.min(cell.y+cell.h-my,p.y))};};
  const clear=p=>placed.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>=gap);
  for(const token of priority){
   if(seen.has(token.number)||token.rotation)continue;seen.add(token.number);

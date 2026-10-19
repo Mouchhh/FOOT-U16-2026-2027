@@ -182,6 +182,19 @@ function bibleAnimationPlan(exercise,group,options={}){
  }else if(a){
   carry(a,point(.64,.5),'Conduire et s’orienter','Démonstration technique : avancer avec le ballon en gardant la tête disponible.',2);
  }
+ // Dans un jeu à en-buts, montrer une réception dans la cible, pas seulement des passes au milieu.
+ if(template==='endzones'&&!scene.goals.length&&blue.length>=2){
+  const carrier=players.find(p=>p.number===ballOwner),end=group.zoneDimensions?.at(-1);
+  if(carrier?.team==='blue'&&end){
+   const alreadyInside=current(carrier).x>=field.fx+end.x*field.scale;
+   if(!alreadyInside){
+    const receiver=blue.filter(p=>p.number!==carrier.number).sort((p,q)=>current(q).x-current(p).x)[0];
+    const target={x:field.fx+(end.x+end.length*.55)*field.scale,y:field.fy+field.fh*.62};
+    add('Arriver dans l’en-but','Le receveur entre sur son appel pendant que le porteur peut jouer ; il ne stationne pas dans la cible.',1.8,[move(receiver,target)]);
+    pass(carrier,receiver,'Recevoir et maîtriser pour marquer','La réception dans l’en-but valide le point ; une course seule ou une passe non maîtrisée ne suffit pas.',2);
+   }
+  }
+ }
  add('Observer le résultat','Utilisez les étapes pour expliquer ; « Revenir au départ » prépare la répétition.',1.2);
  return result();
 }
@@ -222,7 +235,8 @@ function bibleAnimationMount(root,svg,exercise,group,options={}){
  const status=document.createElement('span');status.className='bible-animation-status';status.textContent='Démonstration du principe';
  const phases=document.createElement('div');phases.className='bible-animation-phases';phases.setAttribute('role','group');phases.setAttribute('aria-label','Actions de la démonstration');
  const key=document.createElement('p');key.className='bible-animation-key';key.textContent='Bleus / rouges · appuis blancs · G jaunes · pointillés : passe · trait plein : course';
- const observe=document.createElement('p');observe.className='bible-animation-observe';if(coaching)observe.textContent='À observer dans cet exemple : '+coaching.look;
+ const observe=document.createElement('p');observe.className='bible-animation-observe';const sequence=bibleDiagramSequence(exercise,options.sequenceIndex);if(coaching)observe.textContent='À observer · séquence '+((Number(options.sequenceIndex)||0)+1)+' : '+(options.sequenceObserve||sequence.observe||coaching.look);
+ const guidedLabel=document.createElement('label');guidedLabel.className='bible-animation-guided';const guided=document.createElement('input');guided.type='checkbox';guided.setAttribute('aria-label','Arrêt après chaque action');guidedLabel.append(guided,document.createTextNode('Arrêt après chaque action'));row.append(guidedLabel);
  row.append(play,reset,previous,next,speed,status);box.append(key,row,progress,caption,observe,phases);
  const tokenElements=new Map([...svg.querySelectorAll('.bible-player')].map(e=>[Number(e.dataset.number),e])),ballElements=[...svg.querySelectorAll('[data-equipment="ball"][data-reserve="false"]')],traces=[...svg.querySelectorAll('.bible-action-pass,.bible-action-move,.bible-action-label')];
  const ballStarts=ballElements.map(el=>{const circle=el.querySelector('circle');return{x:Number(circle?.getAttribute('cx')),y:Number(circle?.getAttribute('cy'))};});
@@ -245,7 +259,7 @@ function bibleAnimationMount(root,svg,exercise,group,options={}){
   }
  }
  function sceneRadius(){return (svg.bibleScene?.playerRadius||14)*1.28;}
- let time=0,playing=false,lastTimestamp=0,raf=0,disposed=false,lastCaption='',connected=false,dialog=null,lastStep=-1;
+ let time=0,playing=false,lastTimestamp=0,raf=0,disposed=false,lastCaption='',connected=false,dialog=null,lastStep=-1,stopAt=null;
  const format=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
  function render(){
   const state=bibleAnimationState(plan,time);for(const p of state.players)tokenElements.get(p.number)?.setAttribute('transform','translate('+p.x+' '+p.y+')');
@@ -258,19 +272,19 @@ function bibleAnimationMount(root,svg,exercise,group,options={}){
   const timeLabel=format(time)+' / '+format(plan.duration);if(status.textContent!==timeLabel)status.textContent=timeLabel;progress.value=String(time);progress.setAttribute('aria-valuetext',state.title+' · '+format(time)+' sur '+format(plan.duration));previous.disabled=time<=0;next.disabled=time>=plan.duration;
   root.dataset.animationState=playing?'playing':time>=plan.duration?'ended':time>0?'paused':'idle';root.dataset.animationStep=String(state.step);return state;
  }
- function pause(){playing=false;cancelAnimationFrame(raf);raf=0;lastTimestamp=0;play.textContent='▶ Voir l’exemple';play.setAttribute('aria-label','Lire la démonstration');play.setAttribute('aria-pressed','false');if(!disposed)render();}
+ function pause(){playing=false;cancelAnimationFrame(raf);raf=0;lastTimestamp=0;play.textContent=guided.checked&&time>0&&time<plan.duration?'▶ Action suivante':'▶ Voir l’exemple';play.setAttribute('aria-label',guided.checked&&time>0&&time<plan.duration?'Lire l’action suivante':'Lire la démonstration');play.setAttribute('aria-pressed','false');if(!disposed)render();}
  function hidden(){const parentDialog=root.closest('dialog');return document.hidden||!root.isConnected||root.closest('[hidden],details:not([open])')!==null||Boolean(parentDialog&&!parentDialog.open)||getComputedStyle(root).display==='none'||!root.getClientRects().length||!svg.getClientRects().length;}
  function tick(timestamp){
   if(!playing||disposed)return;if(hidden()){pause();return;}
-  if(lastTimestamp)time=Math.min(plan.duration,time+Math.min(.1,(timestamp-lastTimestamp)/1000)*Number(speed.value));lastTimestamp=timestamp;
-  const state=render();if(state.ended){pause();return;}raf=requestAnimationFrame(tick);
+  if(lastTimestamp)time=Math.min(stopAt??plan.duration,time+Math.min(.1,(timestamp-lastTimestamp)/1000)*Number(speed.value));lastTimestamp=timestamp;
+  const state=render();if(state.ended||stopAt!==null&&time>=stopAt){pause();return;}raf=requestAnimationFrame(tick);
  }
- function start(){if(disposed||hidden())return;connected=true;if(time>=plan.duration)time=0;playing=true;lastTimestamp=0;play.textContent='Ⅱ Pause';play.setAttribute('aria-label','Mettre la démonstration en pause');play.setAttribute('aria-pressed','true');dialog=root.closest('dialog');dialog?.addEventListener('close',pause);render();raf=requestAnimationFrame(tick);}
+ function start(){if(disposed||hidden())return;connected=true;if(time>=plan.duration)time=0;stopAt=guided.checked?(plan.steps.find(s=>s.motions.length&&s.end>time+.05)?.end??plan.duration):null;playing=true;lastTimestamp=0;play.textContent='Ⅱ Pause';play.setAttribute('aria-label','Mettre la démonstration en pause');play.setAttribute('aria-pressed','true');dialog=root.closest('dialog');dialog?.addEventListener('close',pause);render();raf=requestAnimationFrame(tick);}
  function seek(value){pause();time=Math.max(0,Math.min(plan.duration,Number(value)||0));render();}
  function step(direction){const starts=[0,...plan.steps.map(s=>s.start),plan.duration];seek(direction>0?starts.find(t=>t>time+.05)??plan.duration:[...starts].reverse().find(t=>t<time-.05)??0);}
  function visibility(){if(document.hidden)pause();}
  const controller={element:box,plan,play:start,pause,seek,step,reset:()=>seek(0),get state(){return bibleAnimationState(plan,time);},dispose(){if(disposed)return;pause();disposed=true;halo.remove();trail.remove();actionLayer.remove();for(const [id,ring]of actorHalos){ring.remove();tokenElements.get(id).style.opacity='';}document.removeEventListener('visibilitychange',visibility);dialog?.removeEventListener('close',pause);bibleAnimationControllers.delete(controller);if(!bibleAnimationControllers.size){bibleAnimationObserver?.disconnect();bibleAnimationObserver=null;}},check(){if(root.isConnected){connected=true;if(playing&&hidden())pause();}else if(connected)controller.dispose();}};
- play.onclick=()=>playing?pause():start();reset.onclick=()=>seek(0);previous.onclick=()=>step(-1);next.onclick=()=>step(1);progress.oninput=()=>seek(progress.value);document.addEventListener('visibilitychange',visibility);
+ guided.onchange=()=>pause();play.onclick=()=>playing?pause():start();reset.onclick=()=>seek(0);previous.onclick=()=>step(-1);next.onclick=()=>step(1);progress.oninput=()=>seek(progress.value);document.addEventListener('visibilitychange',visibility);
  bibleAnimationControllers.add(controller);
  if(!bibleAnimationObserver&&document.body){bibleAnimationObserver=new MutationObserver(records=>{if(records.some(r=>r.removedNodes.length))for(const c of bibleAnimationControllers)c.check();});bibleAnimationObserver.observe(document.body,{childList:true,subtree:true});}
  render();queueMicrotask(()=>controller.check());return controller;

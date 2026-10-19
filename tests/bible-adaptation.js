@@ -136,7 +136,7 @@ for(const minutes of [1,2,5,8,12,17,30,120])for(const options of [{},{sequences:
  assert.ok(t.sequences.every(s=>s.workSeconds>0&&s.rule&&s.observe));
 }
 const progression=context.bibleTimeline(exercise,12,base,{sequences:3,restSeconds:60});
-assert.equal(progression.sequences[1].title,'Pression');assert.ok(progression.sequences[1].rule.startsWith('Le défenseur presse immédiatement.'));assert.ok(progression.sequences[1].rule.includes('Repère de difficulté')); assert.equal(progression.totalWorkSeconds,600);assert.equal(progression.totalRestSeconds,120);
+assert.equal(progression.sequences[1].title,'Pression');assert.ok(progression.sequences[1].rule.startsWith('Le défenseur presse immédiatement.'));assert.ok(progression.sequences[1].rule.includes('Relier la qualité technique'));assert.ok(!progression.sequences[1].rule.includes('Repère de difficulté')); assert.equal(progression.totalWorkSeconds,600);assert.equal(progression.totalRestSeconds,120);
 assert.deepEqual(JSON.parse(JSON.stringify(context.bibleAvailable({space:'custom',spaceWidth:21,spaceLength:37}))),{width:21,length:37});
 // Les contraintes de rôle des vraies fiches doivent rester reliées au moteur.
 const catalogueContext={};vm.createContext(catalogueContext);
