@@ -143,3 +143,4 @@ body:not(.home-mode).coach-agenda-mode main>#club-profile,body:not(.home-mode).c
 .club-coach-presence i.online{background:#23804c;box-shadow:0 0 0 3px #23804c14}
 .club-coach-card .club-coach-status{font-size:11px;color:#365475;font-weight:600}
 .club-coach-card .club-last-login{display:block;font-size:10px;color:#667892;line-height:1.6}
+.club-presence-help{flex:1 1 100%;margin:0 0 5px;padding:12px 14px;border:1px solid #e4d5aa;border-radius:9px;background:#fffbef;color:#775c24;font-size:11px;line-height:1.7}.club-presence-help[hidden]{display:none}.club-presence-help a{color:#315e9d}.club-presence-help button{font-size:10px;padding:5px 9px;margin-left:5px}

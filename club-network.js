@@ -10,7 +10,7 @@ const clubNetworkReady=clubNetworkConfigValid(clubNetworkConfig);
 const clubNetworkBase=clubNetworkReady?clubNetworkConfig.url.replace(/\/$/,''):'';
 let clubNetworkSession=null,clubNetworkMember=null,clubNetworkMembers=[],clubNetworkRows=[],clubNetworkPreview=null,clubNetworkSources=[],clubNetworkRefreshPromise=null,clubNetworkGeneration=0,clubNetworkBusy=false,clubNetworkQueue=Promise.resolve(),clubNetworkSyncPromise=null,clubNetworkTimer=null,clubNetworkPageSize=50,clubNetworkCachedVersions=new Map();
 const clubNetworkPresenceSession=crypto.randomUUID();
-let clubNetworkPresenceState='loading',clubNetworkConnected=[],clubNetworkActivity=[],clubNetworkActivityState='loading';
+let clubNetworkPresenceState='loading',clubNetworkConnected=[],clubNetworkActivity=[],clubNetworkActivityState='loading',clubNetworkPresenceWriteState='loading';
 const clubNetworkSessionKey='vestiaire-private-session:'+clubNetworkBase;
 const clubNetworkBindingKey='vestiaire-account-binding:'+clubNetworkBase;
 const clubNetworkKinds={training:'Séance',report:'Rapport',composition:'Composition'};
@@ -77,7 +77,7 @@ function clubNetworkRenderState(){
  else $('club-network-shortcut').textContent='Connexion éducateurs';
 }
 function clubNetworkClear(){
- clubNetworkGeneration++;clearInterval(clubNetworkTimer);clubNetworkTimer=null;clubNetworkSession=null;clubNetworkMember=null;clubNetworkMembers=[];clubNetworkRows=[];clubNetworkPreview=null;clubNetworkSources=[];clubNetworkCachedVersions.clear();clubNetworkConnected=[];clubNetworkActivity=[];clubNetworkActivityState='loading';clubNetworkPresenceState='loading';$('club-connected-names').replaceChildren();$('club-connected-count').textContent='';$('club-connected-status').textContent='';
+ clubNetworkGeneration++;clearInterval(clubNetworkTimer);clubNetworkTimer=null;clubNetworkSession=null;clubNetworkMember=null;clubNetworkMembers=[];clubNetworkRows=[];clubNetworkPreview=null;clubNetworkSources=[];clubNetworkCachedVersions.clear();clubNetworkConnected=[];clubNetworkActivity=[];clubNetworkActivityState='loading';clubNetworkPresenceState='loading';clubNetworkPresenceWriteState='loading';$('club-connected-names').replaceChildren();$('club-connected-count').textContent='';$('club-connected-status').textContent='';
  sessionStorage.removeItem(clubNetworkSessionKey);sessionStorage.removeItem(clubNetworkBindingKey);
  $('club-network-preview').close();$('club-network-preview-content').replaceChildren();$('club-network-preview-title').textContent='';$('club-network-preview-author').textContent='';$('club-network-list').replaceChildren();$('club-network-source').replaceChildren();$('club-network-author').replaceChildren();$('club-account-name').textContent='';
  for(const id of ['club-network-password','club-network-old-password','club-network-new-password','club-network-confirm-password','club-signup-password','club-signup-confirm','club-signup-code','club-signup-first-name','club-signup-last-name'])$(id).value='';
@@ -340,6 +340,9 @@ function clubNetworkCoachActivity(person){
  return {online,label:!person.active?'Accès désactivé':online?'En ligne':known?'Hors ligne':'Statut indisponible',lastLogin};
 }
 function clubNetworkRenderCoachActivity(){
+ const profiles=$('club-network-coach-cards');let help=$('club-presence-help');if(!help){help=el('p','club-presence-help');help.id='club-presence-help';help.setAttribute('role','status');profiles.prepend(help);}
+ const setup=[clubNetworkPresenceState,clubNetworkActivityState,clubNetworkPresenceWriteState].includes('setup'),unavailable=[clubNetworkPresenceState,clubNetworkActivityState,clubNetworkPresenceWriteState].includes('unavailable'),reason=setup?'setup':unavailable?'unavailable':'';
+ help.hidden=!reason;if(help.dataset.reason!==reason){help.dataset.reason=reason;help.replaceChildren();if(reason){help.append(document.createTextNode(setup?'Le suivi des connexions doit être activé par le responsable du club. ':'Le suivi des connexions est temporairement indisponible. '));if(setup){const link=el('a','','Script d’activation Supabase');link.href='supabase/club-presence.sql';link.target='_blank';link.rel='noopener';help.append(link,document.createTextNode(' · '));}const retry=el('button','export','Réessayer');retry.type='button';retry.onclick=()=>clubNetworkQueueSync();help.append(retry);}}
  for(const card of document.querySelectorAll('#club-network-coach-cards .club-coach-card[data-user-id]')){
   const member=clubNetworkMembers.find(m=>m.user_id===card.dataset.userId),root=card.querySelector('.club-coach-activity');if(!member||!root)continue;
   const activity=clubNetworkCoachActivity(member),status=el('span','club-coach-presence'),dot=el('i',activity.online?'online':'offline');dot.setAttribute('aria-hidden','true');status.append(dot,el('span','club-coach-status',activity.label));
@@ -364,18 +367,21 @@ function clubNetworkRenderPresence(){
 }
 async function clubNetworkUpdatePresence(){
  if(!clubNetworkBound())return;
+ const authError=error=>error?.status===401||error?.status===403||error?.code==='42501';
+ const failure=error=>['PGRST202','42P01','42883'].includes(error?.code)||error?.status===404?'setup':'unavailable';
+ // L'échec d'un point d'entrée ne doit pas masquer les lectures encore disponibles.
  try{
-  if(!document.hidden)await clubNetworkRequest('/rest/v1/rpc/club_presence_ping',{method:'POST',body:{p_session_id:clubNetworkPresenceSession,p_online:true}});
-  const people=await clubNetworkRequest('/rest/v1/rpc/club_connected_coaches',{method:'POST',body:{}});if(!Array.isArray(people))throw Error('Réponse invalide');
-  clubNetworkConnected=people;clubNetworkPresenceState='ready';
-  try{
-   const activity=await clubNetworkRequest('/rest/v1/rpc/club_educator_activity',{method:'POST',body:{}});if(!Array.isArray(activity))throw Error('Réponse invalide');
-   clubNetworkActivity=activity;clubNetworkActivityState='ready';
-  }catch(error){if(error.status===401||error.status===403||error.code==='42501')throw error;clubNetworkActivity=[];clubNetworkActivityState=error.code==='PGRST202'||error.status===404?'setup':'unavailable';}
+  if(!document.hidden)await clubNetworkRequest('/rest/v1/rpc/club_presence_ping',{method:'POST',body:{p_session_id:clubNetworkPresenceSession,p_online:true}});clubNetworkPresenceWriteState='ready';
  }catch(error){
-  if(error.status===401||error.status===403||error.code==='42501')throw error;
-  clubNetworkConnected=[];clubNetworkActivity=[];clubNetworkActivityState='unavailable';clubNetworkPresenceState=error.code==='PGRST202'||error.status===404?'setup':'unavailable';
- }clubNetworkRenderPresence();
+  if(authError(error))throw error;clubNetworkPresenceWriteState=failure(error);
+ }
+ const [presence,activity]=await Promise.allSettled([clubNetworkRequest('/rest/v1/rpc/club_connected_coaches',{method:'POST',body:{}}),clubNetworkRequest('/rest/v1/rpc/club_educator_activity',{method:'POST',body:{}})]);
+ for(const result of [presence,activity])if(result.status==='rejected'&&authError(result.reason))throw result.reason;
+ if(presence.status==='fulfilled'&&Array.isArray(presence.value)){clubNetworkConnected=presence.value;clubNetworkPresenceState='ready';}
+ else{clubNetworkConnected=[];clubNetworkPresenceState=failure(presence.reason);}
+ if(activity.status==='fulfilled'&&Array.isArray(activity.value)){clubNetworkActivity=activity.value;clubNetworkActivityState='ready';if(clubNetworkPresenceState!=='ready'){clubNetworkConnected=activity.value.filter(p=>p.is_online===true);clubNetworkPresenceState='ready';}}
+ else{clubNetworkActivity=[];clubNetworkActivityState=failure(activity.reason);}
+ clubNetworkRenderPresence();
 }
 async function clubNetworkLeavePresence(keepalive=false){
  if(!clubNetworkBound()||!clubNetworkSession)return;
