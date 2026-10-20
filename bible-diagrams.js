@@ -58,6 +58,14 @@ function bibleCircuitStations(group,field){
  const gap=Math.min(3*field.scale,field.fw/(cols*2),field.fh/(rows*2)),w=(field.fw-gap*(cols-1))/cols,h=(field.fh-gap*(rows-1))/rows;
  let offset=0;return Array.from({length:count},(_,i)=>{const players=size+(i<rest?1:0),x=field.fx+(i%cols)*(w+gap),y=field.fy+Math.floor(i/cols)*(h+gap),points=[[.2,.72],[.5,.22],[.8,.72]].map(([a,b])=>({x:x+w*a,y:y+h*b})),station={index:i,offset,players,x,y,w,h,points};offset+=players;return station;});
 }
+// Balanced lines, mirrored for the opposition. These are installation examples,
+// not a prescribed match formation. Tactical actors are positioned afterwards.
+function bibleOppositionSlots(count,start,end,wideStart,wideEnd,offset=0){
+ if(!(count>0))return [];
+ const patterns={1:[1],2:[2],3:[1,2],4:[2,2],5:[2,2,1],6:[2,2,2],7:[2,3,2],8:[3,3,2],9:[3,3,3],10:[3,4,3]};
+ const lines=patterns[count]||Array.from({length:Math.max(1,Math.ceil(count/4))},(_,i)=>Math.floor(count/Math.ceil(count/4))+(i<count%Math.ceil(count/4)?1:0));
+ return lines.flatMap((size,line)=>Array.from({length:size},(_,i)=>({long:start+(end-start)*(lines.length===1?.5:line/(lines.length-1)),wide:wideStart+(wideEnd-wideStart)*Math.max(.1,Math.min(.9,(i+1)/(size+1)+((line%2?1:-1)*offset)))})));
+}
 // Pure starting layout shared by static drawings and the demonstration player.
 function bibleDiagramActors(exercise,group,field,goalPositions=[]){
  const knowledge=bibleDiagramKnowledge(exercise),mechanism=bibleDiagramMechanism(exercise),template=group.template||knowledge.template||'possession';
@@ -86,10 +94,11 @@ function bibleDiagramActors(exercise,group,field,goalPositions=[]){
   if(teams.blue)add(length*.88,width*.12,'blue');grid(Math.max(0,Number(teams.blue||0)-1),length*.47,length*.77,'blue',width*.28,width*.84);grid(Number(teams.red||0),length*.68,length*.89,'red',width*.27,width*.85);
  }else if(template==='finish'||template==='keeper'){
   grid(Number(teams.blue||0),length*.18,length*.7,'blue');grid(Number(teams.red||0),length*.63,length*.83,'red');
- }else if(template==='build'||template==='press'){
-  grid(Number(teams.blue||0),length*.13,length*.56,'blue');grid(Number(teams.red||0),length*.4,length*.82,'red');
- }else if(template==='possession'||template==='four-goals'){
-  grid(Number(teams.blue||0),length*.04,length*.96,'blue',width*.03,width*.97);grid(Number(teams.red||0),length*.12,length*.88,'red',width*.13,width*.87);
+ }else if(Number(teams.red||0)>0){
+  const keep=template==='possession'||template==='four-goals',endzones=template==='endzones'&&group.zoneDimensions?.length===3;
+  const left=endzones?group.zoneDimensions[1].x/length+.035:keep?.14:.16,right=endzones?(group.zoneDimensions[1].x+group.zoneDimensions[1].length)/length-.035:keep?.83:.67;
+  for(const p of bibleOppositionSlots(Number(teams.blue||0),left*length,right*length,width*.06,width*.94,keep?.025:0))add(p.long,p.wide,'blue');
+  for(const p of bibleOppositionSlots(Number(teams.red||0),(1-left)*length,(1-right)*length,width*.06,width*.94,keep?-.07:.025))add(p.long,p.wide,'red');
  }else{
   grid(Number(teams.blue||0),length*.09,length*.51,'blue');grid(Number(teams.red||0),length*.49,length*.91,'red');
  }
@@ -301,8 +310,13 @@ function bibleDiagramSVG(exercise,group,options={}){
   const player=make('g',{'class':'exercise-player bible-player','data-renderer':'numbered-token','data-team':t.team,'data-keeper':String(t.keeper),'data-rotation':String(t.rotation),'data-number':t.number,transform:'translate('+t.x+' '+t.y+')'});
   player.append(make('ellipse',{'data-feature':'player-shadow',cx:r*.16,cy:r*.74,rx:r*.84,ry:r*.38,fill:'#17381e',opacity:.26}));
   const model=make('g',{'class':'bible-player-model'});
+  if(Number(teams.red||0)>0){
+   model.append(make('circle',{r:r+2.2,fill:'#173455',opacity:.17}),make('circle',{'data-feature':'shirt',r,fill:'url(#bible-kit-'+kit+'-'+serial+')',stroke:'#fff','stroke-width':1.8}),make('circle',{r:r-3,fill:'none',stroke:light?'#9bafc2':'#fff','stroke-width':.65,opacity:.35}),make('path',{d:'M'+(-r*.55)+' '+(-r*.63)+'Q0 '+(-r*.82)+' '+(r*.55)+' '+(-r*.63),fill:'none',stroke:light?'#6d879e':'#fff','stroke-width':1.6,opacity:.7}));
+   model.append(make('text',{'data-feature':'shirt-number',x:0,y:r*.34,'text-anchor':'middle',fill:textColor,'font-family':'Arial, sans-serif','font-size':Math.max(11,r*(t.keeper?.75:.93)),'font-weight':800},t.keeper?'G'+t.number:t.number));player.append(model);
+  }else{
   model.append(make('circle',{r:r+2,fill:'#ffffff55'}),make('circle',{'data-feature':'shirt',r,fill:'url(#bible-kit-'+kit+'-'+serial+')',stroke:'#fff','stroke-width':1.5}),make('path',{d:'M'+(-r*.92)+' '+(r*.15)+'Q0 '+(-r*.02)+' '+(r*.92)+' '+(r*.15)+'A'+r+' '+r+' 0 0 1 '+(-r*.92)+' '+(r*.15),fill:'#f3f8ff'}),make('path',{d:'M'+(-r*.62)+' '+(-r*.65)+'L'+(-r*.24)+' '+(-r*.12)+'M'+(r*.62)+' '+(-r*.65)+'L'+(r*.24)+' '+(-r*.12),stroke:light?'#8da8c3':'#eff7ff','stroke-width':r*.16}));
   model.append(make('text',{'data-feature':'shirt-number',x:0,y:r*.4,'text-anchor':'middle',fill:'#193d71','font-family':'Arial, sans-serif','font-size':Math.max(10,r*.86),'font-weight':900,'paint-order':'stroke',stroke:'#fff','stroke-width':.6},t.keeper?'G'+t.number:t.number));player.append(model);
+  }
   if(t.fieldKeeper)player.append(make('circle',{cx:r*.78,cy:-r*.78,r:3,fill:'#ffd166',stroke:'#fff','stroke-width':.7}));
   if(t.rotation)player.append(make('circle',{cx:0,cy:0,r:r*1.35,fill:'none',stroke:'#687f9d','stroke-width':1,'stroke-dasharray':'3 3'}));svg.append(player);placement(t.keeper&&!t.fieldKeeper?'keeper':t.team==='red'?'red':'blue',t.x,t.y,{color,label:t.rotation?'G'+t.number+' rotation':t.keeper?'G'+t.number:String(t.number)});
  });
@@ -357,8 +371,9 @@ function bibleDiagram(exercise,session,options={}){
  let selected=Math.max(0,Math.min(groups.length-1,Number(options.groupIndex)||0)),sequenceIndex=Math.max(0,Number(options.sequenceIndex)||0);
  const knowledge=bibleDiagramKnowledge(exercise),sequences=knowledge.sequences||[],controls=document.createElement('div');controls.className='training-diagram-controls bible-diagram-selection';
  const heading=document.createElement('strong');heading.textContent='Installer l’exercice';controls.append(heading);
+ const matchup=document.createElement('div');matchup.className='bible-matchup';matchup.setAttribute('aria-label','Équipes de l’atelier');
  const workshop=document.createElement('select');workshop.setAttribute('aria-label','Atelier illustré · '+exercise.title);groups.forEach((g,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent='Atelier '+g.index+' · '+g.players+' joueurs';workshop.append(option);});workshop.value=String(selected);if(groups.length>1)controls.append(workshop);
- const sequence=document.createElement('select');sequence.setAttribute('aria-label','Séquence illustrée · '+exercise.title);sequences.forEach((s,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=(index+1)+'. '+s.title;sequence.append(option);});sequence.value=String(sequenceIndex);if(sequences.length>1&&options.sequenceControls!==false)controls.append(sequence);root.append(controls);
+ const sequence=document.createElement('select');sequence.setAttribute('aria-label','Séquence illustrée · '+exercise.title);sequences.forEach((s,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=(index+1)+'. '+s.title;sequence.append(option);});sequence.value=String(sequenceIndex);if(sequences.length>1&&options.sequenceControls!==false)controls.append(sequence);root.append(controls,matchup);
  const zoom=document.createElement('button');zoom.type='button';zoom.className='bible-diagram-zoom-toggle';zoom.textContent='Agrandir le schéma';zoom.setAttribute('aria-pressed','false');zoom.onclick=()=>{const active=root.classList.toggle('bible-diagram-zoomed');zoom.setAttribute('aria-pressed',String(active));zoom.textContent=active?'Réduire le schéma':'Agrandir le schéma';};controls.append(zoom);
  const intent=bibleGameIntent(exercise,groups[0]),direction=document.createElement('div');direction.className='bible-game-direction';const directionChip=(className,text)=>{const node=document.createElement('span');node.className=className;node.textContent=text;return node;};direction.setAttribute('aria-label','Sens de jeu et cibles');root.append(direction);
  let portrait=exercise.id==='duel-renforts';const orientation=document.createElement('button');orientation.type='button';orientation.className='bible-diagram-orientation';orientation.setAttribute('aria-label','Changer l’orientation du schéma');orientation.onclick=()=>{portrait=!portrait;orient();};controls.append(orientation);
@@ -371,6 +386,9 @@ function bibleDiagram(exercise,session,options={}){
  function render(){
   animation?.dispose();animation=null;animationHost.replaceChildren();
   const svg=bibleDiagramSVG(exercise,groups[selected],{...options,sequenceIndex});display.replaceChildren(svg);
+  matchup.replaceChildren();const actors=svg.bibleScene?.tokens||[],opponents=actors.filter(p=>!p.rotation&&p.team==='red');matchup.hidden=!opponents.length;
+  if(opponents.length){for(const [team,label]of [['blue','Bleus'],['red','Rouges'],['neutral','Appuis']]){const members=actors.filter(p=>!p.rotation&&p.team===team);if(!members.length)continue;const chip=document.createElement('span');chip.className='bible-matchup-team bible-matchup-'+team;const dot=document.createElement('i');dot.setAttribute('aria-hidden','true');const text=document.createElement('strong');text.textContent=members.length+' '+label.toLowerCase();chip.append(dot,text);const keepers=members.filter(p=>p.keeper).length;if(keepers){const note=document.createElement('small');note.textContent='dont '+keepers+' G';chip.append(note);}matchup.append(chip);}}
+
   if(options.animation!==false&&typeof bibleAnimationMount==='function'&&!svg.dataset.invalid){animation=bibleAnimationMount(root,svg,exercise,groups[selected],{...options,sequenceIndex});animationHost.append(animation.element);root.bibleAnimation=animation;}
   orient();
   const seen=new Set();print.replaceChildren();groups.forEach(g=>{const key=JSON.stringify([g.players,g.keepers,g.width,g.length,g.teams,g.material,g.fits]);if(!seen.has(key)){seen.add(key);print.append(bibleDiagramSVG(exercise,g,{...options,sequenceIndex}));}});

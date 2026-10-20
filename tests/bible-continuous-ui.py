@@ -19,6 +19,7 @@ with sync_playwright() as p:
     diagram.evaluate('(e)=>e.bibleAnimation.seek(e.bibleAnimation.plan.duration*.45)')
     assert diagram.locator('.training-diagram-print').inner_html()==static,id
     assert diagram.locator('[data-renderer="numbered-token"]').count()>0,id
+    assert diagram.evaluate('''e=>{const actors=e.querySelector('.training-diagram-screen svg').bibleScene.tokens.filter(p=>!p.rotation),red=actors.some(p=>p.team==='red'),chips=e.querySelector('.bible-matchup');return red?[...chips.querySelectorAll('strong')].every(n=>{const label=n.textContent.split(' ').at(-1),team={bleus:'blue',rouges:'red',appuis:'neutral'}[label];return Number(n.textContent.split(' ')[0])===actors.filter(p=>p.team===team).length}):chips.hidden}'''),id
     if id in ['rondo','passes','cutback','cpa-defence','keeper-duel','transition','build','freegame']:
      diagram.locator('.training-diagram-screen svg').screenshot(path='/tmp/continuous-'+id+'.png')
     # Replacing a sequence releases the prior clock and creates a fresh one.
