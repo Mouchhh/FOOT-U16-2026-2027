@@ -156,7 +156,7 @@ function openBibleSheet(exercise){
  let dialog=$('bible-sheet-dialog');if(!dialog){dialog=el('dialog','bible-sheet-dialog');dialog.id='bible-sheet-dialog';document.body.append(dialog);}
  bibleDisposeDiagrams(dialog);dialog.replaceChildren();const heading=el('div','bible-dialog-heading'),title=el('h2','',exercise.title);title.id='bible-sheet-title';dialog.setAttribute('aria-labelledby',title.id);const close=el('button','export','Fermer');close.type='button';close.onclick=()=>dialog.close();heading.append(title,close);
  const actions=el('div','bible-card-actions'),add=el('button','primary','+ Ajouter à la séance'),adapt=el('button','export','Créer ma variante'),free=el('button','export','Ouvrir dans l’atelier libre');add.type=adapt.type=free.type='button';add.onclick=()=>addBibleExercise(exercise);adapt.onclick=()=>{dialog.close();openBibleVariant(exercise);};free.onclick=()=>{dialog.close();bibleOpenInStudio(exercise);};actions.append(add,adapt,free);
- dialog.append(heading,bibleExerciseDetail(exercise,currentTraining),actions);dialog.onclose=()=>{bibleDisposeDiagrams(dialog);renderTrainingCatalogue();};dialog.showModal();
+ dialog.append(heading,bibleExerciseDetail(exercise,currentTraining),actions);dialog.onclose=()=>{if(dialog.open)return;bibleDisposeDiagrams(dialog);renderTrainingCatalogue();};dialog.showModal();
 }
 
 function bibleOpenInStudio(exercise){

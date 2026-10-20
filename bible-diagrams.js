@@ -160,6 +160,7 @@ function bibleDiagramBallActors(tokens,count){
 // Intent of play is explicit, including games without a directional target.
 function bibleGameIntent(exercise,group){
  const template=group.template||bibleDiagramKnowledge(exercise).template,material=group.material||{},targets=(material.goals||0)+(material.miniGoals||0)+(material.gates||0);
+ if(exercise.id==='keeper-distribute')return {mode:'build',blue:'Fermer la relance et récupérer',red:'Gardien : relancer vers les soutiens à gauche',turnover:false};
  if(exercise.id==='duel-renforts')return {mode:'waves',blue:'Attaquer le grand but',red:'À la récupération : viser un mini-but latéral',turnover:true};
  if(template==='circuit')return {mode:'technical',blue:'Circuit technique : suivre les postes',red:'Sans opposition ni cible adverse',turnover:false};
  if(!targets&&template==='build')return {mode:'build',blue:'Progresser avec les soutiens',red:'Fermer les passes et récupérer',turnover:false};
@@ -272,7 +273,7 @@ function bibleDiagramSVG(exercise,group,options={}){
  else if(mechanism.type==='switch'&&blue.length>1){const far=blue[blue.length-1];if(blue.length>2){clearArrow(a,blue[1],true,'1');clearArrow(blue[1],far,true,'2');}else clearArrow(a,far,true);ballPoint=ballFeet(a);}
  else if(mechanism.type==='cover'&&red.length){clearArrow(red[0],px(length*.43,width*.29),false,'Presser');if(red[1])clearArrow(red[1],px(length*.6,width*.43),false,'Couvrir');if(exercise.id==='press-cover-three'&&red[2])clearArrow(red[2],px(length*.68,width*.73),false,'Équilibrer');ballPoint=ballFeet(a);}
  else if(mechanism.type==='block'&&red.length){red.slice(0,3).forEach((t,i)=>clearArrow(t,px(t.long-length*.07,Math.max(width*.09,t.wide-width*.18)),false,i===0?'Coulisser':''));ballPoint=ballFeet(a);}
- else if(mechanism.type==='loss'&&red.length&&blue.length){const recovered=red[0];clearArrow(a,px(length*.43,width*.44),false,'Presser');if(blue[1])clearArrow(blue[1],px(length*.63,width*.64),false,'Fermer');ballPoint=ballFeet(recovered);}
+ else if(mechanism.type==='loss'&&red.length&&blue.length){const recovered=red[0];clearArrow(a,px(length*.43,width*.44),false,'Presser');if(blue[1])clearArrow(blue[1],px(length*.63,width*.64),false,'Fermer');ballPoint=ballFeet(a);}
  else if(mechanism.type==='regain'&&blue.length>1){clearArrow(a,blue[1],true,'1');if(blue[2])clearArrow(blue[2],px(length*.82,width*.73),false,'2');ballPoint=ballFeet(a);}
  else if(mechanism.type==='balance'&&blue.length>1){clearArrow(blue[1],px(length*.41,width*.44),false,'Équilibrer');if(blue[2])clearArrow(blue[2],px(length*.39,width*.62),false);ballPoint=ballFeet(a);}
  else if(mechanism.type==='retreat'&&blue.length){clearArrow(a,px(length*.71,width*.35),false,'Ralentir');if(blue[1])clearArrow(blue[1],px(length*.81,width*.58),false,'Couvrir');if(red[0])ballPoint=ballFeet(red[0]);}
@@ -280,6 +281,7 @@ function bibleDiagramSVG(exercise,group,options={}){
  else if(['behind','depth'].includes(mechanism.type)&&blue.length>1){const depth=px(length*.9,width*.7);clearArrow(blue[1],depth,false,'Appeler');clearArrow(a,depth,true);if(mechanism.type==='depth'&&red[0])clearArrow(red[0],px(length*.83,width*.55),false,'Ajuster');ballPoint=ballFeet(a);}
  else if(mechanism.type==='throw'&&blue.length>1){ballPoint=px(length*.32,0);clearArrow(ballPoint,blue[1],true,'1');if(blue[2])clearArrow(blue[1],blue[2],true,'2');}
  else if(mechanism.type==='keeperpass'&&keepers.length){ballOwner=keepers[0];ballPoint=ballFeet(ballOwner);clearArrow(ballOwner,keeperSupports(ballOwner)[0],true);}
+ else if(exercise.id==='press-goalkick'&&keepers.some(k=>k.team==='blue')){ballOwner=keepers.find(k=>k.team==='blue');ballPoint=ballFeet(ballOwner);clearArrow(ballOwner,blue.find(p=>!p.keeper),true);}
  else if(template==='build'&&keepers.length&&blue.length){ballOwner=keepers[0];ballPoint=ballFeet(ballOwner);clearArrow(ballOwner,blue.find(t=>!t.keeper),true);}
  else if(template==='corner'){
   ballPoint=px(length*.98,width*.025);const receiver=blue.slice(1).sort((a,b)=>b.long-a.long)[0];clearArrow(ballPoint,receiver,true);
@@ -296,16 +298,11 @@ function bibleDiagramSVG(exercise,group,options={}){
  }
  tokens.forEach(t=>{
   const r=playerRadius,kit=t.keeper&&!t.fieldKeeper?'keeper':t.team==='red'?'red':t.team==='neutral'?'neutral':'blue',color={blue:'#246fce',red:'#db3c4c',neutral:'#f5f8ff',keeper:'#edc13f'}[kit],light=kit==='neutral'||kit==='keeper',textColor=light?'#173455':'#fff';
-  const player=make('g',{'class':'exercise-player bible-player','data-renderer':'football-figurine','data-team':t.team,'data-keeper':String(t.keeper),'data-rotation':String(t.rotation),'data-number':t.number,transform:'translate('+t.x+' '+t.y+')'});
+  const player=make('g',{'class':'exercise-player bible-player','data-renderer':'numbered-token','data-team':t.team,'data-keeper':String(t.keeper),'data-rotation':String(t.rotation),'data-number':t.number,transform:'translate('+t.x+' '+t.y+')'});
   player.append(make('ellipse',{'data-feature':'player-shadow',cx:r*.16,cy:r*.74,rx:r*.84,ry:r*.38,fill:'#17381e',opacity:.26}));
-  const model=make('g',{'class':'bible-player-model',transform:'rotate(-10)'});
-  // Boots and shorts give a recognisable player silhouette instead of a disc.
-  for(const side of [-1,1]){model.append(make('ellipse',{cx:side*r*.28,cy:r*.77,rx:r*.24,ry:r*.13,fill:'#f7fbff',stroke:'#28414a','stroke-width':.8}),make('path',{d:'M'+(side*r*.28)+' '+(r*.42)+'V'+(r*.69),stroke:'#f9fbff','stroke-width':r*.19,'stroke-linecap':'round'}));}
-  model.append(make('path',{d:'M'+(-r*.49)+' '+(r*.26)+'H'+(r*.49)+'L'+(r*.44)+' '+(r*.58)+'H'+(r*.06)+'L0 '+(r*.42)+'L'+(-r*.06)+' '+(r*.58)+'H'+(-r*.44)+'Z',fill:light?'#334c69':'#f1f5fb',stroke:'#193344','stroke-width':.7}));
-  const shirt='M'+(-r*.3)+' '+(-r*.63)+'L'+(-r*.76)+' '+(-r*.42)+'L'+(-r*.88)+' '+(-r*.04)+'L'+(-r*.58)+' '+(r*.1)+'L'+(-r*.46)+' '+(-r*.1)+'L'+(-r*.48)+' '+(r*.34)+'Q0 '+(r*.47)+' '+(r*.48)+' '+(r*.34)+'L'+(r*.46)+' '+(-r*.1)+'L'+(r*.58)+' '+(r*.1)+'L'+(r*.88)+' '+(-r*.04)+'L'+(r*.76)+' '+(-r*.42)+'L'+(r*.3)+' '+(-r*.63)+'Q0 '+(-r*.4)+' '+(-r*.3)+' '+(-r*.63)+'Z';
-  model.append(make('path',{'data-feature':'shirt',d:shirt,fill:'url(#bible-kit-'+kit+'-'+serial+')',stroke:'#fff','stroke-width':1.2,'stroke-linejoin':'round'}),make('path',{d:'M'+(-r*.7)+' '+(-r*.4)+'L'+(-r*.55)+' '+(-r*.15)+'M'+(r*.7)+' '+(-r*.4)+'L'+(r*.55)+' '+(-r*.15),stroke:light?'#93a7b7':'#fff','stroke-width':r*.1,opacity:.9}));
-  model.append(make('circle',{cx:0,cy:-r*.8,r:r*.235,fill:'#e9be97',stroke:'#654d3a','stroke-width':.7}),make('path',{d:'M'+(-r*.23)+' '+(-r*.83)+'Q0 '+(-r*1.14)+' '+(r*.23)+' '+(-r*.83)+'Q0 '+(-r*.96)+' '+(-r*.23)+' '+(-r*.83),fill:'#4c3b31'}));
-  model.append(make('text',{'data-feature':'shirt-number',x:0,y:r*.16,'text-anchor':'middle',fill:textColor,'font-family':'Arial, sans-serif','font-size':Math.max(10,r*.7),'font-weight':900,'paint-order':'stroke',stroke:light?'#fff6':'#16366155','stroke-width':.5},t.keeper?'G'+t.number:t.number));player.append(model);
+  const model=make('g',{'class':'bible-player-model'});
+  model.append(make('circle',{r:r+2,fill:'#ffffff55'}),make('circle',{'data-feature':'shirt',r,fill:'url(#bible-kit-'+kit+'-'+serial+')',stroke:'#fff','stroke-width':1.5}),make('path',{d:'M'+(-r*.92)+' '+(r*.15)+'Q0 '+(-r*.02)+' '+(r*.92)+' '+(r*.15)+'A'+r+' '+r+' 0 0 1 '+(-r*.92)+' '+(r*.15),fill:'#f3f8ff'}),make('path',{d:'M'+(-r*.62)+' '+(-r*.65)+'L'+(-r*.24)+' '+(-r*.12)+'M'+(r*.62)+' '+(-r*.65)+'L'+(r*.24)+' '+(-r*.12),stroke:light?'#8da8c3':'#eff7ff','stroke-width':r*.16}));
+  model.append(make('text',{'data-feature':'shirt-number',x:0,y:r*.4,'text-anchor':'middle',fill:'#193d71','font-family':'Arial, sans-serif','font-size':Math.max(10,r*.86),'font-weight':900,'paint-order':'stroke',stroke:'#fff','stroke-width':.6},t.keeper?'G'+t.number:t.number));player.append(model);
   if(t.fieldKeeper)player.append(make('circle',{cx:r*.78,cy:-r*.78,r:3,fill:'#ffd166',stroke:'#fff','stroke-width':.7}));
   if(t.rotation)player.append(make('circle',{cx:0,cy:0,r:r*1.35,fill:'none',stroke:'#687f9d','stroke-width':1,'stroke-dasharray':'3 3'}));svg.append(player);placement(t.keeper&&!t.fieldKeeper?'keeper':t.team==='red'?'red':'blue',t.x,t.y,{color,label:t.rotation?'G'+t.number+' rotation':t.keeper?'G'+t.number:String(t.number)});
  });

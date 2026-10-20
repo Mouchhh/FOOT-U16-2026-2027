@@ -10,7 +10,7 @@ with sync_playwright() as p:
     errors=[]
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.set_content('''<style>body{margin:0;background:#eef3f9;font-family:Arial}main{max-width:920px;margin:20px auto}.training-diagram{margin:0}.training-diagram-controls{display:flex;gap:8px;flex-wrap:wrap}.training-diagram-svg{display:block;width:100%;height:auto}.training-diagram-print{display:none}select{max-width:100%}figcaption{font-size:12px}.bible-animation{padding:12px}.bible-animation-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.bible-animation-controls button,.bible-animation-controls select{padding:10px;border:1px solid #dce4f2;border-radius:8px;background:white;color:#245187}.bible-animation-progress{width:100%}.bible-animation-caption{font-size:13px;line-height:1.5}.bible-animation-status{margin-left:auto;font-size:12px}</style><main></main>''')
-    for name in ['training-data.js','training-knowledge.js','training-adaptation.js','bible-diagrams.js','bible-animation.js']:
+    for name in ['training-data.js','training-knowledge.js','training-adaptation.js','bible-diagrams.js','bible-circuit-animation.js','bible-animation.js']:
         page.add_script_tag(content=(ROOT/name).read_text())
     result=page.evaluate('''() => {
       const assert=(ok,message)=>{if(!ok)throw new Error(message);};let cases=0,available=0,continuousPasses=0;
@@ -46,7 +46,7 @@ with sync_playwright() as p:
             const atStart=bibleAnimationState(plan,step.start),after=bibleAnimationState(plan,Math.min(plan.duration,step.start+.000001));
             assert(Math.hypot(atStart.ball.x-after.ball.x,atStart.ball.y-after.ball.y)<.01,exercise.id+' ball teleports at step');
             for(const motion of step.motions.filter(m=>m.kind==='ball')){
-              const state=bibleAnimationState(plan,step.start+step.duration/2),ball=state.balls.find(b=>b.id===motion.id),middle={x:(motion.from.x+motion.to.x)/2,y:(motion.from.y+motion.to.y)/2};
+              const state=bibleAnimationState(plan,step.start+(motion.delay||0)+(motion.duration||step.duration)/2),ball=state.balls.find(b=>b.id===motion.id),middle={x:(motion.from.x+motion.to.x)/2,y:(motion.from.y+motion.to.y)/2};
               if(motion.follow!==undefined){const carrier=state.players.find(p=>p.number===motion.follow);assert(carrier&&Math.hypot(ball.x-carrier.x,ball.y-carrier.y)<scene.playerRadius+13,exercise.id+' carried ball detaches from player');}
               else{assert(ball&&Math.hypot(ball.x-middle.x,ball.y-middle.y)<1e-6,exercise.id+' pass does not travel through midpoint');continuousPasses++;}
             }

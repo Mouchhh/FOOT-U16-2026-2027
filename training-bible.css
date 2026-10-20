@@ -197,3 +197,7 @@
 @media print{.bible-game-direction{font-size:10px}.bible-game-state{display:none}}
 /* Clip out the print-only title and legend when the live scene is rotated. */
 .training-diagram-screen .training-diagram-svg{overflow:hidden}
+
+/* One clean player for the library; details remain available on demand. */
+.bible-animation-chapters{border-top:1px solid #e5edf6;margin-top:12px;padding-top:12px}.bible-animation-chapters>summary{cursor:pointer;font-size:11px;color:#42658d;font-weight:650}.bible-animation-chapters .bible-animation-phases{padding-top:10px}.bible-animation-controls{gap:7px}.bible-animation-controls button,.bible-animation-controls select{border-radius:10px!important}.bible-animation-progress{accent-color:#2855a2}.bible-animation-caption{background:#f3f7fc;border:1px solid #dfe9f5;border-left:3px solid #3877c8;border-radius:10px}.bible-live-actions path{vector-effect:non-scaling-stroke}.bible-animation-key{margin-bottom:5px!important}.bible-sheet-dialog .training-diagram-screen .training-diagram-svg{max-height:min(540px,56dvh)}
+@media(max-width:600px){.bible-sheet-dialog .training-diagram-screen .training-diagram-svg{max-height:none}.bible-animation-controls{flex-wrap:wrap}.bible-animation-caption strong{line-height:1.5}.bible-animation-observe{font-size:11px}}
