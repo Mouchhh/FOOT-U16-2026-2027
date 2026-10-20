@@ -8,7 +8,7 @@ function bibleSequenceSettingValid(setting){
 function bibleInitialVariant(exercise,session,source=null,legacy=false){
  const profileKey=JSON.stringify([session.category,session.age,session.level,session.context,session.players,session.keepers,session.space,session.spaceWidth,session.spaceLength,session.coachingLoad]);
  if(source?.version===1){if(source.autoProfile===true&&source.profileKey!==profileKey)return {...bibleInitialVariant(exercise,session,null,legacy),title:source.title};return structuredClone(source);}
- const organisation=legacy?'auto':'single',plan=biblePlan(exercise,session,{organisation}),group=plan.groups[0],time=bibleTimeline(exercise,12,session);
+ const organisation=legacy||exercise.id==='wall-pass'&&session.players>8?'auto':'single',plan=biblePlan(exercise,session,{organisation}),group=plan.groups[0],time=bibleTimeline(exercise,12,session);
  return {version:1,title:exercise.title,width:Math.max(6,Math.min(105,group.width)),length:Math.max(6,Math.min(120,group.length)),groups:plan.groups.length,sequences:time.sequences.length,restSeconds:bibleTrainingProfile(session).restSeconds,organisation,sequenceRules:['','','',''],autoProfile:true,profileKey};
 }
 function biblePreviewState(exercise,session=currentTraining){

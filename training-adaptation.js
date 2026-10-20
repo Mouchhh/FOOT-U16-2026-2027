@@ -101,15 +101,15 @@ function bibleMaterial(exercise,format,group,template){
  else{goals=Math.min(format.goals,group.activeKeepers);gates=Math.max(0,format.goals-goals);}
  miniGoals+=Number.isInteger(format.miniGoals)?Math.min(2,Math.max(0,format.miniGoals)):0;
  const activeBalls=exercise.id==='warm'?group.players:template==='circuit'?Math.max(1,Math.floor(group.players/3)):1;
- const balls=Math.max(activeBalls,template==='circuit'?Math.ceil(group.players/2):Math.max(2,Math.ceil(group.players/4)));
+ const balls=exercise.id==='wall-pass'?1:Math.max(activeBalls,template==='circuit'?Math.ceil(group.players/2):Math.max(2,Math.ceil(group.players/4)));
  const equipment=format.equipment||{},extra={};
  for(const key of ['hurdles','poles','ladders','hoops','dummies'])if(Number.isInteger(equipment[key])&&equipment[key]>=0&&equipment[key]<=12)extra[key]=equipment[key];
  const circuitCones=template==='circuit'&&!['warm','cool'].includes(exercise.id)?3*activeBalls:0;
- const discs=4+2*(format.zones-1),cones=2*gates+circuitCones;
+ const discs=Number.isInteger(format.discs)&&format.discs>=2&&format.discs<=20?format.discs:4+2*(format.zones-1),cones=2*gates+circuitCones;
  return {balls,activeBalls,reserveBalls:balls-activeBalls,discs,cones,circuitCones,bibsBlue:group.teams.blue,bibsRed:group.teams.red,bibsNeutral:group.teams.neutral,bibsKeeper:group.activeKeepers+group.rotatingKeepers,goals,miniGoals,gates,...extra};
 }
 function bibleDimensions(exercise,session,group,template,options){
- const minima={rondo:[6,6,6],possession:[10,12,15],endzones:[14,18,22],'four-goals':[14,18,22],build:[16,20,28],press:[16,20,28],transition:[16,20,28],finish:[12,18,22],'wide-finish':[20,24,32],circuit:[6,6,7],duel:[8,10,16],corner:[22,26,25],keeper:[10,14,20]};
+ const minima={combination:[20,28,10],rondo:[6,6,6],possession:[10,12,15],endzones:[14,18,22],'four-goals':[14,18,22],build:[16,20,28],press:[16,20,28],transition:[16,20,28],finish:[12,18,22],'wide-finish':[20,24,32],circuit:[6,6,7],duel:[8,10,16],corner:[22,26,25],keeper:[10,14,20]};
  const basis=minima[template]||minima.possession;
  const factor=bibleTrainingProfile(session).spaceFactor;
  const scaling=Math.sqrt(group.players/Math.max(2,exercise.target||8))*factor;
@@ -177,7 +177,7 @@ function biblePlan(exercise,session={},options={}){
    const keeperPresent=!format.requiresKeeper||rolePlan.activeKeepers+rolePlan.fieldKeepers>0;
    const appuiPresent=format.neutrals===0||rolePlan.teams.neutral>0;
    const superiority=!format.attackAdvantage||rolePlan.teams.blue>rolePlan.teams.red,actors=bibleActors(format,rolePlan,template);
-   return {...group,...rolePlan,...dims,...actors,index:i+1,template,format,learning,pedagogyFits:group.players>=format.min&&(organisation==='single'||group.players<=format.max)&&opposition&&keeperPresent&&appuiPresent&&superiority&&actors.actorsFit};
+   return {...group,...rolePlan,...dims,...actors,index:i+1,template,format,learning,pedagogyFits:group.players>=format.min&&((organisation==='single'&&exercise.id!=='wall-pass')||group.players<=format.max)&&opposition&&keeperPresent&&appuiPresent&&superiority&&actors.actorsFit};
   });
   const layout=bibleLayout(groups,available,true);
   const sizePenalty=groups.reduce((sum,g)=>sum+Math.abs(g.players-format.ideal)/format.ideal,0)/count;

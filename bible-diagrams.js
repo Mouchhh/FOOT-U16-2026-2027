@@ -390,7 +390,7 @@ function bibleDiagram(exercise,session,options={}){
 // Copie des placements initiaux vers l'atelier libre, sans toucher au tableau de match.
 // Les frontières de zones restent matérialisées par leurs coupelles ; l'atelier n'impose pas de fausses proportions de zones.
 function bibleEditableBoard(exercise,group){
- const svg=bibleDiagramSVG(exercise,group),placements=svg.biblePlacement;
+ const svg=exercise.id==='wall-pass'&&typeof createReferenceCombinationSVG==='function'&&group.players>=3&&group.players<=8&&group.width>=20&&group.length>=28?createReferenceCombinationSVG(createReferenceCombination({players:group.players,width:group.width,length:group.length})):bibleDiagramSVG(exercise,group),placements=svg.biblePlacement;
  if(!Array.isArray(placements)||placements.length>100)return null;
  const scale=Math.min(1020/group.length,540/group.width),left=(1200-group.length*scale)/2,top=(750-group.width*scale)/2-12;
  const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
