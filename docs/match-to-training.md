@@ -17,3 +17,9 @@ Une proposition ouverte ne peut pas être appliquée si le document ou les régl
 - L’exercice vidéo **Renforts progressifs** est désormais correctement classé dans le filtre « À la récupération ».
 
 Les tests automatiques couvrent les comptes de joueurs, gardiens et matériel, les surfaces, les durées et la continuité des animations des 61 fiches. Des contrôles spécifiques vérifient les choix illustrés dans les trois progressions ci-dessus. Ces contrôles ne constituent pas une homologation ni une validation fédérale de chaque exercice. Les animations montrent une action possible ; elles ne simulent pas toutes les décisions adverses.
+
+## Sens du jeu et récupération
+
+Les schémas affichent désormais les missions des équipes et les cibles ; les flèches de sens suivent l’orientation du terrain. Les rondos et circuits ne reçoivent pas de direction artificielle. Le bandeau de lecture distingue possession, interception, transition, finition et fin de vague dans l’exercice à renforts.
+
+Dans `duel-renforts`, les séquences 1–2 montrent une finition bleue vers le grand but. Les séquences 3–4 illustrent une passe intérieure interceptée, puis une contre-attaque rouge vers un mini-but latéral. L’interception est placée sur la trajectoire prévue de la passe ; aucun ballon n’est replacé artificiellement pour déclencher la récupération. Le joueur en attente reste distingué des quatre joueurs de la vague. L’animation se termine sur une fin de vague et une consigne de rotation ; elle ne simule pas automatiquement toutes les vagues suivantes.

@@ -187,3 +187,13 @@
 .bible-diagram-zoomed.bible-portrait .training-diagram-screen .training-diagram-svg{width:auto;min-width:0;height:960px;max-width:none}
 @media(max-width:600px){.bible-portrait .training-diagram-screen .training-diagram-svg{height:auto;max-height:none;max-width:100%}.bible-sheet-dialog .training-diagram-screen .training-diagram-svg{max-height:560px}.bible-diagram-orientation{padding:8px;font-size:10px}}
 @media print{.bible-diagram-orientation{display:none!important}.training-diagram-print .bible-diagram-svg{max-height:none!important}}
+
+/* First explain the game, then show the movement. */
+.bible-game-direction{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px;font-size:12px;font-weight:700;line-height:1.5}
+.bible-game-direction>span{padding:8px 11px;border-radius:9px;border:1px solid #d7e4f4;background:#edf5ff;color:#24599d}
+.bible-game-direction>.bible-direction-red{background:#fff1f1;color:#a33342;border-color:#f1d8dc}
+.bible-game-state{padding:9px 12px!important;margin:0 0 10px!important;background:#eaf3ff;border-left:4px solid #3679dd;border-radius:6px;font-size:12px!important;font-weight:750;color:#24599d!important}
+.bible-game-state[data-team=red]{background:#fff1f1;border-color:#d94f5c;color:#a33342!important}
+@media print{.bible-game-direction{font-size:10px}.bible-game-state{display:none}}
+/* Clip out the print-only title and legend when the live scene is rotated. */
+.training-diagram-screen .training-diagram-svg{overflow:hidden}

@@ -28,6 +28,7 @@ function bibleAnimationPlan(exercise,group,options={}){
  const {field,template,mechanism}=scene,players=scene.tokens.map(t=>({...t})),active=players.filter(t=>!t.rotation),blue=active.filter(t=>t.team==='blue'&&(!t.keeper||t.fieldKeeper)),red=active.filter(t=>t.team==='red'&&(!t.keeper||t.fieldKeeper)),neutrals=active.filter(t=>t.team==='neutral'),keepers=active.filter(t=>t.keeper);
  const positions=new Map(players.map(p=>[p.number,{x:p.x,y:p.y}])),steps=[];
  let ball={...scene.ball},time=0,ballOwner=scene.balls[0]?.owner??active.slice().sort((a,b)=>Math.hypot(a.x-ball.x,a.y-ball.y)-Math.hypot(b.x-ball.x,b.y-ball.y))[0]?.number;const extraBalls=new Map(scene.balls.filter(b=>b.id!=='ball').map(b=>[b.id,{...b}]));
+ const initialOwner=players.find(p=>p.number===ballOwner);let possessionTeam=['blue','red'].includes(initialOwner?.team)?initialOwner.team:'blue',gamePhase='play',gameFormat=exercise.id==='duel-renforts'?'1 contre 1':'';
  const point=(long,wide)=>({x:field.fx+long*field.fw,y:field.fy+wide*field.fh});
  const safe=(p,margin=0)=>({x:Math.max(field.fx+margin,Math.min(field.fx+field.fw-margin,p.x)),y:Math.max(field.fy+margin,Math.min(field.fy+field.fh-margin,p.y))});
  const circuits=template==='circuit'&&!['warm','cool'].includes(exercise.id)?bibleCircuitStations(group,field):[];
@@ -61,11 +62,11 @@ function bibleAnimationPlan(exercise,group,options={}){
   for(const [id,other]of extraBalls){const owner=players.find(p=>p.number===other.owner);if(owner&&moves.some(m=>m?.player===other.owner)){const to=feet(owner),motion={kind:'ball',id,from:{x:other.x,y:other.y},to};attach(motion,owner.number);motions.push(motion);Object.assign(other,to);}}
   // Les courses se font à une allure lisible en mètres, même sur un grand terrain.
   const duration=Math.max(seconds,...motions.map(m=>(m.control?Math.hypot(m.control.x-m.from.x,m.control.y-m.from.y)+Math.hypot(m.to.x-m.control.x,m.to.y-m.control.y):Math.hypot(m.to.x-m.from.x,m.to.y-m.from.y))/field.scale/(m.kind==='player'||m.easing==='run'?4.2:12)));
-  const step={index:steps.length,start:time,duration,end:time+duration,title,caption,motions,owner:ballOwner};steps.push(step);time+=duration;
+  const step={index:steps.length,start:time,duration,end:time+duration,title,caption,motions,owner:ballOwner,team:possessionTeam,phase:gamePhase,format:gameFormat};steps.push(step);time+=duration;
  }
  const settle=()=>{const previous=steps[steps.length-1];add('Observer · '+previous.title,'Arrêt sur image : '+previous.caption,.85);steps[steps.length-1].reference=previous.index;};
- const possession=p=>{if(!p||ballOwner===p.number)return;add('Préparer l’action','Le ballon est remis au joueur '+p.number+' pour démarrer la situation.',1.5,[],()=>feet(p));ballOwner=p.number;};
- const pass=(from,to,title,caption,seconds=1.8,moves=[])=>{if(!from||!to||from.number===to.number)return;possession(from);add(title,caption,seconds,moves,()=>feet(to));const step=steps[steps.length-1];step.from=from.number;step.to=to.number;step.action='pass';ballOwner=to.number;settle();};
+ const possession=p=>{if(p&&['blue','red'].includes(p.team))possessionTeam=p.team;if(!p||ballOwner===p.number)return;add('Préparer l’action','Le ballon est remis au joueur '+p.number+' pour démarrer la situation.',1.5,[],()=>feet(p));ballOwner=p.number;};
+ const pass=(from,to,title,caption,seconds=1.8,moves=[])=>{if(!from||!to||from.number===to.number)return;possession(from);add(title,caption,seconds,moves,()=>feet(to));const step=steps[steps.length-1];step.from=from.number;step.to=to.number;step.action='pass';ballOwner=to.number;if(['blue','red'].includes(to.team))possessionTeam=to.team;settle();};
  const carry=(p,target,title,caption,seconds=1.8,others=[])=>{if(!p)return;possession(p);add(title,caption,seconds,[move(p,target),...others],()=>feet(p));const step=steps[steps.length-1],motion=step.motions.find(m=>m.kind==='ball');if(motion)motion.easing='run';step.action='carry';step.from=p.number;settle();};
  const targetGoal=scene.goals.find(g=>g.side==='right')||scene.goals[0];
  const goalPoint=(wide=.5)=>point(targetGoal?.side==='left'?0:1,targetGoal?targetGoal.wide/group.width:wide);
@@ -73,7 +74,7 @@ function bibleAnimationPlan(exercise,group,options={}){
  const nearRed=red.slice().sort((p,q)=>Math.hypot(p.x-(a?.x||0),p.y-(a?.y||0))-Math.hypot(q.x-(a?.x||0),q.y-(a?.y||0)))[0];
  const sequence=bibleDiagramSequence(exercise,options.sequenceIndex);
  const initial={players:players.map(p=>({...p})),ball:{...scene.ball},balls:scene.balls.map(b=>({...b}))};
- const result=()=>({version:1,exerciseId:exercise.id,groupIndex:group.index,sequenceIndex:Number(options.sequenceIndex)||0,field:{...field},initial,steps,duration:Math.round(time*100)/100,available:steps.length>0&&group.fits!==false&&group.pedagogyFits!==false&&scene.activeBalls>0,label:'Démonstration du principe',sequenceRule:sequence.rule||'',note:'Exemple d’action pour comprendre le principe ; les décisions restent libres dans le jeu.'});
+ const result=()=>({version:1,exerciseId:exercise.id,groupIndex:group.index,sequenceIndex:Number(options.sequenceIndex)||0,field:{...field},playerRadius:scene.playerRadius,initial,steps,duration:Math.round(time*100)/100,available:steps.length>0&&group.fits!==false&&group.pedagogyFits!==false&&scene.activeBalls>0,label:'Démonstration du principe',sequenceRule:sequence.rule||'',note:'Exemple d’action pour comprendre le principe ; les décisions restent libres dans le jeu.'});
  if(group.fits===false||group.pedagogyFits===false||!active.length||!scene.activeBalls)return result();
  add('Observer le départ','Repérez le porteur, ses partenaires et les adversaires.',.9);
  if(mechanism.type==='overlap'&&a&&b&&red[0]){
@@ -103,14 +104,29 @@ function bibleAnimationPlan(exercise,group,options={}){
    pass(a,b,'4 · Trouver le partenaire libre','La remise permet une passe vers l’avant ; se retourner reste possible si la pression le permet.',2);
   }
  }else if(exercise.id==='duel-renforts'&&a&&b&&red.length>=2){
-  carry(a,point(.43,.4),'1 · Duel : 1 contre 1','Le bleu attaque le grand but ; le rouge ralentit et ferme l’axe. Les autres restent en attente.',2.5,[move(red[0],point(.6,.44))]);
-  add('2 · Renfort bleu : 2 contre 1','Au signal, le deuxième bleu entre et s’écarte pour offrir une solution. Le premier rouge protège le but.',2.5,[move(b,point(.55,.74))]);settle();
-  pass(a,b,'3 · Fixer puis libérer','Exemple de choix : le défenseur ferme le porteur, le bleu sert le partenaire libre. Il peut aussi conserver si la ligne est fermée.',2,[move(red[0],point(.61,.38))]);
-  add('4 · Renfort rouge : 2 contre 2','Le deuxième rouge entre ; le premier ralentit pour lui laisser le temps de couvrir.',2.5,[move(red[1],point(.7,.65)),move(a,point(.61,.3))]);settle();
-  carry(b,point(.7,.78),'5 · Décider à égalité','Le porteur garde le ballon si la frappe est fermée ; son partenaire reste disponible.',2,[move(red[1],point(.79,.68))]);
-  pass(b,a,'6 · Changer l’angle','Exemple illustré : retrouver un partenaire face au but. La passe n’est pas obligatoire dans le jeu.',2,[move(red[0],point(.7,.43))]);
-  add('7 · Frapper si la fenêtre s’ouvre','La démonstration montre une finition possible, sans garantir le but. Sur récupération rouge, chercher un mini-but latéral.',1.6,[],goalPoint());settle();
-  add('8 · Terminer la vague','But, sortie ou limite de temps : sortir sur le côté, faire entrer les suivants et inverser les rôles entre séries. Revenir au départ pour revoir.',1.2);
+  carry(a,point(.43,.4),'1 · Bleu attaque : 1 contre 1','Sens de jeu : les bleus attaquent le grand but. Le rouge ralentit et ferme l’axe. Les autres attendent le signal.',2.5,[move(red[0],point(.6,.44))]);
+  gameFormat='2 contre 1';
+  add('2 · Renfort bleu : 2 contre 1','Un deuxième bleu entre au signal et offre une solution écartée. Le rouge reste entre ballon et grand but.',2.5,[move(b,point(.55,.74))]);settle();
+  pass(a,b,'3 · Exploiter le 2 contre 1','Exemple : le rouge ferme le porteur, qui sert le partenaire libre. Les deux bleus progressent vers le grand but.',2,[move(red[0],point(.61,.38)),move(a,point(.59,.28))]);
+  gameFormat='2 contre 2';
+  add('4 · Renfort rouge : 2 contre 2','Un deuxième rouge entre. Il prend le porteur ; le premier couvre l’axe. Le gardien protège toujours le grand but.',2.5,[move(red[1],point(.73,.68)),move(red[0],point(.65,.43))]);settle();
+  if(Number(options.sequenceIndex)>=2){
+   carry(b,point(.66,.76),'5 · Fermer la passe intérieure','Le rouge proche ralentit le porteur. Son partenaire se prépare à couper la passe de retour : les bleus ne doivent pas forcer cette ligne.',2,[move(red[1],point(.78,.74)),move(red[0],point(.64,.48))]);
+   gamePhase='interception';
+   const intendedTo=feet(a),intercept={x:ball.x+(intendedTo.x-ball.x)*.58+scene.playerRadius+6,y:ball.y+(intendedTo.y-ball.y)*.58-8};
+   add('6 · Le rouge intercepte','Exemple de perte : la passe intérieure est jouée dans une ligne fermée. Le rouge coupe la trajectoire et prend le contrôle.',1.8,[move(red[0],intercept)],()=>feet(red[0]));
+   Object.assign(steps[steps.length-1],{action:'recovery',from:b.number,to:red[0].number,intendedTo});ballOwner=red[0].number;possessionTeam='red';gamePhase='transition';settle();
+   carry(red[0],point(.5,.25),'7 · Changement de sens : rouges en attaque','Les rouges visent maintenant un mini-but latéral. Les bleus deviennent défenseurs et tentent de fermer l’accès ; aucun ballon nouveau n’est ajouté.',2.5,[move(a,point(.63,.28)),move(b,point(.65,.51)),move(red[1],point(.53,.7))]);
+   const mini=scene.goals.find(g=>g.side==='top'&&g.type==='mini'),target=point((mini?.long??group.length*.52)/group.length,0);
+   gamePhase='shot';add('8 · Finir dans le mini-but libre','Le rouge utilise la cible latérale libre. Si le ballon sort ou entre dans le mini-but, la vague s’arrête.',1.4,[],target);Object.assign(steps[steps.length-1],{action:'shot',from:red[0].number,target:'red-mini-top'});settle();
+  }else{
+   carry(b,point(.72,.79),'5 · Fixer le deuxième défenseur','Le porteur reste tourné vers le grand but. Son partenaire offre une solution intérieure et les rouges protègent l’axe.',2,[move(red[1],point(.8,.67)),move(a,point(.68,.27)),move(red[0],point(.73,.44))]);
+   pass(b,a,'6 · Trouver un angle de frappe','La passe rejoint le bleu qui arrive face au but. La défense reste active ; si la ligne était fermée, il faudrait conserver.',2,[move(red[0],point(.8,.39))]);
+   const corner=.5+Math.min(.12,7.32/group.width*.32);
+   gamePhase='shot';add('7 · Tir bleu vers le grand but','Exemple de finition dans le côté libre du grand but. Le gardien protège sa cible ; dans le jeu réel, il peut arrêter ou repousser.',1.6,[],point(1,corner));Object.assign(steps[steps.length-1],{action:'shot',from:a.number,target:'blue-main-goal'});settle();
+  }
+  gamePhase='end';
+  add('Fin de vague · rotation','But, sortie ou limite de temps : arrêt du jeu. Les quatre joueurs sortent sur le côté ; les suivants prennent leur place. Alterner l’équipe qui attaque le grand but entre les séries.',1.5);
  }else if(exercise.id==='wall-pass'&&a&&b){
   pass(a,b,'1 · Donner à l’appui','Le porteur trouve l’appui avec une passe dosée.');
   add('2 · Continuer sa course','Le passeur avance après sa passe ; l’appui le regarde avant de remettre.',1.8,[advance(a,.07,-.025)]);
@@ -286,7 +302,7 @@ function bibleAnimationState(plan,time){
   }
   if(clamped<step.end)break;
  }
- return {time:clamped,players,ball,balls,step:current.index,title:current.title,caption:current.caption,ended:clamped>=plan.duration};
+ return {time:clamped,players,ball,balls,step:current.index,title:current.title,caption:current.caption,ended:clamped>=plan.duration,team:current.team||'blue',phase:current.phase||'play',format:current.format||''};
 }
 
 // One shared lifecycle observer only watches removals. Detached figures stop and
@@ -307,10 +323,11 @@ function bibleAnimationMount(root,svg,exercise,group,options={}){
  const caption=document.createElement('p');caption.className='bible-animation-caption';caption.setAttribute('role','status');caption.setAttribute('aria-live','polite');
  const status=document.createElement('span');status.className='bible-animation-status';status.textContent='Démonstration du principe';
  const phases=document.createElement('div');phases.className='bible-animation-phases';phases.setAttribute('role','group');phases.setAttribute('aria-label','Actions de la démonstration');
+ const gameState=document.createElement('p');gameState.className='bible-game-state';gameState.setAttribute('aria-live','polite');
  const key=document.createElement('p');key.className='bible-animation-key';key.textContent='Bleus / rouges · appuis blancs · G jaunes · pointillés : passe · trait plein : course';
  const observe=document.createElement('p');observe.className='bible-animation-observe';const sequence=bibleDiagramSequence(exercise,options.sequenceIndex);if(coaching)observe.textContent='À observer · séquence '+((Number(options.sequenceIndex)||0)+1)+' : '+(options.sequenceObserve||sequence.observe||coaching.look);
  const guidedLabel=document.createElement('label');guidedLabel.className='bible-animation-guided';const guided=document.createElement('input');guided.type='checkbox';guided.setAttribute('aria-label','Arrêt après chaque action');guidedLabel.append(guided,document.createTextNode('Arrêt après chaque action'));row.append(guidedLabel);
- row.append(play,reset,previous,next,speed,status);box.append(key,row,progress,caption,observe,phases);
+ row.append(play,reset,previous,next,speed,status);box.append(gameState,key,row,progress,caption,observe,phases);
  const tokenElements=new Map([...svg.querySelectorAll('.bible-player')].map(e=>[Number(e.dataset.number),e])),ballElements=[...svg.querySelectorAll('[data-equipment="ball"][data-reserve="false"]')],traces=[...svg.querySelectorAll('.bible-action-pass,.bible-action-move,.bible-action-label')];
  const ballStarts=ballElements.map(el=>{const circle=el.querySelector('circle');return{x:Number(circle?.getAttribute('cx')),y:Number(circle?.getAttribute('cy'))};});
  const trail=document.createElementNS('http://www.w3.org/2000/svg','line');for(const [key,value]of Object.entries({stroke:'#ffe39a','stroke-width':2.1,'stroke-dasharray':'6 5','stroke-linecap':'round','pointer-events':'none',opacity:0}))trail.setAttribute(key,String(value));trail.dataset.animationDecoration='true';svg.append(trail);
@@ -321,10 +338,11 @@ function bibleAnimationMount(root,svg,exercise,group,options={}){
  function drawAction(step){
   actionLayer.replaceChildren();if(!step)return;
   const make=(tag,attrs)=>{const e=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,String(v));return e;};
+  if(step.action==='recovery'&&step.intendedTo){const start=step.motions.find(m=>m.kind==='ball')?.from;if(start)actionLayer.append(make('path',{d:'M'+start.x+' '+start.y+'L'+step.intendedTo.x+' '+step.intendedTo.y,fill:'none',stroke:'#fff','stroke-width':1.8,'stroke-dasharray':'3 6',opacity:.45}));}
   for(const motion of step.motions){
    if(motion.kind==='ball'&&motion.easing==='run')continue;
    const d=motion.control?'M'+motion.from.x+' '+motion.from.y+'Q'+motion.control.x+' '+motion.control.y+' '+motion.to.x+' '+motion.to.y:'M'+motion.from.x+' '+motion.from.y+'L'+motion.to.x+' '+motion.to.y;
-   const color=motion.kind==='ball'?'#ffe09a':'#a8d3ff';
+   const color=motion.kind==='ball'?'#ffe09a':plan.initial.players.find(p=>p.number===motion.id)?.team==='red'?'#ff9ca6':'#a8d3ff';
    actionLayer.append(make('path',{d,fill:'none',stroke:color,'stroke-width':2.5,'stroke-dasharray':motion.kind==='ball'?'7 5':'none',opacity:.85}));
    const control=motion.control||motion.from,angle=Math.atan2(motion.to.y-control.y,motion.to.x-control.x),x=motion.to.x,y=motion.to.y;
    actionLayer.append(make('path',{d:'M'+(x-Math.cos(angle-.45)*10)+' '+(y-Math.sin(angle-.45)*10)+'L'+x+' '+y+'L'+(x-Math.cos(angle+.45)*10)+' '+(y-Math.sin(angle+.45)*10),stroke:color,'stroke-width':2.5,fill:'none','stroke-linejoin':'round'}));
@@ -335,11 +353,11 @@ function bibleAnimationMount(root,svg,exercise,group,options={}){
  let time=0,playing=false,lastTimestamp=0,raf=0,disposed=false,lastCaption='',connected=false,dialog=null,lastStep=-1,stopAt=null;
  const format=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
  function render(){
-  const state=bibleAnimationState(plan,time);for(const p of state.players)tokenElements.get(p.number)?.setAttribute('transform','translate('+p.x+' '+p.y+')');
+  const state=bibleAnimationState(plan,time);const intent=bibleGameIntent(exercise,group),phaseLabel={play:intent.mode==='keep'?'Conservation':intent.mode==='technical'?'Travail technique':intent.mode==='support'?'Protection et soutien':intent.mode==='build'?'Construction / pression':intent.mode==='finish'&&state.team==='red'?'Relance après récupération':'Attaque',interception:'Interception en cours',transition:'Transition : changement de rôle',shot:'Finition',end:'Fin de vague · rotation'};const stateText=(state.format?state.format+' + G · ':'')+(phaseLabel[state.phase]||'Jeu')+(intent.mode==='technical'?'':' · ballon aux '+(state.team==='red'?'rouges':'bleus'));if(gameState.textContent!==stateText)gameState.textContent=stateText;gameState.dataset.team=state.team;if(intent.mode==='keep'){for(const team of ['blue','red']){const chip=root.querySelector('.bible-direction-'+team),text='↔ '+(team==='blue'?'Bleus':'Rouges')+' · '+(state.team===team?'Conserver dans la zone':'Récupérer, puis conserver');if(chip&&chip.textContent!==text)chip.textContent=text;}}root.dataset.possession=state.team;root.dataset.gamePhase=state.phase;for(const p of state.players)tokenElements.get(p.number)?.setAttribute('transform','translate('+p.x+' '+p.y+')');
   state.balls.forEach((ball,i)=>{const initialBall=ballStarts[i];if(initialBall)ballElements[i]?.setAttribute('transform','translate('+(ball.x-initialBall.x)+' '+(ball.y-initialBall.y)+')');});
   halo.setAttribute('cx',state.ball.x);halo.setAttribute('cy',state.ball.y);halo.setAttribute('opacity',time>0?'1':'0');traces.forEach(t=>t.style.opacity='0');
   const activeStep=plan.steps[state.step],flight=activeStep?.motions.find(m=>m.kind==='ball');if(flight&&time>activeStep.start&&time<activeStep.end){trail.setAttribute('x1',flight.from.x);trail.setAttribute('y1',flight.from.y);trail.setAttribute('x2',state.ball.x);trail.setAttribute('y2',state.ball.y);trail.setAttribute('opacity','.8');}else trail.setAttribute('opacity','0');
-  if(lastStep!==state.step||time===0){const illustrated=activeStep?.reference===undefined?activeStep:plan.steps[activeStep.reference],involved=new Set(time>0?[...(illustrated?.motions||[]).filter(m=>m.kind==='player').map(m=>m.id),illustrated?.from,illustrated?.to].filter(Number.isFinite):[]);for(const [id,ring]of actorHalos){ring.setAttribute('opacity',involved.has(id)?'.8':'0');tokenElements.get(id).style.opacity=involved.size&&!involved.has(id)?'.58':'1';}drawAction(time>0?illustrated:null);for(const [id,b]of actionButtons)b.setAttribute('aria-pressed',String(time>0&&id===illustrated?.index));lastStep=state.step;}
+  if(lastStep!==state.step||time===0){const illustrated=activeStep?.reference===undefined?activeStep:plan.steps[activeStep.reference],involved=new Set(time>0?[...(illustrated?.motions||[]).filter(m=>m.kind==='player').map(m=>m.id),illustrated?.from,illustrated?.to].filter(Number.isFinite):[]);for(const [id,ring]of actorHalos){ring.setAttribute('opacity',involved.has(id)?'.8':'0');const actor=plan.initial.players.find(p=>p.number===id),side=plan.initial.players.filter(p=>!p.keeper&&p.team===actor?.team),index=side.findIndex(p=>p.number===id),entered=actor?.keeper||index===0||index===1&&(actor.team==='blue'?state.format!=='1 contre 1':state.format==='2 contre 2');tokenElements.get(id).style.opacity=exercise.id==='duel-renforts'&&!entered?'.38':'1';}drawAction(time>0?illustrated:null);for(const [id,b]of actionButtons)b.setAttribute('aria-pressed',String(time>0&&id===illustrated?.index));lastStep=state.step;}
   svg.querySelectorAll('.bible-start-ring,.bible-installation-note').forEach(e=>e.style.opacity=time>0?'0':'1');const heading=root.querySelector('.training-diagram-controls>strong'),headingText=(time>0?'Exemple d’action':'Installation')+' · atelier '+group.index;if(heading&&heading.textContent!==headingText)heading.textContent=headingText;
   const text=state.title+' · '+state.caption+(time===0?' installation':'');if(text!==lastCaption){const title=document.createElement('strong'),description=document.createElement('span');title.textContent=time===0&&coaching?'Installation · le départ':state.title;description.textContent=time===0&&coaching?coaching.start:state.caption;caption.replaceChildren(title,description);lastCaption=text;}
   const timeLabel=format(time)+' / '+format(plan.duration);if(status.textContent!==timeLabel)status.textContent=timeLabel;progress.value=String(time);progress.setAttribute('aria-valuetext',state.title+' · '+format(time)+' sur '+format(plan.duration));previous.disabled=time<=0;next.disabled=time>=plan.duration;

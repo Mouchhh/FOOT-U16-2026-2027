@@ -157,6 +157,19 @@ function bibleDiagramBallActors(tokens,count){
  const active=tokens.filter(t=>!t.rotation),taken=new Set();
  return Array.from({length:Math.min(count,active.length)},(_,i)=>{let index=i*Math.floor(active.length/count)+Math.min(i,active.length%count);if(index>=active.length||taken.has(index))index=active.findIndex((t,j)=>!taken.has(j));taken.add(index);return active[index];});
 }
+// Intent of play is explicit, including games without a directional target.
+function bibleGameIntent(exercise,group){
+ const template=group.template||bibleDiagramKnowledge(exercise).template,material=group.material||{},targets=(material.goals||0)+(material.miniGoals||0)+(material.gates||0);
+ if(exercise.id==='duel-renforts')return {mode:'waves',blue:'Attaquer le grand but',red:'À la récupération : viser un mini-but latéral',turnover:true};
+ if(template==='circuit')return {mode:'technical',blue:'Circuit technique : suivre les postes',red:'Sans opposition ni cible adverse',turnover:false};
+ if(!targets&&template==='build')return {mode:'build',blue:'Progresser avec les soutiens',red:'Fermer les passes et récupérer',turnover:false};
+ if(!targets&&template==='duel')return {mode:'support',blue:'Protéger, se retourner ou trouver un soutien',red:'Fermer la progression et récupérer',turnover:true};
+ if(!targets&&template!=='endzones')return {mode:'keep',blue:'Conserver et offrir des solutions',red:'Récupérer, puis conserver',turnover:true};
+ if(template==='endzones'&&!targets)return {mode:'directional',blue:'Progresser vers l’en-but opposé',red:'À la récupération : attaquer l’autre en-but',turnover:true};
+ if(targets===1&&template==='build')return {mode:'build',blue:'Sortir de la pression depuis le gardien',red:'Presser et protéger la progression adverse',turnover:false};
+ if(targets===1)return {mode:'finish',blue:'Attaquer le but',red:'Protéger le but et récupérer',turnover:false};
+ return {mode:'directional',blue:'Attaquer la cible opposée',red:'À la récupération : attaquer l’autre cible',turnover:true};
+}
 function bibleDiagramSVG(exercise,group,options={}){
  const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),serial=++bibleDiagramSerial;
  const make=(tag,attrs={},text)=>{const e=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,String(v));if(text!==undefined)e.textContent=text;return e;};
@@ -198,13 +211,20 @@ function bibleDiagramSVG(exercise,group,options={}){
  for(const x of [fx,fx+fw])svg.append(make('line',{x1:x,y1:fy-24,x2:x,y2:fy-5,stroke:'#9caec4','stroke-width':1}));
  for(const y of [fy,fy+fh])svg.append(make('line',{x1:fx-32,y1:y,x2:fx-7,y2:y,stroke:'#9caec4','stroke-width':1}));
  if(exercise.id==='duel-renforts'){svg.append(make('rect',{x:fx,y:fy,width:fw*.23,height:fh,fill:'#163c59',opacity:.2}),make('line',{x1:fx+fw*.23,y1:fy,x2:fx+fw*.23,y2:fy+fh,stroke:'#fff',opacity:.7,'stroke-dasharray':'6 5'}),make('text',{x:fx+fw*.115,y:fy+17,'text-anchor':'middle',fill:'#fff','font-size':10,'font-weight':700},'ENTRÉES AU SIGNAL'));}
+ const intent=bibleGameIntent(exercise,group);
+ const directionArrow=(x1,y1,x2,y2,team)=>{const colour=team==='blue'?'#1459c2':'#b82b43',angle=Math.atan2(y2-y1,x2-x1),g=make('g',{'class':'bible-play-direction','data-feature':'play-direction','data-team':team,opacity:.72,'pointer-events':'none'});g.append(make('line',{x1,y1,x2,y2,stroke:'#fff','stroke-width':5,opacity:.45,'stroke-linecap':'round'}),make('line',{x1,y1,x2,y2,stroke:colour,'stroke-width':2.5,'stroke-linecap':'round'}),make('path',{d:'M'+(x2-Math.cos(angle-.5)*10)+' '+(y2-Math.sin(angle-.5)*10)+'L'+x2+' '+y2+'L'+(x2-Math.cos(angle+.5)*10)+' '+(y2-Math.sin(angle+.5)*10),fill:'none',stroke:colour,'stroke-width':3,'stroke-linejoin':'round'}));svg.append(g);};
+ if(!['keep','technical','support'].includes(intent.mode)){
+  directionArrow(fx+fw*.34,fy+fh*.92,fx+fw*.73,fy+fh*.92,'blue');
+  if(intent.mode==='waves'){directionArrow(fx+fw*.52,fy+fh*.31,fx+fw*.52,fy+fh*.06,'red');directionArrow(fx+fw*.52,fy+fh*.69,fx+fw*.52,fy+fh*.94,'red');}
+  else if(intent.mode==='directional'||intent.mode==='build')directionArrow(fx+fw*.68,fy+fh*.08,fx+fw*.32,fy+fh*.08,'red');
+ }
  const smallGoal=Number(material.miniGoals||0),fullGoal=Number(material.goals||0),gateCount=Number(material.gates||0),goalPositions=[];
  const goalSide=template==='build'?'left':'right';
  const goalSlots=count=>Array.from({length:count},(_,i)=>({side:count===1?goalSide:i%2===0?'left':'right',wide:count>2?(Math.floor(i/2)+1)*width/(Math.ceil(count/2)+1):width/2}));
  const drawGoal=(position,type)=>{
   const {side,wide}=position,goalWidth=Math.min(type==='full'?7.32:2,width*.9),depth=type==='full'?2:1,cross=side==='top'||side==='bottom',at=point(cross?(position.long??length*.52):side==='left'?0:length,wide),sign=side==='left'?-1:1,y=at[1]-goalWidth*scale/2,w=depth*scale;
   const goal=make('g',{'class':'bible-equipment','data-equipment':type==='full'?'goal':'miniGoal','data-side':side,'data-opening':goalWidth,...(cross?{transform:'rotate('+(side==='top'?-90:90)+' '+at[0]+' '+at[1]+')'}:{})});
-  goal.append(make('rect',{x:sign<0?at[0]-w:at[0],y,width:w,height:goalWidth*scale,fill:'#224d3338',stroke:'#f2f8e7','stroke-width':2}));
+  goal.append(make('rect',{'data-feature':'target-colour',x:sign<0?at[0]-w:at[0],y,width:w,height:goalWidth*scale,fill:(exercise.id==='duel-renforts'?type==='full':'right'===side)?'#2876df66':'#e83d4c66',stroke:'#f2f8e7','stroke-width':2}));
   for(let i=1;i<4;i++)goal.append(make('line',{x1:sign<0?at[0]-w:at[0],y1:y+goalWidth*scale*i/4,x2:sign<0?at[0]:at[0]+w,y2:y+goalWidth*scale*i/4,stroke:'#f5fff0','stroke-width':.9,opacity:.85}));
   for(let i=1;i<3;i++)goal.append(make('line',{x1:at[0]+sign*w*i/3,y1:y,x2:at[0]+sign*w*i/3,y2:y+goalWidth*scale,stroke:'#f5fff0','stroke-width':.9,opacity:.85}));
   goal.append(make('path',{'data-feature':'goal-frame',d:'M'+at[0]+' '+y+'L'+(at[0]+sign*w)+' '+y+'V'+(y+goalWidth*scale)+'H'+at[0],fill:'none',stroke:'#e1ebd5','stroke-width':2.4,'stroke-linejoin':'round'}),make('line',{x1:at[0],y1:y,x2:at[0],y2:y+goalWidth*scale,stroke:'#fff','stroke-width':4,'stroke-linecap':'round'}));svg.append(goal);goalPositions.push({...position,type,width:goalWidth});placement(type==='full'?'goal':'mini',at[0],at[1],{rotation:cross?(side==='top'?180:0):side==='left'?90:270,opening:goalWidth});
@@ -343,9 +363,10 @@ function bibleDiagram(exercise,session,options={}){
  const workshop=document.createElement('select');workshop.setAttribute('aria-label','Atelier illustré · '+exercise.title);groups.forEach((g,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent='Atelier '+g.index+' · '+g.players+' joueurs';workshop.append(option);});workshop.value=String(selected);if(groups.length>1)controls.append(workshop);
  const sequence=document.createElement('select');sequence.setAttribute('aria-label','Séquence illustrée · '+exercise.title);sequences.forEach((s,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=(index+1)+'. '+s.title;sequence.append(option);});sequence.value=String(sequenceIndex);if(sequences.length>1&&options.sequenceControls!==false)controls.append(sequence);root.append(controls);
  const zoom=document.createElement('button');zoom.type='button';zoom.className='bible-diagram-zoom-toggle';zoom.textContent='Agrandir le schéma';zoom.setAttribute('aria-pressed','false');zoom.onclick=()=>{const active=root.classList.toggle('bible-diagram-zoomed');zoom.setAttribute('aria-pressed',String(active));zoom.textContent=active?'Réduire le schéma':'Agrandir le schéma';};controls.append(zoom);
+ const intent=bibleGameIntent(exercise,groups[0]),direction=document.createElement('div');direction.className='bible-game-direction';const directionChip=(className,text)=>{const node=document.createElement('span');node.className=className;node.textContent=text;return node;};direction.setAttribute('aria-label','Sens de jeu et cibles');root.append(direction);
  let portrait=exercise.id==='duel-renforts';const orientation=document.createElement('button');orientation.type='button';orientation.className='bible-diagram-orientation';orientation.setAttribute('aria-label','Changer l’orientation du schéma');orientation.onclick=()=>{portrait=!portrait;orient();};controls.append(orientation);
  const display=document.createElement('div');display.className='training-diagram-screen';root.append(display);
- function orient(){orientation.textContent=portrait?'Vue horizontale':'Vue verticale';orientation.setAttribute('aria-pressed',String(portrait));root.classList.toggle('bible-portrait',portrait);const svg=display.querySelector('svg');if(svg)bibleDiagramOrient(svg,portrait);}
+ function orient(){const arrow=portrait?'↑':'→',back=portrait?'↓':'←';direction.replaceChildren(directionChip('bible-direction-blue',(intent.mode==='technical'||intent.mode==='support'?'':intent.mode==='keep'?'↔ ':arrow+' ')+ 'Bleus · '+intent.blue),directionChip('bible-direction-red',(intent.mode==='waves'?'↔ ':intent.mode==='keep'||intent.mode==='technical'||intent.mode==='support'?'':intent.mode==='finish'||intent.mode==='build'?'◆ ':back+' ')+'Rouges · '+intent.red));if(intent.mode==='keep'){const team=root.bibleAnimation?.state?.team||'blue';direction.firstChild.textContent='↔ Bleus · '+(team==='blue'?'Conserver dans la zone':'Récupérer, puis conserver');direction.lastChild.textContent='↔ Rouges · '+(team==='red'?'Conserver dans la zone':'Récupérer, puis conserver');}if(intent.mode==='technical')direction.lastChild.hidden=true;orientation.textContent=portrait?'Vue horizontale':'Vue verticale';orientation.setAttribute('aria-pressed',String(portrait));root.classList.toggle('bible-portrait',portrait);const svg=display.querySelector('svg');if(svg)bibleDiagramOrient(svg,portrait);}
  const animationHost=document.createElement('div');animationHost.className='bible-animation-host';if(options.animation!==false)root.append(animationHost);
  const print=document.createElement('div');print.className='training-diagram-print';root.append(print);
  const caption=document.createElement('figcaption');caption.className='bible-diagram-active-rule';root.append(caption);
