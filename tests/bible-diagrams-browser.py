@@ -64,7 +64,7 @@ with sync_playwright() as p:
     assert 'Trouver un partenaire libre' in page.locator('.bible-diagram-active-rule').first.inner_text()
     assert page.evaluate('''() => { const ids=[...document.querySelectorAll('[id]')].map(e=>e.id); return ids.length===new Set(ids).size; }''')
     # The playing rectangle must use the actual ratio, not an arbitrary wide diagram.
-    assert page.evaluate('''() => { const svg=document.querySelector('.training-diagram-screen svg');const grass=[...svg.querySelectorAll('rect')].find(r=>r.getAttribute('fill')==='#176247');return Math.abs(Number(grass.getAttribute('width'))/Number(grass.getAttribute('height'))-Number(svg.dataset.length)/Number(svg.dataset.width))<.00001; }''')
+    assert page.evaluate('''() => { const svg=document.querySelector('.training-diagram-screen svg');const grass=svg.querySelector('[data-feature="playing-surface"]');return Math.abs(Number(grass.getAttribute('width'))/Number(grass.getAttribute('height'))-Number(svg.dataset.length)/Number(svg.dataset.width))<.00001; }''')
     page.screenshot(path='/tmp/bible-diagrams-desktop.png',full_page=True)
     page.set_viewport_size({'width':390,'height':844})
     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')

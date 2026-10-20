@@ -176,3 +176,14 @@
 .bible-learning-profile{padding:12px 17px;background:#f2f8f2;border-bottom:1px solid #dce8dd}.bible-learning-profile>strong{font-size:12px;color:#376348}.bible-learning-profile p{margin:6px 0!important;font-size:11px;color:#42694e}
 
 .bible-animation-guided{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#45617f;cursor:pointer}.bible-animation-guided input{width:15px;height:15px;accent-color:#2855a2;margin:0}.bible-match-context{font-size:11px!important;color:#44658a!important;border-top:1px solid #dce6f1;padding-top:8px;margin-top:10px!important}.bible-show-distributions{margin:0 0 12px}
+
+/* A football scene with recognisable players and equipment, like a coaching clip. */
+.bible-diagram-orientation{border:1px solid #d5e1f0;border-radius:8px;padding:8px 11px;font-size:11px;color:#315e8d;background:#fff;cursor:pointer}
+.bible-diagram-orientation[aria-pressed=true]{background:#eaf3ff;border-color:#8aafdc}
+.training-diagram-screen{background:#f2f6ef;border-radius:14px;overflow:hidden}
+.bible-sheet-dialog .training-diagram-screen .training-diagram-svg{max-height:min(620px,65dvh)}
+.bible-portrait .training-diagram-screen{display:flex;justify-content:center}
+.bible-portrait .training-diagram-screen .training-diagram-svg{width:100%;max-width:100%;height:auto;max-height:min(760px,75dvh)}
+.bible-diagram-zoomed.bible-portrait .training-diagram-screen .training-diagram-svg{width:auto;min-width:0;height:960px;max-width:none}
+@media(max-width:600px){.bible-portrait .training-diagram-screen .training-diagram-svg{height:auto;max-height:none;max-width:100%}.bible-sheet-dialog .training-diagram-screen .training-diagram-svg{max-height:560px}.bible-diagram-orientation{padding:8px;font-size:10px}}
+@media print{.bible-diagram-orientation{display:none!important}.training-diagram-print .bible-diagram-svg{max-height:none!important}}

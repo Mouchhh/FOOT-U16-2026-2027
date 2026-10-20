@@ -4,9 +4,9 @@ function bibleAnimationScene(exercise,group){
  const field=bibleDiagramField(group),knowledge=bibleDiagramKnowledge(exercise),template=group.template||knowledge.template||'possession',material=group.material||{};
  const count=Number(material.goals||0)+Number(material.miniGoals||0)+Number(material.gates||0),goalSide=template==='build'?'left':'right';
  const goals=Array.from({length:count},(_,i)=>({side:count===1?goalSide:i%2===0?'left':'right',wide:count>2?(Math.floor(i/2)+1)*group.width/(Math.ceil(count/2)+1):group.width/2,type:i<Number(material.goals||0)?'full':i<Number(material.goals||0)+Number(material.miniGoals||0)?'mini':'gate'}));
- if(exercise.id==='duel-renforts')goals.splice(0,goals.length,{side:'right',wide:group.width/2,type:'full'},{side:'left',wide:group.width*.25,type:'mini'},{side:'left',wide:group.width*.75,type:'mini'});
+ if(exercise.id==='duel-renforts')goals.splice(0,goals.length,{side:'right',wide:group.width/2,type:'full'},{side:'top',wide:0,long:group.length*.52,type:'mini'},{side:'bottom',wide:group.width,long:group.length*.52,type:'mini'});
  const tokens=bibleDiagramActors(exercise,group,field,goals),active=tokens.filter(t=>!t.rotation),blue=active.filter(t=>t.team==='blue'),red=active.filter(t=>t.team==='red'),keepers=active.filter(t=>t.keeper);
- const radius=Math.max(9,Math.min(group.players<=12?18:15,Math.min(field.fw,field.fh)/13)),mechanism=bibleDiagramMechanism(exercise);
+ const radius=bibleDiagramPlayerRadius(group,field),mechanism=bibleDiagramMechanism(exercise);
  let owner=blue[0]||active[0],ball=owner?bibleDiagramBallSpot(owner,field,radius):{x:field.fx+field.fw/2,y:field.fy+field.fh/2};
  if(['loss','retreat'].includes(mechanism.type)&&red[0])owner=red[0];
  if((mechanism.type==='keeperpass'||template==='build'&&!mechanism.type)&&keepers.length)owner=keepers[0];
@@ -109,7 +109,7 @@ function bibleAnimationPlan(exercise,group,options={}){
   add('4 · Renfort rouge : 2 contre 2','Le deuxième rouge entre ; le premier ralentit pour lui laisser le temps de couvrir.',2.5,[move(red[1],point(.7,.65)),move(a,point(.61,.3))]);settle();
   carry(b,point(.7,.78),'5 · Décider à égalité','Le porteur garde le ballon si la frappe est fermée ; son partenaire reste disponible.',2,[move(red[1],point(.79,.68))]);
   pass(b,a,'6 · Changer l’angle','Exemple illustré : retrouver un partenaire face au but. La passe n’est pas obligatoire dans le jeu.',2,[move(red[0],point(.7,.43))]);
-  add('7 · Frapper si la fenêtre s’ouvre','La démonstration montre une finition possible, sans garantir le but. Sur récupération rouge, chercher un mini-but à gauche.',1.6,[],goalPoint());settle();
+  add('7 · Frapper si la fenêtre s’ouvre','La démonstration montre une finition possible, sans garantir le but. Sur récupération rouge, chercher un mini-but latéral.',1.6,[],goalPoint());settle();
   add('8 · Terminer la vague','But, sortie ou limite de temps : sortir sur le côté, faire entrer les suivants et inverser les rôles entre séries. Revenir au départ pour revoir.',1.2);
  }else if(exercise.id==='wall-pass'&&a&&b){
   pass(a,b,'1 · Donner à l’appui','Le porteur trouve l’appui avec une passe dosée.');
