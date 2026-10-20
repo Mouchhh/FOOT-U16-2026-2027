@@ -16,10 +16,16 @@ with sync_playwright() as p:
    if controller:
     count+=1
     static=diagram.locator('.training-diagram-print').inner_html()
+    initial_volumes=diagram.locator('.training-diagram-screen .bible-team-volumes').inner_html() if diagram.locator('.training-diagram-screen .bible-team-volumes').count() else None
     diagram.evaluate('(e)=>e.bibleAnimation.seek(e.bibleAnimation.plan.duration*.45)')
+    if id=='freegame':
+     assert initial_volumes is not None
+     assert diagram.locator('.training-diagram-screen .bible-team-volumes').inner_html()!=initial_volumes
+     diagram.locator('.bible-structure-toggle').click();assert diagram.evaluate('e=>e.classList.contains("bible-volumes-off")')
+     diagram.locator('.bible-structure-toggle').click();assert not diagram.evaluate('e=>e.classList.contains("bible-volumes-off")')
     assert diagram.locator('.training-diagram-print').inner_html()==static,id
     assert diagram.locator('[data-renderer="numbered-token"]').count()>0,id
-    assert diagram.evaluate('''e=>{const actors=e.querySelector('.training-diagram-screen svg').bibleScene.tokens.filter(p=>!p.rotation),red=actors.some(p=>p.team==='red'),chips=e.querySelector('.bible-matchup');return red?[...chips.querySelectorAll('strong')].every(n=>{const label=n.textContent.split(' ').at(-1),team={bleus:'blue',rouges:'red',appuis:'neutral'}[label];return Number(n.textContent.split(' ')[0])===actors.filter(p=>p.team===team).length}):chips.hidden}'''),id
+    assert diagram.evaluate('''e=>{const actors=e.querySelector('.training-diagram-screen svg').bibleScene.tokens.filter(p=>!p.rotation),red=actors.some(p=>p.team==='red'),chips=e.querySelector('.bible-matchup');return red?[...chips.querySelectorAll('strong')].every(n=>{const label=n.textContent.split(' ').at(-1),team={bleu:'blue',bleus:'blue',rouge:'red',rouges:'red',appui:'neutral',appuis:'neutral'}[label];return Number(n.textContent.split(' ')[0])===actors.filter(p=>p.team===team).length}):chips.hidden}'''),id
     if id in ['rondo','passes','cutback','cpa-defence','keeper-duel','transition','build','freegame']:
      diagram.locator('.training-diagram-screen svg').screenshot(path='/tmp/continuous-'+id+'.png')
     # Replacing a sequence releases the prior clock and creates a fresh one.

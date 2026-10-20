@@ -29,3 +29,7 @@ Ces scènes sont des exemples pédagogiques, pas une simulation de toutes les d�
 `tests/bible-continuous-catalogue.js` parcourt les 61 exercices, leurs quatre séquences et cinq effectifs, avec adaptation en ateliers. Il vérifie la continuité, les identités, les ballons, les limites de terrain, les vitesses et les rotations complètes des circuits.
 
 Les tests navigateur vérifient les 61 fiches réelles, les changements de séquence, la copie imprimable, le lecteur dédié de la combinaison, les rôles/matériels et la lecture mobile. La qualité football reste à apprécier en situation avec les éducateurs ; les vérifications techniques ne la remplacent pas.
+
+## Vue coach et volumes des équipes
+
+La présentation des oppositions utilise un terrain aux couleurs sobres et des pions dont la taille tient aussi compte de la densité du groupe. Le bouton « Volumes des équipes » affiche ou masque une enveloppe légère de l’occupation du terrain. Ces enveloppes suivent les positions réelles pendant la lecture, excluent les gardiens dans les buts et les joueurs en rotation, et ne représentent ni une zone réglementaire de l’exercice ni une trajectoire. Le mode portrait applique la même transformation aux joueurs et aux enveloppes. Les copies imprimées conservent l’installation initiale.
