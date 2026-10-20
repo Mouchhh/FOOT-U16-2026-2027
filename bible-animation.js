@@ -76,7 +76,33 @@ function bibleAnimationPlan(exercise,group,options={}){
  const result=()=>({version:1,exerciseId:exercise.id,groupIndex:group.index,sequenceIndex:Number(options.sequenceIndex)||0,field:{...field},initial,steps,duration:Math.round(time*100)/100,available:steps.length>0&&group.fits!==false&&group.pedagogyFits!==false&&scene.activeBalls>0,label:'Démonstration du principe',sequenceRule:sequence.rule||'',note:'Exemple d’action pour comprendre le principe ; les décisions restent libres dans le jeu.'});
  if(group.fits===false||group.pedagogyFits===false||!active.length||!scene.activeBalls)return result();
  add('Observer le départ','Repérez le porteur, ses partenaires et les adversaires.',.9);
- if(exercise.id==='duel-renforts'&&a&&b&&red.length>=2){
+ if(mechanism.type==='overlap'&&a&&b&&red[0]){
+  const inside=Number(options.sequenceIndex)===1;
+  carry(a,point(.48,.32),'1 · Fixer avant l’appel','Le porteur attire le premier défenseur ; le partenaire attend que celui-ci s’engage.',1.8,[move(red[0],point(.63,.36))]);
+  add(inside?'2 · Appel intérieur':'2 · Dédoublement extérieur',inside?'Exemple : le couloir intérieur est libre. Le soutien passe à l’intérieur sans fermer le porteur.':'Exemple : le couloir extérieur est libre. Le soutien dépasse le porteur au bon moment.',2.2,[move(b,point(.7,inside?.58:.13))]);settle();
+  pass(a,b,'3 · Servir l’avantage','La transmission suit la course si la ligne est libre ; sinon le porteur conserve une solution de retour.',1.8,[advance(red[0],.02,inside?.04:-.03)]);
+  carry(b,point(.86,inside?.58:.17),'4 · Exploiter l’espace','Le receveur progresse vers la cible. Après récupération, les défenseurs attaquent la porte opposée.',1.8);
+ }else if(mechanism.type==='progress'&&a&&b){
+  if(Number(options.sequenceIndex)===2){
+   carry(a,point(.45,.43),'1 · Avancer si la passe est fermée','Le porteur conduit dans un intervalle ouvert pour attirer un adversaire.',2,[advance(red[0],.06,.07)]);
+   pass(a,b,'2 · Libérer après fixation','Le partenaire reçoit au-delà de la première ligne et prépare une action vers l’avant.',2);
+  }else{
+   add('1 · Voir au-delà de la ligne','Le receveur regarde derrière lui et reste accessible entre les défenseurs.',1.2,[advance(b,.025,-.025)]);
+   pass(a,b,'2 · Traverser le premier rideau','Une passe est possible entre les défenseurs ; aucun passage obligatoire par tous les tiers.',2);
+  }
+  if(c)pass(b,c,'3 · Continuer la progression','L’action suivante valorise la réception : trouver le partenaire avancé, plutôt qu’un joueur enfermé.',2,[advance(c,.015,.025)]);
+ }else if(mechanism.type==='pivot'&&a&&b&&neutrals[0]){
+  const pivot=neutrals[0];
+  if(Number(options.sequenceIndex)===2){
+   add('1 · Reconnaître l’axe fermé','Le défenseur se rapproche du pivot ; le passeur évite de forcer cette connexion.',1.8,[move(red[0],point(.54,.38))]);
+   pass(a,b,'2 · Contourner le pivot marqué','La disponibilité du pivot peut libérer une autre solution. Le jeu ne doit pas obligatoirement passer par lui.',2);
+  }else{
+   add('1 · Préparer le pivot','Le pivot prend une information dans son dos. Le passeur prépare déjà une solution de remise.',1.3);
+   pass(a,pivot,'2 · Connecter si accessible','La passe au pivot est jouée seulement si celui-ci peut conserver une action utile.',1.8,[advance(a,.06,.05),advance(red[0],-.015,.015)]);
+   pass(pivot,a,'3 · Remettre face au jeu','Exemple avec pression dans le dos : le pivot remet au soutien qui s’est replacé.',1.8);
+   pass(a,b,'4 · Trouver le partenaire libre','La remise permet une passe vers l’avant ; se retourner reste possible si la pression le permet.',2);
+  }
+ }else if(exercise.id==='duel-renforts'&&a&&b&&red.length>=2){
   carry(a,point(.43,.4),'1 · Duel : 1 contre 1','Le bleu attaque le grand but ; le rouge ralentit et ferme l’axe. Les autres restent en attente.',2.5,[move(red[0],point(.6,.44))]);
   add('2 · Renfort bleu : 2 contre 1','Au signal, le deuxième bleu entre et s’écarte pour offrir une solution. Le premier rouge protège le but.',2.5,[move(b,point(.55,.74))]);settle();
   pass(a,b,'3 · Fixer puis libérer','Exemple de choix : le défenseur ferme le porteur, le bleu sert le partenaire libre. Il peut aussi conserver si la ligne est fermée.',2,[move(red[0],point(.61,.38))]);
