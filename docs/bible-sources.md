@@ -314,3 +314,7 @@ Ressources relues intégralement pour les parties organisation / explication / c
 Le rondo 4v2 démarre sur un repère éditorial de 12 × 12 m, ajustable ; le rondo orienté possède son propre repère. Les circuits affichent leurs vrais postes, ballons et files, avec un repère de séparation de 3 m et de surface utile de 6 × 6 m par circuit. Ces valeurs sont des choix d’installation du club, pas des normes de certification. Aucun modèle n’a été entraîné.
 
 L’adaptation par catégorie et compétences est un réglage pédagogique éditorial : elle ne définit ni des normes physiques FFF ni une équivalence entre classement et niveau des joueurs. Elle conserve les objectifs des ressources mais ajuste leur entrée, leurs contraintes et les répétitions selon le groupe renseigné. Les temps restent soumis à l’observation du coach ; le logiciel ne mesure ni fatigue ni maîtrise réelle.
+
+## Modèle vidéo : renforts progressifs (20 octobre 2026)
+
+Fiche `duel-renforts`, ajoutée aux 60 fiches existantes. Source visuelle : reel https://www.instagram.com/reel/DeKU7K_up1l/, fourni en MP4 et examiné. Principe visible : 1v1 → 2v1 → 2v2, grand but et deux mini-buts. Les temps, dimensions, rotations et adaptations sont des propositions du club ; auteur et qualification non vérifiés. Aucune vidéo tierce publiée. La démonstration illustre une solution offensive ; les récupérations et résultats restent libres dans le jeu. Un gardien et quatre joueurs de champ minimum ; au-delà de 13 par atelier, surveiller l’attente et proposer des ateliers sans imposer une division du groupe.

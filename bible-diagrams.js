@@ -9,6 +9,7 @@ function bibleDiagramSequence(exercise,index){
 }
 function bibleDiagramMechanism(exercise){
  const patterns={
+  'duel-renforts':['reinforcements','1 contre 1 → entrée d’un bleu → entrée d’un rouge. Les joueurs suivants attendent ; une seule vague joue.'],
   triangle:['third','1 : appui · 2 : remise · 3 : trouver le troisième joueur lancé.'],
   'thirdman-depth':['third','Appui-remise pour libérer une passe vers le troisième joueur.'],
   'wall-pass':['third','Donner, recevoir la remise puis trouver le partenaire suivant.'],
@@ -100,6 +101,10 @@ function bibleDiagramActors(exercise,group,field,goalPositions=[]){
  if(['back','turn'].includes(mechanism.type)){relocate(a,length*.2,width*.6);relocate(blue[1]||neutral[0],length*.52,width*.5);relocate(red[0],length*.65,width*.5);relocate(blue[2],length*.3,width*.22);}
  if(mechanism.type==='split'){relocate(a,length*.12,width*.5);relocate(blue[1],length*.88,width*.5);red.forEach((p,i)=>relocate(p,length*(.42+Math.floor(i/2)*.15),width*(i%2?.78:.22)));}
  if(['trap','isolate'].includes(mechanism.type)){relocate(a,length*.35,width*.16);relocate(blue[1],length*.58,width*.14);relocate(blue[2],length*.3,width*.62);relocate(red[0],length*.52,width*.32);relocate(red[1],length*.69,width*.35);}
+ if(mechanism.type==='reinforcements'){
+  blue.filter(p=>!p.keeper).forEach((p,i)=>relocate(p,length*(i===0?.28:.1),width*(i===0?.43:.18+(i-1)*.13)));
+  red.filter(p=>!p.keeper).forEach((p,i)=>relocate(p,length*(i===0?.58:.2),width*(i===0?.5:.18+(i-1)*.13)));
+ }
  if(mechanism.type==='delay'){relocate(a,length*.32,width*.32);relocate(blue[1],length*.4,width*.76);relocate(red[0],length*.57,width*.39);relocate(red[1],length*.72,width*.61);}
  if(mechanism.type==='support'&&blue.length>1){relocate(a,length*.2,width*.6);relocate(blue[1],length*.62,width*.55);relocate(red[0],length*.43,width*.56);}
  if(mechanism.type==='switch'&&blue.length>1){relocate(a,length*.28,width*.14);relocate(blue[blue.length-1],length*.65,width*.84);if(blue.length>2)relocate(blue[1],length*.44,width*.25);}
@@ -182,6 +187,7 @@ function bibleDiagramSVG(exercise,group,options={}){
  dim(fx,fy-19,fx+fw,fy-19,'Longueur '+fmt(length)+' m');dim(fx-26,fy,fx-26,fy+fh,'Largeur '+fmt(width)+' m',true);
  for(const x of [fx,fx+fw])svg.append(make('line',{x1:x,y1:fy-24,x2:x,y2:fy-5,stroke:'#9caec4','stroke-width':1}));
  for(const y of [fy,fy+fh])svg.append(make('line',{x1:fx-32,y1:y,x2:fx-7,y2:y,stroke:'#9caec4','stroke-width':1}));
+ if(exercise.id==='duel-renforts'){svg.append(make('rect',{x:fx,y:fy,width:fw*.23,height:fh,fill:'#163c59',opacity:.2}),make('line',{x1:fx+fw*.23,y1:fy,x2:fx+fw*.23,y2:fy+fh,stroke:'#fff',opacity:.7,'stroke-dasharray':'6 5'}),make('text',{x:fx+fw*.115,y:fy+17,'text-anchor':'middle',fill:'#fff','font-size':10,'font-weight':700},'ENTRÉES AU SIGNAL'));}
  const smallGoal=Number(material.miniGoals||0),fullGoal=Number(material.goals||0),gateCount=Number(material.gates||0),goalPositions=[];
  const goalSide=template==='build'?'left':'right';
  const goalSlots=count=>Array.from({length:count},(_,i)=>({side:count===1?goalSide:i%2===0?'left':'right',wide:count>2?(Math.floor(i/2)+1)*width/(Math.ceil(count/2)+1):width/2}));
@@ -198,7 +204,7 @@ function bibleDiagramSVG(exercise,group,options={}){
    if(width>=40.32&&length>=26){const areaY=at[1]-40.32*scale/2;svg.append(make('path',{'data-feature':'penalty-area',d:'M'+at[0]+' '+areaY+'H'+(at[0]+direction*16.5*scale)+'V'+(areaY+40.32*scale)+'H'+at[0],fill:'none',stroke:'#c4e2d5','stroke-width':1.1,opacity:.55}));}
   }
  };
- const targetSlots=goalSlots(fullGoal+smallGoal+gateCount);
+ const targetSlots=exercise.id==='duel-renforts'?[{side:'right',wide:width/2},{side:'left',wide:width*.25},{side:'left',wide:width*.75}]:goalSlots(fullGoal+smallGoal+gateCount);
  targetSlots.slice(0,fullGoal).forEach(g=>drawGoal(g,'full'));targetSlots.slice(fullGoal,fullGoal+smallGoal).forEach(g=>drawGoal(g,'mini'));
  const discs=[];const addDisc=(long,wide)=>discs.push(point(long,wide));
  [[0,0],[length,0],[length,width],[0,width]].forEach(([x,y])=>addDisc(x,y));
@@ -263,6 +269,7 @@ function bibleDiagramSVG(exercise,group,options={}){
   const player=make('g',{'class':'exercise-player bible-player','data-team':t.team,'data-keeper':String(t.keeper),'data-rotation':String(t.rotation),'data-number':t.number,transform:'translate('+t.x+' '+t.y+')'});
   player.append(make('ellipse',{cx:1,cy:r*.86,rx:r*.92,ry:r*.36,fill:'#002c2640'}));
   player.append(make('circle',{cx:0,cy:0,r,fill:color,stroke:'#fff','stroke-width':2}),make('circle',{cx:0,cy:0,r:r-3,fill:'none',stroke:'#ffffff',opacity:.18,'stroke-width':1}));
+  if(exercise.id==='duel-renforts'){player.append(make('path',{d:'M'+(-r*.5)+' '+(-r*.8)+'L'+(-r*1.02)+' '+(-r*.46)+'L'+(-r*.75)+' '+(-r*.05)+'L'+(-r*.5)+' '+(-r*.2)+'V'+(r*.75)+'H'+(r*.5)+'V'+(-r*.2)+'L'+(r*.75)+' '+(-r*.05)+'L'+(r*1.02)+' '+(-r*.46)+'L'+(r*.5)+' '+(-r*.8)+'Q0 '+(-r*.35)+' '+(-r*.5)+' '+(-r*.8)+'Z',fill:color,stroke:'#fff','stroke-width':1.5}));}
   player.append(make('text',{x:0,y:r*.33,'text-anchor':'middle',fill:textColor,'font-size':t.keeper?Math.max(9,r*.65):Math.max(12,r*.8),'font-weight':800},t.keeper?'G'+t.number:t.number));if(t.fieldKeeper)player.append(make('circle',{cx:r*.78,cy:-r*.78,r:3,fill:'#ffd166',stroke:'#fff','stroke-width':.7}));
   if(t.rotation)player.append(make('circle',{cx:0,cy:0,r:r*1.35,fill:'none',stroke:'#687f9d','stroke-width':1,'stroke-dasharray':'3 3'}));svg.append(player);placement(t.keeper&&!t.fieldKeeper?'keeper':t.team==='red'?'red':'blue',t.x,t.y,{color,label:t.rotation?'G'+t.number+' rotation':t.keeper?'G'+t.number:String(t.number)});
  });

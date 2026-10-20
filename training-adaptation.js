@@ -64,7 +64,8 @@ function bibleRolePlan(exercise,format,group,template,profile={level:'developing
  const fieldKeepers=feet?group.keepers:0;
  const field=group.players-(feet?0:group.keepers);
  let blue=0,red=0,neutral=0;
- if(circuit||format.opposition==='none')blue=field;
+ if(exercise.id==='duel-renforts'){blue=Math.ceil(field/2);red=Math.floor(field/2);}
+ else if(circuit||format.opposition==='none')blue=field;
  else if(template==='rondo'){
   // Rondo : une véritable supériorité, avec un rapport de pression raisonnable.
   red=Math.max(1,Math.min(profile.level==='discovery'?Math.floor(field/4):profile.level==='advanced'?Math.ceil(field/3):Math.floor(field/3),Math.floor((field-1)/2),field-2));
@@ -86,6 +87,7 @@ function bibleRolePlan(exercise,format,group,template,profile={level:'developing
  let remaining=fieldKeepers;
  for(const name of ['blue','red','neutral'])for(let i=0;i<teams[name]&&remaining>0;i++,remaining--)keeperSlots.push({team:name,index:i});
  let roles=circuit?blue+' participants dans le circuit':format.opposition==='none'?blue+' joueurs de champ en alternance, sans défenseur':blue+' bleus contre '+red+' rouges'+(neutral?' + '+neutral+' appui'+(neutral>1?'s':'')+' neutre'+(neutral>1?'s':''):'');
+ if(exercise.id==='duel-renforts')roles+=' · une vague de 2 bleus et 2 rouges maximum ; les autres attendent et tournent à chaque vague';
  if(fieldKeepers)roles+=' · '+fieldKeepers+' gardien'+(fieldKeepers>1?'s':'')+' inclus au jeu au pied';
  if(activeKeepers)roles+=' + '+activeKeepers+' gardien'+(activeKeepers>1?'s':'')+' en but';
  if(rotatingKeepers)roles+=' + '+rotatingKeepers+' gardien'+(rotatingKeepers>1?'s':'')+' en rotation';
@@ -97,6 +99,7 @@ function bibleMaterial(exercise,format,group,template){
  if(format.goalType==='mini')miniGoals=format.goals;
  else if(format.goalType==='gate')gates=format.goals;
  else{goals=Math.min(format.goals,group.activeKeepers);gates=Math.max(0,format.goals-goals);}
+ miniGoals+=Number.isInteger(format.miniGoals)?Math.min(2,Math.max(0,format.miniGoals)):0;
  const activeBalls=exercise.id==='warm'?group.players:template==='circuit'?Math.max(1,Math.floor(group.players/3)):1;
  const balls=Math.max(activeBalls,template==='circuit'?Math.ceil(group.players/2):Math.max(2,Math.ceil(group.players/4)));
  const equipment=format.equipment||{},extra={};

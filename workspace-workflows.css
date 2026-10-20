@@ -15,3 +15,19 @@
 @media print{.terrain-flow .board{display:block!important}}
 html.club-private-request:not(.club-authenticated) body{overflow:auto!important}
 .terrain-flow #terrain-intro-drawer .intro{display:flex;margin:0}.terrain-flow #terrain-intro-drawer .intro h1{font-size:25px}.terrain-flow #terrain-intro-drawer .intro .status{font-size:10px}
+
+/* Keep numbers and drag targets usable when changing tactical views. */
+@media(min-width:1000px) and (min-height:650px){.terrain-flow .player .token{width:40px;height:40px;font-size:16px}.terrain-flow .player-name{font-size:10px}.terrain-flow .simple-token{width:30px;height:30px;font-size:13px}.terrain-flow .simple-token.ball{width:16px;height:16px;font-size:9px}}
+
+@media(min-width:1000px) and (min-height:650px){
+ .terrain-flow #simple-board{display:grid;grid-template-columns:240px minmax(0,1fr);column-gap:20px;align-items:start}
+ .terrain-flow #simple-board>.simple-layout{grid-column:2;grid-row:1 / 8;display:block;min-width:0;align-self:start}
+ .terrain-flow #simple-board>.simple-toolbar,.terrain-flow #simple-board>.custom-sequence-tools,.terrain-flow #simple-board>.animation-controls,.terrain-flow #simple-board>.simple-team-count,.terrain-flow #simple-board>.simple-edit{grid-column:1;min-width:0;margin:0 0 12px}
+ .terrain-flow #simple-board>.simple-toolbar{display:flex;flex-wrap:wrap;gap:6px}
+ .terrain-flow #simple-board>.simple-toolbar label{width:100%}
+ .terrain-flow #simple-board>.simple-toolbar select{width:100%}
+ .terrain-flow #simple-board .simple-edit{display:flex;flex-wrap:wrap;gap:6px}
+ .terrain-flow #simple-board .simple-edit label{width:100%}
+ .terrain-flow #simple-board .custom-sequence-tools{padding:10px}
+ .terrain-flow #simple-board .animation-controls{flex-wrap:wrap}
+}

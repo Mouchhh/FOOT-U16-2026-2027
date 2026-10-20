@@ -4,6 +4,7 @@ function bibleAnimationScene(exercise,group){
  const field=bibleDiagramField(group),knowledge=bibleDiagramKnowledge(exercise),template=group.template||knowledge.template||'possession',material=group.material||{};
  const count=Number(material.goals||0)+Number(material.miniGoals||0)+Number(material.gates||0),goalSide=template==='build'?'left':'right';
  const goals=Array.from({length:count},(_,i)=>({side:count===1?goalSide:i%2===0?'left':'right',wide:count>2?(Math.floor(i/2)+1)*group.width/(Math.ceil(count/2)+1):group.width/2,type:i<Number(material.goals||0)?'full':i<Number(material.goals||0)+Number(material.miniGoals||0)?'mini':'gate'}));
+ if(exercise.id==='duel-renforts')goals.splice(0,goals.length,{side:'right',wide:group.width/2,type:'full'},{side:'left',wide:group.width*.25,type:'mini'},{side:'left',wide:group.width*.75,type:'mini'});
  const tokens=bibleDiagramActors(exercise,group,field,goals),active=tokens.filter(t=>!t.rotation),blue=active.filter(t=>t.team==='blue'),red=active.filter(t=>t.team==='red'),keepers=active.filter(t=>t.keeper);
  const radius=Math.max(9,Math.min(group.players<=12?18:15,Math.min(field.fw,field.fh)/13)),mechanism=bibleDiagramMechanism(exercise);
  let owner=blue[0]||active[0],ball=owner?bibleDiagramBallSpot(owner,field,radius):{x:field.fx+field.fw/2,y:field.fy+field.fh/2};
@@ -75,7 +76,16 @@ function bibleAnimationPlan(exercise,group,options={}){
  const result=()=>({version:1,exerciseId:exercise.id,groupIndex:group.index,sequenceIndex:Number(options.sequenceIndex)||0,field:{...field},initial,steps,duration:Math.round(time*100)/100,available:steps.length>0&&group.fits!==false&&group.pedagogyFits!==false&&scene.activeBalls>0,label:'Démonstration du principe',sequenceRule:sequence.rule||'',note:'Exemple d’action pour comprendre le principe ; les décisions restent libres dans le jeu.'});
  if(group.fits===false||group.pedagogyFits===false||!active.length||!scene.activeBalls)return result();
  add('Observer le départ','Repérez le porteur, ses partenaires et les adversaires.',.9);
- if(exercise.id==='wall-pass'&&a&&b){
+ if(exercise.id==='duel-renforts'&&a&&b&&red.length>=2){
+  carry(a,point(.43,.4),'1 · Duel : 1 contre 1','Le bleu attaque le grand but ; le rouge ralentit et ferme l’axe. Les autres restent en attente.',2.5,[move(red[0],point(.6,.44))]);
+  add('2 · Renfort bleu : 2 contre 1','Au signal, le deuxième bleu entre et s’écarte pour offrir une solution. Le premier rouge protège le but.',2.5,[move(b,point(.55,.74))]);settle();
+  pass(a,b,'3 · Fixer puis libérer','Exemple de choix : le défenseur ferme le porteur, le bleu sert le partenaire libre. Il peut aussi conserver si la ligne est fermée.',2,[move(red[0],point(.61,.38))]);
+  add('4 · Renfort rouge : 2 contre 2','Le deuxième rouge entre ; le premier ralentit pour lui laisser le temps de couvrir.',2.5,[move(red[1],point(.7,.65)),move(a,point(.61,.3))]);settle();
+  carry(b,point(.7,.78),'5 · Décider à égalité','Le porteur garde le ballon si la frappe est fermée ; son partenaire reste disponible.',2,[move(red[1],point(.79,.68))]);
+  pass(b,a,'6 · Changer l’angle','Exemple illustré : retrouver un partenaire face au but. La passe n’est pas obligatoire dans le jeu.',2,[move(red[0],point(.7,.43))]);
+  add('7 · Frapper si la fenêtre s’ouvre','La démonstration montre une finition possible, sans garantir le but. Sur récupération rouge, chercher un mini-but à gauche.',1.6,[],goalPoint());settle();
+  add('8 · Terminer la vague','But, sortie ou limite de temps : sortir sur le côté, faire entrer les suivants et inverser les rôles entre séries. Revenir au départ pour revoir.',1.2);
+ }else if(exercise.id==='wall-pass'&&a&&b){
   pass(a,b,'1 · Donner à l’appui','Le porteur trouve l’appui avec une passe dosée.');
   add('2 · Continuer sa course','Le passeur avance après sa passe ; l’appui le regarde avant de remettre.',1.8,[advance(a,.07,-.025)]);
   pass(b,a,'3 · Remettre dans la course','L’appui remet devant le joueur lancé pour conserver la continuité.',1.8,[advance(a,.035,.025)]);
