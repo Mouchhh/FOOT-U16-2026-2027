@@ -1,0 +1,3289 @@
+[
+  {
+    "id": "warm",
+    "title": "Activation avec ballon",
+    "theme": "Activation",
+    "context": "Avant une séance où il faudra recevoir et décider sous pression.",
+    "sources": [
+      "warmup",
+      "peacock"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 20,
+    "length": 20,
+    "material": {
+      "balls": 6,
+      "activeBalls": 6,
+      "reserveBalls": 0,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 6,
+      "bibsRed": 0,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Conduite et espaces libres",
+        "rule": "Chacun conduit son ballon et change de direction vers un espace libre.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "La tête se lève-t-elle avant le changement de direction ? Les joueurs évitent-ils de se regrouper ?"
+      },
+      {
+        "title": "Changer de surface",
+        "rule": "Sur signal visuel, contourner un partenaire sans contact puis repartir avec l’autre pied.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "La tête se lève-t-elle avant le changement de direction ? Les joueurs évitent-ils de se regrouper ?"
+      },
+      {
+        "title": "Regarder avant de repartir",
+        "rule": "Arrêter son ballon, annoncer une couleur visible puis repartir dans une direction différente.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "La tête se lève-t-elle avant le changement de direction ? Les joueurs évitent-ils de se regrouper ?"
+      }
+    ]
+  },
+  {
+    "id": "cool",
+    "title": "Retour au calme et bilan",
+    "theme": "Retour au calme",
+    "context": "Après la dernière opposition ; recueillir ce qui pourra être réutilisé en match.",
+    "sources": [
+      "inclusion",
+      "uefa-coaching"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 20,
+    "length": 20,
+    "material": {
+      "balls": 4,
+      "activeBalls": 2,
+      "reserveBalls": 2,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 8,
+      "bibsRed": 0,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Marcher et échanger",
+        "rule": "Passes douces et bilan sans opposition.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Les joueurs peuvent-ils décrire une action du thème et la relier à un moment du match ?"
+      },
+      {
+        "title": "Expliquer une réussite",
+        "rule": "En binôme à l’arrêt, montrer une orientation du corps utile puis échanger doucement.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Les joueurs peuvent-ils décrire une action du thème et la relier à un moment du match ?"
+      },
+      {
+        "title": "Expliquer une décision",
+        "rule": "Un joueur montre un soutien disponible ; le partenaire explique quand l’utiliser en match.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Les joueurs peuvent-ils décrire une action du thème et la relier à un moment du match ?"
+      }
+    ]
+  },
+  {
+    "id": "passes",
+    "title": "Passer et se déplacer",
+    "theme": "Technique",
+    "context": "Connecter les soutiens avant de travailler une sortie de balle ou une combinaison.",
+    "sources": [
+      "peacock",
+      "technical"
+    ],
+    "players": 5,
+    "keepers": 2,
+    "width": 20,
+    "length": 18,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 4,
+      "cones": 3,
+      "circuitCones": 3,
+      "bibsBlue": 5,
+      "bibsRed": 0,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Contrôler puis passer",
+        "rule": "Dans chaque triangle, contrôler vers le prochain poste puis suivre sa passe.",
+        "steps": 22,
+        "seconds": 26,
+        "observe": "Le receveur vérifie-t-il son environnement avant le ballon ? Le contrôle permet-il la transmission suivante ?"
+      },
+      {
+        "title": "Remise au soutien",
+        "rule": "Le deuxième poste remet au premier qui sert le troisième ; tourner après l’action.",
+        "steps": 27,
+        "seconds": 36,
+        "observe": "La remise reste accessible au soutien, qui voit déjà le troisième poste."
+      },
+      {
+        "title": "Trouver le troisième",
+        "rule": "Le premier sert le troisième directement si la ligne est libre ; les postes restent décalés.",
+        "steps": 22,
+        "seconds": 32,
+        "observe": "Le changement de sens conserve des angles et un poste suivant prêt."
+      }
+    ]
+  },
+  {
+    "id": "rondo",
+    "title": "Conserver sous pression",
+    "theme": "Conservation",
+    "context": "Conserver dans un petit espace avant de trouver un joueur libre en match.",
+    "sources": [
+      "peacock",
+      "inclusion"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 12,
+    "length": 12,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 2,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Offrir deux angles",
+        "rule": "Conserver autour des défenseurs avec touches libres.",
+        "steps": 8,
+        "seconds": 6,
+        "observe": "Avant la passe : le porteur voit-il deux solutions séparées par le défenseur ? Après la passe : un soutien se replace-t-il hors de son ombre ?"
+      },
+      {
+        "title": "Ressortir de la pression",
+        "rule": "Le défenseur ferme le voisin ; utiliser le soutien de l’autre côté plutôt que forcer.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le retour conserve une possibilité de progresser à la passe suivante."
+      },
+      {
+        "title": "Franchir si ouvert",
+        "rule": "Chercher le partenaire opposé seulement quand la trajectoire entre les défenseurs est ouverte.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "La passe traverse un intervalle ouvert au moment où elle part."
+      }
+    ]
+  },
+  {
+    "id": "triangle",
+    "title": "Trouver le troisième homme",
+    "theme": "Relance",
+    "context": "Quand une passe directe est fermée mais qu’un appui peut servir de relais.",
+    "sources": [
+      "support",
+      "peacock"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 24,
+    "length": 22,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 8,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 3,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Appui remise troisième",
+        "rule": "Donner à l’appui, accompagner la remise et servir le troisième lancé.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "Le troisième joueur part-il pendant la remise pour recevoir face au jeu, plutôt que d’attendre derrière un adversaire ?"
+      },
+      {
+        "title": "Appui marqué",
+        "rule": "Si le défenseur ferme l’appui, conserver avec un soutien puis chercher le troisième.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "Le porteur reconnaît le relais marqué et trouve un autre angle."
+      },
+      {
+        "title": "Appui qui se retourne",
+        "rule": "Si la pression ne vient pas dans son dos, l’appui contrôle vers l’avant et progresse.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Le receveur a regardé dans son dos avant de choisir le contrôle vers l’avant."
+      }
+    ]
+  },
+  {
+    "id": "build",
+    "title": "Sortir de la pression",
+    "theme": "Relance",
+    "context": "Relance courte face à un adversaire qui ferme l’axe.",
+    "sources": [
+      "bvb",
+      "peacock"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 34,
+    "length": 30,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 6,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Sortir par un côté",
+        "rule": "Depuis le départ, créer un angle court et un relais plus haut.",
+        "steps": 4,
+        "seconds": 5,
+        "observe": "Le receveur est-il visible avant la passe, de profil à la réception et relié à une solution suivante ?"
+      },
+      {
+        "title": "Axe fermé",
+        "rule": "Contourner le premier rideau par un soutien extérieur ; ne pas imposer le pivot.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le porteur reconnaît le relais marqué et trouve un autre angle."
+      },
+      {
+        "title": "Pression attirée",
+        "rule": "Revenir au soutien bas puis ressortir du côté libéré.",
+        "steps": 5,
+        "seconds": 10,
+        "observe": "Le retour conserve une possibilité de progresser à la passe suivante."
+      }
+    ]
+  },
+  {
+    "id": "press",
+    "title": "Déclencher le pressing ensemble",
+    "theme": "Pressing",
+    "context": "Sur contrôle difficile, passe lente ou réception dos au jeu.",
+    "sources": [
+      "coordination",
+      "spain"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 26,
+    "length": 24,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 3,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Pression coordonnée",
+        "rule": "Sur passe latérale, le proche sort et le partenaire couvre l’intérieur.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le premier presseur oriente-t-il la course ? Son partenaire protège-t-il la passe intérieure au lieu de sortir sur le même porteur ?"
+      },
+      {
+        "title": "Passe de retour",
+        "rule": "Le défenseur de couverture coulisse pendant que le premier accompagne le retour du ballon.",
+        "steps": 5,
+        "seconds": 8,
+        "observe": "Le rôle de premier défenseur change avec la circulation adverse."
+      },
+      {
+        "title": "Premier rideau dépassé",
+        "rule": "Si la passe élimine le premier défenseur, revenir à l’intérieur au lieu de poursuivre seul.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "La couverture protège la cible pendant que le joueur dépassé revient dans l’axe."
+      }
+    ]
+  },
+  {
+    "id": "trap",
+    "title": "Enfermer sur le côté",
+    "theme": "Pressing",
+    "context": "Bloc qui souhaite orienter la relance adverse sur un côté.",
+    "sources": [
+      "spain",
+      "central"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 32,
+    "length": 26,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 8,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Orienter vers la touche",
+        "rule": "Presser de l’intérieur vers l’extérieur avec une couverture derrière.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "L’angle de course ferme-t-il l’axe ? Le deuxième défenseur protège-t-il l’intérieur sans courir sur le même joueur ?"
+      },
+      {
+        "title": "Le porteur ressort",
+        "rule": "Si le porteur revient en soutien, coulisser sans ouvrir l’axe.",
+        "steps": 5,
+        "seconds": 9,
+        "observe": "Le rôle de premier défenseur change avec la circulation adverse."
+      },
+      {
+        "title": "Le piège est évité",
+        "rule": "Le ballon sort du côté fermé ; reformer la couverture avant une nouvelle sortie.",
+        "steps": 5,
+        "seconds": 9,
+        "observe": "La couverture protège la cible pendant que le joueur dépassé revient dans l’axe."
+      }
+    ]
+  },
+  {
+    "id": "cover",
+    "title": "Cadrer, couvrir et coulisser",
+    "theme": "Défense",
+    "context": "Protéger un intervalle lorsqu’un partenaire défend le porteur.",
+    "sources": [
+      "coordination",
+      "zonal"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 26,
+    "length": 24,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 3,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Pression et couverture",
+        "rule": "Un défenseur ralentit le porteur, le second protège derrière et à l’intérieur.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "À la sortie du premier défenseur, le deuxième se place-t-il derrière et à l’intérieur ? Un troisième défenseur, s’il est présent, protège-t-il le côté opposé ?"
+      },
+      {
+        "title": "Changer le premier défenseur",
+        "rule": "Sur passe adverse, inverser pression et couverture sans sortir à deux sur le ballon.",
+        "steps": 5,
+        "seconds": 8,
+        "observe": "Le rôle de premier défenseur change avec la circulation adverse."
+      },
+      {
+        "title": "Duel perdu",
+        "rule": "Le second ralentit le nouveau porteur et le premier revient couvrir l’axe.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "La couverture protège la cible pendant que le joueur dépassé revient dans l’axe."
+      }
+    ]
+  },
+  {
+    "id": "block",
+    "title": "Défendre l’axe en bloc",
+    "theme": "Défense",
+    "context": "Défendre en bloc médian lorsque l’adversaire fait circuler.",
+    "sources": [
+      "central",
+      "zonal",
+      "uefa-analysis"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 40,
+    "length": 32,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 8,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 5,
+      "bibsRed": 5,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Bloc compact",
+        "rule": "Coulisser vers le ballon en conservant des hauteurs différentes.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "À la sortie du premier défenseur, le deuxième se place-t-il derrière et à l’intérieur ? Un troisième défenseur, s’il est présent, protège-t-il le côté opposé ?"
+      },
+      {
+        "title": "Renversement adverse",
+        "rule": "Pendant la circulation, fermer le côté opposé ensemble sans suivre chacun son adversaire.",
+        "steps": 5,
+        "seconds": 12,
+        "observe": "Le rôle de premier défenseur change avec la circulation adverse."
+      },
+      {
+        "title": "Passe entre les lignes",
+        "rule": "Le joueur proche ralentit, les autres ferment l’axe et se reconnectent.",
+        "steps": 5,
+        "seconds": 12,
+        "observe": "La couverture protège la cible pendant que le joueur dépassé revient dans l’axe."
+      }
+    ]
+  },
+  {
+    "id": "transition",
+    "title": "Réagir à la perte",
+    "theme": "Transitions",
+    "context": "Après une perte dans une zone où plusieurs partenaires sont proches.",
+    "sources": [
+      "spain",
+      "bvb"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 22,
+    "length": 22,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 3,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Réagir à la perte",
+        "rule": "Le proche intervient, les partenaires ferment les sorties proches.",
+        "steps": 6,
+        "seconds": 6,
+        "observe": "Dès la perte, le proche ralentit-il le nouveau porteur pendant que ses partenaires ferment les passes proches ?"
+      },
+      {
+        "title": "Le premier pressing est sorti",
+        "rule": "Protéger l’axe et reculer ensemble si la récupération immédiate est impossible.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le proche ralentit sans se jeter ; les autres reviennent entre le ballon et leur cible."
+      },
+      {
+        "title": "Récupérer puis sécuriser",
+        "rule": "Après récupération réelle, trouver une passe de sécurité hors de la densité.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "La première passe éloigne le ballon de la pression et laisse une deuxième solution."
+      }
+    ]
+  },
+  {
+    "id": "counter",
+    "title": "Se projeter à la récupération",
+    "theme": "Transitions",
+    "context": "L’adversaire a des joueurs devant le ballon et un espace à attaquer.",
+    "sources": [
+      "smallgames",
+      "keepertransition"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 36,
+    "length": 28,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Première passe vers l’avant",
+        "rule": "Après récupération, trouver un partenaire avancé puis accompagner.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "Le nouveau porteur identifie-t-il une solution devant et une solution de sécurité avant son premier choix ?"
+      },
+      {
+        "title": "Axe fermé",
+        "rule": "Sortir par le joueur large et accompagner sans courir dans le même couloir.",
+        "steps": 5,
+        "seconds": 10,
+        "observe": "Le nouveau porteur identifie-t-il une solution devant et une solution de sécurité avant son premier choix ?"
+      },
+      {
+        "title": "Avantage refermé",
+        "rule": "Si le retour adverse ferme la progression, revenir au soutien et reconstruire.",
+        "steps": 5,
+        "seconds": 10,
+        "observe": "Le retour conserve une possibilité de progresser à la passe suivante."
+      }
+    ]
+  },
+  {
+    "id": "switch",
+    "title": "Fixer puis renverser",
+    "theme": "Largeur",
+    "context": "Un bloc adverse concentre ses joueurs autour du ballon.",
+    "sources": [
+      "peacock",
+      "frontthree"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 38,
+    "length": 28,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 8,
+      "cones": 8,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 4
+    },
+    "variants": [
+      {
+        "title": "Attirer et renverser",
+        "rule": "Fixer un côté puis relier le partenaire éloigné par un relais.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le porteur attire-t-il la pression avant de chercher le côté opposé ? Le relais voit-il le partenaire éloigné avant de recevoir ?"
+      },
+      {
+        "title": "Renversement fermé",
+        "rule": "Conserver du côté du ballon si la grande passe est interceptable.",
+        "steps": 5,
+        "seconds": 10,
+        "observe": "Le retour conserve une possibilité de progresser à la passe suivante."
+      },
+      {
+        "title": "Changer de relais",
+        "rule": "Utiliser un soutien bas avant de trouver le côté faible, sans diagonale forcée.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Le soutien bas reçoit avec le côté opposé dans son champ de vision."
+      }
+    ]
+  },
+  {
+    "id": "overlap",
+    "title": "Combiner sur un côté",
+    "theme": "Largeur",
+    "context": "Un joueur de côté reçoit face à un défenseur avec un soutien proche.",
+    "sources": [
+      "newcastle",
+      "support"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 28,
+    "length": 22,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 3,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Dédoublement extérieur",
+        "rule": "Fixer puis servir l’appel extérieur si le défenseur ferme l’intérieur.",
+        "steps": 6,
+        "seconds": 8,
+        "observe": "L’appel part-il après la fixation et offre-t-il un angle distinct ? Le porteur peut-il conserver si la passe est fermée ?"
+      },
+      {
+        "title": "Appel intérieur",
+        "rule": "Le soutien passe dans le demi-espace quand le défenseur protège le couloir extérieur.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le porteur et le soutien utilisent deux couloirs et deux temps de course différents."
+      },
+      {
+        "title": "Défenseur qui accompagne",
+        "rule": "Si l’appel est suivi, le porteur conserve et progresse dans l’espace libéré.",
+        "steps": 4,
+        "seconds": 7,
+        "observe": "La conduite attire un adversaire avant de libérer la passe."
+      }
+    ]
+  },
+  {
+    "id": "finish",
+    "title": "Finir après une passe",
+    "theme": "Finition",
+    "context": "Recevoir dans la zone de finition avec peu de temps pour ajuster.",
+    "sources": [
+      "technique",
+      "keepergoal"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 28,
+    "length": 24,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 2,
+      "bibsRed": 2,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Préparer sa frappe",
+        "rule": "Le dernier contrôle ouvre un angle de frappe sans imposer une touche.",
+        "steps": 7,
+        "seconds": 6,
+        "observe": "Le dernier contrôle ouvre-t-il la frappe ? Les soutiens occupent-ils des positions différentes pour la remise ou le ballon repoussé ?"
+      },
+      {
+        "title": "Remise avant le tir",
+        "rule": "Si le défenseur ferme la frappe directe, remettre au soutien décalé qui finit.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "La remise crée un angle de frappe et ne ramène pas le ballon dans le duel."
+      },
+      {
+        "title": "Décaler le gardien",
+        "rule": "Le porteur fixe puis sert un partenaire de l’autre côté pour finir dans le but disponible.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "La dernière passe atteint un partenaire mieux placé avant que le gardien se rééquilibre."
+      }
+    ]
+  },
+  {
+    "id": "cutback",
+    "title": "Conclure un centre en retrait",
+    "theme": "Finition",
+    "context": "Un joueur atteint le fond et la défense protège d’abord son but.",
+    "sources": [
+      "cross",
+      "newcastle"
+    ],
+    "players": 7,
+    "keepers": 2,
+    "width": 32,
+    "length": 28,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 2,
+      "bibsRed": 2,
+      "bibsNeutral": 1,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Arriver en retrait",
+        "rule": "Le centreur atteint le fond, un soutien arrive derrière la première ligne.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le receveur reste-t-il derrière la première ligne défensive au moment du centre en retrait, sans arriver au même endroit que le premier attaquant ?"
+      },
+      {
+        "title": "Zone en retrait fermée",
+        "rule": "Le centreur conserve avec un soutien si le receveur est marqué ; rejouer vers le fond.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le retour conserve une possibilité de progresser à la passe suivante."
+      },
+      {
+        "title": "Premier poteau libre",
+        "rule": "Si le défenseur protège le retrait, un attaquant attaque le premier poteau au bon moment.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le receveur arrive devant le défenseur au moment du service, sans attendre au poteau."
+      }
+    ]
+  },
+  {
+    "id": "duel",
+    "title": "Gagner son duel et protéger",
+    "theme": "Duels",
+    "context": "Recevoir face à un défenseur ou conserver en attendant un soutien.",
+    "sources": [
+      "receiving",
+      "smallgames"
+    ],
+    "players": 4,
+    "keepers": 2,
+    "width": 18,
+    "length": 16,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 2,
+      "bibsRed": 2,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Fixer en un contre un",
+        "rule": "Attaquer l’espace libre en gardant le ballon hors de portée.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Le porteur fixe-t-il le défenseur avant de donner ? Le défenseur ralentit-il en restant entre le ballon et la cible ?"
+      },
+      {
+        "title": "Utiliser le soutien",
+        "rule": "Si le défenseur ferme la conduite, remettre puis se déplacer pour recevoir de nouveau.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Le soutien est visible avant la réception et se replace après sa remise."
+      },
+      {
+        "title": "Défenseur en recul",
+        "rule": "Avancer avec maîtrise jusqu’à ce que le défenseur s’engage ; changer alors de direction.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "La conduite attire un adversaire avant de libérer la passe."
+      }
+    ]
+  },
+  {
+    "id": "support",
+    "title": "Se démarquer entre les lignes",
+    "theme": "Démarquage",
+    "context": "Un milieu ou attaquant cherche l’espace hors de l’ombre défensive.",
+    "sources": [
+      "support",
+      "receiving"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 26,
+    "length": 22,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 8,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 3,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Sortir de l’ombre",
+        "rule": "Le receveur se décale hors de la ligne ballon–défenseur avant la passe.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le receveur se déplace-t-il avant la passe pour sortir de l’ombre du défenseur ?"
+      },
+      {
+        "title": "Soutien suivi",
+        "rule": "Si le défenseur accompagne le premier soutien, utiliser un autre angle disponible.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "Le porteur reconnaît le relais marqué et trouve un autre angle."
+      },
+      {
+        "title": "Remise et nouvel angle",
+        "rule": "Recevoir sous pression, remettre puis sortir à nouveau de l’ombre.",
+        "steps": 5,
+        "seconds": 8,
+        "observe": "Le soutien est visible avant la réception et se replace après sa remise."
+      }
+    ]
+  },
+  {
+    "id": "cpa-attack",
+    "title": "Organiser un corner offensif",
+    "theme": "CPA",
+    "context": "Corner offensif avec une cible prioritaire et une organisation sur le ballon repoussé.",
+    "sources": [
+      "corners",
+      "cross"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 40,
+    "length": 35,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Courses coordonnées",
+        "rule": "Déclencher les courses sur le signal du tireur, sans tous attaquer la même zone.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Les zones attaquées ou protégées sont-elles annoncées ? Qui couvre le second ballon quand les autres vont au premier ?"
+      },
+      {
+        "title": "Corner court",
+        "rule": "Jouer court, déplacer le premier défenseur puis servir la surface si la ligne s’ouvre.",
+        "steps": 4,
+        "seconds": 6,
+        "observe": "Les zones attaquées ou protégées sont-elles annoncées ? Qui couvre le second ballon quand les autres vont au premier ?"
+      },
+      {
+        "title": "Second ballon",
+        "rule": "Après dégagement défensif, un soutien hors surface récupère pendant que la sécurité reste en place.",
+        "steps": 6,
+        "seconds": 8,
+        "observe": "Les zones attaquées ou protégées sont-elles annoncées ? Qui couvre le second ballon quand les autres vont au premier ?"
+      }
+    ]
+  },
+  {
+    "id": "cpa-defence",
+    "title": "Défendre un corner",
+    "theme": "CPA",
+    "context": "Défense d’une remise en jeu où ballon, adversaires et zones doivent être surveillés.",
+    "sources": [
+      "corners",
+      "keeperarea"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 40,
+    "length": 35,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Voir ballon et adversaire",
+        "rule": "Protéger les zones annoncées et accompagner les courses sans bloquer irrégulièrement.",
+        "steps": 6,
+        "seconds": 8,
+        "observe": "Le défenseur voit-il ballon et adversaire, protège-t-il l’intérieur et communique-t-il avec le gardien avant de suivre la course ?"
+      },
+      {
+        "title": "Corner court adverse",
+        "rule": "Un défenseur sort au court, un partenaire garde la couverture de sa zone.",
+        "steps": 4,
+        "seconds": 5,
+        "observe": "Le défenseur voit-il ballon et adversaire, protège-t-il l’intérieur et communique-t-il avec le gardien avant de suivre la course ?"
+      },
+      {
+        "title": "Après le dégagement",
+        "rule": "Ressortir ensemble sur le second ballon sans abandonner un adversaire resté dans la surface.",
+        "steps": 4,
+        "seconds": 5,
+        "observe": "Le défenseur voit-il ballon et adversaire, protège-t-il l’intérieur et communique-t-il avec le gardien avant de suivre la course ?"
+      }
+    ]
+  },
+  {
+    "id": "keeper-feet",
+    "title": "Relance et jeu au pied du gardien",
+    "theme": "Gardiens",
+    "context": "Face à une première ligne qui ferme les défenseurs centraux.",
+    "sources": [
+      "dittmer",
+      "peacock"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 28,
+    "length": 24,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 2,
+      "bibsRed": 2,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Deux angles de relance",
+        "rule": "Le gardien observe et choisit le soutien accessible.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le gardien repère-t-il la pression avant de donner ? Le soutien reçoit-il de profil avec une passe suivante possible ?"
+      },
+      {
+        "title": "Côté fermé",
+        "rule": "Un défenseur ferme la première sortie ; le gardien utilise le soutien de l’autre côté.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Le gardien repère-t-il la pression avant de donner ? Le soutien reçoit-il de profil avec une passe suivante possible ?"
+      },
+      {
+        "title": "Remise au gardien",
+        "rule": "Le soutien pressé revient au gardien, qui change l’angle de la sortie.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le gardien repère-t-il la pression avant de donner ? Le soutien reçoit-il de profil avec une passe suivante possible ?"
+      }
+    ]
+  },
+  {
+    "id": "keeper-duel",
+    "title": "Gardien : cadrage et sortie",
+    "theme": "Gardiens",
+    "context": "Un attaquant arrive face au gardien après une passe en profondeur.",
+    "sources": [
+      "dittmer",
+      "keepergoal"
+    ],
+    "players": 5,
+    "keepers": 2,
+    "width": 24,
+    "length": 22,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 1,
+      "bibsRed": 1,
+      "bibsNeutral": 1,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Réduire l’angle",
+        "rule": "Le gardien se place dans l’axe ballon–but et ajuste sa sortie au contrôle du porteur.",
+        "steps": 6,
+        "seconds": 6,
+        "observe": "Le gardien se replace-t-il pendant le trajet de la passe et se stabilise-t-il au moment utile ?"
+      },
+      {
+        "title": "Contrôle long",
+        "rule": "Le gardien avance sur un ballon qui s’échappe réellement du porteur.",
+        "steps": 4,
+        "seconds": 5,
+        "observe": "Le gardien se replace-t-il pendant le trajet de la passe et se stabilise-t-il au moment utile ?"
+      },
+      {
+        "title": "Attaquant excentré",
+        "rule": "Le gardien coulisse dans son angle et protège son premier poteau ; pas de sortie imposée.",
+        "steps": 4,
+        "seconds": 5,
+        "observe": "Le gardien se replace-t-il pendant le trajet de la passe et se stabilise-t-il au moment utile ?"
+      }
+    ]
+  },
+  {
+    "id": "touch",
+    "title": "Conserver sur une touche",
+    "theme": "CPA",
+    "context": "Touche sous pression près d’une ligne où l’espace de jeu est réduit.",
+    "sources": [
+      "support",
+      "peacock"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 24,
+    "length": 20,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Court puis soutien",
+        "rule": "Proposer une solution courte et une solution intérieure dès la touche.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le receveur est-il visible avant la passe, de profil à la réception et relié à une solution suivante ?"
+      },
+      {
+        "title": "Court marqué",
+        "rule": "Servir le soutien décalé si le partenaire proche est suivi.",
+        "steps": 4,
+        "seconds": 6,
+        "observe": "Le porteur reconnaît le relais marqué et trouve un autre angle."
+      },
+      {
+        "title": "Retour au lanceur",
+        "rule": "Après la touche, le lanceur entre sur le terrain pour offrir une passe de retour.",
+        "steps": 5,
+        "seconds": 10,
+        "observe": "Le soutien est visible avant la réception et se replace après sa remise."
+      }
+    ]
+  },
+  {
+    "id": "freegame",
+    "title": "Jeu de réinvestissement",
+    "theme": "Jeu global",
+    "context": "Dernière opposition de séance avant de préparer le match.",
+    "sources": [
+      "gameapplication",
+      "uefa-coaching"
+    ],
+    "players": 12,
+    "keepers": 2,
+    "width": 45,
+    "length": 36,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 6,
+      "bibsRed": 6,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Observer le principe choisi",
+        "rule": "Jeu libre avec un objectif de séance annoncé ; décisions laissées aux joueurs.",
+        "steps": 5,
+        "seconds": 16,
+        "observe": "À la récupération : regarder devant avant de sécuriser. À la perte : ralentir le porteur pendant que les partenaires protègent l’axe."
+      },
+      {
+        "title": "Sortie sous pression",
+        "rule": "Exemple de reconstruction : revenir au soutien et déplacer la pression.",
+        "steps": 5,
+        "seconds": 12,
+        "observe": "Le retour conserve une possibilité de progresser à la passe suivante."
+      },
+      {
+        "title": "Attaque d’un espace libre",
+        "rule": "Exemple de progression : avancer si le porteur n’est pas attaqué puis servir un appel.",
+        "steps": 4,
+        "seconds": 7,
+        "observe": "La conduite attire un adversaire avant de libérer la passe."
+      }
+    ]
+  },
+  {
+    "id": "scan-receive",
+    "title": "Regarder avant de recevoir",
+    "theme": "Technique",
+    "context": "Quand un milieu reçoit avec une pression possible dans son dos et doit savoir avant le contrôle où ressortir.",
+    "sources": [
+      "peacock",
+      "receiving"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 22,
+    "length": 20,
+    "material": {
+      "balls": 3,
+      "activeBalls": 2,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 6,
+      "circuitCones": 6,
+      "bibsBlue": 6,
+      "bibsRed": 0,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Voir avant la réception",
+        "rule": "Regarder avant la passe et contrôler vers le prochain poste.",
+        "steps": 11,
+        "seconds": 14,
+        "observe": "Le receveur vérifie-t-il son environnement avant le ballon ? Le contrôle permet-il la transmission suivante ?"
+      },
+      {
+        "title": "Soutien fermé",
+        "rule": "Scanner puis remettre au passeur si l’orientation prévue n’est pas disponible.",
+        "steps": 14,
+        "seconds": 18,
+        "observe": "La remise reste accessible au soutien, qui voit déjà le troisième poste."
+      },
+      {
+        "title": "Orientation opposée",
+        "rule": "Changer le sens de circulation sur signal annoncé avant la passe, sans geste précipité.",
+        "steps": 11,
+        "seconds": 17,
+        "observe": "Le changement de sens conserve des angles et un poste suivant prêt."
+      }
+    ]
+  },
+  {
+    "id": "wall-pass",
+    "title": "Remise et passe dans la course",
+    "theme": "Technique",
+    "context": "Éliminer un adversaire par combinaison courte plutôt que par une conduite supplémentaire.",
+    "sources": [
+      "technical-reference"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 24,
+    "length": 32,
+    "material": {
+      "balls": 1,
+      "activeBalls": 1,
+      "reserveBalls": 0,
+      "discs": 2,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 6,
+      "bibsRed": 0,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0,
+      "hurdles": 3,
+      "poles": 6,
+      "ladders": 1
+    },
+    "variants": [
+      {
+        "title": "Remise et appel",
+        "rule": "Donner à l’appui, remettre au soutien puis servir la course ; retours séparés.",
+        "steps": 6,
+        "seconds": 7,
+        "observe": "Les déplacements suivent-ils les passes ? Le retour est-il séparé de la nouvelle combinaison ?"
+      },
+      {
+        "title": "Appui plus haut",
+        "rule": "L’appui démarre plus haut : ajuster le dosage et la distance de soutien pour conserver une remise accessible.",
+        "steps": 6,
+        "seconds": 7,
+        "observe": "Les déplacements suivent-ils les passes ? Le retour est-il séparé de la nouvelle combinaison ?"
+      },
+      {
+        "title": "Remise vers l’autre angle",
+        "rule": "Le soutien se déplace de l’autre côté du piquet ; la remise et l’appel s’adaptent.",
+        "steps": 6,
+        "seconds": 7,
+        "observe": "Les déplacements suivent-ils les passes ? Le retour est-il séparé de la nouvelle combinaison ?"
+      }
+    ]
+  },
+  {
+    "id": "receive-back",
+    "title": "Recevoir dos au jeu et choisir",
+    "theme": "Démarquage",
+    "context": "Trouver un attaquant en appui ou un milieu entre les lignes lorsque l’adversaire défend proche.",
+    "sources": [
+      "receiving",
+      "support"
+    ],
+    "players": 6,
+    "keepers": 2,
+    "width": 22,
+    "length": 24,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 3,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Protéger et remettre",
+        "rule": "Recevoir dos à la cible et remettre quand le défenseur ferme le retournement.",
+        "steps": 6,
+        "seconds": 6,
+        "observe": "Le receveur regarde-t-il avant le ballon, protège-t-il du côté opposé au défenseur et trouve-t-il un soutien décalé ?"
+      },
+      {
+        "title": "Retourner côté libre",
+        "rule": "Si le défenseur reste à distance, orienter le contrôle vers l’avant.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Le receveur a regardé dans son dos avant de choisir le contrôle vers l’avant."
+      },
+      {
+        "title": "Appui suivi",
+        "rule": "Le passeur devient soutien décalé pour éviter une remise dans l’axe du défenseur.",
+        "steps": 5,
+        "seconds": 8,
+        "observe": "Le soutien est visible avant la réception et se replace après sa remise."
+      }
+    ]
+  },
+  {
+    "id": "escape-turn",
+    "title": "Se retourner pour sortir de la pression",
+    "theme": "Duels",
+    "context": "Déjouer une pression dans le dos près de la touche ou au milieu sans perdre le ballon dans l’axe.",
+    "sources": [
+      "receiving",
+      "smallgames"
+    ],
+    "players": 4,
+    "keepers": 2,
+    "width": 16,
+    "length": 20,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 2,
+      "bibsRed": 2,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Premier contact hors pression",
+        "rule": "Regarder le côté libre avant de recevoir et s’en échapper.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le premier contact éloigne-t-il le ballon du défenseur sans supprimer la passe de sécurité ?"
+      },
+      {
+        "title": "Retournement fermé",
+        "rule": "Protéger puis remettre au soutien ; le retournement n’est jamais obligatoire.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Le soutien est visible avant la réception et se replace après sa remise."
+      },
+      {
+        "title": "Défenseur déséquilibré",
+        "rule": "Faire croire à la remise puis conduire du côté libéré si l’espace existe.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Le receveur a regardé dans son dos avant de choisir le contrôle vers l’avant."
+      }
+    ]
+  },
+  {
+    "id": "rondo-direction",
+    "title": "Conserver puis trouver la passe qui traverse",
+    "theme": "Conservation",
+    "context": "Préparer la passe qui élimine un premier rideau après avoir attiré les adversaires autour du ballon.",
+    "sources": [
+      "peacock",
+      "bvb"
+    ],
+    "players": 7,
+    "keepers": 2,
+    "width": 16,
+    "length": 14,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 5,
+      "bibsRed": 2,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Fenêtre ouverte",
+        "rule": "Une passe traversante vaut un point si elle rejoint un partenaire maîtrisant le ballon.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le partenaire est-il visible de l’autre côté des défenseurs et la trajectoire est-elle libre au moment de la passe ?"
+      },
+      {
+        "title": "Fenêtre fermée",
+        "rule": "Conserver autour, déplacer la pression puis réévaluer la passe intérieure.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le retour conserve une possibilité de progresser à la passe suivante."
+      },
+      {
+        "title": "Trouver un autre intervalle",
+        "rule": "Utiliser le soutien opposé avant une nouvelle tentative de franchissement.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "La passe traverse un intervalle ouvert au moment où elle part."
+      }
+    ]
+  },
+  {
+    "id": "possession-neutral",
+    "title": "Conserver avec un joueur de liaison",
+    "theme": "Conservation",
+    "context": "Créer une supériorité locale au milieu pour ressortir du pressing et préparer la progression.",
+    "sources": [
+      "peacock",
+      "support"
+    ],
+    "players": 9,
+    "keepers": 2,
+    "width": 28,
+    "length": 24,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 1,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Relais libre",
+        "rule": "Le joker offre un angle différent des partenaires et joue avec l’équipe en possession.",
+        "steps": 6,
+        "seconds": 7,
+        "observe": "Observer le déplacement du soutien pendant le trajet du ballon et l’orientation du receveur avant son contrôle."
+      },
+      {
+        "title": "Joker suivi",
+        "rule": "Le porteur utilise un partenaire extérieur si le joker est enfermé.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "Le porteur reconnaît le relais marqué et trouve un autre angle."
+      },
+      {
+        "title": "Remise du joker",
+        "rule": "Le joker sous pression remet face au jeu à un soutien décalé.",
+        "steps": 5,
+        "seconds": 8,
+        "observe": "Le soutien est visible avant la réception et se replace après sa remise."
+      }
+    ]
+  },
+  {
+    "id": "possession-endzones",
+    "title": "Progresser vers une zone cible",
+    "theme": "Conservation",
+    "context": "Franchir une ligne et servir un joueur lancé sans réduire le jeu à une succession de passes latérales.",
+    "sources": [
+      "support",
+      "behind"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 26,
+    "length": 36,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Arriver dans la cible",
+        "rule": "Recevoir dans l’en-but sur un appel, sans y attendre en permanence.",
+        "steps": 7,
+        "seconds": 10,
+        "observe": "L’appel arrive-t-il quand le porteur peut jouer vers l’avant ? Le passeur dispose-t-il aussi d’un soutien pour conserver ?"
+      },
+      {
+        "title": "Profondeur fermée",
+        "rule": "Revenir au soutien, attirer la ligne puis relancer un appel dans la cible.",
+        "steps": 5,
+        "seconds": 9,
+        "observe": "Le retour conserve une possibilité de progresser à la passe suivante."
+      },
+      {
+        "title": "Appel opposé",
+        "rule": "Le porteur fixe un côté et sert l’appel du côté éloigné.",
+        "steps": 5,
+        "seconds": 10,
+        "observe": "L’appel arrive-t-il quand le porteur peut jouer vers l’avant ? Le passeur dispose-t-il aussi d’un soutien pour conserver ?"
+      }
+    ]
+  },
+  {
+    "id": "break-lines",
+    "title": "Franchir les trois tiers",
+    "theme": "Relance",
+    "context": "Passer d’une relance maîtrisée à un joueur entre les lignes lorsque l’adversaire défend en deux rideaux.",
+    "sources": [
+      "peacock",
+      "bvb"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 32,
+    "length": 42,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 5,
+      "bibsRed": 5,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Passe qui franchit",
+        "rule": "Repérer une ligne ouverte au-delà du premier rideau.",
+        "steps": 6,
+        "seconds": 8,
+        "observe": "Le receveur peut-il continuer après la ligne franchie ? Le porteur conduit-il si la passe est fermée ?"
+      },
+      {
+        "title": "Conduite qui fixe",
+        "rule": "Si personne ne sort sur le porteur, conduire pour attirer avant de transmettre.",
+        "steps": 4,
+        "seconds": 7,
+        "observe": "La conduite attire un adversaire avant de libérer la passe."
+      },
+      {
+        "title": "Ligne fermée",
+        "rule": "Utiliser le soutien et changer l’angle ; ne pas imposer une passe entre les défenseurs.",
+        "steps": 5,
+        "seconds": 10,
+        "observe": "Le retour conserve une possibilité de progresser à la passe suivante."
+      }
+    ]
+  },
+  {
+    "id": "attract-release",
+    "title": "Attirer la pression pour libérer un partenaire",
+    "theme": "Conservation",
+    "context": "Sortir d’un marquage proche ou créer un intervalle dans un bloc compact par une conduite ou une passe préparatoire.",
+    "sources": [
+      "peacock",
+      "uefa-analysis"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 26,
+    "length": 24,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Fixer puis libérer",
+        "rule": "Attirer un adversaire pour libérer un partenaire éloigné.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le porteur attire-t-il la pression avant de chercher le côté opposé ? Le relais voit-il le partenaire éloigné avant de recevoir ?"
+      },
+      {
+        "title": "Pression qui attend",
+        "rule": "Si personne ne sort, avancer avec le ballon au lieu de multiplier des passes inutiles.",
+        "steps": 4,
+        "seconds": 5,
+        "observe": "La conduite attire un adversaire avant de libérer la passe."
+      },
+      {
+        "title": "Passe lointaine fermée",
+        "rule": "Passer par le soutien bas pour déplacer la pression avant le renversement.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Le soutien bas reçoit avec le côté opposé dans son champ de vision."
+      }
+    ]
+  },
+  {
+    "id": "build-three",
+    "title": "Élargir la première ligne de relance",
+    "theme": "Relance",
+    "context": "Comprendre une sortie à trois sans imposer une formation fixe : central qui s’écarte, pivot qui décroche ou latéral qui ajuste sa hauteur.",
+    "sources": [
+      "bvb",
+      "peacock"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 36,
+    "length": 38,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 5,
+      "bibsRed": 5,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Première ligne ouverte",
+        "rule": "Offrir des hauteurs et des largeurs complémentaires depuis la relance.",
+        "steps": 4,
+        "seconds": 5,
+        "observe": "Le receveur est-il visible avant la passe, de profil à la réception et relié à une solution suivante ?"
+      },
+      {
+        "title": "Un côté enfermé",
+        "rule": "Revenir au soutien bas pour sortir par le côté opposé.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Le soutien bas reçoit avec le côté opposé dans son champ de vision."
+      },
+      {
+        "title": "Porteur libre",
+        "rule": "Le joueur bas conduit jusqu’à fixer le premier adversaire puis transmet.",
+        "steps": 4,
+        "seconds": 7,
+        "observe": "La conduite attire un adversaire avant de libérer la passe."
+      }
+    ]
+  },
+  {
+    "id": "build-pivot",
+    "title": "Trouver le pivot sans le piéger",
+    "theme": "Relance",
+    "context": "Utiliser le n°6 ou un milieu qui décroche contre un adversaire qui cherche à enfermer l’axe.",
+    "sources": [
+      "peacock",
+      "receiving"
+    ],
+    "players": 9,
+    "keepers": 2,
+    "width": 30,
+    "length": 36,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 1,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Pivot accessible",
+        "rule": "Recevoir de profil ou remettre selon la pression dans le dos.",
+        "steps": 6,
+        "seconds": 6,
+        "observe": "Le pivot regarde-t-il derrière lui avant réception ? Le passeur reste-t-il disponible pour la remise ?"
+      },
+      {
+        "title": "Pivot marqué",
+        "rule": "Utiliser le partenaire extérieur plutôt que forcer la passe axiale.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le porteur reconnaît le relais marqué et trouve un autre angle."
+      },
+      {
+        "title": "Pivot libre de tourner",
+        "rule": "Le pivot regarde puis contrôle vers l’avant si personne ne vient dans son dos.",
+        "steps": 4,
+        "seconds": 5,
+        "observe": "Le receveur a regardé dans son dos avant de choisir le contrôle vers l’avant."
+      }
+    ]
+  },
+  {
+    "id": "build-switch",
+    "title": "Choisir la sortie libre à la relance",
+    "theme": "Relance",
+    "context": "Face à un pressing qui oriente d’un côté, conserver la capacité de ressortir à l’opposé.",
+    "sources": [
+      "bvb",
+      "peacock"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 36,
+    "length": 34,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 5,
+      "bibsRed": 5,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 4,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Trouver la sortie libre",
+        "rule": "Identifier sortie axiale ou latérale selon la pression.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le porteur attire-t-il la pression avant de chercher le côté opposé ? Le relais voit-il le partenaire éloigné avant de recevoir ?"
+      },
+      {
+        "title": "Retour par la base",
+        "rule": "Le soutien bas relie les côtés lorsque la passe directe est fermée.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Le soutien bas reçoit avec le côté opposé dans son champ de vision."
+      },
+      {
+        "title": "Sortie directe disponible",
+        "rule": "Avancer par la conduite si le porteur dispose d’un espace sans adversaire.",
+        "steps": 4,
+        "seconds": 6,
+        "observe": "La conduite attire un adversaire avant de libérer la passe."
+      }
+    ]
+  },
+  {
+    "id": "thirdman-depth",
+    "title": "Remiser pour lancer dans le dos",
+    "theme": "Relance",
+    "context": "Quand l’avant-centre vient en appui et libère l’espace pour un ailier ou un milieu qui se projette.",
+    "sources": [
+      "support",
+      "behind",
+      "frontthree"
+    ],
+    "players": 9,
+    "keepers": 2,
+    "width": 30,
+    "length": 40,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 1,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Appui remise profondeur",
+        "rule": "Le troisième démarre pendant la remise pour recevoir lancé.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le troisième joueur part-il pendant la remise pour recevoir face au jeu, plutôt que d’attendre derrière un adversaire ?"
+      },
+      {
+        "title": "Appui fermé",
+        "rule": "Jouer avec un soutien latéral avant de rechercher le troisième.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le porteur reconnaît le relais marqué et trouve un autre angle."
+      },
+      {
+        "title": "Profondeur fermée",
+        "rule": "Le troisième reste en soutien si la défense recule ; conserver plutôt que forcer.",
+        "steps": 5,
+        "seconds": 9,
+        "observe": "Le soutien est visible avant la réception et se replace après sa remise."
+      }
+    ]
+  },
+  {
+    "id": "forward-runs",
+    "title": "Appeler dans le dos au bon moment",
+    "theme": "Démarquage",
+    "context": "Exploiter la profondeur face à une ligne haute ou créer un recul qui libère un partenaire entre les lignes.",
+    "sources": [
+      "behind",
+      "frontthree"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 34,
+    "length": 42,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 5,
+      "bibsRed": 5,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Départ sur passeur disponible",
+        "rule": "Déclencher la course quand le passeur peut réellement jouer devant.",
+        "steps": 4,
+        "seconds": 5,
+        "observe": "L’appel arrive-t-il quand le porteur peut jouer vers l’avant ? Le passeur dispose-t-il aussi d’un soutien pour conserver ?"
+      },
+      {
+        "title": "Passeur sous pression",
+        "rule": "Reporter l’appel et revenir en soutien pour conserver.",
+        "steps": 5,
+        "seconds": 10,
+        "observe": "Le retour conserve une possibilité de progresser à la passe suivante."
+      },
+      {
+        "title": "Appel diagonal",
+        "rule": "Changer de couloir pendant l’appel pour sortir de l’alignement du défenseur.",
+        "steps": 5,
+        "seconds": 12,
+        "observe": "L’appel arrive-t-il quand le porteur peut jouer vers l’avant ? Le passeur dispose-t-il aussi d’un soutien pour conserver ?"
+      }
+    ]
+  },
+  {
+    "id": "wide-isolate",
+    "title": "Isoler un joueur de côté puis l’aider",
+    "theme": "Largeur",
+    "context": "Attaquer un bloc compact en créant un duel d’ailier ou une combinaison avec un latéral.",
+    "sources": [
+      "frontthree",
+      "newcastle"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 32,
+    "length": 28,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 4,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Servir le joueur large",
+        "rule": "Écarter le receveur et maintenir un soutien intérieur.",
+        "steps": 4,
+        "seconds": 5,
+        "observe": "Le joueur large reconnaît-il la différence entre un espace à attaquer et un côté fermé ? Le passeur reste-t-il disponible à l’intérieur ?"
+      },
+      {
+        "title": "Prise à deux",
+        "rule": "Revenir au soutien intérieur si un deuxième défenseur ferme le duel.",
+        "steps": 5,
+        "seconds": 9,
+        "observe": "Le soutien est visible avant la réception et se replace après sa remise."
+      },
+      {
+        "title": "Duel favorable",
+        "rule": "Recevoir puis conduire vers l’espace libre si le défenseur est isolé.",
+        "steps": 4,
+        "seconds": 7,
+        "observe": "La conduite attire un adversaire avant de libérer la passe."
+      }
+    ]
+  },
+  {
+    "id": "underlap",
+    "title": "Déclencher une course intérieure depuis le côté",
+    "theme": "Largeur",
+    "context": "Un ailier garde la largeur pendant qu’un latéral ou milieu attaque l’intervalle intérieur.",
+    "sources": [
+      "newcastle",
+      "support"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 34,
+    "length": 32,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 3,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Course intérieure",
+        "rule": "Le soutien attaque le demi-espace quand le porteur fixe le défenseur extérieur.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le soutien démarre-t-il à l’intérieur quand le porteur fixe à l’extérieur, avec un espace libre pour recevoir sans courir dans le même couloir ?"
+      },
+      {
+        "title": "Intérieur protégé",
+        "rule": "Le soutien reste disponible derrière le porteur pour conserver.",
+        "steps": 5,
+        "seconds": 16,
+        "observe": "Le soutien est visible avant la réception et se replace après sa remise."
+      },
+      {
+        "title": "Porteur libre à l’extérieur",
+        "rule": "L’appel intérieur entraîne le défenseur ; le porteur progresse dans le couloir libéré.",
+        "steps": 4,
+        "seconds": 5,
+        "observe": "La conduite attire un adversaire avant de libérer la passe."
+      }
+    ]
+  },
+  {
+    "id": "box-combine",
+    "title": "Combiner devant un bloc bas",
+    "theme": "Finition",
+    "context": "Face à une équipe regroupée près de son but, choisir entre jouer à travers, contourner et conserver.",
+    "sources": [
+      "newcastle",
+      "bvb"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 32,
+    "length": 28,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 2,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Remise pour ouvrir le tir",
+        "rule": "Créer un angle de frappe avec un appui et un déplacement.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le passeur poursuit-il son déplacement et la remise arrive-t-elle dans sa course, hors de la ligne du défenseur ?"
+      },
+      {
+        "title": "Tir direct ouvert",
+        "rule": "Le porteur finit sans imposer la combinaison quand la ligne de tir est libre.",
+        "steps": 4,
+        "seconds": 6,
+        "observe": "Le passeur poursuit-il son déplacement et la remise arrive-t-elle dans sa course, hors de la ligne du défenseur ?"
+      },
+      {
+        "title": "Dernière passe",
+        "rule": "Le porteur fixe le défenseur et décale un partenaire hors de la ligne du tir.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "La dernière passe atteint un partenaire mieux placé avant que le gardien se rééquilibre."
+      }
+    ]
+  },
+  {
+    "id": "finish-opposition",
+    "title": "Finir avec un défenseur actif",
+    "theme": "Finition",
+    "context": "Une fenêtre de tir s’ouvre brièvement près de la surface et peut se refermer si le contrôle est inutilement long.",
+    "sources": [
+      "smallgames",
+      "technique",
+      "keepergoal"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 28,
+    "length": 30,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 3,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Finir sous pression",
+        "rule": "Lire le défenseur et le gardien avant le dernier contact.",
+        "steps": 7,
+        "seconds": 6,
+        "observe": "Le dernier contrôle ouvre-t-il la frappe ? Les soutiens occupent-ils des positions différentes pour la remise ou le ballon repoussé ?"
+      },
+      {
+        "title": "Frappe fermée",
+        "rule": "Remettre au soutien pour déplacer le défenseur puis finir.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "La remise crée un angle de frappe et ne ramène pas le ballon dans le duel."
+      },
+      {
+        "title": "Partenaire mieux placé",
+        "rule": "Décaler le partenaire de l’autre côté si le gardien s’engage sur le porteur.",
+        "steps": 5,
+        "seconds": 8,
+        "observe": "La dernière passe atteint un partenaire mieux placé avant que le gardien se rééquilibre."
+      }
+    ]
+  },
+  {
+    "id": "far-post",
+    "title": "Occuper la surface sur un centre",
+    "theme": "Finition",
+    "context": "Quand le côté opposé doit rejoindre la surface et que les milieux assurent une arrivée plus tardive.",
+    "sources": [
+      "cross",
+      "frontthree"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 40,
+    "length": 34,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Arrivée second poteau",
+        "rule": "Le joueur éloigné attaque le second poteau pendant le centre.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "Le joueur éloigné arrive-t-il au second poteau au moment du centre, sans y attendre immobile ?"
+      },
+      {
+        "title": "Premier poteau ouvert",
+        "rule": "Un attaquant démarre devant le défenseur pendant que l’autre garde une course complémentaire.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le receveur arrive devant le défenseur au moment du service, sans attendre au poteau."
+      },
+      {
+        "title": "Centre impossible",
+        "rule": "Conserver avec le soutien intérieur si le centreur est bloqué.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le retour conserve une possibilité de progresser à la passe suivante."
+      }
+    ]
+  },
+  {
+    "id": "finish-rebound",
+    "title": "Se rendre disponible sur le ballon repoussé",
+    "theme": "Finition",
+    "context": "Quand un tir, un centre ou un duel près du but provoque une seconde action et expose aussi au contre.",
+    "sources": [
+      "cross",
+      "spain"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 30,
+    "length": 28,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 3,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Préparer le second ballon",
+        "rule": "Un soutien reste derrière la frappe sans venir dans la même zone que le finisseur.",
+        "steps": 6,
+        "seconds": 8,
+        "observe": "Un partenaire est-il disponible derrière le finisseur, hors de l’alignement du tir, pour contrôler un ballon repoussé ?"
+      },
+      {
+        "title": "Tir bloqué",
+        "rule": "Le finisseur remet au soutien avant la frappe plutôt que forcer.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "La remise crée un angle de frappe et ne ramène pas le ballon dans le duel."
+      },
+      {
+        "title": "Frappe ouverte",
+        "rule": "Finir directement et garder le soutien prêt ; un rebond n’est jamais garanti.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Un partenaire est-il disponible derrière le finisseur, hors de l’alignement du tir, pour contrôler un ballon repoussé ?"
+      }
+    ]
+  },
+  {
+    "id": "press-goalkick",
+    "title": "Presser une relance depuis le fond",
+    "theme": "Pressing",
+    "context": "Organiser le pressing sur sortie de but sans transformer chaque première passe adverse en signal automatique.",
+    "sources": [
+      "spain",
+      "coordination",
+      "bvb"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 36,
+    "length": 40,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 6,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Fermer une première sortie",
+        "rule": "Déclencher ensemble sur la relance et couvrir la passe intérieure.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le soutien pressé garde-t-il une passe de retour au gardien ? Le presseur reste-t-il lié à sa couverture ?"
+      },
+      {
+        "title": "Retour au gardien",
+        "rule": "Accompagner le retour sans ouvrir l’autre sortie de la première ligne.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "Le rôle de premier défenseur change avec la circulation adverse."
+      },
+      {
+        "title": "Relance qui dépasse le pressing",
+        "rule": "Protéger l’axe et se reconnecter si le premier rideau est éliminé.",
+        "steps": 5,
+        "seconds": 9,
+        "observe": "La couverture protège la cible pendant que le joueur dépassé revient dans l’axe."
+      }
+    ]
+  },
+  {
+    "id": "press-cover-three",
+    "title": "Défendre à trois : pression, couverture, équilibre",
+    "theme": "Défense",
+    "context": "Quand une ligne de trois joueurs doit fermer la progression malgré une circulation rapide de l’adversaire.",
+    "sources": [
+      "coordination",
+      "zonal"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 28,
+    "length": 24,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Pression couverture équilibre",
+        "rule": "Le proche presse, le deuxième couvre, le troisième protège le côté faible.",
+        "steps": 5,
+        "seconds": 9,
+        "observe": "À la sortie du premier défenseur, le deuxième se place-t-il derrière et à l’intérieur ? Un troisième défenseur, s’il est présent, protège-t-il le côté opposé ?"
+      },
+      {
+        "title": "Ballon de l’autre côté",
+        "rule": "Redistribuer les trois rôles sur la passe adverse.",
+        "steps": 5,
+        "seconds": 8,
+        "observe": "Le rôle de premier défenseur change avec la circulation adverse."
+      },
+      {
+        "title": "Premier défenseur éliminé",
+        "rule": "La couverture ralentit pendant que le premier revient fermer l’intérieur.",
+        "steps": 5,
+        "seconds": 9,
+        "observe": "La couverture protège la cible pendant que le joueur dépassé revient dans l’axe."
+      }
+    ]
+  },
+  {
+    "id": "block-two-lines",
+    "title": "Relier les milieux et la dernière ligne",
+    "theme": "Défense",
+    "context": "Bloc médian ou bas qui cherche à protéger la zone devant sa défense tout en pouvant sortir sur le porteur.",
+    "sources": [
+      "central",
+      "zonal",
+      "uefa-analysis"
+    ],
+    "players": 12,
+    "keepers": 2,
+    "width": 40,
+    "length": 40,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 6,
+      "bibsRed": 6,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Deux lignes liées",
+        "rule": "Garder l’espace entre les lignes protégé pendant le déplacement du ballon.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "À la sortie du premier défenseur, le deuxième se place-t-il derrière et à l’intérieur ? Un troisième défenseur, s’il est présent, protège-t-il le côté opposé ?"
+      },
+      {
+        "title": "Circulation latérale",
+        "rule": "Coulisser les deux lignes ensemble, sans sortir un milieu trop loin du bloc.",
+        "steps": 5,
+        "seconds": 12,
+        "observe": "Le rôle de premier défenseur change avec la circulation adverse."
+      },
+      {
+        "title": "Réception entre les lignes",
+        "rule": "Le proche intervient, la ligne derrière protège la profondeur.",
+        "steps": 5,
+        "seconds": 14,
+        "observe": "La couverture protège la cible pendant que le joueur dépassé revient dans l’axe."
+      }
+    ]
+  },
+  {
+    "id": "defend-depth",
+    "title": "Protéger la profondeur sans reculer trop tôt",
+    "theme": "Défense",
+    "context": "Face à des attaquants qui menacent le dos d’une ligne haute ou utilisent un décrochage pour provoquer une sortie.",
+    "sources": [
+      "behind",
+      "zonal",
+      "bvb"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 32,
+    "length": 42,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 5,
+      "bibsRed": 5,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Voir passeur et appel",
+        "rule": "Ajuster la hauteur à la pression réelle sur le passeur.",
+        "steps": 4,
+        "seconds": 6,
+        "observe": "Le défenseur voit-il le ballon et la course, puis ajuste-t-il sa hauteur selon la pression réelle sur le passeur ?"
+      },
+      {
+        "title": "Passeur libre",
+        "rule": "Reculer en gardant ballon et appel dans le champ visuel.",
+        "steps": 4,
+        "seconds": 6,
+        "observe": "Le proche ralentit sans se jeter ; les autres reviennent entre le ballon et leur cible."
+      },
+      {
+        "title": "Passeur fermé",
+        "rule": "Avancer ensemble pendant le retour du ballon sans déclencher un hors-jeu artificiel.",
+        "steps": 5,
+        "seconds": 10,
+        "observe": "Le rôle de premier défenseur change avec la circulation adverse."
+      }
+    ]
+  },
+  {
+    "id": "defend-cross",
+    "title": "Défendre le centre et la zone de retrait",
+    "theme": "Défense",
+    "context": "Quand l’adversaire déborde et cherche une finition dans l’axe ou un joueur arrivant derrière la défense.",
+    "sources": [
+      "cross",
+      "keeperarea",
+      "uefa-analysis"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 40,
+    "length": 32,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Protéger l’intérieur",
+        "rule": "Un joueur freine le centre, les autres voient ballon et adversaires dans la surface.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le défenseur voit-il ballon et adversaire, protège-t-il l’intérieur et communique-t-il avec le gardien avant de suivre la course ?"
+      },
+      {
+        "title": "Centre en retrait",
+        "rule": "Le défenseur intérieur garde un angle pour fermer le retrait, sans tous reculer sur le gardien.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le défenseur voit-il ballon et adversaire, protège-t-il l’intérieur et communique-t-il avec le gardien avant de suivre la course ?"
+      },
+      {
+        "title": "Centreur bloqué",
+        "rule": "Accompagner le retour intérieur et ressortir de manière coordonnée.",
+        "steps": 5,
+        "seconds": 11,
+        "observe": "Le rôle de premier défenseur change avec la circulation adverse."
+      }
+    ]
+  },
+  {
+    "id": "defend-outnumbered",
+    "title": "Défendre en infériorité et gagner du temps",
+    "theme": "Défense",
+    "context": "Après une perte ou un dépassement du premier rideau, deux ou trois défenseurs doivent gérer plusieurs menaces.",
+    "sources": [
+      "coordination",
+      "zonal"
+    ],
+    "players": 7,
+    "keepers": 2,
+    "width": 26,
+    "length": 30,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 4,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 2
+    },
+    "variants": [
+      {
+        "title": "Temporiser en infériorité",
+        "rule": "Ralentir et protéger l’accès direct au but sans se jeter.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le plus proche reste-t-il entre ballon et cible ? Son partenaire, présent, couvre-t-il la passe intérieure plutôt que sortir sur le même porteur ?"
+      },
+      {
+        "title": "Porteur excentré",
+        "rule": "Orienter vers l’extérieur pendant que le second défenseur ferme la passe intérieure.",
+        "steps": 5,
+        "seconds": 8,
+        "observe": "Le rôle de premier défenseur change avec la circulation adverse."
+      },
+      {
+        "title": "Premier défenseur dépassé",
+        "rule": "La couverture temporise à son tour pendant le retour du partenaire.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "La couverture protège la cible pendant que le joueur dépassé revient dans l’axe."
+      }
+    ]
+  },
+  {
+    "id": "recovery-firstpass",
+    "title": "Sécuriser la première passe après récupération",
+    "theme": "Transitions",
+    "context": "Quand le ballon est récupéré dans une zone dense et que vouloir jouer vite vers l’avant exposerait à le reperdre.",
+    "sources": [
+      "smallgames",
+      "keepertransition",
+      "spain"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 30,
+    "length": 32,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Sortir par la première passe",
+        "rule": "À la récupération, trouver une solution utile hors de la pression proche.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le nouveau porteur identifie-t-il une solution devant et une solution de sécurité avant son premier choix ?"
+      },
+      {
+        "title": "Vers l’avant disponible",
+        "rule": "Le nouveau porteur sert un soutien haut et accompagne à une autre hauteur.",
+        "steps": 5,
+        "seconds": 9,
+        "observe": "Le nouveau porteur identifie-t-il une solution devant et une solution de sécurité avant son premier choix ?"
+      },
+      {
+        "title": "Vers l’avant fermé",
+        "rule": "Conserver avec une passe de sécurité avant de reconstruire.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "La première passe éloigne le ballon de la pression et laisse une deuxième solution."
+      }
+    ]
+  },
+  {
+    "id": "counter-wide",
+    "title": "Élargir la contre-attaque pour libérer l’axe",
+    "theme": "Transitions",
+    "context": "Après gain du ballon face à une équipe regroupée dans l’axe ou déséquilibrée sur un côté.",
+    "sources": [
+      "smallgames",
+      "frontthree",
+      "keepertransition"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 38,
+    "length": 36,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 5,
+      "bibsRed": 5,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Écarter la contre-attaque",
+        "rule": "Un appel large libère la progression du porteur dans l’axe.",
+        "steps": 5,
+        "seconds": 9,
+        "observe": "Le nouveau porteur identifie-t-il une solution devant et une solution de sécurité avant son premier choix ?"
+      },
+      {
+        "title": "Axe fermé",
+        "rule": "Servir l’appel large puis accompagner dans un couloir différent.",
+        "steps": 5,
+        "seconds": 11,
+        "observe": "Le nouveau porteur identifie-t-il une solution devant et une solution de sécurité avant son premier choix ?"
+      },
+      {
+        "title": "Retour adverse réussi",
+        "rule": "Freiner l’attaque et revenir au soutien pour conserver.",
+        "steps": 5,
+        "seconds": 11,
+        "observe": "Le retour conserve une possibilité de progresser à la passe suivante."
+      }
+    ]
+  },
+  {
+    "id": "secure-regain",
+    "title": "Récupérer puis choisir le bon rythme",
+    "theme": "Transitions",
+    "context": "Reprendre la maîtrise du ballon après un duel au milieu ou éviter un échange permanent de pertes successives.",
+    "sources": [
+      "peacock",
+      "spain"
+    ],
+    "players": 9,
+    "keepers": 2,
+    "width": 28,
+    "length": 26,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 1,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Reconnaître l’avantage",
+        "rule": "Après récupération, lire les solutions avant de choisir projection ou sécurité.",
+        "steps": 5,
+        "seconds": 8,
+        "observe": "Le nouveau porteur identifie-t-il une solution devant et une solution de sécurité avant son premier choix ?"
+      },
+      {
+        "title": "Sécurité d’abord",
+        "rule": "Trouver le soutien derrière le ballon quand les passes devant sont fermées.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "La première passe éloigne le ballon de la pression et laisse une deuxième solution."
+      },
+      {
+        "title": "Projection disponible",
+        "rule": "Servir le partenaire avancé puis soutenir sans vider la zone derrière.",
+        "steps": 5,
+        "seconds": 9,
+        "observe": "Le nouveau porteur identifie-t-il une solution devant et une solution de sécurité avant son premier choix ?"
+      }
+    ]
+  },
+  {
+    "id": "counterpress-escape",
+    "title": "Fermer les sorties juste après la perte",
+    "theme": "Transitions",
+    "context": "Après une perte pendant une combinaison courte, quand plusieurs joueurs sont encore assez proches pour intervenir ensemble.",
+    "sources": [
+      "spain",
+      "newcastle"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 24,
+    "length": 24,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Fermer les sorties proches",
+        "rule": "Après perte, le proche ralentit et les partenaires ferment les passes accessibles.",
+        "steps": 6,
+        "seconds": 7,
+        "observe": "Dès la perte, le proche ralentit-il le nouveau porteur pendant que ses partenaires ferment les passes proches ?"
+      },
+      {
+        "title": "Première sortie adverse réussie",
+        "rule": "Renoncer à une poursuite isolée et protéger l’intérieur en repli.",
+        "steps": 5,
+        "seconds": 8,
+        "observe": "Le proche ralentit sans se jeter ; les autres reviennent entre le ballon et leur cible."
+      },
+      {
+        "title": "Récupération obtenue",
+        "rule": "Sortir de la densité avec un soutien puis écarter.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "La première passe éloigne le ballon de la pression et laisse une deuxième solution."
+      }
+    ]
+  },
+  {
+    "id": "rest-defence",
+    "title": "Attaquer en préparant la perte",
+    "theme": "Transitions",
+    "context": "Quand beaucoup de joueurs participent à l’attaque et que l’adversaire conserve une menace de contre.",
+    "sources": [
+      "spain",
+      "bvb",
+      "uefa-analysis"
+    ],
+    "players": 12,
+    "keepers": 2,
+    "width": 40,
+    "length": 42,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 6,
+      "bibsRed": 6,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Équilibre derrière l’attaque",
+        "rule": "Deux soutiens protègent l’axe et la profondeur pendant l’action offensive.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "Pendant l’attaque, qui protège déjà l’axe et la profondeur derrière le ballon ?"
+      },
+      {
+        "title": "Perte pendant l’attaque",
+        "rule": "Le joueur de sécurité proche ralentit, l’autre garde la profondeur.",
+        "steps": 5,
+        "seconds": 12,
+        "observe": "Le proche ralentit sans se jeter ; les autres reviennent entre le ballon et leur cible."
+      },
+      {
+        "title": "Adversaire bloqué",
+        "rule": "Revenir à la base pour conserver l’équilibre et changer de côté.",
+        "steps": 4,
+        "seconds": 4,
+        "observe": "Le soutien bas reçoit avec le côté opposé dans son champ de vision."
+      }
+    ]
+  },
+  {
+    "id": "retreat-delay",
+    "title": "Ralentir le contre puis reformer le bloc",
+    "theme": "Transitions",
+    "context": "Après une perte avec trop peu de joueurs proches pour contre-presser et un adversaire orienté vers votre but.",
+    "sources": [
+      "spain",
+      "coordination",
+      "zonal"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 34,
+    "length": 40,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 5,
+      "bibsRed": 5,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Ralentir puis protéger",
+        "rule": "Le proche ralentit le contre, les autres reviennent côté intérieur.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le proche ralentit-il sans se faire éliminer pendant que ses partenaires protègent la profondeur ?"
+      },
+      {
+        "title": "Passe adverse latérale",
+        "rule": "Profiter du temps de passe pour resserrer l’axe et changer le joueur qui intervient.",
+        "steps": 5,
+        "seconds": 12,
+        "observe": "Le rôle de premier défenseur change avec la circulation adverse."
+      },
+      {
+        "title": "Repli réussi",
+        "rule": "Une fois le bloc reformé, retrouver pression et couverture sans se jeter.",
+        "steps": 5,
+        "seconds": 13,
+        "observe": "La couverture protège la cible pendant que le joueur dépassé revient dans l’axe."
+      }
+    ]
+  },
+  {
+    "id": "throw-progression",
+    "title": "Transformer la touche en progression",
+    "theme": "CPA",
+    "context": "Remise en jeu sous pression sur un côté, avec possibilité d’appui-remise et de troisième joueur.",
+    "sources": [
+      "support",
+      "peacock"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 26,
+    "length": 30,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Solution courte et soutien",
+        "rule": "Créer deux solutions accessibles dès la touche.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le receveur est-il visible avant la passe, de profil à la réception et relié à une solution suivante ?"
+      },
+      {
+        "title": "Court suivi",
+        "rule": "Utiliser la solution intérieure plus éloignée si la passe courte est fermée.",
+        "steps": 4,
+        "seconds": 7,
+        "observe": "Le porteur reconnaît le relais marqué et trouve un autre angle."
+      },
+      {
+        "title": "Retour au lanceur",
+        "rule": "Le lanceur entre après sa remise pour créer un nouveau soutien.",
+        "steps": 5,
+        "seconds": 11,
+        "observe": "Le soutien est visible avant la réception et se replace après sa remise."
+      }
+    ]
+  },
+  {
+    "id": "corner-secondball",
+    "title": "Gérer la seconde action après un corner",
+    "theme": "CPA",
+    "context": "Un corner ne se termine pas au premier contact : le danger change de zone et le contre devient possible.",
+    "sources": [
+      "corners",
+      "keeperarea",
+      "spain"
+    ],
+    "players": 12,
+    "keepers": 2,
+    "width": 40,
+    "length": 35,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 5,
+      "bibsRed": 5,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Préparer la zone de chute",
+        "rule": "Un soutien reste à la sortie de surface et un autre protège la transition.",
+        "steps": 7,
+        "seconds": 13,
+        "observe": "Les zones attaquées ou protégées sont-elles annoncées ? Qui couvre le second ballon quand les autres vont au premier ?"
+      },
+      {
+        "title": "Récupérer le dégagement",
+        "rule": "Le soutien contrôle le ballon dégagé puis trouve une solution hors pression.",
+        "steps": 6,
+        "seconds": 14,
+        "observe": "Les zones attaquées ou protégées sont-elles annoncées ? Qui couvre le second ballon quand les autres vont au premier ?"
+      },
+      {
+        "title": "Dégagement récupéré adverse",
+        "rule": "La sécurité ralentit pendant que les attaquants reviennent à l’intérieur.",
+        "steps": 4,
+        "seconds": 7,
+        "observe": "Les zones attaquées ou protégées sont-elles annoncées ? Qui couvre le second ballon quand les autres vont au premier ?"
+      }
+    ]
+  },
+  {
+    "id": "freekick-restart",
+    "title": "Repartir vite ou installer la relance sur coup franc",
+    "theme": "CPA",
+    "context": "Coup franc dans sa moitié ou au milieu, quand l’adversaire n’est pas encore organisé ou ferme la progression.",
+    "sources": [
+      "peacock",
+      "support"
+    ],
+    "players": 10,
+    "keepers": 2,
+    "width": 32,
+    "length": 36,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 5,
+      "bibsRed": 5,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Jouer quand c’est disponible",
+        "rule": "Reconnaître une relance courte autorisée et une option plus haute.",
+        "steps": 4,
+        "seconds": 5,
+        "observe": "Le receveur est-il visible avant la passe, de profil à la réception et relié à une solution suivante ?"
+      },
+      {
+        "title": "Option rapide fermée",
+        "rule": "Prendre le temps de replacer les soutiens avant de repartir court.",
+        "steps": 5,
+        "seconds": 9,
+        "observe": "Le soutien est visible avant la réception et se replace après sa remise."
+      },
+      {
+        "title": "Adversaire compact",
+        "rule": "Utiliser le soutien large au lieu d’imposer la passe dans le bloc.",
+        "steps": 5,
+        "seconds": 7,
+        "observe": "Le porteur reconnaît le relais marqué et trouve un autre angle."
+      }
+    ]
+  },
+  {
+    "id": "keeper-distribute",
+    "title": "Le gardien lance la transition",
+    "theme": "Gardiens",
+    "context": "Après arrêt, interception de centre ou passe en retrait reçue sous pression, lancer une attaque ou stabiliser la possession.",
+    "sources": [
+      "keepertransition",
+      "dittmer"
+    ],
+    "players": 8,
+    "keepers": 2,
+    "width": 34,
+    "length": 34,
+    "material": {
+      "balls": 2,
+      "activeBalls": 1,
+      "reserveBalls": 1,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 3,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Arrêt puis relance",
+        "rule": "Le gardien stabilise le ballon et repère un soutien libre.",
+        "steps": 5,
+        "seconds": 6,
+        "observe": "Le gardien repère-t-il la pression avant de donner ? Le soutien reçoit-il de profil avec une passe suivante possible ?"
+      },
+      {
+        "title": "Première sortie fermée",
+        "rule": "Le gardien conserve un temps d’observation puis sert le soutien opposé.",
+        "steps": 4,
+        "seconds": 6,
+        "observe": "Le gardien repère-t-il la pression avant de donner ? Le soutien reçoit-il de profil avec une passe suivante possible ?"
+      },
+      {
+        "title": "Soutien sous pression",
+        "rule": "Le receveur revient au gardien si nécessaire, puis offrir une nouvelle sortie.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le gardien repère-t-il la pression avant de donner ? Le soutien reçoit-il de profil avec une passe suivante possible ?"
+      }
+    ]
+  },
+  {
+    "id": "duel-renforts",
+    "title": "Attaquer et défendre · renforts progressifs",
+    "theme": "Transitions",
+    "context": "Après un duel ou une récupération, exploiter un renfort avant le retour adverse. Transposable à une transition dans tous les systèmes, sans imposer une combinaison.",
+    "sources": [
+      "reel-renforts"
+    ],
+    "players": 9,
+    "keepers": 2,
+    "width": 22,
+    "length": 28,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 4,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 3,
+      "bibsNeutral": 0,
+      "bibsKeeper": 2,
+      "goals": 1,
+      "miniGoals": 2,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Entrées annoncées",
+        "rule": "Un bleu puis un rouge rejoignent le duel au signal ; un seul ballon reste en jeu.",
+        "steps": 10,
+        "seconds": 19,
+        "observe": "Le porteur reconnaît-il son avantage ? À la perte, qui ralentit et qui protège ?"
+      },
+      {
+        "title": "Renfort côté libre",
+        "rule": "Le deuxième bleu entre large et donne un angle au porteur avant le retour rouge.",
+        "steps": 11,
+        "seconds": 17,
+        "observe": "Le porteur reconnaît-il son avantage ? À la perte, qui ralentit et qui protège ?"
+      },
+      {
+        "title": "Retour défensif intérieur",
+        "rule": "Le rouge entrant protège l’axe avant d’attaquer le ballon ; le bleu conserve un soutien.",
+        "steps": 11,
+        "seconds": 19,
+        "observe": "Le porteur reconnaît-il son avantage ? À la perte, qui ralentit et qui protège ?"
+      }
+    ]
+  },
+  {
+    "id": "rondo-expand",
+    "title": "Rondo évolutif · 5 contre 2 puis 8 contre 5",
+    "theme": "Transitions",
+    "context": "Sortir du contre-pressing adverse après une récupération ; principes transversaux, sans formation imposée.",
+    "sources": [
+      "coach-transitional-rondo"
+    ],
+    "players": 13,
+    "keepers": 2,
+    "width": 32,
+    "length": 32,
+    "material": {
+      "balls": 4,
+      "activeBalls": 1,
+      "reserveBalls": 3,
+      "discs": 8,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 8,
+      "bibsRed": 5,
+      "bibsNeutral": 0,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Sortir dès la récupération",
+        "rule": "Deux bleus récupèrent puis trouvent un extérieur ; le 8v5 occupe le grand carré.",
+        "steps": 6,
+        "seconds": 10,
+        "observe": "Dès l’interception, les huit bleus offrent des angles dans le grand carré et les cinq rouges défendent ; les extérieurs ne viennent pas tous au ballon."
+      },
+      {
+        "title": "Première sortie fermée",
+        "rule": "Le premier extérieur est pressé : conserver avec un soutien du côté opposé avant de ressortir.",
+        "steps": 6,
+        "seconds": 10,
+        "observe": "Dès l’interception, les huit bleus offrent des angles dans le grand carré et les cinq rouges défendent ; les extérieurs ne viennent pas tous au ballon."
+      },
+      {
+        "title": "Changer de côté après la sortie",
+        "rule": "Après la première passe extérieure, les huit bleus déplacent la pression vers le côté éloigné.",
+        "steps": 7,
+        "seconds": 11,
+        "observe": "Dès l’interception, les huit bleus offrent des angles dans le grand carré et les cinq rouges défendent ; les extérieurs ne viennent pas tous au ballon."
+      }
+    ]
+  },
+  {
+    "id": "possession-quadrants",
+    "title": "Quatre secteurs · 4 contre 4 et 3 appuis",
+    "theme": "Conservation",
+    "context": "Jouer entre les lignes avec une solution de remise et des partenaires à différentes hauteurs.",
+    "sources": [
+      "peacock"
+    ],
+    "players": 11,
+    "keepers": 2,
+    "width": 20,
+    "length": 20,
+    "material": {
+      "balls": 3,
+      "activeBalls": 1,
+      "reserveBalls": 2,
+      "discs": 12,
+      "cones": 0,
+      "circuitCones": 0,
+      "bibsBlue": 4,
+      "bibsRed": 4,
+      "bibsNeutral": 3,
+      "bibsKeeper": 0,
+      "goals": 0,
+      "miniGoals": 0,
+      "gates": 0
+    },
+    "variants": [
+      {
+        "title": "Passer par l’appui central",
+        "rule": "Connecter l’appui protégé puis le partenaire du quadrant suivant sans quitter son secteur.",
+        "steps": 6,
+        "seconds": 6,
+        "observe": "Le receveur change son angle dans son quadrant et conserve une passe de sécurité ; aucun joueur ne traverse une frontière pour réussir le circuit montré."
+      },
+      {
+        "title": "Contourner le centre",
+        "rule": "Si la passe axiale est fermée, relier un autre quadrant avant l’appui de bout.",
+        "steps": 5,
+        "seconds": 5,
+        "observe": "Le receveur change son angle dans son quadrant et conserve une passe de sécurité ; aucun joueur ne traverse une frontière pour réussir le circuit montré."
+      },
+      {
+        "title": "Revenir pour progresser",
+        "rule": "Revenir à l’appui de départ puis changer de quadrant pour déplacer la pression.",
+        "steps": 7,
+        "seconds": 8,
+        "observe": "Le receveur change son angle dans son quadrant et conserve une passe de sécurité ; aucun joueur ne traverse une frontière pour réussir le circuit montré."
+      }
+    ]
+  }
+]

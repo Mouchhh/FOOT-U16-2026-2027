@@ -32,7 +32,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   ['view-coach-agenda','Mon espace · agenda',[
    item('Vue d’ensemble de mon espace',at('agenda',0),()=>active('coach-agenda-mode')&&workspaceFlows.agenda.index()===0),
    item('Mon calendrier et mes séances',at('agenda',1),()=>active('coach-agenda-mode')&&workspaceFlows.agenda.index()===1),
-   item('Mes joueurs enregistrés',()=>openCoachSquad())
+   item('Mes joueurs enregistrés',()=>openCoachSquad()),
+   item('Préparer une autre semaine',()=>planningNextWeek()),
+   item('Brouillons & récupération',()=>workspaceOpenRecovery())
   ]],
   ['view-reports','Après-match · rapports',[
    ...Object.entries(reportTabNames).map(([id,label])=>item(label.replace(/^\d+\s*·\s*/,''),report(id),()=>active('reports-mode')&&reportTab===id)),

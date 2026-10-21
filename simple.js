@@ -36,7 +36,7 @@ function customSequenceValid(s){
 let simpleState=null,simpleSelected=null,simpleDrag=null;
 function simpleValid(s){return s&&(s.sequenceId===undefined||(typeof s.sequenceId==='string'&&s.sequenceId.length<=100))&&(s.sequenceTitle===undefined||(typeof s.sequenceTitle==='string'&&s.sequenceTitle.length<=100))&&(s.showOpponents===undefined||typeof s.showOpponents==='boolean')&&Object.hasOwn(simpleScenarios,s.scenario)&&simpleTokensValid(s.tokens)&&coords(s.ball)&&customSequenceValid(s)&&Number.isInteger(s.step)&&s.step>=0&&s.step<(s.scenario==='custom'?s.customSteps.length:3);}
 function coords(t){return t&&Number.isFinite(t.x)&&t.x>=5&&t.x<=95&&Number.isFinite(t.y)&&t.y>=6&&t.y<=93;}
-function saveSimple(){try{coachStorageSet('vestiaire-simple',JSON.stringify(simpleState));}catch{notify('Tableau non sauvegardé : stockage indisponible.');}}
+function saveSimple(){try{coachStorageSet('vestiaire-simple',JSON.stringify(simpleState));return true;}catch{notify('Tableau non sauvegardé : stockage indisponible.');return false;}}
 function loadSimple(scenario,step=0){
  if(scenario==='custom'){if(simpleState?.scenario==='custom')return customSelectStep(step);return createCustomSequence();}
  const showOpponents=simpleState?.showOpponents!==false;const s=simpleScenarios[scenario];simpleState={scenario,step,showOpponents,tokens:s.tokens.map(([label,x,y,side],i)=>({id:'s'+i,label,x,y,side})),ball:{x:s.ball[0],y:s.ball[1]}};

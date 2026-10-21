@@ -1,0 +1,18 @@
+// Exercise-by-exercise editorial and installation ledger, with all three demonstrations.
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const c=vm.createContext({console});
+for(const f of ['training-data.js','training-knowledge.js','bible-additional-exercises.js','training-adaptation.js','bible-exercise-designs.js','bible-variant-demonstrations.js','bible-diagrams.js','bible-circuit-animation.js','bible-animation.js','bible-coach-guide.js','bible-decision-guide.js'])vm.runInContext(fs.readFileSync(f,'utf8'),c);
+const rows=vm.runInContext(`trainingExercises.map(e=>{
+ const k=bibleExerciseKnowledge(e);if(!k.context||!k.objective||!k.sourceIds?.length||k.sourceIds.some(id=>!bibleSources[id]))throw Error(e.id+' missing knowledge/source');
+ let group;
+ for(const players of [e.target,14,13,11,8,10,6,24]){if(group)break;for(const keepers of [2,1,0]){if(keepers>players)continue;const p=biblePlan(e,{players,keepers,category:'U17',age:17,level:'developing',space:'full'},{organisation:'auto'});group=p.groups.find(g=>g.fits&&bibleAnimationPlan(e,g).available);if(group)break;}}
+ if(!group)throw Error(e.id+' no representative installation');
+ const scenario=bibleCoachScenario(e,group,0);for(const key of ['objective','context','placement','start','score','look','intervene','reset'])if(!scenario[key]?.trim())throw Error(e.id+' missing '+key);
+ const variants=[0,1,2].map(designIndex=>{const d=bibleExerciseDesign(e,designIndex),animation=bibleAnimationPlan(e,group,{designIndex}),teaching=bibleDesignCoaching(e,designIndex,scenario),guide=bibleDecisionGuide(e,group,{designIndex},animation);if(!animation.available||animation.initial.players.length!==group.players||!d.rule||!teaching.observation||!teaching.correction||!guide.trigger||!guide.spacing)throw Error(e.id+' variant '+designIndex);return {title:d.title,rule:d.rule,steps:animation.steps.length,seconds:Math.round(animation.duration),observe:teaching.observation};});
+ return {id:e.id,title:e.title,theme:e.theme,context:k.context,sources:k.sourceIds,players:group.players,keepers:group.keepers,width:group.width,length:group.length,material:group.material,variants};
+})`,c);
+assert.equal(rows.length,63);
+const lines=['# Audit de la bibliothèque · 21 octobre 2026','','Revue des 63 fiches et de leurs trois démonstrations. Chaque ligne décrit une installation représentative compatible ; le moteur recalcule les autres effectifs. Les sources restent des inspirations explicites, sans homologation fédérale.','','Contrôles complémentaires : 2 268 cas catégorie/niveau/effectif (6 669 ateliers), 6 504 animations compatibles et 14 846 passes pour les trajectoires ; 5 928 configurations des trois variantes pour les identités et la continuité.','','Une démonstration illustre une solution et un comportement adverse, elle ne simule pas toutes les décisions d’un match. Une vérification terrain par un éducateur reste nécessaire pour régler intensité, contacts et récupération.','','| Exercice | Thème | Installation représentative | Trois variantes |','|---|---|---|---|'];
+for(const r of rows)lines.push('| '+[r.title,r.theme,r.players+' joueurs · '+r.width+' × '+r.length+' m',r.variants.map(v=>v.title).join(' / ')].map(s=>s.replaceAll('|','/')).join(' | ')+' |');
+if(process.argv.includes('--write')){fs.writeFileSync('docs/bible-release-audit.json',JSON.stringify(rows,null,2)+'\n');fs.writeFileSync('docs/bible-release-audit.md',lines.join('\n')+'\n');}
+console.log('PASS full editorial ledger: '+rows.length+' exercises, '+rows.reduce((n,r)=>n+r.variants.length,0)+' demonstrations, sources/context/roles/material/coaching.');
