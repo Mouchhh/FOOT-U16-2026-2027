@@ -1,7 +1,8 @@
 # Navigation par menus déroulants
 
 Les six rubriques principales disposent d'un menu ouvrant directement leurs
-sous-parties. Cliquer sur le titre ouvre le menu sans changer le document ;
+sous-parties. Sur ordinateur, passer la souris sur le titre ouvre le menu sans changer le document ;
+sur écran tactile, le menu s’ouvre au toucher. Un clic reste possible au bureau ;
 choisir une entrée ouvre la sous-partie correspondante.
 
 - Accueil : tableau de bord, activité des éducateurs.
@@ -15,8 +16,9 @@ choisir une entrée ouvre la sous-partie correspondante.
 
 Les menus utilisent les gestionnaires, pages et formulaires existants. Aucun
 champ ni document n'est copié. Les anciens contrôles restent dans le DOM pour
-les raccourcis et les fonctions existantes ; les barres répétées de sous-onglets,
-les étapes et leurs pieds de page sont masqués dans cette nouvelle présentation.
+les raccourcis et les fonctions existantes ; les barres répétées de sous-onglets et les indicateurs d’étapes sont masqués.
+Les boutons Précédent/Suivant sont conservés pour parcourir les pages liées,
+y compris les actions de fin de parcours (enregistrer ou retour à l’accueil).
 Les sauvegardes et exports restent accessibles par leur rubrique et par les
 commandes dédiées existantes. Les vérifications d'accès au club sont conservées.
 
@@ -37,3 +39,11 @@ la pagination de la Bible ; sa préparation utilise les routes internes, tandis
 que les interactions des menus sont vérifiées par le test dédié.
 
 Aucun changement SQL ou de structure des documents enregistrés.
+
+Le survol utilise une fermeture différée de 250 ms et annule celle-ci lorsque
+la souris rejoint le panneau. Un clic après survol ne referme pas immédiatement
+le menu. Sur un appareil tactile, un second toucher referme le menu.
+
+`tests/workspace-hover-steps-browser.py` vérifie le survol sans clic, le passage
+dans l’espace entre bouton et panneau, la fermeture à la sortie, les six parcours
+Précédent/Suivant, les données conservées et un contexte mobile avec toucher réel.

@@ -1,7 +1,7 @@
 // Menus navigate through existing handlers; no forms, drafts or controls are copied.
 document.addEventListener('DOMContentLoaded',()=>{
  const nav=document.querySelector('.app-navigation');if(!nav||!window.workspaceFlows||!window.trainingWizard)return;
- const menus=new Map();let opened=null,routing=false,positionFrame=0;
+ const menus=new Map();let opened=null,routing=false,positionFrame=0,leaveTimer=0;
  const go=(parent,action)=>()=>{close();routing=true;try{$(parent).click();action?.();}finally{routing=false;}requestAnimationFrame(()=>{if(opened)return;window.scrollTo({top:0,behavior:'instant'});if(document.querySelector('dialog[open]'))return;const target=[...document.querySelectorAll('.training-step:not([hidden]) h2,#report-content h2,.flow-page:not([hidden]) h1,.flow-page:not([hidden]) h2,.flow-page:not([hidden]) h3')].find(e=>e.getClientRects().length);if(target){target.tabIndex=-1;target.focus({preventScroll:true});}});};
  const at=(name,index)=>()=>workspaceFlows[name].go(index);
  const training=index=>()=>{$('training-prepare-tab').click();trainingWizard.go(index);};
@@ -44,7 +44,10 @@ document.addEventListener('DOMContentLoaded',()=>{
    item('Mon compte & mon partage',at('club',2),()=>active('club-network-mode')&&workspaceFlows.club.index()===2)
   ]]
  ];
- function close(focus=false){if(!opened)return;const old=opened;old.panel.hidden=true;old.trigger.setAttribute('aria-expanded','false');opened=null;if(focus)old.trigger.focus({preventScroll:true});}
+ function cancelLeave(){clearTimeout(leaveTimer);leaveTimer=0;}
+ function hoverMouse(event){return event.pointerType==='mouse'&&matchMedia('(hover:hover) and (pointer:fine)').matches;}
+ function leave(menu){cancelLeave();leaveTimer=setTimeout(()=>{if(opened===menu&&!menu.trigger.matches(':hover')&&!menu.panel.matches(':hover'))close();},250);}
+ function close(focus=false){cancelLeave();if(!opened)return;const old=opened;old.panel.hidden=true;old.trigger.setAttribute('aria-expanded','false');opened=null;if(focus)old.trigger.focus({preventScroll:true});}
  function position(){if(!opened)return;const r=opened.trigger.getBoundingClientRect(),width=Math.min(340,innerWidth-24),left=Math.max(12,Math.min(innerWidth-width-12,r.left));if(r.bottom<=0||r.top>=innerHeight){close();return;}Object.assign(opened.panel.style,{left:left+'px',top:Math.min(r.bottom+8,innerHeight-80)+'px',width:width+'px',maxHeight:Math.max(60,innerHeight-r.bottom-20)+'px'});}
  function open(menu,focus=false,last=false){close();opened=menu;menu.panel.hidden=false;menu.trigger.setAttribute('aria-expanded','true');for(const [entry,button]of menu.entries){if(entry.current?.())button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');}position();if(focus){const items=menu.panel.querySelectorAll('[role=menuitem]');items[last?items.length-1:0]?.focus({preventScroll:true});}}
  for(const [parent,title,entries]of definitions){
@@ -53,7 +56,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   for(const entry of entries){const button=el('button','workspace-submenu-item',entry.label);button.type='button';button.setAttribute('role','menuitem');button.onclick=()=>{const isClub=parent==='view-club-network';go(parent,()=>{if(isClub&&!clubNetworkBound())return;entry.run();})();};panel.append(button);menu.entries.push([entry,button]);}
   // A real click opens the menu. Programmatic clicks remain the routing API used
   // by home shortcuts and existing workflows, so their original handlers run.
-  trigger.addEventListener('click',event=>{if(routing)return;if(!event.isTrusted){close();return;}event.preventDefault();event.stopImmediatePropagation();if(opened===menu)close();else open(menu,event.detail===0);},true);
+  trigger.addEventListener('pointerenter',event=>{if(hoverMouse(event))open(menu);});
+  trigger.addEventListener('pointerleave',event=>{if(hoverMouse(event))leave(menu);});
+  panel.addEventListener('pointerenter',event=>{if(hoverMouse(event))cancelLeave();});
+  panel.addEventListener('pointerleave',event=>{if(hoverMouse(event))leave(menu);});
+  trigger.addEventListener('click',event=>{if(routing)return;if(!event.isTrusted){close();return;}event.preventDefault();event.stopImmediatePropagation();if(opened===menu){if(event.detail===0||event.pointerType==='touch'||!matchMedia('(hover:hover) and (pointer:fine)').matches)close();}else open(menu,event.detail===0);},true);
   trigger.addEventListener('keydown',event=>{if(['ArrowDown','ArrowUp'].includes(event.key)){event.preventDefault();open(menu,true,event.key==='ArrowUp');}else if(event.key==='Escape'&&opened){event.preventDefault();event.stopPropagation();close(true);}});
   panel.addEventListener('keydown',event=>{const items=[...panel.querySelectorAll('[role=menuitem]')],index=items.indexOf(document.activeElement);let next;if(event.key==='ArrowDown')next=(index+1)%items.length;else if(event.key==='ArrowUp')next=(index+items.length-1)%items.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=items.length-1;else if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close(true);return;}else return;event.preventDefault();items[next].focus({preventScroll:true});});
   document.body.append(panel);
