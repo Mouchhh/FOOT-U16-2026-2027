@@ -1,5 +1,5 @@
 // Rendu indépendant de la page : dimensions fixes, photos incorporées, aucun découpage d’impression.
-let compositionCanvas=null,compositionRenderVersion=0,compositionObjectURL=null;
+let compositionCanvas=null,compositionRenderVersion=0,compositionObjectURL=null,compositionExportName='Composition';
 function compositionFit(ctx,text,max){let value=text;while(value.length>1&&ctx.measureText(value).width>max)value=value.slice(0,-1);return value===text?value:value.slice(0,-1)+'…';}
 async function compositionImages(snapshot){
  const sources=[snapshot.clubLogo,...snapshot.players.map(p=>p.photo)].filter(Boolean);const images=new Map();
@@ -18,15 +18,21 @@ function compositionPitch(ctx,rect,landscape,snapshot,images,options){
  const {x,y,w,h}=rect;ctx.fillStyle='#28513b';ctx.fillRect(x,y,w,h);
  for(let i=0;i<10;i++){ctx.fillStyle=i%2?'#305c43':'#2b553d';if(landscape)ctx.fillRect(x+i*w/10,y,w/10+.5,h);else ctx.fillRect(x,y+i*h/10,w,h/10+.5);}
  ctx.save();if(landscape){ctx.translate(x+w,y);ctx.rotate(Math.PI/2);ctx.scale(h/680,w/840);}else{ctx.translate(x,y);ctx.scale(w/680,h/840);}
+ if(options.lanes){
+  const labels=['Couloir latéral','Demi-espace','Couloir central','Demi-espace','Couloir latéral'];
+  for(let i=0;i<5;i++){const lx=24+i*632/5;ctx.fillStyle=i%2?'#163d5466':'#c8e0ff15';ctx.fillRect(lx,37,632/5,766);if(i){ctx.beginPath();ctx.setLineDash([8,8]);ctx.strokeStyle='#ffffff77';ctx.lineWidth=1;ctx.moveTo(lx,37);ctx.lineTo(lx,803);ctx.stroke();ctx.setLineDash([]);}
+   ctx.save();ctx.translate(lx+632/10,420);ctx.rotate(-Math.PI/2);ctx.fillStyle='#ffffffaa';ctx.font='bold 11px Arial';ctx.textAlign='center';ctx.fillText(labels[i],0,0);ctx.restore();}
+ }
  ctx.strokeStyle='#d3e5d2';ctx.fillStyle='#d3e5d2';ctx.lineWidth=1.8;
  document.querySelectorAll('#pitch>.markings>*').forEach(shape=>{const n=k=>Number(shape.getAttribute(k));ctx.beginPath();if(shape.tagName.toLowerCase()==='path'){ctx.stroke(new Path2D(shape.getAttribute('d')));return;}if(shape.tagName.toLowerCase()==='rect')ctx.rect(n('x'),n('y'),n('width'),n('height'));else ctx.arc(n('cx'),n('cy'),n('r'),0,Math.PI*2);if(shape.classList.contains('spot'))ctx.fill();else ctx.stroke();});ctx.restore();
  const xy=(px,py)=>landscape?[x+(100-py)*w/100,y+px*h/100]:[x+px*w/100,y+py*h/100];
  if(options.arrows)snapshot.arrows.forEach(([x1,y1,x2,y2])=>{const [ax,ay]=xy(x1,y1),[bx,by]=xy(x2,y2),a=Math.atan2(by-ay,bx-ax);ctx.strokeStyle='#ffe6a0';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.lineTo(bx-18*Math.cos(a-.5),by-18*Math.sin(a-.5));ctx.moveTo(bx,by);ctx.lineTo(bx-18*Math.cos(a+.5),by-18*Math.sin(a+.5));ctx.stroke();});
- const radius=Math.min(w,h)*.038;
+ const minimal=snapshot.boardKind==='plan',radius=Math.min(w,h)*(minimal?.025:.038);
  if(options.opponents&&snapshot.opponents)snapshot.opponents.players.forEach(p=>{const [px,py]=xy(p.x,p.y);compositionPortrait(ctx,p,px,py,radius*.7,images,snapshot.opponents.color);});
  const players=snapshot.players.filter(p=>p.role!=='sub');
  if(options.bench)snapshot.players.filter(p=>p.role==='sub').forEach((p,i)=>players.push({...p,x:p.benchX??92-Math.floor(i/7)*11,y:p.benchY??20+(i%7)*10,name:'I/F · '+p.name}));
- players.forEach(p=>{const [px,py]=xy(p.x,p.y),r=p.role==='sub'?radius*.75:radius;compositionPortrait(ctx,p,px,py,r,images,snapshot.color);
+ players.forEach(p=>{const [px,py]=xy(p.x,p.y),r=p.role==='sub'?radius*.75:radius;compositionPortrait(ctx,minimal?{...p,photo:''}:p,px,py,r,images,snapshot.color);
+ if(minimal)return;
  ctx.font='bold '+Math.round(r*.45)+'px Arial';ctx.textAlign='center';ctx.textBaseline='middle';const name=compositionFit(ctx,p.name,w*.22),tw=ctx.measureText(name).width,height=r*.67;
  const left=Math.max(x+6,Math.min(x+w-tw-34,px-tw/2-14)),top=Math.min(y+h-height-6,py+r+10);
  ctx.fillStyle='#102b20';ctx.fillRect(left,top,tw+28,height);ctx.fillStyle='#fff';ctx.fillText(name,left+(tw+28)/2,top+height/2);
@@ -37,11 +43,11 @@ async function renderCompositionExport(){
  $('composition-export-status').textContent='Préparation de l’aperçu…';
  try{
  const snapshot=structuredClone(state),format=$('composition-export-format').value;
- const options={bench:$('composition-export-bench').checked,opponents:$('composition-export-opponents').checked,arrows:$('composition-export-arrows').checked};
+ const options={lanes:$('composition-export-lanes').checked,bench:$('composition-export-bench').checked,opponents:$('composition-export-opponents').checked,arrows:$('composition-export-arrows').checked};
  const images=await compositionImages(snapshot);if(version!==compositionRenderVersion)return;
  const canvas=document.createElement('canvas');const portrait=format==='portrait';[canvas.width,canvas.height]=format==='slides'?[2560,1440]:portrait?[2480,3508]:[3508,2480];const {width:W,height:H}=canvas;const ctx=canvas.getContext('2d');
  compositionPitch(ctx,{x:0,y:0,w:W,h:H},!portrait,snapshot,images,options);
- compositionCanvas=canvas;if(compositionObjectURL)URL.revokeObjectURL(compositionObjectURL);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(version!==compositionRenderVersion)return;if(!blob)throw Error();compositionObjectURL=URL.createObjectURL(blob);$('composition-export-preview').src=compositionObjectURL;$('composition-export-status').textContent=W+' × '+H+' px · terrain seul · 1 page';
+ compositionCanvas=canvas;compositionExportName=snapshot.title||snapshot.team;if(compositionObjectURL)URL.revokeObjectURL(compositionObjectURL);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(version!==compositionRenderVersion)return;if(!blob)throw Error();compositionObjectURL=URL.createObjectURL(blob);$('composition-export-preview').src=compositionObjectURL;$('composition-export-status').textContent=W+' × '+H+' px · terrain seul · 1 page';
  for(const id of ['composition-export-png','composition-export-pdf'])$(id).disabled=false;
  }catch{$('composition-export-status').textContent='Impossible de préparer l’export. Réessayez après avoir vérifié les photos.';}
 }
@@ -54,8 +60,13 @@ async function compositionPDF(canvas){
  offsets[4]=length;add('4 0 obj\n<< /Type /XObject /Subtype /Image /Width '+canvas.width+' /Height '+canvas.height+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+image.length+' >>\nstream\n');add(image);add('\nendstream\nendobj\n');
  const stream='q\n'+w+' 0 0 '+h+' 0 0 cm\n/Im0 Do\nQ\n';object(5,'<< /Length '+enc.encode(stream).length+' >>\nstream\n'+stream+'endstream');const xref=length;add('xref\n0 6\n0000000000 65535 f \n');for(let i=1;i<=5;i++)add(String(offsets[i]).padStart(10,'0')+' 00000 n \n');add('trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF');return new Blob(parts,{type:'application/pdf'});
 }
-$('composition-export').onclick=()=>{if(state.boardKind==='plan'){$('composition-export-arrows').checked=true;$('composition-export-opponents').checked=!!state.opponents?.visible;$('composition-export-bench').checked=false;}$('composition-export-dialog').showModal();renderCompositionExport();};$('composition-export-close').onclick=()=>$('composition-export-dialog').close();
+$('composition-export').onclick=()=>{
+ $('composition-export-arrows').checked=state.arrows.length>0;
+ $('composition-export-opponents').checked=!!state.opponents?.visible;
+ $('composition-export-bench').checked=state.benchVisible!==false&&state.boardKind!=='plan';
+ $('composition-export-lanes').checked=state.lanes!==false;
+ $('composition-export-dialog').showModal();renderCompositionExport();};$('composition-export-close').onclick=()=>$('composition-export-dialog').close();
 $('pdf').onclick=()=>$('composition-export').click();
-for(const id of ['composition-export-format','composition-export-bench','composition-export-opponents','composition-export-arrows'])$(id).onchange=renderCompositionExport;
-$('composition-export-png').onclick=()=>{const canvas=compositionCanvas;if(canvas)canvas.toBlob(blob=>{if(blob)mediaDownload(blob,namedDocumentFilename((state.title||state.team)+'-HD','png'));},'image/png');};
-$('composition-export-pdf').onclick=async()=>{const canvas=compositionCanvas;if(!canvas)return;try{mediaDownload(await compositionPDF(canvas),namedDocumentFilename(state.title||state.team,'pdf'));}catch{notify('Impossible de créer le PDF. Essayez l’image PNG.');}};
+for(const id of ['composition-export-format','composition-export-bench','composition-export-opponents','composition-export-arrows','composition-export-lanes'])$(id).onchange=renderCompositionExport;
+$('composition-export-png').onclick=()=>{const canvas=compositionCanvas;if(canvas)canvas.toBlob(blob=>{if(blob)mediaDownload(blob,namedDocumentFilename(compositionExportName+'-HD','png'));},'image/png');};
+$('composition-export-pdf').onclick=async()=>{const canvas=compositionCanvas;if(!canvas)return;try{mediaDownload(await compositionPDF(canvas),namedDocumentFilename(compositionExportName,'pdf'));}catch{notify('Impossible de créer le PDF. Essayez l’image PNG.');}};

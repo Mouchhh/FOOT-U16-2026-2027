@@ -20,6 +20,10 @@ Menus au survol ou au toucher, clavier complet, étapes Précédent/Suivant et h
 
 Trois accès directs : prochaine séance enregistrée (y compris pendant son créneau), prochain match renseigné dans une composition et préparation à reprendre. Les dates suivent l’heure de Paris. Les autres raccourcis restent dans « Tous mes outils » ; photos et activité des éducateurs sont conservées. Voir la [checklist de l’accueil](docs/home-acceptance.md).
 
+## Terrain & tactique · étape 4
+
+Les exports reprennent les éléments visibles de chaque terrain, avec couloirs facultatifs et pions numérotés pour la vue épurée. Canva 16:9 et A4 restent sur une seule page, terrain seul. Historique, stabilité du terrain et utilisation de l’effectif vérifiés : [checklist terrain](docs/terrain-acceptance.md).
+
 ## Démarrer
 
 Depuis ce dépôt :
