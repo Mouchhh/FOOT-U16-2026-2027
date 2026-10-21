@@ -1065,7 +1065,7 @@ function bibleDesignedPlacement(exercise,group,field,tokens,index){
   if(index>0)for(const station of bibleCircuitStations(group,field)){const ids=tokens.filter(p=>p.number>station.offset&&p.number<=station.offset+station.players);ids.slice(0,3).forEach((p,i)=>{const anchors=index===1?[[.17,.7],[.48,.2],[.83,.66]]:[[.2,.73],[.76,.65],[.5,.18]],a=anchors[i];Object.assign(p,{x:station.x+station.w*a[0],y:station.y+station.h*a[1]});p.long=(p.x-fx)/scale;p.wide=(p.y-fy)/scale;});}return;
  }
  if(template==='rondo'){
-  if(index>0){blue.forEach((p,i)=>{const angle=-Math.PI/2+i*2*Math.PI/blue.length+(index===2?.16:0);set(p,.5+.39*Math.cos(angle),.5+.38*Math.sin(angle),'Soutien extérieur');});red.forEach((p,i)=>set(p,.43+(i%2)*.13,.27+(i+1)*.46/(red.length+1),'Fermer une ligne de passe'));}return;
+  blue.forEach((p,i)=>{const angle=-Math.PI/2+i*2*Math.PI/blue.length+(index===2?.16:0);set(p,.5+.39*Math.cos(angle),.5+.38*Math.sin(angle),'Soutien extérieur');});red.forEach((p,i)=>set(p,.43+(i%2)*.13,.27+(i+1)*.46/(red.length+1),'Fermer une ligne de passe'));return;
  }
  if(m==='reinforcements'){
   if(index===0&&exercise.id==='far-post')set(blue[1],.64,.78,'Arrivée tardive au second poteau');

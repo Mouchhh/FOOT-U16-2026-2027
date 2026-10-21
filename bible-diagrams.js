@@ -346,6 +346,7 @@ function bibleDiagramSVG(exercise,group,options={}){
  tokens.forEach(t=>{
   const r=playerRadius,kit=t.keeper&&!t.fieldKeeper?'keeper':t.team==='red'?'red':t.team==='neutral'?'neutral':'blue',color={blue:'#246fce',red:'#db3c4c',neutral:'#f5f8ff',keeper:'#edc13f'}[kit],light=kit==='neutral'||kit==='keeper',textColor=light?'#173455':'#fff';
   const player=make('g',{'class':'exercise-player bible-player','data-renderer':'numbered-token','data-team':t.team,'data-keeper':String(t.keeper),'data-rotation':String(t.rotation),'data-number':t.number,transform:'translate('+t.x+' '+t.y+')'});
+  player.append(make('title',{},(t.keeper?'Gardien ':t.team==='red'?'Rouge ':t.team==='neutral'?'Appui ':'Bleu ')+t.number+(t.role?' · '+t.role:'')));
   player.append(make('ellipse',{'data-feature':'player-shadow',cx:r*.16,cy:r*.74,rx:r*.84,ry:r*.38,fill:'#17381e',opacity:.26}));
   const model=make('g',{'class':'bible-player-model'});
   if(Number(teams.red||0)>0){

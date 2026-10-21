@@ -236,3 +236,19 @@
 @media print{.bible-design-controls{display:block}.bible-design-label select{border:0}.bible-design-rule{display:block}}
 
 .training-diagram-screen .bible-design-title{display:none}
+
+/* Second reading stays closed until requested; it does not reduce the pitch. */
+.bible-decision-reading{border-top:1px solid #e2eaf3;margin:10px 0;padding-top:10px}
+.bible-decision-reading>summary{cursor:pointer;font-size:12px;font-weight:650;color:#31567f;list-style-position:inside}
+.bible-decision-reading p{font-size:12px!important;line-height:1.65!important;color:#49627d;margin:9px 0!important;max-width:78ch}
+.bible-decision-reading strong{color:#24466d}
+.bible-decision-prompt{border:1px solid #e8d7ad;background:#fff9e9;border-radius:10px;padding:11px 13px;color:#66512d!important;font-size:12px!important;line-height:1.6!important}
+.bible-decision-prompt[hidden]{display:none}
+@media(prefers-reduced-motion:no-preference){.bible-decision-reading[open] p{animation:bibleReadingAppear .18s ease-out}@keyframes bibleReadingAppear{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}}
+
+.bible-role-choices{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}.bible-role-choices[hidden],.bible-placement-reading[hidden]{display:none}
+.bible-role-choices button{border:1px solid #d2e1f4;border-radius:999px;background:#eef5ff;color:#24569a;padding:5px 9px;font-size:11px;cursor:pointer}
+.bible-role-choices button[data-team=red]{color:#9e3042;background:#fff1f3;border-color:#f1d5dc}
+.bible-role-choices button[aria-pressed=true]{outline:2px solid #ba8b33;outline-offset:1px}
+.bible-placement-reading{font-size:11px!important;color:#526a85!important;line-height:1.6!important;margin:7px 0!important}
+@media print{.bible-decision-reading,.bible-role-choices,.bible-placement-reading,.bible-decision-prompt{display:none!important}}
