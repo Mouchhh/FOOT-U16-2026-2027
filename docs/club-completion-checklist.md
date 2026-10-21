@@ -1,5 +1,9 @@
 # Finalisation des parcours du club
 
+Le tableau ci-dessous décrit le premier lot de consolidation. Pour la séquence
+de finalisation suivante, étapes 1 à 8 validées avec le coach, consulter le
+[relevé transversal et ses huit recettes](site-acceptance.md).
+
 Travail réalisé rubrique par rubrique, sans supprimer les menus déroulants, le
 survol, les étapes liées ni les données existantes. Les critères sont vérifiés
 avant de passer à la rubrique suivante ; une réussite technique ne remplace pas

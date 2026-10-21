@@ -36,6 +36,10 @@ Le nouveau rapport reprend les informations de la préparation du match. Le bila
 
 Recherche par nom de document, combinable avec éducateur, type, catégorie, thème et date. Les cartes des éducateurs relancent correctement la recherche détaillée, dont l’avancement reste explicite. Consultation, copie et séparation des brouillons sont conservées ; le cache de recherche est vidé à la déconnexion. Voir la [recette Travail du club](docs/club-work-acceptance.md).
 
+## Recette transversale · étape 8
+
+Menus, étapes liées, historique et conservation des préparations vérifiés entre les rubriques, sur ordinateur, tablette et téléphone dans Chromium. La recherche par nom du club est désormais mémorisée et reçoit le focus dès l’ouverture. Le [relevé transversal](docs/site-acceptance.md) regroupe les huit recettes et leurs limites.
+
 ## Démarrer
 
 Depuis ce dépôt :
