@@ -70,7 +70,7 @@ const excessiveGroups=plan(exercise,{players:5,keepers:1},{groups:40});assert.eq
 const immutableSession={...base},immutableOptions={groups:2},before=JSON.stringify([exercise,immutableSession,immutableOptions]);context.biblePlan(exercise,immutableSession,immutableOptions);assert.equal(JSON.stringify([exercise,immutableSession,immutableOptions]),before,'Le calcul ne modifie pas le groupe ou le brouillon du coach');
 // Le choix du coach prime sur la proposition de diviser le groupe.
 const single=plan(exercise,{players:16,keepers:2,space:'full'},{organisation:'single',groups:4});
-audit(single,16,2);assert.equal(single.groups.length,1,'Un jeu unique ne sépare pas les présents en ateliers');assert.equal(single.fits,true,'Le maximum de la fiche reste un repère, pas une interdiction du jeu unique');assert.ok(single.warnings.some(w=>w.includes('repère conseillé')));
+audit(single,16,2);assert.equal(single.groups.length,1,'Un jeu unique ne sépare pas les présents en ateliers');assert.equal(single.fits,false,'Le jeu unique ne peut pas déclarer compatible un groupe qui dépasse les rôles du format');assert.ok(single.warnings.some(w=>w.includes('dépasse le format')));
 const singleSmall=plan(exercise,{players:16,keepers:2,spaceWidth:8,spaceLength:8},{organisation:'single'});
 assert.equal(singleSmall.groups.length,1);assert.equal(singleSmall.fits,false,'Le moteur avertit du manque d’espace sans diviser le groupe en secret');assert.ok(singleSmall.warnings.some(w=>w.includes('Installation impossible')));
 assert.equal(plan(exercise,{players:2,keepers:0},{organisation:'single'}).fits,false,'Un jeu unique ne supprime pas les besoins minimums de l’exercice');

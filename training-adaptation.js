@@ -159,8 +159,8 @@ function biblePlan(exercise,session={},options={}){
  const knowledge=bibleExerciseKnowledge(exercise),format=bibleFormat(exercise,knowledge,session),template=knowledge.template||'possession',learning=bibleExerciseLearning(exercise,session);
  const players=bibleInteger(session.players,8,2,80),keepers=bibleInteger(session.keepers,0,0,Math.min(12,players));
  const available=bibleAvailable(session),warnings=[];
- // Les anciennes fiches conservent leur répartition. Le coach peut désormais garder
- // tout le groupe dans un seul jeu, même au-delà du repère d'effectif de la fiche.
+ // Le jeu unique ne divise jamais le groupe automatiquement ; il reste soumis
+ // aux rôles et aux limites du format avant d’être déclaré compatible.
  const organisation=['single','auto','stations'].includes(options.organisation)?options.organisation:'auto';
  const requestedGroups=organisation==='single'?1:options.organisation==='auto'?null:Number.isInteger(options.groups)?options.groups:organisation==='stations'?1:null;
  const maxGroups=Math.min(40,Math.floor(players/2));
@@ -178,7 +178,7 @@ function biblePlan(exercise,session={},options={}){
    const keeperPresent=!format.requiresKeeper||rolePlan.activeKeepers+rolePlan.fieldKeepers>0;
    const appuiPresent=format.neutrals===0||rolePlan.teams.neutral>0;
    const superiority=!format.attackAdvantage||rolePlan.teams.blue>rolePlan.teams.red,actors=bibleActors(format,rolePlan,template);
-   return {...group,...rolePlan,...dims,...actors,index:i+1,template,format,learning,pedagogyFits:group.players>=format.min&&((organisation==='single'&&!['wall-pass','rondo-expand','possession-quadrants'].includes(exercise.id))||group.players<=format.max)&&opposition&&keeperPresent&&appuiPresent&&superiority&&actors.actorsFit};
+   return {...group,...rolePlan,...dims,...actors,index:i+1,template,format,learning,pedagogyFits:group.players>=format.min&&group.players<=format.max&&opposition&&keeperPresent&&appuiPresent&&superiority&&actors.actorsFit};
   });
   const layout=bibleLayout(groups,available,true);
   const sizePenalty=groups.reduce((sum,g)=>sum+Math.abs(g.players-format.ideal)/format.ideal,0)/count;
@@ -208,7 +208,7 @@ function biblePlan(exercise,session={},options={}){
  });
  if(requestedGroups!==null&&requestedGroups!==groups.length)warnings.push('Le nombre d’ateliers demandé ne permet pas au moins deux joueurs par atelier : proposition limitée à '+groups.length+'.');
  if(groups.some(g=>g.players<format.min))warnings.push('Effectif par atelier inférieur au format conseillé ('+format.min+' à '+format.max+' joueurs) : choisir une autre fiche ou modifier le nombre d’ateliers.');
- if(groups.some(g=>g.players>format.max))warnings.push(organisation==='single'?'Le jeu unique dépasse le repère conseillé de '+format.max+' joueurs pour cette fiche. Vérifier le nombre de contacts avec le ballon et la lisibilité des rôles ; ajuster l’espace ou choisir un autre format si nécessaire.':'Effectif par atelier hors du format conseillé ('+format.min+' à '+format.max+' joueurs) : choisir une autre fiche ou modifier le nombre d’ateliers.');
+ if(groups.some(g=>g.players>format.max))warnings.push(organisation==='single'?'Le jeu unique dépasse le format de '+format.max+' joueurs de cette fiche. Agrandir le terrain ne suffit pas à préserver les rôles et les répétitions : choisir des ateliers, une rotation explicite ou une autre situation.':'Effectif par atelier hors du format conseillé ('+format.min+' à '+format.max+' joueurs) : choisir une autre fiche ou modifier le nombre d’ateliers.');
  if(organisation==='stations'&&!Number.isInteger(options.groups))warnings.push('Nombre d’ateliers non renseigné : un atelier proposé. Choisir le nombre d’ateliers simultanés pour organiser le groupe.');
  if(format.requiresKeeper&&groups.some(g=>g.activeKeepers+g.fieldKeepers===0))warnings.push('Cet exercice nécessite un gardien dans chaque atelier. Réduire les ateliers simultanés ou choisir une autre fiche de relance si aucun gardien n’est présent.');
  if(format.neutrals>0&&groups.some(g=>g.teams.neutral===0))warnings.push('L’effectif de champ ne permet pas de conserver l’appui nécessaire à l’objectif : regrouper les ateliers ou sélectionner une autre fiche.');
@@ -224,6 +224,24 @@ function biblePlan(exercise,session={},options={}){
  const totalMaterial={};groups.forEach(g=>{for(const [key,value] of Object.entries(g.material))if(Number.isFinite(value))totalMaterial[key]=(totalMaterial[key]||0)+value;});
  const oppositionFits=template==='circuit'||format.opposition==='none'||groups.every(g=>g.teams.blue>0&&g.teams.red>0);
  return {groups,footprint:layout.footprint,available,fits:layout.fits&&oppositionFits&&groups.every(g=>g.fits),surfaceFits:layout.fits,pedagogyFits:oppositionFits&&groups.every(g=>g.pedagogyFits),warnings,totalMaterial,totalPlayers:players,totalKeepers:keepers,organisation,knowledge,format,template,alternative:layout.fits?'':'Installer moins d’ateliers simultanés et organiser des rotations actives, ou choisir une fiche demandant moins de surface.'};
+}
+// Explicit alternatives: never change the coach's current sequence automatically.
+function bibleAdaptationAlternatives(exercise,session={}){
+ const choices=[],automatic=biblePlan(exercise,session,{organisation:'auto'});
+ if(automatic.fits)choices.push({kind:'stations',label:automatic.groups.length===1?'Tous les présents sur un terrain':automatic.groups.length+' ateliers équilibrés',session:{...session},plan:automatic,settings:{players:session.players,keepers:session.keepers,organisation:'auto',groups:automatic.groups.length,width:Math.max(...automatic.groups.map(g=>g.width)),length:Math.max(...automatic.groups.map(g=>g.length))}});
+ const format=bibleFormat(exercise,bibleExerciseKnowledge(exercise),session);
+ // Keep at least two field players, count every absent actor explicitly, and test
+ // every candidate rather than assuming that fewer players always means it fits.
+ for(let players=Math.min(format.max,session.players-1);players>=format.min;players--){
+  const keepers=Math.max(players-(session.players-session.keepers),Math.min(session.keepers,format.requiresKeeper?1:format.keeperMode==='single'?1:2));
+  if(keepers>Math.min(session.keepers,players-2))continue;
+  const effective={...session,players,keepers},plan=biblePlan(exercise,effective,{organisation:'single'});
+  if(!plan.fits)continue;const g=plan.groups[0];choices.push({kind:'rotation',label:players+' actifs · '+(session.players-players)+' en rotation',session:effective,plan,settings:{players,keepers,organisation:'single',groups:1,width:g.width,length:g.length}});break;
+ }
+ return choices;
+}
+function bibleCompatibleExercises(exercise,session={},limit=3){
+ return trainingExercises.filter(e=>e.id!==exercise.id&&e.theme===exercise.theme).map(e=>({exercise:e,plan:biblePlan(e,session,{organisation:'auto'})})).filter(item=>item.plan.fits).slice(0,limit);
 }
 // Une séquence peut employer une partie du groupe sans inventer des partenaires ni
 // transformer les gardiens écartés en joueurs de champ. Les dimensions ci-dessous
@@ -286,5 +304,6 @@ function bibleTimeline(exercise,minutes,session={},options={}){
   const intervals=['warm','cool'].includes(exercise.id)?[{workSeconds,restSeconds:0}]:bibleSequenceIntervals(workSeconds,learning.profile);
   const sequence={index:i+1,title:source.title||'Séquence '+(i+1),rule:(source.rule||'')+' '+learning.profile.focus,observe:source.observe||'',workSeconds,restSeconds,intervals,startSeconds:elapsed,endSeconds:elapsed+workSeconds};elapsed+=workSeconds+restSeconds;return sequence;
  });
- return {sequences,totalSeconds,workSeconds:availableWork,restSeconds:rest*(count-1),totalWorkSeconds:availableWork,totalRestSeconds:rest*(count-1),warnings,requested:{sequences:requestedCount,workSeconds:options.workSeconds,restSeconds:options.restSeconds}};
+ const actualWork=sequences.reduce((n,s)=>n+s.intervals.reduce((m,i)=>m+i.workSeconds,0),0),internalRest=sequences.reduce((n,s)=>n+s.intervals.reduce((m,i)=>m+i.restSeconds,0),0);
+ return {sequences,totalSeconds,workSeconds:availableWork,restSeconds:rest*(count-1),internalRestSeconds:internalRest,totalWorkSeconds:actualWork,totalRestSeconds:rest*(count-1)+internalRest,warnings,requested:{sequences:requestedCount,workSeconds:options.workSeconds,restSeconds:options.restSeconds}};
 }

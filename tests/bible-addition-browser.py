@@ -4,7 +4,7 @@ with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1366,'height':768});errors=[]
  page.on('pageerror',lambda e:errors.append(str(e)))
  page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("typeof addBibleExercise==='function'")
- page.evaluate("document.querySelector('#view-training').click();Object.assign(currentTraining,{category:'U17',players:10,keepers:0,space:'full',level:'discovery'});syncTrainingForm();trainingWizard.openCatalogue();renderBibleCatalogue()")
+ page.evaluate("document.querySelector('#view-training').click();Object.assign(currentTraining,{category:'U17',players:6,keepers:0,space:'full',level:'discovery'});syncTrainingForm();trainingWizard.openCatalogue();renderBibleCatalogue()")
  assert 'U17' in page.locator('#bible-group-context').inner_text()
  assert 'Découverte' in page.locator('#bible-group-context').inner_text()
  result=page.evaluate('''()=>{

@@ -40,6 +40,10 @@ Recherche par nom de document, combinable avec éducateur, type, catégorie, th�
 
 Menus, étapes liées, historique et conservation des préparations vérifiés entre les rubriques, sur ordinateur, tablette et téléphone dans Chromium. La recherche par nom du club est désormais mémorisée et reçoit le focus dès l’ouverture. Le [relevé transversal](docs/site-acceptance.md) regroupe les huit recettes et leurs limites.
 
+## Adaptations des exercices · étape 9
+
+Le jeu unique respecte les rôles et le format de la fiche. En cas d’incompatibilité, le coach choisit des ateliers, un groupe actif avec rotations explicites ou un autre exercice du même thème. Les récupérations intermédiaires sont comptées dans le budget réel. Voir la [recette et le protocole terrain](docs/exercise-adaptation-acceptance.md) et la [suite validée des étapes 9 à 18](docs/finalisation-9-18.md).
+
 ## Démarrer
 
 Depuis ce dépôt :
