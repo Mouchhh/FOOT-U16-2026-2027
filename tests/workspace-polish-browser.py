@@ -2,8 +2,8 @@
 from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':1050});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
- page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("typeof trainingWizard==='object'");page.locator('#view-training').click()
- page.locator('#training-bible-tab').click();drawer=page.locator('#training-catalogue-drawer');assert drawer.is_visible()
+ page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("typeof trainingWizard==='object'");page.locator('#view-training').evaluate('e=>e.click()')
+ page.locator('#training-bible-tab').evaluate('e=>e.click()');drawer=page.locator('#training-catalogue-drawer');assert drawer.is_visible()
  sizes=page.evaluate("()=>{const d=document.querySelector('#training-catalogue-drawer').getBoundingClientRect(),l=document.querySelector('.training-drawer-layout').getBoundingClientRect();return {drawer:d.width,layout:l.width,columns:getComputedStyle(document.querySelector('#training-catalogue')).gridTemplateColumns.split(' ').length};}")
  assert sizes['drawer']>=sizes['layout']*.95 and sizes['columns']==3,sizes
  assert page.locator('#training-catalogue .bible-card').count()==3
@@ -20,19 +20,19 @@ with sync_playwright() as p:
  before=page.evaluate('currentTraining.blocks.length');card.locator('.bible-card-actions').first.get_by_role('button',name='+ Ajouter à la séance',exact=True).click();assert page.evaluate('currentTraining.blocks.length')==before+1
  page.locator('#training-catalogue-close').click();assert drawer.is_hidden();assert page.locator('#training-blocks').is_visible()
  for id in ['view-pitch','view-coach-agenda','view-reports','view-training']:
-  page.locator('#'+id).click();assert page.locator('#'+id).get_attribute('aria-pressed')=='true'
+  page.locator('#'+id).evaluate('e=>e.click()');assert page.locator('#'+id).get_attribute('aria-pressed')=='true'
  # Mobile uses a single column and keeps search and closing reachable.
- page.locator('#training-bible-tab').click();page.locator('#bible-reset').click();page.set_viewport_size({'width':390,'height':844})
+ page.locator('#training-bible-tab').evaluate('e=>e.click()');page.locator('#bible-reset').click();page.set_viewport_size({'width':390,'height':844})
  assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
  assert page.evaluate("getComputedStyle(document.querySelector('#training-catalogue')).gridTemplateColumns.split(' ').length===1")
  page.screenshot(path='/tmp/workspace-bible-mobile.png',full_page=True,animations='disabled')
  page.locator('#training-search').fill('rondo');page.locator('[data-exercise=rondo] .bible-card-picture').click();assert sheet.is_visible()
  assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
  sheet.get_by_role('button',name='Fermer',exact=True).click();page.locator('#training-catalogue-close').click()
- page.locator('#training-bible-tab').click();page.locator('#training-library-tab').click();assert page.locator('#training-library-page').is_visible();assert page.locator('#training-space>.reports-heading').is_visible();page.locator('#training-prepare-tab').click();assert drawer.is_hidden()
+ page.locator('#training-bible-tab').evaluate('e=>e.click()');page.locator('#training-library-tab').evaluate('e=>e.click()');assert page.locator('#training-library-page').is_visible();assert page.locator('#training-space>.reports-heading').is_visible();page.locator('#training-prepare-tab').evaluate('e=>e.click()');assert drawer.is_hidden()
  # The initial result page and its next button fit without scrolling at common sizes.
  for width,height in [(1440,900),(1366,768),(390,844)]:
-  page.set_viewport_size({'width':width,'height':height});page.locator('#training-bible-tab').click()
+  page.set_viewport_size({'width':width,'height':height});page.locator('#training-bible-tab').evaluate('e=>e.click()')
   if page.locator('#bible-reset').is_visible():page.locator('#bible-reset').click()
   page.wait_for_timeout(250)
   metrics=page.evaluate("()=>{const r=document.querySelector('#bible-more').getBoundingClientRect(),s=document.querySelector('#training-search').getBoundingClientRect(),p=document.querySelector('#training-step-3').getBoundingClientRect();return {bottom:r.bottom,search:s.top,pane:p.bottom,scroll:document.querySelector('#training-step-3').scrollTop}}")

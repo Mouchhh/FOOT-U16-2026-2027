@@ -1,0 +1,16 @@
+.workspace-menu-trigger{display:inline-flex!important;align-items:center;justify-content:center;gap:9px;white-space:nowrap}
+.workspace-menu-chevron{width:6px;height:6px;display:inline-block;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-2px) rotate(45deg);opacity:.65;flex-shrink:0}
+.workspace-menu-trigger[aria-expanded=true]{background:#e7effc!important;color:#2855a2!important}
+.workspace-menu-trigger[aria-expanded=true] .workspace-menu-chevron{transform:translateY(2px) rotate(225deg)}
+.workspace-submenu{position:fixed;z-index:600;overflow-y:auto;overscroll-behavior:contain;padding:8px;background:#fff;border:1px solid #dce5f0;border-radius:15px;box-shadow:0 16px 48px #19385626;scrollbar-width:thin}
+.workspace-submenu[hidden]{display:none!important}
+.workspace-submenu-heading{font-size:10px;text-transform:uppercase;letter-spacing:.65px;font-weight:700;color:#8a9ab0;padding:9px 11px 11px}
+.workspace-submenu-item{display:block;width:100%;text-align:left;border:0;border-radius:9px;background:white;padding:12px 11px;font:inherit;font-size:12px;font-weight:550;line-height:1.45;color:#365577;cursor:pointer}
+.workspace-submenu-item:hover,.workspace-submenu-item:focus-visible{background:#f0f5fd;color:#234f94;outline:none}
+.workspace-submenu-item[aria-current=page]{background:#edf3ff;color:#234f94;font-weight:700}
+.workspace-submenu-item:focus-visible{box-shadow:inset 0 0 0 2px #8daee1}
+.dropdown-navigation .flow-progress,.dropdown-navigation .training-progress,.dropdown-navigation .training-workspace-tabs,.dropdown-navigation #report-tabs,.dropdown-navigation .mode-switch,.dropdown-navigation .flow-footer,.dropdown-navigation .training-step-footer,.dropdown-navigation .report-flow>.report-footer{display:none!important}
+.dropdown-navigation .training-step-heading>.eyebrow{display:none}
+@media(prefers-reduced-motion:no-preference){.workspace-submenu:not([hidden]){animation:submenuEnter .13s ease-out}@keyframes submenuEnter{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}}
+@media(max-width:650px){.workspace-submenu-item{min-height:43px;font-size:13px}.workspace-menu-trigger{gap:7px}}
+@media print{.workspace-submenu,.workspace-menu-chevron{display:none!important}}
