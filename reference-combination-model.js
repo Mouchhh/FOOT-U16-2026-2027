@@ -6,7 +6,7 @@ function createReferenceCombination(options={}){
  const count=Math.round(Number(options.players)||6);if(count<3||count>8)throw Error('Ce modèle demande 3 à 8 joueurs par atelier.');
  const width=Number(options.width)||24,length=Number(options.length)||32;
  if(width<20||width>105||length<28||length>120)throw Error('Choisir au moins 20 m de largeur et 28 m de longueur pour installer le matériel.');
- const scale=p=>({x:p.x*width/24,y:p.y*length/32}),top=scale({x:12,y:6}),middle=scale({x:12,y:15});
+ const designIndex=Math.max(0,Math.min(2,Number(options.designIndex)||0)),scale=p=>({x:p.x*width/24,y:p.y*length/32}),top=scale({x:12,y:designIndex===1?4:6}),middle=scale({x:designIndex===2?8:12,y:15});
  const queueGap=Math.min(2.2,8/(count-3)),queueSlot=i=>scale({x:12,y:22+i*queueGap});
  const actors=Array.from({length:count},(_,i)=>({id:i+1,number:i+1,initial:i===0?{...top}:i===1?{...middle}:queueSlot(i-2)}));
  let roles=actors.map(a=>a.id);const cycles=[],shifts=[],period=count===3?8:6;
@@ -20,7 +20,7 @@ function createReferenceCombination(options={}){
  const cue=(start,end,title,detail,cycle,ids)=>cues.push({start,end,title,detail,cycle,ids});
  const returning=(id,t)=>cycles.some(c=>c.receiver===id&&t>=c.start+3.55&&t<c.ready);
  for(const c of cycles){
-  const t=c.start,sign=c.side==='left'?-1:1,wide=scale({x:12+sign*5,y:8}),away=scale({x:12+sign*5,y:14}),support=scale({x:12-sign*2,y:10}),agilityX=c.side==='left'?4.5:19.5;
+  const t=c.start,sign=c.side==='left'?-1:1,wide=scale({x:12+sign*(designIndex===1?6:5),y:8}),away=scale({x:12+sign*5,y:14}),support=scale({x:12+(designIndex===2?sign*2:-sign*2),y:10}),agilityX=c.side==='left'?4.5:19.5;
   move(c.receiver,t+.65,t+1.5,top,wide);move(c.passer,t+.65,t+1.75,middle,support);
   move(c.receiver,t+2.15,t+3.2,wide,away);move(c.passer,t+3.4,t+5.7,support,top);
   move(c.receiver,t+3.55,t+5,away,scale({x:agilityX,y:20}));

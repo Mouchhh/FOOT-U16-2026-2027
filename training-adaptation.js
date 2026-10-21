@@ -64,7 +64,8 @@ function bibleRolePlan(exercise,format,group,template,profile={level:'developing
  const fieldKeepers=feet?group.keepers:0;
  const field=group.players-(feet?0:group.keepers);
  let blue=0,red=0,neutral=0;
- if(exercise.id==='duel-renforts'){blue=Math.ceil(field/2);red=Math.floor(field/2);}
+ if(exercise.id==='rondo-expand'&&field===13){blue=8;red=5;}
+ else if(exercise.id==='duel-renforts'){blue=Math.ceil(field/2);red=Math.floor(field/2);}
  else if(circuit||format.opposition==='none')blue=field;
  else if(template==='rondo'){
   // Rondo : une véritable supériorité, avec un rapport de pression raisonnable.
@@ -177,7 +178,7 @@ function biblePlan(exercise,session={},options={}){
    const keeperPresent=!format.requiresKeeper||rolePlan.activeKeepers+rolePlan.fieldKeepers>0;
    const appuiPresent=format.neutrals===0||rolePlan.teams.neutral>0;
    const superiority=!format.attackAdvantage||rolePlan.teams.blue>rolePlan.teams.red,actors=bibleActors(format,rolePlan,template);
-   return {...group,...rolePlan,...dims,...actors,index:i+1,template,format,learning,pedagogyFits:group.players>=format.min&&((organisation==='single'&&exercise.id!=='wall-pass')||group.players<=format.max)&&opposition&&keeperPresent&&appuiPresent&&superiority&&actors.actorsFit};
+   return {...group,...rolePlan,...dims,...actors,index:i+1,template,format,learning,pedagogyFits:group.players>=format.min&&((organisation==='single'&&!['wall-pass','rondo-expand','possession-quadrants'].includes(exercise.id))||group.players<=format.max)&&opposition&&keeperPresent&&appuiPresent&&superiority&&actors.actorsFit};
   });
   const layout=bibleLayout(groups,available,true);
   const sizePenalty=groups.reduce((sum,g)=>sum+Math.abs(g.players-format.ideal)/format.ideal,0)/count;

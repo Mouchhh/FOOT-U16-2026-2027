@@ -219,3 +219,20 @@
 @media(max-width:600px){.training-session-filters{grid-template-columns:1fr}.training-session-sector .training-saved-card{align-items:start}.training-session-sector .training-saved-card>div{min-width:0}}
 
 .bible-personal-editor-stage{overflow:auto;border:1px solid #e0e8f1;border-radius:12px;max-height:65dvh}.bible-personal-editor-stage .bible-personal-editable{max-width:none}.bible-diagram-editor>.bible-personal-tools:last-child{position:sticky;bottom:-22px;background:#fff;padding:12px 0;margin-bottom:0;border-top:1px solid #e5edf6;z-index:2}@media(max-width:600px){.bible-diagram-editor>.bible-personal-tools:last-child{bottom:-14px}}
+
+/* A compact decision first; the complete coaching knowledge remains one click away. */
+.bible-design-controls{display:flex;align-items:center;gap:1rem;padding:.85rem 1rem;margin:.8rem 0;border:1px solid #dce5f0;border-radius:16px;background:#f6f9fd}
+.bible-design-label{display:grid;gap:.35rem;font-size:.72rem;font-weight:750;color:#516984;min-width:220px}
+.bible-design-label select{padding:.65rem .85rem;border:1px solid #ccdaeb;border-radius:10px;background:#fff;color:#193d71;font:inherit;font-size:.85rem;max-width:100%}
+.bible-design-rule{margin:0;font-size:.85rem;line-height:1.55;color:#26466b}
+.bible-depth-panel{margin:1rem 0;border-top:1px solid #dce5f0;padding-top:.9rem}
+.bible-depth-panel>summary{cursor:pointer;color:#234d82;font-weight:750;padding:.5rem 0}
+.bible-depth-panel[open]>.bible-coach-guide{animation:bibleKnowledgeReveal .2s ease-out}
+.bible-quick-start{display:grid;grid-template-columns:1fr 1fr;gap:.5rem 1rem;font-size:.82rem;line-height:1.5;color:#365574;margin:.6rem 0}
+.bible-quick-start p{margin:0}.bible-quick-start strong{color:#193d71}
+@keyframes bibleKnowledgeReveal{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(max-width:650px){.bible-design-controls{align-items:stretch;flex-direction:column;gap:.6rem}.bible-design-label{min-width:0}.bible-quick-start{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.bible-depth-panel[open]>.bible-coach-guide{animation:none}}
+@media print{.bible-design-controls{display:block}.bible-design-label select{border:0}.bible-design-rule{display:block}}
+
+.training-diagram-screen .bible-design-title{display:none}

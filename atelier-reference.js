@@ -2,7 +2,7 @@
 'use strict';
 const $=id=>document.getElementById(id),svg=$('reference-pitch'),ns='http://www.w3.org/2000/svg';
 const node=(tag,attrs={},text)=>{const e=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,String(v));if(text!==undefined)e.textContent=text;return e;};
-const params=new URLSearchParams(location.search);let initial;try{initial=createReferenceCombination({players:Number(params.get('players'))||6,width:Number(params.get('width'))||24,length:Number(params.get('length'))||32});}catch{initial=createReferenceCombination();}if(params.get('embed')==='1')document.body.classList.add('reference-embedded');
+const params=new URLSearchParams(location.search);let initial;try{initial=createReferenceCombination({players:Number(params.get('players'))||6,width:Number(params.get('width'))||24,length:Number(params.get('length'))||32,designIndex:Number(params.get('design'))||0});}catch{initial=createReferenceCombination();}if(params.get('embed')==='1')document.body.classList.add('reference-embedded');
 let plan=initial,time=0,playing=false,raf=0,last=0,lastCue='',field,actors=new Map(),ball,passLine,ballShadow;
 const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
 function point(p){return{x:field.x+p.x*field.scale,y:field.y+p.y*field.scale};}
