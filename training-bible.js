@@ -8,6 +8,7 @@ function bibleVariantValid(v){
  (v.organisation===undefined||['single','auto','stations'].includes(v.organisation))&&
  (v.autoProfile===undefined||typeof v.autoProfile==='boolean')&&(v.profileKey===undefined||typeof v.profileKey==='string'&&v.profileKey.length<=1000)&&
  (v.sequenceSettings===undefined||Array.isArray(v.sequenceSettings)&&v.sequenceSettings.length<=4&&Array.from(v.sequenceSettings).every(bibleSequenceSettingValid))&&
+ (v.diagramEdits===undefined||Array.isArray(v.diagramEdits)&&v.diagramEdits.length<=16&&typeof bibleDiagramEditValid==='function'&&v.diagramEdits.every(bibleDiagramEditValid)&&new Set(v.diagramEdits.map(e=>e.sequence+'|'+e.signature)).size===v.diagramEdits.length)&&
  (v.sequenceRules===undefined||Array.isArray(v.sequenceRules)&&v.sequenceRules.length===4&&v.sequenceRules.every(s=>typeof s==='string'&&s.length<=1500));
 }
 const bibleNormalise=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,' ');
@@ -162,16 +163,16 @@ function openBibleSheet(exercise){
 function bibleOpenInStudio(exercise){
  if(!applyTrainingForm())return;
  if(currentTraining.blocks.length>=20)return notify('20 blocs maximum.');
- const variant=exercise.bibleVariant||biblePreviewState(exercise).variant,context=bibleSequenceContext(exercise,currentTraining,variant,0);if(!context.valid)return notify(context.errors.join(' '));const plan=context.plan,group=plan.groups[0],board=bibleEditableBoard(exercise,group);
+ const opened=$('bible-sheet-dialog')?.querySelector('.bible-detail'),detail=opened?.dataset.exercise===exercise.id?opened:null,sequence=detail?.bibleSelectedSequence?.()||0,variant=detail?.bibleVariant?.()||exercise.bibleVariant||biblePreviewState(exercise).variant,context=bibleSequenceContext(exercise,currentTraining,variant,sequence);if(!context.valid)return notify(context.errors.join(' '));const plan=context.plan,group=plan.groups[Number(detail?.querySelector('.bible-diagram')?.dataset.groupIndex)||0],personal=typeof bibleFindDiagramEdit==='function'?bibleFindDiagramEdit(exercise,group,{diagramEdits:variant.diagramEdits||[],sequenceIndex:sequence}):null,board=personal?structuredClone(personal.board):bibleEditableBoard(exercise,group);
  if(!board||!validExerciseBoard(board))return notify('Ce schéma est trop dense pour l’atelier libre. Créez un atelier plus petit ou partez d’un terrain vierge.');
  openCustomTrainingExercise();if(!$('custom-training-dialog').open)return;
  const time=bibleEffectiveTimeline(exercise,12,currentTraining,exercise.bibleVariant||{});
- const values={title:exercise.title,goal:exercise.goal,organisation:'Schéma de l’atelier 1 sur '+plan.groups.length+' · '+group.players+' joueurs dont '+group.keepers+' gardien(s) · '+group.width+' × '+group.length+' m.\n'+group.roles+'\n'+plan.groups.map(g=>'Atelier '+g.index+' : '+g.players+' joueurs · '+g.width+' × '+g.length+' m').join('\n')+'\nEmprise totale : '+plan.footprint.width+' × '+plan.footprint.length+' m, dégagements compris.',instructions:exercise.rules.join('\n')+'\n\n'+time.sequences.map((s,i)=>'Séquence '+(i+1)+' · '+bibleTime(s.workSeconds)+' de jeu'+(s.restSeconds?' / '+bibleTime(s.restSeconds)+' de pause':'')+' : '+s.rule).join('\n'),material:'Total séance : '+bibleMaterialText(plan.totalMaterial)+'\nAtelier illustré : '+bibleMaterialText(group.material),success:exercise.success,kind:['circuit','possession','duel'].includes(exercise.kind)?exercise.kind:'game',width:Math.min(68,group.width),length:Math.min(105,group.length)};
+ const values={title:personal?.title||variant.title||exercise.title,goal:exercise.goal,organisation:'Schéma de l’atelier 1 sur '+plan.groups.length+' · '+group.players+' joueurs dont '+group.keepers+' gardien(s) · '+group.width+' × '+group.length+' m.\n'+group.roles+'\n'+plan.groups.map(g=>'Atelier '+g.index+' : '+g.players+' joueurs · '+g.width+' × '+g.length+' m').join('\n')+'\nEmprise totale : '+plan.footprint.width+' × '+plan.footprint.length+' m, dégagements compris.',instructions:exercise.rules.join('\n')+'\n\n'+time.sequences.map((s,i)=>'Séquence '+(i+1)+' · '+bibleTime(s.workSeconds)+' de jeu'+(s.restSeconds?' / '+bibleTime(s.restSeconds)+' de pause':'')+' : '+s.rule).join('\n'),material:'Total séance : '+bibleMaterialText(plan.totalMaterial)+'\nAtelier illustré : '+bibleMaterialText(group.material),success:exercise.success,kind:['circuit','possession','duel'].includes(exercise.kind)?exercise.kind:'game',width:Math.min(68,group.width),length:Math.min(105,group.length)};
  if(group.width>68||group.length>105){$('custom-training-dialog').close();return notify('Pour l’atelier libre, choisissez une zone de 68 × 105 m maximum.');}
  for(const [key,value]of Object.entries(values))$('custom-training-'+key).value=value;
  $('custom-training-duration').value=12;trainingCustomOrigin={exerciseId:exercise.id,sourceIds:[...bibleKnowledge[exercise.id].sourceIds]};
  exerciseDraft=board;exerciseEnabled=true;exerciseFrame=0;exerciseSelected=null;$('exercise-lines').checked=false;exerciseEditorRefresh();
- notify('Placement initial copié. Vous pouvez modifier le terrain et créer vos déplacements.');
+ notify(personal?'Votre variante et ses étapes ont été copiées dans l’atelier libre.':'Placement initial copié. Vous pouvez modifier le terrain et créer vos déplacements.');
 }
 
 function openBibleVariant(exercise,block=null){
@@ -219,5 +220,5 @@ window.addEventListener('DOMContentLoaded',()=>{
  const list=el('ul');for(const source of Object.values(bibleSources)){const li=el('li'),a=el('a','',source.organisation+' · '+source.title);a.href=source.url;a.target='_blank';a.rel='noopener noreferrer';li.append(a);list.append(li);}references.append(list);
  renderTrainingCatalogue();
  // Les fenêtres contenant une variante personnelle suivent la fermeture de l'accès privé.
- if(typeof clubNetworkClear==='function'){const clear=clubNetworkClear;clubNetworkClear=function(){for(const id of ['bible-sheet-dialog','bible-variant-dialog']){const dialog=$(id);if(dialog){dialog.close();dialog.replaceChildren();}}bibleVariantEditing=null;clear();};}
+ if(typeof clubNetworkClear==='function'){const clear=clubNetworkClear;clubNetworkClear=function(){for(const id of ['bible-sheet-dialog','bible-variant-dialog','bible-diagram-editor']){const dialog=$(id);if(dialog){dialog.close();dialog.replaceChildren();}}bibleVariantEditing=null;clear();};}
 });

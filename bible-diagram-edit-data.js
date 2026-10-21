@@ -1,0 +1,4 @@
+// Loaded before session deserialization so personal variants survive a reload.
+function bibleDiagramEditValid(edit){
+ return !!edit&&Number.isInteger(edit.sequence)&&edit.sequence>=0&&edit.sequence<4&&Number.isInteger(edit.group)&&edit.group>=1&&edit.group<=40&&typeof edit.signature==='string'&&edit.signature.length>0&&edit.signature.length<=5000&&typeof edit.title==='string'&&edit.title.trim().length>0&&edit.title.length<=100&&typeof validExerciseBoard==='function'&&validExerciseBoard(edit.board)&&Array.isArray(edit.steps)&&edit.steps.length===edit.board.frames.length&&edit.steps.every(s=>typeof s==='string'&&s.length<=300)&&edit.board.frames.every(f=>f.owner===undefined||f.owner===null||typeof f.owner==='string'&&f.objects.some(o=>o.id===f.owner&&['blue','red','keeper'].includes(o.type)));
+}
