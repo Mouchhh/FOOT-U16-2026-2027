@@ -1,7 +1,8 @@
 # Étape 1 · Connexion et comptes
 
-État : logiciel vérifié ; recette de l’e-mail réel encore à effectuer avant
-fermeture définitive de l’étape. Aucun nouveau script SQL nécessaire.
+État : étape validée avec l’utilisateur le 21 octobre 2026, après les tests
+logiciels et son essai de récupération sur le site réel. Aucun nouveau script
+SQL nécessaire.
 
 ## Parcours vérifiés
 
@@ -31,7 +32,7 @@ Tests : `tests/club-account-access-browser.py` et
 `tests/workspace-hover-steps-browser.py`. Les appels e-mail sont simulés : aucun
 message réel n’est envoyé par les tests.
 
-## Réglages et recette réels · à cocher
+## Réglages et procédure de recette réelle
 
 L’environnement de développement ne dispose d’aucun accès d’administration au
 projet Supabase. La lecture de ses paramètres publics a également été bloquée par
@@ -58,9 +59,17 @@ vérifiés sur le projet réel.
    comptes administrateurs du projet. Vérifier les e-mails de confirmation si la
    confirmation d’adresse est activée dans Supabase.
 
-- [ ] Lien reçu et bon retour sur le site de production.
-- [ ] Nouveau mot de passe fonctionnel, ancien refusé, identité et documents retrouvés.
-- [ ] Réception possible pour les autres éducateurs autorisés.
+## Validation utilisateur · 21 octobre 2026
 
-L’étape reste ouverte tant que ces trois cases ne sont pas validées. Ne pas
-confondre la réussite des tests simulés avec la livraison effective des e-mails.
+- [x] Réception du message et fonctionnement du lien sur le site réel confirmés
+  par l’utilisateur (« oui c’est bon »), à la suite de la demande d’essai de
+  réinitialisation et de retour à son espace.
+- [x] Clôture de l’étape sur la base des tests logiciels décrits ci-dessus et de
+  cette validation utilisateur du parcours réel.
+
+Portée : cette confirmation concerne le compte testé. Elle ne constitue pas une
+inspection des paramètres SMTP, un essai d’envoi vers chaque autre éducateur ni
+une confirmation séparée du refus de l’ancien mot de passe en production. Les
+contrôles d’autorisation et d’isolation entre comptes ont été testés avec le
+service simulé. La procédure ci-dessus reste la référence lors de l’accueil d’un
+nouvel éducateur ou d’un changement du service d’envoi.

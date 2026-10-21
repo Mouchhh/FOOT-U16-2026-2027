@@ -10,7 +10,7 @@ Voir le [relevé des vérifications](docs/club-completion-checklist.md) et [l’
 
 ## Comptes et mots de passe
 
-La connexion propose « Mot de passe oublié ? », le renvoi d’une confirmation et la réinitialisation sécurisée avec retour au profil autorisé. L’envoi réel dépend des paramètres e-mail et des URLs autorisées dans Supabase. Voir la [checklist de recette de l’étape 1](docs/accounts-acceptance.md), qui distingue les tests logiciels de la validation réelle des e-mails.
+La connexion propose « Mot de passe oublié ? », le renvoi d’une confirmation et la réinitialisation sécurisée avec retour au profil autorisé. L’envoi réel dépend des paramètres e-mail et des URLs autorisées dans Supabase. Voir la [checklist de recette de l’étape 1](docs/accounts-acceptance.md), qui distingue les tests logiciels de la validation réelle des e-mails. L’étape a été validée avec l’utilisateur le 21 octobre 2026 après son essai réel de récupération.
 
 ## Démarrer
 
