@@ -11,6 +11,8 @@ BASE = 'http://127.0.0.1:3016/?mode=local'
 
 
 def group(page, players, keepers, space):
+    if page.locator('#training-catalogue-drawer').is_visible():
+        page.locator('#training-catalogue-close').click()
     page.locator('#training-step-link-2').click()
     page.locator('#training-keepers').fill('0')
     page.locator('#training-players').fill(str(players))
@@ -273,7 +275,8 @@ with sync_playwright() as p:
     }''')
     assert all(not c['valid'] and c['plan'] is None and c['errors'] for c in malformed), malformed
     page.set_viewport_size({'width':390, 'height':844})
-    card.get_by_role('button', name='Agrandir la fiche', exact=True).click()
+    # Responsive pagination rebuilds the list; the visual preview opens the full sheet.
+    card.locator('.bible-card-picture').click()
     sheet = page.locator('#bible-sheet-dialog')
     root = sheet.locator('.bible-detail')
     sequence(root, 0)

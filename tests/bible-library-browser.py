@@ -26,6 +26,8 @@ def reset_filters(page):
 
 
 def group(page, players, keepers=0, space='half', width=None, length=None):
+    if page.locator('#training-catalogue-drawer').is_visible():
+        page.locator('#training-catalogue-close').click()
     page.locator('#training-step-link-2').click()
     # Lower the number of keepers first, so reducing the group never leaves an
     # intermediate invalid form which would block the next input's change event.
@@ -115,11 +117,11 @@ with sync_playwright() as p:
     page.locator('#training-duration').fill('60')
     group(page, 12, 2)
     catalogue(page)
-    assert page.locator('.training-catalogue-card').count() == 8
+    assert page.locator('.training-catalogue-card').count() == 3
     # Details are genuinely lazy: no hidden full SVG for every result.
     assert page.locator('#training-catalogue .bible-detail').count() == 0
     page.locator('#bible-more').click()
-    assert page.locator('.training-catalogue-card').count() == 16
+    assert page.locator('.training-catalogue-card').count() == 3
     assert page.locator('#training-custom-add').is_visible()
 
     # Search is accent-insensitive, and the coach can use familiar possession and
