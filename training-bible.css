@@ -251,4 +251,4 @@
 .bible-role-choices button[data-team=red]{color:#9e3042;background:#fff1f3;border-color:#f1d5dc}
 .bible-role-choices button[aria-pressed=true]{outline:2px solid #ba8b33;outline-offset:1px}
 .bible-placement-reading{font-size:11px!important;color:#526a85!important;line-height:1.6!important;margin:7px 0!important}
-@media print{.bible-decision-reading,.bible-role-choices,.bible-placement-reading,.bible-decision-prompt{display:none!important}}
+@media print{.bible-detail .bible-decision-reading,.bible-detail .bible-role-choices,.bible-detail .bible-placement-reading,.bible-detail .bible-decision-prompt{display:none!important}}

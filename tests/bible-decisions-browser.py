@@ -40,5 +40,7 @@ with sync_playwright() as p:
  sheet.get_by_label('Variante de l’exercice',exact=True).select_option('1')
  assert sheet.locator('.bible-decision-reading').count()==1
  assert not sheet.locator('.bible-decision-reading').get_attribute('open')
+ page.emulate_media(media='print')
+ assert sheet.locator('.bible-decision-reading').evaluate("e=>getComputedStyle(e).display")=='none'
  assert not errors,errors
  b.close();print('PASS decisions:',result,'key pauses before passes, continue, measured roles, unchanged print, mutually exclusive modes, variants, mobile')
