@@ -1,0 +1,54 @@
+// Authentication UI. Tokens remain in sessionStorage, never in URLs after handling.
+let clubAccountRecoveryActive=false,clubAccountInstalled=false,clubAccountPendingReturn=null;
+function clubAccountRecoveryKey(){return 'vestiaire-password-recovery:'+clubNetworkBase;}
+function clubAccountReturnURL(mode='recovery'){const url=new URL('index.html',location.href);url.searchParams.set('auth',mode);return url.href;}
+function clubAccountClear(){clubAccountPendingReturn=null;clubAccountRecoveryActive=false;try{sessionStorage.removeItem(clubAccountRecoveryKey());}catch{}for(const id of ['club-recovery-password','club-recovery-confirm'])if($(id))$(id).value='';}
+function clubAccountBusy(busy){for(const form of document.querySelectorAll('#club-auth-gate form,#club-network-password-form')){form.setAttribute('aria-busy',String(busy));for(const button of form.querySelectorAll('button'))button.disabled=busy;}}
+function clubAccountMode(mode){
+ clubAccountInstall();clubAuthChoose('login');$('club-network-login').hidden=mode!=='login';$('club-network-recover').hidden=mode!=='recover';$('club-network-reset').hidden=mode!=='reset';$('club-auth-show-signup').hidden=mode!=='login';
+ const url=new URL(location.href);url.searchParams.delete('mode');url.searchParams.set('auth',mode==='login'?'login':mode==='recover'?'forgot':'recovery');url.hash='';history.replaceState(null,'',url.href);
+}
+function clubAccountBack(){clubNetworkClear();clubAccountMode('login');clubNetworkStatus('Connectez-vous avec votre compte personnel.');$('club-network-email').focus();}
+function clubAccountPasswordToggle(input){if(!input||input.dataset.revealReady)return;input.dataset.revealReady='true';const button=el('button','export club-password-reveal','Afficher');button.type='button';button.setAttribute('aria-label','Afficher le mot de passe · '+(input.closest('label')?.firstChild?.textContent||'champ'));button.setAttribute('aria-pressed','false');button.onclick=()=>{const show=input.type==='password';input.type=show?'text':'password';button.textContent=show?'Masquer':'Afficher';button.setAttribute('aria-pressed',String(show));};input.after(button);}
+function clubAccountInstall(){
+ if(clubAccountInstalled)return;clubAccountInstalled=true;
+ const login=$('club-network-login'),forgot=el('button','export','Mot de passe oublié ?');forgot.id='club-auth-forgot';forgot.type='button';forgot.onclick=()=>{clubAccountMode('recover');$('club-recovery-email').value=$('club-network-email').value;clubNetworkStatus('Recevez un lien pour choisir un nouveau mot de passe.');$('club-recovery-email').focus();};login.append(forgot);
+ const recover=el('form','report-panel');recover.id='club-network-recover';recover.hidden=true;recover.append(el('h2','','Retrouver mon compte'),el('p','hint','Indiquez l’adresse utilisée pour votre compte éducateur.'));const label=el('label','report-field','Adresse e-mail du compte'),email=el('input');email.id='club-recovery-email';email.type='email';email.required=true;email.maxLength=254;email.autocomplete='email';label.append(email);const send=el('button','primary','Recevoir le lien'),back=el('button','export','Revenir à la connexion');send.type='submit';back.type='button';back.onclick=clubAccountBack;recover.append(label,send,back,el('p','hint','Si vous ne recevez rien, vérifiez les indésirables et l’adresse saisie. Le lien remplace votre mot de passe ; il ne donne pas une autorisation supplémentaire au club.'));
+ const resend=el('button','export','Renvoyer l’e-mail de confirmation');resend.id='club-auth-resend';resend.type='button';resend.onclick=()=>{if(!email.reportValidity())return;clubNetworkRun(async()=>{await clubNetworkRequest('/auth/v1/resend?redirect_to='+encodeURIComponent(clubAccountReturnURL('login')),{method:'POST',auth:false,body:{type:'signup',email:email.value.trim()}});clubNetworkStatus('Si votre compte attend une confirmation, un nouveau message sera envoyé. Consultez votre messagerie et vos indésirables.');});};recover.append(resend);
+ recover.onsubmit=e=>{e.preventDefault();clubNetworkRun(async()=>{await clubNetworkRequest('/auth/v1/recover?redirect_to='+encodeURIComponent(clubAccountReturnURL()),{method:'POST',auth:false,body:{email:email.value.trim()}});clubNetworkStatus('Si un compte correspond à cette adresse, un lien de réinitialisation sera envoyé. Consultez votre messagerie et vos indésirables.');});};
+ const reset=el('form','report-panel');reset.id='club-network-reset';reset.hidden=true;reset.append(el('h2','','Choisir mon nouveau mot de passe'));const identity=el('p','hint');identity.id='club-recovery-identity';reset.append(identity);
+ for(const [id,text]of [['club-recovery-password','Nouveau mot de passe (12 caractères minimum)'],['club-recovery-confirm','Confirmer le nouveau mot de passe']]){const wrap=el('label','report-field',text),input=el('input');input.id=id;input.type='password';input.required=true;input.minLength=12;input.maxLength=128;input.autocomplete='new-password';wrap.append(input);reset.append(wrap);}
+ const apply=el('button','primary','Enregistrer mon nouveau mot de passe'),cancel=el('button','export','Annuler et revenir à la connexion');apply.type='submit';cancel.type='button';cancel.onclick=clubAccountBack;reset.append(apply,cancel);reset.onsubmit=e=>{e.preventDefault();clubNetworkRun(async()=>{
+  const password=$('club-recovery-password').value;if(password.length<12||password!==$('club-recovery-confirm').value)return clubNetworkStatus('Saisissez deux mots de passe identiques de 12 caractères minimum.');
+  if(!clubAccountRecoveryActive||!clubNetworkSession||sessionStorage.getItem(clubAccountRecoveryKey())!==clubNetworkSession.user.id)return clubNetworkStatus('Ce lien n’est plus actif. Revenez à la connexion et demandez un nouveau lien.');
+  try{const user=await clubNetworkRequest('/auth/v1/user',{method:'PUT',body:{password}});if(user.id!==clubNetworkSession.user.id)throw clubNetworkError('Compte différent',403);clubAccountClear();clubNetworkStatus('Mot de passe modifié. Ouverture de votre espace…');await clubNetworkAfterLogin(clubNetworkSession);}finally{for(const id of ['club-recovery-password','club-recovery-confirm'])$(id).value='';}
+ });};
+ $('club-network-signup').after(recover,reset);const oldChoose=clubAuthChoose;clubAuthChoose=function(mode){oldChoose(mode);recover.hidden=reset.hidden=true;};
+ const hint=$('club-auth-gate').querySelector(':scope > .hint');if(hint)hint.textContent='Pour une nouvelle autorisation ou un code d’invitation, contactez le responsable du club.';
+ for(const input of document.querySelectorAll('#club-auth-gate input[type=password],#club-network-password-form input[type=password]'))clubAccountPasswordToggle(input);
+}
+async function clubAccountAcceptReturn(params,type){
+ try{
+  let session;
+  if(params.get('token_hash'))session=await clubNetworkRequest('/auth/v1/verify',{method:'POST',auth:false,body:{token_hash:params.get('token_hash'),type}});
+  else{const access=params.get('access_token'),refresh=params.get('refresh_token');if(!access||!refresh||access.length>16000||refresh.length>16000)throw Error('Lien incomplet');const candidate={access_token:access,refresh_token:refresh,expires_at:Math.floor(Date.now()/1000)+3600,user:{id:''}};clubNetworkSession=candidate;const user=await clubNetworkRequest('/auth/v1/user');session={...candidate,user};}
+  clubNetworkStoreSession(session);
+  if(type==='recovery'){sessionStorage.setItem(clubAccountRecoveryKey(),session.user.id);$('club-recovery-identity').textContent=session.user.email?'Compte : '+session.user.email:'Votre lien a été vérifié.';clubAccountMode('reset');clubNetworkStatus('Lien vérifié. Choisissez votre nouveau mot de passe avant d’entrer dans le club.');}
+  else{clubAccountRecoveryActive=false;await clubNetworkAfterLogin(session);}
+ }catch(error){clubNetworkClear();if(type==='signup'&&(error?.status===403||error?.code==='42501')){clubAccountMode('login');clubNetworkStatus(clubNetworkMessage(error));return;}clubAccountMode('recover');clubNetworkStatus(error?.status===429?'Trop de tentatives. Patientez avant de demander un nouveau lien.':'Lien invalide, expiré ou impossible à vérifier. Vérifiez votre connexion puis demandez un nouveau lien.');}
+}
+function clubAccountHandleReturn(){
+ const url=new URL(location.href),hash=new URLSearchParams(url.hash.slice(1)),params=new URLSearchParams(hash.has('access_token')||hash.has('error')?hash:url.searchParams),type=params.get('type'),hasReturn=params.has('access_token')||params.has('token_hash')||params.has('error')||url.searchParams.has('code'),mode=url.searchParams.get('auth');
+ if(!hasReturn&&!['forgot','recovery'].includes(mode))return false;
+ clubAccountInstall();url.hash='';for(const key of ['access_token','refresh_token','expires_in','expires_at','token_type','type','token_hash','error','error_code','error_description','code'])url.searchParams.delete(key);url.searchParams.set('auth',hasReturn&&type==='signup'?'login':mode==='forgot'?'forgot':'recovery');history.replaceState(null,'',url.href);
+ clubNetworkPrivateRequested=true;clubNetworkMember=null;clubNetworkRenderState();
+ if(hasReturn){clubAccountRecoveryActive=true;clubAccountMode(type==='signup'?'login':'reset');$('club-network-reset').querySelector('button[type=submit]').disabled=true;clubNetworkStatus('Vérification du lien…');if(params.has('error')||!['recovery','signup'].includes(type)){clubNetworkClear();clubAccountMode('recover');clubNetworkStatus('Ce lien est incomplet ou expiré. Demandez un nouveau lien.');}else{const run=()=>clubNetworkRun(()=>clubAccountAcceptReturn(params,type));if(clubNetworkBusy)clubAccountPendingReturn=run;else run();}return true;}
+ if(mode==='recovery'){try{const saved=JSON.parse(sessionStorage.getItem(clubNetworkSessionKey)||'null')?.session;if(saved?.user?.id&&sessionStorage.getItem(clubAccountRecoveryKey())===saved.user.id){clubNetworkStoreSession(saved);clubAccountRecoveryActive=true;clubAccountMode('reset');$('club-recovery-identity').textContent=saved.user.email?'Compte : '+saved.user.email:'Choisissez votre nouveau mot de passe.';clubNetworkStatus('Terminez la modification de votre mot de passe.');return true;}}catch{}}
+ clubAccountMode('recover');clubNetworkStatus('Indiquez votre adresse pour recevoir un nouveau lien.');return true;
+}
+ document.addEventListener('DOMContentLoaded',()=>{clubAccountInstall();});
+
+function clubAccountContinueReturn(){const run=clubAccountPendingReturn;clubAccountPendingReturn=null;run?.();}
+window.addEventListener('hashchange',()=>{const params=new URLSearchParams(location.hash.slice(1));if(params.has('access_token')||params.has('error'))clubAccountHandleReturn();});
+
+function clubAccountMessage(error){return error?.status||error?.code?clubNetworkMessage(error):'Connexion au service impossible. Vérifiez votre connexion Internet puis réessayez. Votre travail enregistré sur cet appareil est conservé.';}

@@ -26,3 +26,9 @@
  #report-quick-panel .completion-quick-grid{margin:14px 0}#report-quick-panel .report-field{font-size:11px;gap:4px}#report-quick-panel input{padding:8px 10px;min-height:34px}#report-quick-panel textarea{min-height:68px;height:68px;padding:8px 10px;font-size:12px}
 }
 @media(min-width:900px){body.home-mode .home-hero>div:first-child{min-width:0}body.home-mode .home-hero h1{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#home-work-quick .completion-card p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}#home-work-quick .completion-card button{margin:2px 4px 2px 0}}
+#club-network-recover[hidden],#club-network-reset[hidden]{display:none!important}
+#club-auth-gate .report-field:has(.club-password-reveal),#club-network-password-form .report-field:has(.club-password-reveal){position:relative}
+#club-auth-gate input[data-reveal-ready],#club-network-password-form input[data-reveal-ready]{padding-right:84px}
+#club-auth-gate .club-password-reveal,#club-network-password-form .club-password-reveal{position:absolute;right:7px;bottom:7px;padding:5px 7px;margin:0;font-size:10px;border-radius:6px;min-height:26px}
+#club-auth-gate form[aria-busy=true] button{opacity:.55;cursor:wait}
+#club-network-status:empty{display:none}#club-network-status{padding:12px 14px;border-radius:10px;background:#edf3fe;line-height:1.6;overflow-wrap:anywhere}

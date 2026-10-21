@@ -8,6 +8,10 @@ Accueil avec reprise du travail, récupération du dernier brouillon remplacé, 
 
 Voir le [relevé des vérifications](docs/club-completion-checklist.md) et [l’audit des 63 exercices et 189 démonstrations](docs/bible-release-audit.md). Aucun changement SQL requis pour cette livraison.
 
+## Comptes et mots de passe
+
+La connexion propose « Mot de passe oublié ? », le renvoi d’une confirmation et la réinitialisation sécurisée avec retour au profil autorisé. L’envoi réel dépend des paramètres e-mail et des URLs autorisées dans Supabase. Voir la [checklist de recette de l’étape 1](docs/accounts-acceptance.md), qui distingue les tests logiciels de la validation réelle des e-mails.
+
 ## Démarrer
 
 Depuis ce dépôt :
