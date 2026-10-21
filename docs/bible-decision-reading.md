@@ -18,7 +18,7 @@ La combinaison de référence possède aussi cette seconde lecture ; son lecteur
 intégré conserve ses commandes propres.
 
 Dans les lecteurs SVG, l'option « Repères de placement », à l'intérieur de cette
-seconde lecture, permet de sélectionner les joueurs dont le rôle est défini. Le
+seconde lecture, permet de sélectionner tous les joueurs actifs. Le
 joueur est entouré et les distances au partenaire et à l'adversaire les plus proches
 sont calculées depuis les positions visibles et l'échelle du terrain. Ce sont des
 mesures de l'exemple, pas des distances réglementaires ou des garanties de passe

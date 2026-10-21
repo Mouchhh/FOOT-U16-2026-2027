@@ -21,7 +21,7 @@ with sync_playwright() as p:
  figure.get_by_label('Revenir au départ',exact=True).click()
  figure.locator('.bible-decision-reading>summary').click()
  figure.get_by_label('Repères de placement',exact=True).check()
- choices=figure.locator('.bible-role-choices button');assert choices.count()>3
+ choices=figure.locator('.bible-role-choices button');assert choices.count()==10
  choices.nth(1).click();assert choices.nth(1).get_attribute('aria-pressed')=='true'
  text=figure.locator('.bible-placement-reading').inner_text();assert ' m' in text and 'Distances du schéma' in text,text
  assert before==figure.locator('.training-diagram-print').inner_html()
