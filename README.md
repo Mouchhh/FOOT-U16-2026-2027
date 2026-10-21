@@ -32,6 +32,10 @@ Profil visible dans le catalogue, schéma à côté des consignes sur ordinateur
 
 Le nouveau rapport reprend les informations de la préparation du match. Le bilan rapide affiche le résultat et conserve les mêmes données que les détails. Les priorités et leur critère de réussite peuvent alimenter une séance sans remplacer les blocs existants. Voir la [recette des rapports](docs/reports-acceptance.md), avec les contrôles de sauvegarde et les limites de l’impression.
 
+## Travail du club · étape 7
+
+Recherche par nom de document, combinable avec éducateur, type, catégorie, thème et date. Les cartes des éducateurs relancent correctement la recherche détaillée, dont l’avancement reste explicite. Consultation, copie et séparation des brouillons sont conservées ; le cache de recherche est vidé à la déconnexion. Voir la [recette Travail du club](docs/club-work-acceptance.md).
+
 ## Démarrer
 
 Depuis ce dépôt :
