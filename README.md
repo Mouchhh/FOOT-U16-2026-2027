@@ -16,6 +16,10 @@ La connexion propose « Mot de passe oublié ? », le renvoi d’une confirmatio
 
 Menus au survol ou au toucher, clavier complet, étapes Précédent/Suivant et historique Retour/Avancer du navigateur. La page courante et les recherches sont retrouvées après rechargement dans le même onglet, par coach. Une saisie de séance invalide reste ouverte avant changement de rubrique. Voir la [checklist de navigation](docs/navigation-acceptance.md).
 
+## Accueil · étape 3
+
+Trois accès directs : prochaine séance enregistrée (y compris pendant son créneau), prochain match renseigné dans une composition et préparation à reprendre. Les dates suivent l’heure de Paris. Les autres raccourcis restent dans « Tous mes outils » ; photos et activité des éducateurs sont conservées. Voir la [checklist de l’accueil](docs/home-acceptance.md).
+
 ## Démarrer
 
 Depuis ce dépôt :
