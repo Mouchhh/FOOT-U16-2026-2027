@@ -14,3 +14,8 @@
 @media(prefers-reduced-motion:no-preference){.workspace-submenu:not([hidden]){animation:submenuEnter .13s ease-out}@keyframes submenuEnter{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}}
 @media(max-width:650px){.workspace-submenu-item{min-height:43px;font-size:13px}.workspace-menu-trigger{gap:7px}}
 @media print{.workspace-submenu,.workspace-menu-chevron{display:none!important}}
+.workspace-skip{position:fixed;z-index:1000;left:16px;top:10px;transform:translateY(-150%);padding:12px 16px;border:2px solid #2855a2;border-radius:10px;background:#fff;color:#2855a2;font-weight:700}.workspace-skip:focus-visible{transform:none;outline:2px solid white;outline-offset:2px}
+@media(max-width:650px){.workspace-submenu-item{min-height:44px}}
+html.club-private-request:not(.club-authenticated) .workspace-skip{display:none}
+@media print{.workspace-skip{display:none!important}}
+.terrain-flow:not([data-step="0"]) #terrain-roster-toggle{display:none}

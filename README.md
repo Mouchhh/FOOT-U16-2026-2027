@@ -12,6 +12,10 @@ Voir le [relevé des vérifications](docs/club-completion-checklist.md) et [l’
 
 La connexion propose « Mot de passe oublié ? », le renvoi d’une confirmation et la réinitialisation sécurisée avec retour au profil autorisé. L’envoi réel dépend des paramètres e-mail et des URLs autorisées dans Supabase. Voir la [checklist de recette de l’étape 1](docs/accounts-acceptance.md), qui distingue les tests logiciels de la validation réelle des e-mails. L’étape a été validée avec l’utilisateur le 21 octobre 2026 après son essai réel de récupération.
 
+## Navigation · étape 2
+
+Menus au survol ou au toucher, clavier complet, étapes Précédent/Suivant et historique Retour/Avancer du navigateur. La page courante et les recherches sont retrouvées après rechargement dans le même onglet, par coach. Une saisie de séance invalide reste ouverte avant changement de rubrique. Voir la [checklist de navigation](docs/navigation-acceptance.md).
+
 ## Démarrer
 
 Depuis ce dépôt :

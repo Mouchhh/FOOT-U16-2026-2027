@@ -298,7 +298,7 @@ async function clubNetworkRun(action){
 async function clubNetworkAfterLogin(session){
  clubNetworkStoreSession(session);if(!await clubNetworkLoadMember())return;
  await clubNetworkSync();clearInterval(clubNetworkTimer);clubNetworkTimer=setInterval(()=>{if(!document.hidden)clubNetworkQueueSync();},10000);
- const url=new URL(location.href);url.searchParams.delete('auth');history.replaceState(null,'',url.href);if(typeof showClubHome==='function')showClubHome();else clubNetworkShowView();
+ const url=new URL(location.href);url.searchParams.delete('auth');history.replaceState(history.state,'',url.href);if(typeof showClubHome==='function')showClubHome();else clubNetworkShowView();document.dispatchEvent(new CustomEvent('club-session-ready'));
 }
 async function clubNetworkLogout(){
  if(!flushCoachWorkspace())return;
