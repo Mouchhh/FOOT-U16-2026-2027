@@ -13,17 +13,18 @@ function reportTrainingSuggestions(axes,session){
  });
 }
 function openReportTraining(){
+ if($('report-training-dialog')?.open)return;
  const coachId=activeCoach.id,reportId=currentReport.id,sessionId=currentTraining.id;
  let axes=reportTrainingAxes(currentReport);if(!axes.length)axes=[{id:'custom',label:'Votre priorité',theme:'Relance',text:''}];
  const dialog=el('dialog','report-training-dialog');dialog.id='report-training-dialog';const head=el('div','section-heading'),title=el('h2','','Du match à la séance'),close=el('button','icon-button','×');title.id='report-training-title';dialog.setAttribute('aria-labelledby',title.id);close.type='button';close.setAttribute('aria-label','Fermer');close.onclick=()=>dialog.close();head.append(title,close);dialog.append(head);
- const source=structuredClone(currentReport.info),target=structuredClone(currentTraining);
+ const source=structuredClone(currentReport.info),success=currentReport.plan.success.trim(),target=structuredClone(currentTraining);
  dialog.append(el('p','hint','Retenez une ou deux priorités. Choisissez leur thème, puis examinez les exercices compatibles avec votre groupe.'),el('p','report-training-context','Match : '+(source.team||'Équipe')+' — '+(source.opponent||'adversaire à préciser')+' · '+(source.date||'date à préciser')),el('p','report-training-context','Séance en préparation : '+target.team+' · '+target.category+' · '+target.date+' · '+target.players+' joueurs dont '+target.keepers+' G · '+trainingLevels[target.level]));
  dialog.append(el('p','hint','Reformulez au besoin les constats en un objectif court (2 000 caractères maximum). Les propositions utilisent les réglages actuels de la séance. Vous pourrez ensuite ajuster la date, les présents, les dimensions et les variantes.'));
  const form=el('div','report-training-axes'),records=[];
  axes.forEach((axis,i)=>{const row=el('section','report-training-axis'),label=el('label','report-training-select'),check=el('input');check.type='checkbox';check.checked=i<2;check.setAttribute('aria-label','Retenir '+axis.label);label.append(check,document.createTextNode(axis.label));const text=el('textarea');text.rows=2;text.maxLength=2000;text.value=axis.text;text.setAttribute('aria-label','Objectif · '+axis.label);text.placeholder='Un fait observé et ce que vous souhaitez améliorer…';const themeLabel=el('label','','Travailler'),theme=el('select');theme.setAttribute('aria-label','Thème · '+axis.label);trainingThemes.forEach(t=>theme.append(new Option(t,t)));theme.value=axis.theme;themeLabel.append(theme);row.append(label,text,themeLabel);form.append(row);records.push({axis,check,text,theme});check.onchange=()=>{if(records.filter(r=>r.check.checked).length>2){check.checked=false;notify('Deux priorités maximum pour garder une séance ciblée.');}invalidate();};text.oninput=invalidate;theme.onchange=invalidate;});
  const results=el('section','report-training-results'),status=el('p','hint');status.setAttribute('role','status');const actions=el('div','report-actions'),propose=el('button','primary','Voir les exercices adaptés'),apply=el('button','primary','Ajouter à ma préparation');propose.type=apply.type='button';apply.hidden=true;actions.append(propose,apply);dialog.append(form,actions,status,results);
  let selection=[],snapshot='';function review(){const chosen=selection.filter(c=>c.include.checked),added=12*chosen.length,total=target.blocks.reduce((n,b)=>n+b.duration,0)+added;status.textContent=chosen.length?'Ajout : '+added+' min · déroulé après ajout : '+total+' / '+target.duration+' min prévues. '+(total>target.duration?'La durée prévue sera dépassée : ajustez les blocs avant la séance.':'Les exercices déjà préparés seront conservés.'):'Sélectionnez au moins un exercice.';}const selectedAxes=()=>records.filter(r=>r.check.checked).map(r=>({...r.axis,text:r.text.value.trim(),theme:r.theme.value}));
- function invalidate(){selection=[];snapshot='';results.replaceChildren();apply.hidden=true;status.textContent='';}
+ function invalidate(){results.querySelectorAll('.training-diagram').forEach(e=>e.bibleDispose?.());selection=[];snapshot='';results.replaceChildren();apply.hidden=true;status.textContent='';}
  propose.onclick=()=>{invalidate();const selected=selectedAxes();if(!selected.length||selected.some(a=>!a.text))return status.textContent='Choisissez une ou deux priorités et renseignez leur objectif.';
   snapshot=JSON.stringify(selected);const proposals=reportTrainingSuggestions(selected,target);
   proposals.forEach(({axis,options})=>{const card=el('article','report-training-proposal');card.append(el('h3','',axis.label),el('p','',axis.text));if(!options.length){card.append(el('p','training-alert','Aucun exercice compatible avec ce groupe et cet espace pour ce thème. Ajustez la séance ou créez votre exercice dans la Bible.'));results.append(card);return;}
@@ -40,7 +41,7 @@ function openReportTraining(){
   if(fresh!==before){status.textContent='Le groupe a changé. Rouvrez la préparation pour recalculer les exercices.';return;}
   if(currentTraining.blocks.length+picked.length>20)return status.textContent='La séance dépasserait la limite de 20 blocs. Retirez un bloc avant de continuer.';
   const heading='À travailler après le match '+(source.date||'sans date')+' contre '+(source.opponent||'adversaire à préciser');
-  const added=heading+'\n'+picked.map(c=>'• '+c.axis.text+' ['+c.axis.theme+']').join('\n');
+  const added=heading+'\n'+picked.map(c=>'• '+c.axis.text+' ['+c.axis.theme+']').join('\n')+(success?'\nCritère de réussite : '+success:'');
   if(currentTraining.notes.length+added.length+2>12000)return status.textContent='L’objectif personnalisé est trop long. Raccourcissez-le avant d’ajouter ces priorités.';
   const previous=structuredClone(currentTraining);
   currentTraining.notes=[currentTraining.notes,added].filter(Boolean).join('\n\n');

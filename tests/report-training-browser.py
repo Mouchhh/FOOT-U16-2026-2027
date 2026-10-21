@@ -8,7 +8,7 @@ with sync_playwright() as p:
  page.goto('http://127.0.0.1:3016/?mode=local')
  page.evaluate('''()=>{
   currentTraining=newTraining();Object.assign(currentTraining,{team:'U17 A',category:'U17',players:10,keepers:1,space:'full',notes:'Objectif déjà saisi',blocks:[{id:'existing',exerciseId:'warm',duration:6,notes:'À conserver'}]});syncTrainingForm();saveTrainingDraft();
-  currentReport=newReport();Object.assign(currentReport.info,{team:'U17 A',opponent:'Equipe visiteuse',date:'2026-10-18'});currentReport.analysis.improveAttack='Sortir par le pivot sans forcer la passe';currentReport.analysis.improveDefence='Protéger derrière le premier défenseur';reportTab='plan';setReportView(true);renderReportContent();
+  currentReport=newReport();Object.assign(currentReport.info,{team:'U17 A',opponent:'Equipe visiteuse',date:'2026-10-18'});currentReport.analysis.improveAttack='Sortir par le pivot sans forcer la passe';currentReport.analysis.improveDefence='Protéger derrière le premier défenseur';reportTab='plan';document.querySelector('#view-reports').click();renderReportContent();
  }''')
  page.locator('#report-to-training').click()
  page.get_by_role('button',name='Voir les exercices adaptés',exact=True).click()
@@ -29,7 +29,7 @@ with sync_playwright() as p:
  assert page.evaluate('currentTraining.blocks.length')==3
  assert page.evaluate('currentTraining.notes.includes("Equipe visiteuse")')
  # An open preview cannot append to a document selected later.
- page.evaluate('''()=>{currentReport.analysis.improveAttack='Préparer la prochaine passe';currentReport.analysis.improveDefence='Rester en couverture';reportTab='plan';setReportView(true);renderReportContent();}''')
+ page.evaluate('''()=>{currentReport.analysis.improveAttack='Préparer la prochaine passe';currentReport.analysis.improveDefence='Rester en couverture';reportTab='plan';document.querySelector('#view-reports').click();renderReportContent();}''')
  page.locator('#report-to-training').click();page.get_by_role('button',name='Voir les exercices adaptés',exact=True).click()
  page.evaluate("window.originalTraining=currentTraining.id;currentTraining.id='another-document'")
  page.get_by_role('button',name='Ajouter à ma préparation',exact=True).click()

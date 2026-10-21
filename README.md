@@ -28,6 +28,10 @@ Les exports reprennent les éléments visibles de chaque terrain, avec couloirs 
 
 Profil visible dans le catalogue, schéma à côté des consignes sur ordinateur et actions accessibles en haut de fiche. L’ajout vérifie chaque séquence et sa compatibilité ; un échec du stockage ne crée pas de bloc. Les variantes personnalisées restent conservées. Voir la [recette de la Bible](docs/bible-acceptance.md) et l’audit des 63 fiches.
 
+## Après-match · étape 6
+
+Le nouveau rapport reprend les informations de la préparation du match. Le bilan rapide affiche le résultat et conserve les mêmes données que les détails. Les priorités et leur critère de réussite peuvent alimenter une séance sans remplacer les blocs existants. Voir la [recette des rapports](docs/reports-acceptance.md), avec les contrôles de sauvegarde et les limites de l’impression.
+
 ## Démarrer
 
 Depuis ce dépôt :
