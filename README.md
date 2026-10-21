@@ -24,6 +24,10 @@ Trois accès directs : prochaine séance enregistrée (y compris pendant son cr�
 
 Les exports reprennent les éléments visibles de chaque terrain, avec couloirs facultatifs et pions numérotés pour la vue épurée. Canva 16:9 et A4 restent sur une seule page, terrain seul. Historique, stabilité du terrain et utilisation de l’effectif vérifiés : [checklist terrain](docs/terrain-acceptance.md).
 
+## Bible de l’éduc · étape 5
+
+Profil visible dans le catalogue, schéma à côté des consignes sur ordinateur et actions accessibles en haut de fiche. L’ajout vérifie chaque séquence et sa compatibilité ; un échec du stockage ne crée pas de bloc. Les variantes personnalisées restent conservées. Voir la [recette de la Bible](docs/bible-acceptance.md) et l’audit des 63 fiches.
+
 ## Démarrer
 
 Depuis ce dépôt :

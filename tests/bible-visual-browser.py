@@ -7,14 +7,14 @@ with sync_playwright() as p:
  page.evaluate('''()=>{Object.assign(currentTraining,{players:9,keepers:1,category:'U17',level:'developing',space:'full'});openBibleSheet(trainingExercises.find(e=>e.id==='duel-renforts'));}''')
  figure=page.locator('#bible-sheet-dialog .bible-diagram');screen=figure.locator('.training-diagram-screen')
  assert screen.locator('svg').get_attribute('data-orientation')=='portrait'
- assert screen.locator('[data-renderer="football-figurine"]').count()==9
+ assert screen.locator('[data-renderer="numbered-token"]').count()==9
  assert screen.locator('[data-feature="goal-frame"]').count()==3
  assert screen.locator('[data-equipment="miniGoal"][data-side="top"]').count()==1
  assert screen.locator('[data-equipment="miniGoal"][data-side="bottom"]').count()==1
  assert screen.locator('[data-feature="mowing-stripe"]').count()==6
  # A portrait scene keeps the goal above the playing area and jersey numbers upright.
  check=screen.evaluate('''e=>{const svg=e.querySelector('svg'),g=svg.querySelector('[data-equipment="goal"]'),player=svg.querySelector('.bible-player'),m=player.querySelector('.bible-player-model').getScreenCTM(),angle=Math.atan2(m.b,m.a)*180/Math.PI;return {angle,goalY:g.getBoundingClientRect().y,playerY:player.getBoundingClientRect().y}}''')
- assert abs(check['angle']+10)<.1,check
+ assert abs(check['angle'])<.1,check
  assert check['goalY']<check['playerY'],check
  screen.screenshot(path='/tmp/bible-scene-portrait.png')
  first=screen.locator('svg').get_attribute('viewBox')
@@ -27,7 +27,7 @@ with sync_playwright() as p:
  figure.locator('.bible-animation-next').click()
  figure.locator('.bible-animation-next').click()
  check=screen.locator('.bible-player-model').first.evaluate('(e)=>{const m=e.getScreenCTM();return Math.atan2(m.b,m.a)*180/Math.PI}')
- assert abs(check+10)<.1
+ assert abs(check)<.1
  figure.locator('.bible-animation-reset').click()
  assert not figure.locator('.training-diagram-print .bible-display-world').count()
  page.set_viewport_size({'width':390,'height':844})
@@ -35,5 +35,5 @@ with sync_playwright() as p:
  screen.screenshot(path='/tmp/bible-scene-mobile.png')
  page.get_by_role('button',name='Fermer',exact=True).click()
  assert not errors,errors
- print('PASS: detailed figurines/nets/grass, portrait goal direction, upright numbers during playback, stable toggles, print and mobile.')
+ print('PASS: numbered tokens/nets/grass, portrait goal direction, upright numbers during playback, stable toggles, print and mobile.')
  b.close()

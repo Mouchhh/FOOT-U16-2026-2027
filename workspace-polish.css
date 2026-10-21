@@ -105,3 +105,27 @@ body:not(.home-mode) .reports-heading h1{font-size:23px;margin:0;line-height:1.2
 #training-catalogue .bible-card{position:relative}
 #training-catalogue .bible-card>.bible-fit-warning{position:absolute;top:9px;left:9px;max-width:calc(100% - 18px);margin:0;padding:5px 8px;border-radius:7px;background:#fff5dfef;color:#85591f;font-size:10px}
 #training-catalogue .bible-card>h3{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* Bible: actions available before the teaching detail, without a duplicate toolbar. */
+.bible-sheet-dialog>.bible-card-actions{position:sticky;top:0;z-index:8;margin:0 0 14px;padding:10px 0;border-top:0;border-bottom:1px solid #e5ebf3;box-shadow:0 5px 8px #fff}.bible-sheet-dialog>.bible-card-actions button{min-height:38px}
+@media(max-width:650px){.bible-sheet-dialog>.bible-card-actions{gap:6px}.bible-sheet-dialog>.bible-card-actions button{font-size:11px;padding:8px}}
+/* Read the demonstration beside the instructions rather than below them. */
+@media(min-width:950px){
+ .bible-sheet-dialog>.bible-detail{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(0,1.2fr);gap:10px 20px;align-items:start}
+ .bible-sheet-dialog>.bible-detail>*{grid-column:1;min-width:0;margin-top:0}
+ .bible-sheet-dialog>.bible-detail>.bible-sequence-stage{grid-column:2;grid-row:1/span 10;position:sticky;top:62px}
+ .bible-sheet-dialog .bible-sequence-stage .training-diagram-screen .training-diagram-svg{max-height:360px}
+ .bible-sheet-dialog .bible-design-controls{display:block;padding:10px}
+ .bible-sheet-dialog .bible-design-rule{margin-top:8px;font-size:11px}
+}
+@media(max-width:949px){
+ .bible-sheet-dialog>.bible-detail{display:flex;flex-direction:column}
+ .bible-sheet-dialog>.bible-detail>*{width:100%;box-sizing:border-box}
+ .bible-sheet-dialog>.bible-detail>.bible-sequence-settings{order:10}
+ .bible-sheet-dialog>.bible-detail>.bible-distributions{order:11}
+ .bible-sheet-dialog>.bible-detail>.bible-active-sequence{order:12}
+ .bible-sheet-dialog>.bible-detail>.bible-coach-guide-host{order:13}
+ .bible-sheet-dialog>.bible-detail>.training-success,.bible-sheet-dialog>.bible-detail>.bible-extra{order:14}
+ .bible-sheet-dialog .bible-design-controls{padding:10px;gap:5px;margin-block:8px}
+}
+@media print{.bible-sheet-dialog>.bible-detail{display:block}.bible-sheet-dialog>.bible-card-actions,.bible-sheet-dialog .bible-sequence-stage{position:static}}
