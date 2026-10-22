@@ -470,3 +470,12 @@ Le rapport mémorise la préparation et les joueurs de la composition. Chaque ob
 peut recevoir un constat et une observation, puis devenir une priorité. Les exercices
 transférés gardent un lien avec le rapport pour retrouver les séances de suivi.
 Voir la [recette et ses limites](docs/match-followup-acceptance.md).
+
+### Travail du club · étape 14
+
+Consultation sans toucher au brouillon, copies indépendantes et distinction entre
+partagé, repère proposé et repère validé. La validation sportive est contrôlée
+côté serveur et concerne une version précise du document. Installer la migration
+[club-references.sql](supabase/club-references.sql) et désigner le responsable selon
+[le guide](supabase/INSTALLATION.md#repères-du-club-et-validation-sportive-étape-14).
+Voir la [recette et l’activation restante](docs/club-references-acceptance.md).

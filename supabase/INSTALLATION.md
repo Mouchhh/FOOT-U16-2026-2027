@@ -101,3 +101,62 @@ Le bandeau des éducateurs affiche les noms du club. Pour activer le statut en l
 Le bandeau devient **Éducateurs connectés**, avec une pastille verte, un compteur et les noms. Cliquer sur un nom ouvre ses documents dans « Travail du club ». Le serveur détecte l’activité récente (90 secondes) ; le site actualise toutes les dix secondes dans un onglet visible. Une fermeture brutale ou une coupure peut rester affichée environ deux minutes. Plusieurs appareils du même éducateur n’ajoutent pas de doublon ; quitter l’un n’efface pas la présence des autres.
 
 Sans la migration ou pendant une panne, les noms des éducateurs autorisés restent disponibles avec une indication de statut non confirmé, sans inventer de pastille verte. Les visiteurs et comptes non autorisés ne peuvent pas lire les présences. Les horodatages et l’identité de chaque signal sont imposés par le serveur ; les identifiants des sessions ne sont pas diffusés aux éducateurs.
+
+## Repères du club et validation sportive (étape 14)
+
+L’éducateur reste auteur de son document. **Proposer comme repère** ne le valide
+pas. Seul un responsable sportif désigné dans la base peut valider la version
+consultée. Cette décision est interne au club : elle ne constitue pas une
+homologation FFF. Un changement de contenu ou une nouvelle version retire le
+statut validé jusqu’à une nouvelle lecture et validation. La copie d’un collègue
+n’hérite pas de sa validation, ni de ses présences nominatives.
+
+Si la base existe déjà, **ne remplacez pas le script de base** :
+
+1. Ouvrir **Supabase → SQL Editor → New query**.
+2. Copier tout [club-references.sql](club-references.sql), puis cliquer **Run**.
+   Le script est réexécutable et conserve les comptes, documents et décisions.
+3. Désigner le ou les véritables responsables sportifs avec la requête ci-dessous,
+   en remplaçant l’adresse d’exemple par celle de leur compte existant :
+
+```sql
+insert into public.club_sport_leads(user_id)
+select m.user_id from public.club_members m
+join auth.users u on u.id=m.user_id
+where lower(u.email)=lower('responsable@exemple.fr') and m.active
+on conflict(user_id) do nothing
+returning user_id;
+```
+
+Un identifiant doit apparaître. Zéro ligne signifie compte absent, inactif ou déjà
+responsable. Pour vérifier la désignation, depuis SQL Editor :
+
+```sql
+select m.display_name, u.email, m.active
+from public.club_sport_leads l
+join public.club_members m on m.user_id=l.user_id
+join auth.users u on u.id=l.user_id;
+```
+
+4. Actualiser le site. L’auteur enregistre et partage sa proposition. Le responsable
+   ouvre **Travail du club → Consulter**, lit la fiche puis choisit
+   **Valider cette version comme repère**. Ses documents personnels disposent
+   aussi de **Consulter sans modifier**. La décision est confirmée par le serveur
+   et apparaît sur les autres comptes à l’actualisation.
+5. Tester un changement enregistré par l’auteur : la nouvelle version doit
+   revenir à **Repère proposé**. Une copie doit être un **Document partagé**.
+
+Pour retirer ce droit sans retirer l’accès habituel au site :
+
+```sql
+delete from public.club_sport_leads
+where user_id in (select id from auth.users
+                 where lower(email)=lower('responsable@exemple.fr'));
+```
+
+Les décisions d’une personne qui n’est plus responsable actif ne sont plus
+présentées comme valides. Le responsable peut également retirer explicitement
+une validation depuis l’aperçu du document. Aucun éducateur ne peut s’attribuer
+ce droit depuis le navigateur, ni valider en modifiant le JSON d’une séance.
+Sans cette migration, les documents restent consultables et copiables ; le site
+indique que la validation sportive n’est pas installée et n’invente aucun statut.

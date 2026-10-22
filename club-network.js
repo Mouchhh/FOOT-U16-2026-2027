@@ -222,6 +222,7 @@ async function clubNetworkSync(){
     const list=clubNetworkLibrary(kind),next=list.filter(p=>{const id=clubNetworkPayloadId(kind,p),known=clubNetworkKnownVersion(kind,id);if(known.revision>0&&!ownIds.has(kind+':'+id)&&!clubNetworkPending(kind,id)){clubNetworkRememberVersion(kind,id,0);return false;}return true;});
     if(next.length!==list.length)clubNetworkSetLibrary(kind,next);
    }
+   if(typeof clubReferenceRefresh==='function')await clubReferenceRefresh();
    clubNetworkRenderSources();clubNetworkRenderRows();
    const pending=clubNetworkPendingJobs(),conflicts=pending.filter(j=>j.conflict).length;
    clubSaveStatus(conflicts?'error':pending.length?'pending':'saved',conflicts?'Conflit de version : votre copie locale est conservée. Ouvrez le document partagé avant de reporter vos changements.':pending.length?pending.length+' document(s) conservé(s) sur cet appareil, en attente de partage.':'Confirmation du serveur à '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/Paris'})+'. Les documents enregistrés sont partagés avec le club.',conflicts>0);
@@ -260,19 +261,19 @@ function clubNetworkRequestPrivate(){
  if(!clubNetworkPrivateRequested&&!flushCoachWorkspace())return;
  clubNetworkPrivateRequested=true;history.replaceState(null,'','#educateurs');clubNetworkRenderState();clubNetworkStatus(clubNetworkReady?'Connectez-vous ou créez votre compte avec une adresse autorisée par le club.':'Service du club non configuré.');
 }
-async function clubNetworkOpen(metadata){
+async function clubNetworkOpen(metadata,previewOnly=false){
  const rows=await clubNetworkRequest('/rest/v1/club_documents?select=*&id=eq.'+encodeURIComponent(metadata.id)+'&limit=1'),row=rows?.[0];if(!row||!clubNetworkPayloadValid(row.kind,row.payload)||clubNetworkPayloadId(row.kind,row.payload)!==row.source_id)throw clubNetworkError('Document incompatible',400);
  clubNetworkPreview=row;
- if(row.payload.squadDirectory&&row.owner_id===clubNetworkSession.user.id){const pending=clubNetworkPending(row.kind,row.source_id);if(pending){squadResolveRemote(row);return;}clubNetworkSetLibrary(row.kind,[structuredClone(row.payload),...clubNetworkLibrary(row.kind).filter(p=>p.documentId!==row.source_id)]);clubNetworkRememberVersion(row.kind,row.source_id,row.revision,row.id);openCoachSquad();return;}
- if(row.owner_id===clubNetworkSession.user.id){clubNetworkImport(true);return;}
+ if(row.payload.squadDirectory&&row.owner_id===clubNetworkSession.user.id&&!previewOnly){const pending=clubNetworkPending(row.kind,row.source_id);if(pending){squadResolveRemote(row);return;}clubNetworkSetLibrary(row.kind,[structuredClone(row.payload),...clubNetworkLibrary(row.kind).filter(p=>p.documentId!==row.source_id)]);clubNetworkRememberVersion(row.kind,row.source_id,row.revision,row.id);openCoachSquad();return;}
+ if(row.owner_id===clubNetworkSession.user.id&&!previewOnly){clubNetworkImport(true);return;}
  let content;if(row.kind==='training'){const original=currentTraining;try{currentTraining=structuredClone(row.payload);content=trainingDocument();}finally{currentTraining=original;}}
  else if(row.kind==='report'){const original=currentReport;try{currentReport=structuredClone(row.payload);content=buildReportDocument();}finally{currentReport=original;}}
  else content=clubNetworkComposition(row.payload);
  $('club-network-preview-title').textContent=row.title;$('club-network-preview-author').textContent=clubNetworkAuthor(row.owner_id)+' · version '+row.revision+' · lecture seule';$('club-network-preview-content').replaceChildren(content);$('club-network-preview').showModal();
 }
-function clubNetworkImport(openOwn=false){
+function clubNetworkImport(openOwn=false,forceCopy=false){
  const row=clubNetworkPreview;if(!row||!clubNetworkBound())return;if(row.payload.squadDirectory)return notify('Cet effectif est consultable ici. Gérez vos joueurs depuis « Mes joueurs enregistrés ».');
- const kind=row.kind,own=row.owner_id===clubNetworkSession.user.id,payload=structuredClone(row.payload),opened=kind==='training'?currentTraining:kind==='report'?currentReport:(typeof getTerrainDraftFor==='function'?getTerrainDraftFor(row.payload):state);
+ const kind=row.kind,own=row.owner_id===clubNetworkSession.user.id&&!forceCopy,payload=structuredClone(row.payload),opened=kind==='training'?currentTraining:kind==='report'?currentReport:(typeof getTerrainDraftFor==='function'?getTerrainDraftFor(row.payload):state);
  if(own){
   if(!confirm('Ouvrir cette version enregistrée ? Le brouillon courant sera conservé sur cet appareil dans une copie si nécessaire.'))return;
   if(document.body.classList.contains('training-mode')&&!applyTrainingForm())return;
@@ -287,6 +288,8 @@ function clubNetworkImport(openOwn=false){
   else{state=payload;render();persist();$('view-pitch').click();}
  }else{
   if(!confirm('Créer une copie indépendante dans votre espace ? L’original du collègue sera conservé.'))return;
+  delete payload.clubReference;delete payload.clubApproval;delete payload.clubValidation;
+  if(kind==='training')delete payload.attendance;
   if(kind==='composition')payload.documentId=crypto.randomUUID();else payload.id=crypto.randomUUID();payload.title=('Copie · '+(payload.title||row.title)).slice(0,100);if(kind==='training')payload.coach=activeCoach.name;if(kind==='report')payload.info.coach=activeCoach.name;
   clubNetworkSetLibrary(kind,[payload,...clubNetworkLibrary(kind)]);clubNetworkMarkPending(kind,clubNetworkPayloadId(kind,payload),'save');clubNetworkQueueSync();notify('Copie ajoutée dans votre bibliothèque ; partage en attente de confirmation.');
  }
@@ -332,7 +335,7 @@ for(const id of ['club-network-logout','club-account-signout'])$(id).onclick=()=
 for(const id of ['view-club-network','club-account-library'])$(id).onclick=()=>clubNetworkShowView();
 $('club-network-shortcut').onclick=e=>{e.preventDefault();clubNetworkShowView();};$('club-network-close').onclick=()=>$('view-pitch').click();
 for(const id of ['view-pitch','view-training','view-reports','view-coach-agenda'])$(id).addEventListener('click',()=>clubNetworkShowView(false));
-$('club-network-preview-close').onclick=()=>{$('club-network-preview').close();$('club-network-preview-content').replaceChildren();clubNetworkPreview=null;};$('club-network-copy').onclick=()=>clubNetworkRun(()=>clubNetworkImport());
+$('club-network-preview-close').onclick=()=>{$('club-network-preview').close();$('club-network-preview-content').replaceChildren();clubNetworkPreview=null;};$('club-network-copy').onclick=()=>clubNetworkRun(()=>clubNetworkImport(false,true));
 for(const id of ['club-network-author','club-network-kind'])$(id).onchange=()=>{clubNetworkPageSize=50;clubNetworkRenderRows();};$('club-network-more').onclick=()=>{clubNetworkPageSize+=50;clubNetworkRenderRows();};$('club-network-refresh').onclick=()=>clubNetworkQueueSync();
 $('club-network-publish').onclick=()=>clubNetworkRun(async()=>{const value=$('club-network-source').value;if(value==='')return clubNetworkStatus('Choisissez un document enregistré.');const s=clubNetworkSources[Number(value)];clubNetworkMarkPending(s.kind,s.id,'save');await clubNetworkQueueSync();});
 $('club-network-import-local').onclick=()=>clubNetworkRun(async()=>{

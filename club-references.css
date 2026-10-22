@@ -1,0 +1,7 @@
+.club-reference-badge{display:inline-flex;align-items:center;max-width:100%;padding:5px 10px;border-radius:9px;background:#edf3ff;color:#234d90;font-size:.78rem;line-height:1.45;overflow-wrap:anywhere}
+.club-reference-badge[data-state=approved]{background:#e9f5ef;color:#216244}
+.club-reference-badge[data-state=shared],.club-reference-badge[data-state=unknown]{background:#f0f3f7;color:#52627a}
+#club-reference-status{font-size:.8rem;line-height:1.5;margin:8px 0 12px;max-width:85ch}
+#club-reference-preview{border-left:3px solid #2855a2;margin-bottom:18px}
+#club-reference-preview .export{margin-top:8px}
+@media(max-width:650px){.club-reference-badge{display:block;width:fit-content}.club-network-card .report-actions{flex-wrap:wrap}}
