@@ -45,7 +45,7 @@ function openReportTraining(){
   if(currentTraining.notes.length+added.length+2>12000)return status.textContent='L’objectif personnalisé est trop long. Raccourcissez-le avant d’ajouter ces priorités.';
   const previous=structuredClone(currentTraining);
   currentTraining.notes=[currentTraining.notes,added].filter(Boolean).join('\n\n');
-  for(const c of picked){currentTraining.blocks.push({id:crypto.randomUUID(),exerciseId:c.exercise.id,duration:12,notes:'Après-match : '+c.axis.text,bibleVariant:structuredClone(c.variant)});if(!currentTraining.themes.includes(c.axis.theme)&&currentTraining.themes.length<3)currentTraining.themes.push(c.axis.theme);}
+  for(const c of picked){currentTraining.blocks.push({id:crypto.randomUUID(),exerciseId:c.exercise.id,duration:12,notes:'Après-match : '+c.axis.text,matchSource:{reportId,date:source.date,opponent:source.opponent,objective:c.axis.text,success},bibleVariant:structuredClone(c.variant)});if(!currentTraining.themes.includes(c.axis.theme)&&currentTraining.themes.length<3)currentTraining.themes.push(c.axis.theme);}
   if(!saveTrainingDraft()){currentTraining=previous;return status.textContent='Le brouillon n’a pas pu être conservé. Aucun exercice ajouté ; vérifiez le stockage.';}
   syncTrainingForm();renderTrainingBlocks();dialog.close();$('view-training').click();window.trainingWizard?.go(3);notify('Exercices ajoutés au brouillon. Vérifiez la durée totale, puis enregistrez la séance pour la partager.');
  };

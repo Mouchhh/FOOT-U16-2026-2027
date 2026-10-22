@@ -1,0 +1,31 @@
+"""Historical preparation, observations and structured match-to-session continuity."""
+from playwright.sync_api import sync_playwright
+with sync_playwright() as p:
+ b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1366,'height':768});errors=[]
+ page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept())
+ page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("typeof renderMatchFollowup==='function'")
+ page.evaluate("()=>{getCompositionBoard().matchPreparation={...newMatchPreparation(),date:'2026-10-24',opponent:'Laval',objectives:['Fermer l’axe','','','']};currentReport=newReport();getCompositionBoard().matchPreparation.objectives[0]='Changé';document.querySelector('#view-reports').click();renderReportContent()}")
+ page.locator('#report-match-preparation > summary').click()
+ page.get_by_label('Constat · objectif 1',exact=True).select_option('À renforcer')
+ page.get_by_label('Observation · objectif 1',exact=True).fill('Intervalle trop ouvert au milieu')
+ page.get_by_role('button',name='Retenir comme priorité',exact=True).click();page.wait_for_timeout(350)
+ assert page.evaluate("currentReport.preparation.objectives[0].text==='Fermer l’axe'&&currentReport.plan.priority==='Fermer l’axe'&&reportValid(currentReport)")
+ page.reload();page.wait_for_function("typeof renderMatchFollowup==='function'")
+ assert page.evaluate("currentReport.preparation.objectives[0].observation==='Intervalle trop ouvert au milieu'")
+ assert page.evaluate("buildReportDocument().textContent.includes('Intervalle trop ouvert au milieu')")
+ page.evaluate("()=>{Object.assign(currentTraining,{players:10,keepers:1,space:'full'});syncTrainingForm();openReportTraining()}")
+ d=page.locator('#report-training-dialog');d.get_by_role('button',name='Voir les exercices adaptés',exact=True).click();d.get_by_role('button',name='Ajouter à ma préparation',exact=True).click()
+ assert page.evaluate("currentTraining.blocks.some(b=>b.matchSource?.reportId===currentReport.id)&&trainingValid(currentTraining)")
+ page.reload();page.wait_for_function("typeof renderMatchFollowup==='function'")
+ assert page.evaluate('reportFollowupSessions().length===1&&reportFollowupSessions()[0].draft')
+ page.evaluate("document.querySelector('#training-save').click()")
+ assert page.evaluate('reportFollowupSessions().length===1&&!reportFollowupSessions()[0].draft')
+ assert page.evaluate("()=>{let old=structuredClone(currentReport);delete old.preparation;return reportValid(old)}")
+ assert page.evaluate("()=>{const copy=structuredClone(currentTraining);copy.blocks[0].matchSource.reportId=42;return !trainingValid(copy)}")
+ page.evaluate("document.querySelector('#view-reports').click();reportTab='general';renderReportContent()")
+ assert 'Séance enregistrée' in page.locator('#report-session-followup').inner_text()
+ page.set_viewport_size({'width':390,'height':844});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+2')
+ page.evaluate("currentReport.id=crypto.randomUUID();renderReportContent()")
+ assert page.evaluate('reportFollowupSessions().length===0')
+ assert not errors,errors
+ b.close();print('PASS match follow-up: snapshot, observed objectives, priority, reload, PDF content, structured links, saved/draft distinction, report isolation and mobile.')

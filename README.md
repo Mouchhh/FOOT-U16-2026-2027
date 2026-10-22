@@ -463,3 +463,10 @@ Dans l’espace privé, l’indicateur de l’en-tête reste visible dans chaque
 Le panneau **Séances de la semaine → Groupe & rendez-vous → Présences WhatsApp** est facultatif. Une passerelle distincte associe un compte par éducateur autorisé, puis lit les réactions du message de séance choisi : 👍 présent, 👎 absent, autre réaction ou silence à confirmer. Le coach exclut les non-joueurs, identifie les gardiens et valide avant d’appliquer l’effectif au brouillon. La dernière lecture est vérifiée à nouveau avant l’adaptation. Les réglages manuels des exercices restent conservés.
 
 Le code et le déploiement Docker sont décrits dans [whatsapp-gateway/README.md](whatsapp-gateway/README.md). Aucun compte WhatsApp ni hébergement n’est activé par le dépôt : `whatsapp-config.js` reste vide jusqu’au déploiement d’une URL HTTPS du club. La solution utilise WhatsApp Web, peut subir des déconnexions et doit être testée avec un vrai compte après hébergement. Le choix demandé est un hébergement gratuit uniquement ; aucune souscription payante n’a été effectuée.
+
+### Préparation et bilan du match · étape 13
+
+Le rapport mémorise la préparation et les joueurs de la composition. Chaque objectif
+peut recevoir un constat et une observation, puis devenir une priorité. Les exercices
+transférés gardent un lien avec le rapport pour retrouver les séances de suivi.
+Voir la [recette et ses limites](docs/match-followup-acceptance.md).
