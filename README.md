@@ -521,3 +521,6 @@ Les scripts ne sont pas exécutés automatiquement sur le projet du club.
 Le [relevé du 22 octobre](docs/bible-video-reference-review.md) distingue les sept
 extraits accessibles, les six transferts bloqués, les corrections effectives et
 les 63 fiches / 189 variantes contrôlées. Les vidéos originales ne sont pas publiées.
+
+Le suivi des quatre derniers chantiers et les critères de fermeture sont dans
+[la réception finale](docs/reception-finale.md), avec les essais réels restant à effectuer.

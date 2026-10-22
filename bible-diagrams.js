@@ -81,6 +81,16 @@ function bibleDrawTeamVolumes(svg,players){
  }
 }
 // Pure starting layout shared by static drawings and the demonstration player.
+// Deux lignes échelonnées : une forme de bloc, pas une diagonale de défenseurs.
+// Repères normalisés ; la largeur est adaptée au nombre de joueurs de chaque ligne.
+function bibleDefensiveBlockSlots(count,options={}){
+ const front=options.front??.53,back=options.back??.75,centre=options.centre??.5,span=options.span??.62;
+ const first=Math.ceil(count/2),second=count-first;
+ return Array.from({length:count},(_,i)=>{const line=i<first?0:1,n=line?second:first,rank=line?i-first:i;
+  const breadth=n===1?0:span*(line&&n<first?.8:1),wide=n===1?centre:centre-breadth/2+rank*breadth/(n-1);
+  return {long:line?back:front,wide:Math.max(.08,Math.min(.92,wide)),line};
+ });
+}
 function bibleDiagramActors(exercise,group,field,goalPositions=[],options={}){
  const knowledge=bibleDiagramKnowledge(exercise),mechanism=bibleDiagramMechanism(exercise),template=group.template||knowledge.template||'possession';
  const teams=group.teams||{blue:group.allocation?.[0]||0,red:group.allocation?.[1]||0,neutral:group.allocation?.[2]||0};
@@ -153,7 +163,7 @@ function bibleDiagramActors(exercise,group,field,goalPositions=[],options={}){
  // A tactical repositioning must not cover a shirt already on the installation
  // grid. Keep the main actors first, then find the nearest free starting spot.
  // This is deterministic installation spacing, never an invented game action.
- const radius=bibleDiagramPlayerRadius(group,{fw,fh}),gap=radius*2.3,placed=[],priority=[...tokens.filter(t=>t.keeper&&!t.fieldKeeper&&!t.rotation),...blue.slice(0,3),...red.slice(0,3),...neutral.slice(0,2),...tokens],seen=new Set();
+ const radius=bibleDiagramPlayerRadius(group,{fw,fh}),gap=radius*2.3,placed=[],priority=[...tokens.filter(t=>t.keeper&&!t.fieldKeeper&&!t.rotation),...(mechanism.type==='block'?[...red,...blue.slice(0,3)]:[...blue.slice(0,3),...red.slice(0,3)]),...neutral.slice(0,2),...tokens],seen=new Set();
  const circuits=template==='circuit'&&!['warm','cool'].includes(exercise.id)?bibleCircuitStations(group,field):[];
  const clampPoint=(p,number)=>{const endzone=template==='endzones'&&!goalPositions.length&&group.zoneDimensions?.length===3,cell=circuits.find(s=>number>s.offset&&number<=s.offset+s.players)||(endzone?{x:fx+group.zoneDimensions[1].x*scale,y:fy,w:group.zoneDimensions[1].length*scale,h:fh}:{x:fx,y:fy,w:fw,h:fh}),mx=Math.min(radius+2,cell.w*.2),my=Math.min(radius+2,cell.h*.2);return{x:Math.max(cell.x+mx,Math.min(cell.x+cell.w-mx,p.x)),y:Math.max(cell.y+my,Math.min(cell.y+cell.h-my,p.y))};};
  const clear=p=>placed.every(q=>Math.hypot(p.x-q.x,p.y-q.y)>=gap);

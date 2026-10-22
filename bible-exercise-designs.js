@@ -1098,6 +1098,10 @@ function bibleDesignedPlacement(exercise,group,field,tokens,index){
   }
   if(exercise.id==='triangle'){set(red[2],.76,.35,'Protéger la profondeur');}
   if(exercise.id==='rest-defence')set(blue[3],.55,.12,'Relais offensif côté ballon');
+  if(m==='block'){
+   set(blue[0],.2,.2,'Faire circuler devant le bloc');set(blue[1],.3,.8,'Déplacer le ballon vers le côté');set(blue[2],.27,.49,'Relais devant le bloc');
+   const shape=bibleDefensiveBlockSlots(red.length);red.forEach((p,i)=>set(p,shape[i].long,shape[i].wide,shape[i].line?'Ligne de couverture / profondeur':'Première ligne · fermer l’axe'));
+  }
   return;
  }
 
@@ -1106,6 +1110,11 @@ function bibleDesignedPlacement(exercise,group,field,tokens,index){
  if(['bypass','split','wide','depth-wide'].includes(code)){set(blue[0],sx(.2),.49,'Porteur');set(blue[1],sx(.49),.3,'Relais surveillé');set(blue[2],sx(.72),.8,'Autre angle / largeur');set(red[0],sx(.51),.41,'Fermer le relais');set(red[1],sx(.61),.62,'Couverture');}
  if(['carry','turn','underlap'].includes(code)){set(blue[0],sx(.3),.3,'Porteur');set(blue[1],sx(.49),.68,'Soutien / appel');set(blue[2],sx(.76),.19,'Profondeur');set(red[0],sx(.61),.39,'Défenseur du porteur');set(red[1],sx(.76),.64,'Couverture');}
  if(code==='press-return'||code==='press-beaten'){set(blue[0],sx(.23),.23,'Porteur adverse');set(blue[1],sx(.43),.75,'Receveur adverse');set(blue[2],sx(.73),.38,'Solution adverse plus haute');red.forEach((p,i)=>set(p,sx(.52+(i%2)*.16),.19+(i+1)*.62/(red.length+1),i===0?'Pression':i===1?'Couverture intérieure':'Équilibre du bloc'));}
+ if(m==='block'){
+  set(blue[2],.27,.49,'Relais devant le bloc avant l’appel');
+  const shape=bibleDefensiveBlockSlots(red.length,{centre:index===1?.44:.56});
+  red.forEach((p,i)=>set(p,shape[i].long,shape[i].wide,shape[i].line?'Ligne de couverture / profondeur':'Première ligne · fermer l’axe'));
+ }
  if(m==='throw'){set(blue[0],.32,.04,'Lanceur sur la ligne');set(blue[1],.5,.21,'Solution courte');set(blue[2],.63,.53,'Soutien intérieur');set(red[0],.55,.32,'Défendre le court');set(red[1],.76,.39,'Couverture intérieure');return;}
  if(exercise.id==='build-pivot'&&index===2){set(blue[0],.22,.22,'Passeur');set(neutral[0],.48,.48,'Pivot libre de se retourner');set(red[0],.7,.32,'Défenseur éloigné du pivot');set(red[2],.75,.83,'Couverture du côté opposé');return;}
  if(exercise.id==='underlap'&&index===2){set(blue[0],.55,.12,'Porteur dans le couloir extérieur');set(blue[1],.35,.35,'Appel intérieur');return;}
@@ -1139,6 +1148,14 @@ function bibleDesignCoaching(exercise,index,scenario){
  };
  let observation=scenario.look,correction=scenario.intervene;
  if(cues[d.demo])[observation,correction]=cues[d.demo];
+ if(['block','block-two-lines'].includes(exercise.id)){
+  const feedback=[
+   ['Les deux lignes se déplacent sur la passe en conservant une couverture intérieure ; le joueur éloigné ne reste pas sur la touche.','Figer avant la passe puis après réception : faire montrer la ligne proche, la couverture et le côté opposé. Rejouer sans changer de rôle au hasard.'],
+   ['Sur le retour du ballon, le bloc se recentre et redistribue la pression ; aucun défenseur ne poursuit seul le premier receveur.','Faire repartir la passe en retrait plus lentement ; demander aux deux lignes de retrouver leurs distances avant la passe suivante.'],
+   ['Repérer le coulissement excessif qui ouvre l’intervalle ; après franchissement, la couverture gagne du temps pendant le retour du premier rideau.','Comparer le même service avec un bloc équilibré puis trop attiré. Ne pas récompenser une passe forcée dans une ligne encore fermée.']
+  ];[observation,correction]=feedback[Math.max(0,Math.min(2,Number(index)||0))];
+ }
+
  if(d.demo.startsWith('quadrant-')){observation='Le receveur change son angle dans son quadrant et conserve une passe de sécurité ; aucun joueur ne traverse une frontière pour réussir le circuit montré.';correction='Figer avant la réception, montrer le défenseur et deux angles possibles à l’intérieur du secteur, puis rejouer.';}
  if(d.demo.startsWith('expand-')){observation='Dès l’interception, les huit bleus offrent des angles dans le grand carré et les cinq rouges défendent ; les extérieurs ne viennent pas tous au ballon.';correction='Rejouer l’instant de récupération et faire montrer une sortie de chaque côté avant de reprendre librement.';}
  return {title:d.title,observation,correction};

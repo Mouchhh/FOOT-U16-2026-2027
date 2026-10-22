@@ -73,6 +73,22 @@ function bibleVariantDemonstration(design,h){
   if(code==='press-return'){play(b,a,'2 · Revenir au gardien sous pression');play(a,c,'3 · Ressortir par l’autre côté',[move(c,at(.3,.81),{start:.1}),...enemy.slice(0,2).map((p,i)=>move(p,at(.45+i*.14,.4+i*.2)))]);}
   else{const high=mates[2]||c;play(b,high,'2 · Trouver le relais au-delà du premier rideau',[move(high,at(.69,.15),{start:.1})]);add('3 · Le pressing dépassé se réorganise','Le joueur dépassé revient à l’intérieur ; les partenaires protègent l’axe et la profondeur.',2,enemy.slice(0,3).map((p,i)=>move(p,at(.6+i*.09,.34+i*.19))));}return true;
  }
+ // Le bloc garde deux lignes reconnaissables pendant les deux autres scénarios.
+ if(['block','block-two-lines'].includes(h.exerciseId)&&['press-return','press-beaten'].includes(code)&&b&&enemy.length){
+  const shape=(centre,front=.53,back=.75)=>bibleDefensiveBlockSlots(enemy.length,{centre,front,back,span:.5}).map((slot,i)=>move(enemy[i],at(slot.long,slot.wide)));
+  play(a,b,'1 · La passe latérale déclenche le coulissement',[move(b,at(.31,.82)),...shape(.64)]);
+  if(code==='press-return'){
+   play(b,a,'2 · Revenir : le bloc se recentre',shape(.43));
+   if(c)play(a,c,'3 · Ressortir dans l’autre couloir',[move(c,at(.38,.12),{start:.1}),...shape(.34)]);
+   add('4 · Garder les deux lignes reliées','La ligne proche ferme l’axe ; la seconde protège derrière. Le côté opposé resserre sans rejoindre le porteur.',1.5);
+  }else{
+   add('2 · Le bloc se laisse trop attirer','Exemple d’erreur : les deux lignes se décalent trop vers le ballon et libèrent l’intervalle opposé. Le porteur peut maintenant le reconnaître.',1.6,shape(.77));
+   if(c)play(b,c,'3 · Trouver l’intervalle au-delà du premier rideau',[move(c,at(.67,.3),{start:.12})]);
+   add('4 · La couverture gagne du temps','Le premier rideau est dépassé : la ligne arrière protège la profondeur pendant le retour de ses partenaires. Aucune récupération automatique.',2.2,shape(.43,.73,.87));
+   add('5 · Reformer deux lignes','Les joueurs reviennent dans le bloc, sans tous sortir sur le ballon. Reprendre au départ pour comparer les deux choix.',1.5);
+  }
+  return true;
+ }
  if(code==='press-return'||code==='press-beaten'){
   const attack=start?.team==='red'?red:blue,defence=start?.team==='red'?blue:red,receiver=attack.find(p=>p!==a&&(!p.keeper||p.fieldKeeper)),next=attack.find(p=>p!==a&&p!==receiver&&(!p.keeper||p.fieldKeeper));
   if(!receiver||!defence.length)return false;
