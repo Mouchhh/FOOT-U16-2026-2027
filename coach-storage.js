@@ -1,3 +1,5 @@
+const coachLibraryBaselines=new Map();
+const coachLibraryKeys=new Set(['vestiaire-training-library','vestiaire-reports','vestiaire-saves']);
 // Espaces locaux nominatifs. Le profil historique conserve les clés existantes, sans migration destructive.
 const coachLegacyProfile={id:'legacy',name:'Coach principal · données existantes'};
 function validCoachProfile(p){return p&&typeof p.id==='string'&&/^(legacy|[a-zA-Z0-9-]{1,80})$/.test(p.id)&&typeof p.name==='string'&&p.name.trim().length>0&&p.name.length<=70;}
@@ -13,5 +15,5 @@ try{if(new URLSearchParams(location.search).get('mode')!=='local'){
 }}catch{}
 const activeCoach=Object.freeze(accountCoachBinding?{...accountCoachBinding.coach}:{...coachProfiles.find(p=>p.id===selectedCoachId)});
 function coachStorageKey(key,id=activeCoach.id){return id==='legacy'?key:'vestiaire-coach:'+id+':'+key;}
-function coachStorageGet(key){return localStorage.getItem(coachStorageKey(key));}
-function coachStorageSet(key,value){localStorage.setItem(coachStorageKey(key),value);}
+function coachStorageGet(key){const value=localStorage.getItem(coachStorageKey(key));if(coachLibraryKeys.has(key)&&!coachLibraryBaselines.has(key))coachLibraryBaselines.set(key,value);return value;}
+function coachStorageSet(key,value){localStorage.setItem(coachStorageKey(key),value);if(coachLibraryKeys.has(key))coachLibraryBaselines.set(key,value);}

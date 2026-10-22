@@ -16,9 +16,9 @@ const clubNetworkBindingKey='vestiaire-account-binding:'+clubNetworkBase;
 const clubNetworkKinds={training:'Séance',report:'Rapport',composition:'Composition'};
 const clubNetworkLocalMode=new URLSearchParams(location.search).get('mode')==='local';
 let clubNetworkPrivateRequested=clubNetworkReady&&!clubNetworkLocalMode;
-const clubSaveLocalErrors=new Set();
+const clubSaveLocalErrors=new Set(),clubSaveLocalConflicts=new Set();
 let clubSaveState={state:'pending',detail:'Vérification des documents enregistrés…',conflict:false};
-function clubSaveStatus(state,detail,conflict=false){if(clubSaveLocalErrors.size&&state!=='error'){state='error';detail='Une sauvegarde locale ou sa mise en attente a échoué. Enregistrez à nouveau le document concerné ; le partage n’est pas confirmé.';}clubSaveState={state,detail,conflict};clubSaveRender();}
+function clubSaveStatus(state,detail,conflict=false){if(clubSaveLocalConflicts.size){state='error';conflict=true;detail='Une autre fenêtre a changé votre bibliothèque. Votre brouillon reste ouvert ; rechargez la page pour retrouver les enregistrements récents avant de réessayer.';}if(clubSaveLocalErrors.size&&state!=='error'){state='error';detail='Une sauvegarde locale ou sa mise en attente a échoué. Enregistrez à nouveau le document concerné ; le partage n’est pas confirmé.';}clubSaveState={state,detail,conflict};clubSaveRender();}
 function clubSaveRender(){
  let root=$('club-save-indicator');
  if(!root){
@@ -33,11 +33,15 @@ function clubSaveRender(){
  const label={saved:'Enregistré et partagé',pending:'En attente',error:'Échec'}[clubSaveState.state];
  if($('club-save-label').textContent!==label)$('club-save-label').textContent=label;
  $('club-save-detail').textContent=clubSaveState.detail;
- $('club-save-retry').hidden=clubSaveState.state==='saved'||clubSaveState.conflict||clubSaveLocalErrors.size>0;
+ $('club-save-retry').hidden=clubSaveState.state==='saved'||clubSaveState.conflict||[...clubSaveLocalErrors].some(key=>!key.startsWith('queue:'));
  $('club-save-resolve').hidden=!clubSaveState.conflict;
 }
 function clubNetworkStatus(message){for(const id of ['club-network-status','club-sync-status','club-network-list-status'])$(id).textContent=message;}
 function clubNetworkMessage(error){
+ if(['QuotaExceededError','SecurityError'].includes(error?.name))return 'Le stockage de cet appareil est plein ou indisponible. Votre travail ouvert reste disponible ; libérez de l’espace puis réessayez.';
+ if(error?.code==='local_queue_storage')return 'Le stockage de la file de partage est indisponible. Le journal local est conservé ; libérez de l’espace puis utilisez Réessayer.';
+ if(error?.code==='local_library_conflict')return 'Une autre fenêtre a modifié votre bibliothèque. Votre brouillon reste conservé ; rechargez avant de réenregistrer.';
+ if(error?.code==='local_save_interrupted')return 'Un enregistrement local a été interrompu. Le brouillon reste ouvert : enregistrez à nouveau le document concerné avant de reprendre le partage.';
  if(error?.code==='document_invalid')return 'Le document à partager est introuvable ou invalide sur cet appareil. Ouvrez-le et enregistrez-le à nouveau.';
  if(error?.code==='40001')return 'Conflit de version : une autre version existe. Ouvrez « Travail du club » et récupérez votre version partagée avant de reporter vos changements. Rien n’a été écrasé.';
  if(error?.code==='invalid_credentials')return 'Adresse e-mail ou mot de passe incorrect. Réessayez ou utilisez « Mot de passe oublié ? ».';
@@ -105,7 +109,7 @@ function clubNetworkRenderState(){
  else $('club-network-shortcut').textContent='Connexion éducateurs';
 }
 function clubNetworkClear(){
- clubSaveLocalErrors.clear();clubSaveState={state:'pending',detail:'Vérification des documents enregistrés…',conflict:false};if($('club-save-indicator'))$('club-save-indicator').hidden=true;
+ clubSaveLocalErrors.clear();clubSaveLocalConflicts.clear();clubSaveState={state:'pending',detail:'Vérification des documents enregistrés…',conflict:false};if($('club-save-indicator'))$('club-save-indicator').hidden=true;
  clubNetworkGeneration++;clearInterval(clubNetworkTimer);clubNetworkTimer=null;clubNetworkSession=null;clubNetworkMember=null;clubNetworkMembers=[];clubNetworkRows=[];clubNetworkPreview=null;clubNetworkSources=[];clubNetworkCachedVersions.clear();clubNetworkConnected=[];clubNetworkActivity=[];clubNetworkActivityState='loading';clubNetworkPresenceState='loading';clubNetworkPresenceWriteState='loading';if(typeof clubAccountClear==='function')clubAccountClear();$('club-connected-names').replaceChildren();$('club-connected-count').textContent='';$('club-connected-status').textContent='';
  sessionStorage.removeItem(clubNetworkSessionKey);sessionStorage.removeItem(clubNetworkBindingKey);
  $('club-network-preview').close();$('club-network-preview-content').replaceChildren();$('club-network-preview-title').textContent='';$('club-network-preview-author').textContent='';$('club-network-list').replaceChildren();$('club-network-source').replaceChildren();$('club-network-author').replaceChildren();$('club-account-name').textContent='';
@@ -120,7 +124,7 @@ function clubNetworkLibraryKey(kind){return kind==='training'?'vestiaire-trainin
 const clubNetworkOriginalStorageSet=coachStorageSet;
 function clubNetworkSetLibrary(kind,list){
  const next=kind==='composition'?list.map(state=>({date:new Date().toISOString(),state})):list;
- clubNetworkOriginalStorageSet(clubNetworkLibraryKey(kind),JSON.stringify(next));
+ clubNetworkOriginalStorageSet(clubNetworkLibraryKey(kind),JSON.stringify(next));clubSaveLocalErrors.delete(clubNetworkLibraryKey(kind));clubSaveLocalConflicts.delete(clubNetworkLibraryKey(kind));
  if(kind==='training'){trainingLibrary=next;renderTrainingLibrary();}else if(kind==='report'){reportLibrary=next;renderReportLibrary();}else{saves=next;renderSaves();if(typeof squadLibraryChanged==='function')squadLibraryChanged();}
 }
 function clubNetworkPayloadId(kind,payload){return kind==='composition'?payload.documentId:payload.id;}
@@ -131,10 +135,32 @@ function clubNetworkPendingJobs(){
  return jobs;
 }
 function clubNetworkPending(kind,id){try{return JSON.parse(localStorage.getItem(clubNetworkPendingKey(kind,id))||'null');}catch{return null;}}
-function clubNetworkMarkPending(kind,id,op){
- const previous=clubNetworkPending(kind,id),expected=previous?.expected||clubNetworkKnownVersion(kind,id);
- localStorage.setItem(clubNetworkPendingKey(kind,id),JSON.stringify({kind,id,op,expected,stamp:crypto.randomUUID(),conflict:false}));
+function clubNetworkMarkPending(kind,id,op,initialExpected=null,stamp=crypto.randomUUID()){
+ const previous=clubNetworkPending(kind,id),expected=previous?.expected||initialExpected||clubNetworkKnownVersion(kind,id);
+ localStorage.setItem(clubNetworkPendingKey(kind,id),JSON.stringify({kind,id,op,expected,stamp,conflict:false}));
  clubSaveStatus('pending',navigator.onLine?'Enregistré sur cet appareil ; envoi au club en cours.':'Hors connexion : enregistrement conservé sur cet appareil, en attente de partage.');
+}
+// A write-ahead record survives a reload between library storage and outbox storage.
+function clubNetworkSaveJournalKey(key){return coachStorageKey('vestiaire-save-journal:'+key);}
+function clubNetworkSaveIntents(kind,previous,value){
+ const unwrap=x=>kind==='composition'?x.state:x,old=JSON.parse(previous||'[]').map(unwrap),next=JSON.parse(value).map(unwrap),oldMap=new Map(old.map(p=>[clubNetworkPayloadId(kind,p),JSON.stringify(p)])),ids=new Set(next.map(p=>clubNetworkPayloadId(kind,p))),jobs=[];
+ for(const payload of next){const source=clubNetworkSource(kind,payload);if(!source)throw clubNetworkError('Document invalide',400,'document_invalid');if(oldMap.get(source.id)!==JSON.stringify(payload))jobs.push({kind,id:source.id,op:'save',stamp:crypto.randomUUID(),expected:clubNetworkPending(kind,source.id)?.expected||clubNetworkKnownVersion(kind,source.id)});}
+ for(const payload of old){const id=clubNetworkPayloadId(kind,payload);if(id&&!ids.has(id))jobs.push({kind,id,op:'delete',stamp:crypto.randomUUID(),expected:clubNetworkPending(kind,id)?.expected||clubNetworkKnownVersion(kind,id)});}
+ return jobs;
+}
+function clubNetworkRepairSaves(skipKey=''){
+ for(const kind of Object.keys(clubNetworkKinds)){
+  const key=clubNetworkLibraryKey(kind);if(key===skipKey)continue;const journalKey=clubNetworkSaveJournalKey(key),raw=localStorage.getItem(journalKey);if(!raw)continue;
+  try{const record=JSON.parse(raw);if(record?.key!==key||typeof record.value!=='string'||!Array.isArray(record.jobs)||!record.jobs.every(j=>j?.kind===kind&&typeof j.id==='string'&&j.id&&typeof j.stamp==='string'&&['save','delete'].includes(j.op)&&j.expected&&Number.isInteger(j.expected.revision)&&j.expected.revision>=0))throw Error('Journal invalide');
+   if(coachStorageGet(key)!==record.value)throw clubNetworkError('Enregistrement interrompu',0,'local_save_interrupted');
+   for(const job of record.jobs)if(clubNetworkPending(job.kind,job.id)?.stamp!==job.stamp)clubNetworkMarkPending(job.kind,job.id,job.op,job.expected,job.stamp);
+   localStorage.removeItem(journalKey);clubSaveLocalErrors.delete('queue:'+key);
+  }catch(error){clubSaveLocalErrors.add('queue:'+key);if(['QuotaExceededError','SecurityError'].includes(error.name))throw clubNetworkError('Stockage du partage indisponible',0,'local_queue_storage');if(!error.code)throw clubNetworkError('Journal à récupérer',0,'local_save_interrupted');throw error;}
+ }
+}
+function clubNetworkRecoveryCandidates(){
+ const candidates=[];for(const kind of Object.keys(clubNetworkKinds)){try{const record=JSON.parse(localStorage.getItem(clubNetworkSaveJournalKey(clubNetworkLibraryKey(kind)))||'null');if(!record||!Array.isArray(record.jobs))continue;const list=JSON.parse(record.value).map(x=>kind==='composition'?x.state:x);for(const job of record.jobs.filter(j=>j.op==='save')){const payload=list.find(p=>clubNetworkPayloadId(kind,p)===job.id);if(clubNetworkPayloadValid(kind,payload)&&!payload.squadDirectory)candidates.push({kind,payload});}}catch{}}
+ return candidates;
 }
 function clubNetworkAuthor(id){return clubNetworkMembers.find(m=>m.user_id===id)?.display_name||'Éducateur du club';}
 function clubNetworkRenderSources(){
@@ -162,6 +188,10 @@ async function clubNetworkPublish(source,expected=clubNetworkKnownVersion(source
  const row=Array.isArray(response)?response[0]:response;if(!row||row.owner_id!==clubNetworkSession.user.id||row.source_id!==source.id||!Number.isInteger(row.revision))throw Error('Réponse invalide');
  clubNetworkRememberVersion(source.kind,source.id,row.revision,row.id);return row;
 }
+function clubNetworkSamePayload(a,b){
+ if(a===b)return true;if(!a||!b||typeof a!=='object'||typeof b!=='object'||Array.isArray(a)!==Array.isArray(b))return false;
+ const keys=Object.keys(a);return keys.length===Object.keys(b).length&&keys.every(k=>Object.hasOwn(b,k)&&clubNetworkSamePayload(a[k],b[k]));
+}
 async function clubNetworkFlushPending(){
  const generation=clubNetworkGeneration;
  const execute=async()=>{
@@ -181,7 +211,16 @@ async function clubNetworkFlushPending(){
     if(latest?.stamp===job.stamp)localStorage.removeItem(clubNetworkPendingKey(job.kind,job.id));
     else if(latest&&row){latest.expected={revision:row.revision,id:row.id};localStorage.setItem(clubNetworkPendingKey(job.kind,job.id),JSON.stringify(latest));}
    }catch(error){
-    if(error.code==='40001'){const latest=clubNetworkPending(job.kind,job.id);if(latest?.stamp===job.stamp){latest.conflict=true;localStorage.setItem(clubNetworkPendingKey(job.kind,job.id),JSON.stringify(latest));}continue;}
+    if(error.code==='40001'){
+     const found=await clubNetworkRequest('/rest/v1/club_documents?'+new URLSearchParams({select:'*',owner_id:'eq.'+clubNetworkSession.user.id,kind:'eq.'+job.kind,source_id:'eq.'+job.id,limit:'1'})),remote=found?.[0];
+     const payload=clubNetworkLibrary(job.kind).find(p=>clubNetworkPayloadId(job.kind,p)===job.id);
+     if(job.op==='delete'&&!remote||job.op==='save'&&remote&&remote.owner_id===clubNetworkSession.user.id&&remote.kind===job.kind&&remote.source_id===job.id&&clubNetworkPayloadValid(job.kind,remote.payload)&&clubNetworkSamePayload(remote.payload,payload)){
+      clubNetworkRememberVersion(job.kind,job.id,remote?.revision||0,remote?.id||null);const latest=clubNetworkPending(job.kind,job.id);
+      if(latest?.stamp===job.stamp)localStorage.removeItem(clubNetworkPendingKey(job.kind,job.id));
+      else if(latest&&remote){latest.expected={id:remote.id,revision:remote.revision};localStorage.setItem(clubNetworkPendingKey(job.kind,job.id),JSON.stringify(latest));}
+      continue;
+     }
+     const latest=clubNetworkPending(job.kind,job.id);if(latest?.stamp===job.stamp){latest.conflict=true;localStorage.setItem(clubNetworkPendingKey(job.kind,job.id),JSON.stringify(latest));}continue;}
     throw error;
    }
   }
@@ -196,6 +235,7 @@ async function clubNetworkSync(){
  clubNetworkSyncPromise=(async()=>{
   try{
    if(!await clubNetworkLoadMember())return;
+   clubNetworkRepairSaves();
    await clubNetworkUpdatePresence();
    await clubNetworkFlushPending();
    const all=[];for(let offset=0;;offset+=100){
@@ -348,15 +388,23 @@ $('club-network-import-local').onclick=()=>clubNetworkRun(async()=>{
 });
 // Enregistrer dans le site privé signifie enregistrer sur le compte et rendre visible au club.
 coachStorageSet=function(key,value){
- const previous=coachStorageGet(key);try{clubNetworkOriginalStorageSet(key,value);clubSaveLocalErrors.delete(key);}catch(error){clubSaveLocalErrors.add(key);clubSaveStatus('error','Le stockage sur cet appareil a échoué : cette modification n’est pas enregistrée. Libérez de l’espace et enregistrez à nouveau.');throw error;}if(!clubNetworkBound())return;
- const kind=key==='vestiaire-training-library'?'training':key==='vestiaire-reports'?'report':key==='vestiaire-saves'?'composition':null;if(!kind)return;
+ const kind=key==='vestiaire-training-library'?'training':key==='vestiaire-reports'?'report':key==='vestiaire-saves'?'composition':null;
+ let staged=false;
  try{
-  const unwrap=x=>kind==='composition'?x.state:x,old=JSON.parse(previous||'[]').map(unwrap),next=JSON.parse(value).map(unwrap),oldMap=new Map(old.map(p=>[clubNetworkPayloadId(kind,p),JSON.stringify(p)])),ids=new Set(next.map(p=>clubNetworkPayloadId(kind,p)));
-  for(const payload of next){const s=clubNetworkSource(kind,payload);if(s&&oldMap.get(s.id)!==JSON.stringify(payload))clubNetworkMarkPending(kind,s.id,'save');}
-  for(const payload of old){const id=clubNetworkPayloadId(kind,payload);if(id&&!ids.has(id))clubNetworkMarkPending(kind,id,'delete');}
-  clubSaveLocalErrors.delete('queue:'+key);clubNetworkStatus('Enregistré sur cet appareil · synchronisation avec le club…');clubNetworkQueueSync();
- }catch{clubSaveLocalErrors.add('queue:'+key);clubSaveStatus('error','Le document est conservé sur cet appareil, mais sa mise en attente de partage a échoué. Enregistrez-le à nouveau.');clubNetworkStatus('Enregistré sur cet appareil, mais la synchronisation doit être réessayée.');}
+  if(kind&&clubNetworkBound()){
+   clubNetworkRepairSaves(key);
+   const existing=localStorage.getItem(clubNetworkSaveJournalKey(key));
+   if(existing&&coachStorageGet(key)===JSON.parse(existing).value)clubNetworkRepairSaves();
+   const previous=coachStorageGet(key);if(coachLibraryBaselines.has(key)&&coachLibraryBaselines.get(key)!==previous&&previous!==value){clubSaveLocalConflicts.add(key);throw clubNetworkError('Bibliothèque changée dans un autre onglet',0,'local_library_conflict');}const jobs=clubNetworkSaveIntents(kind,previous,value);
+   localStorage.setItem(clubNetworkSaveJournalKey(key),JSON.stringify({key,value,jobs}));staged=true;
+  }
+  clubNetworkOriginalStorageSet(key,value);clubSaveLocalErrors.delete(key);clubSaveLocalConflicts.delete(key);
+ }catch(error){if(staged){try{localStorage.removeItem(clubNetworkSaveJournalKey(key));}catch{}}clubSaveLocalErrors.add(key);clubSaveStatus('error','Le stockage sur cet appareil a échoué : cette modification n’est pas enregistrée. Le document ouvert reste disponible ; libérez de l’espace puis réessayez.');throw error;}
+ if(!kind||!clubNetworkBound())return;
+ try{clubNetworkRepairSaves();clubNetworkStatus('Enregistré sur cet appareil · synchronisation avec le club…');clubNetworkQueueSync();}
+ catch{clubSaveLocalErrors.add('queue:'+key);clubSaveStatus('error','Enregistré sur cet appareil, mais la préparation du partage a échoué. Le journal est conservé ; utilisez Réessayer après avoir libéré de l’espace.');clubNetworkStatus('Enregistré sur cet appareil ; partage non confirmé.');}
 };
+
 function clubNetworkResume(){if(typeof clubAccountRecoveryActive!=='undefined'&&clubAccountRecoveryActive)return;if(clubNetworkSession){try{const saved=JSON.parse(sessionStorage.getItem(clubNetworkSessionKey)||'null')?.session;if(saved?.user?.id!==clubNetworkSession.user.id){clubNetworkClear();clubNetworkStatus('Votre session est terminée. Connectez-vous à nouveau.');return;}clubNetworkStoreSession(saved);}catch{clubNetworkClear();clubNetworkStatus('Votre session n’est plus disponible. Connectez-vous à nouveau.');return;}}if(clubNetworkSession&&!clubNetworkMember&&!clubNetworkBusy)clubNetworkRun(()=>clubNetworkAfterLogin(clubNetworkSession));else clubNetworkQueueSync();}
 window.addEventListener('offline',()=>{if(clubNetworkBound())clubSaveStatus('pending','Hors connexion : le partage et la vérification sont en attente. Les documents déjà partagés restent disponibles au club.');});
 for(const event of ['online','focus'])window.addEventListener(event,clubNetworkResume);document.addEventListener('visibilitychange',()=>{if(!document.hidden)clubNetworkQueueSync();});
@@ -426,3 +474,5 @@ async function clubNetworkLeavePresence(keepalive=false){
 }
 window.addEventListener('pagehide',()=>{void clubNetworkLeavePresence(true);});
 window.addEventListener('pageshow',event=>{if(event.persisted)clubNetworkResume();});
+
+window.addEventListener('beforeunload',event=>{if([...clubSaveLocalErrors].some(key=>!key.startsWith('queue:'))){event.preventDefault();event.returnValue='';}});

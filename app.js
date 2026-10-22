@@ -46,7 +46,7 @@ function saveNamedComposition(copy=false){
  const snapshot=structuredClone(state);if(!snapshot.title?.trim())snapshot.title=(snapshot.team+' · '+snapshot.formation).slice(0,100);
  if(copy)snapshot.title=snapshot.title.slice(0,92)+' (copie)';
  const entry={date:new Date().toISOString(),state:snapshot};const next=[entry,...saves.filter(s=>s.state.documentId!==snapshot.documentId)];
- try{coachStorageSet('vestiaire-saves',JSON.stringify(next));state=structuredClone(snapshot);saves=next;persist();render();renderSaves();notify('Composition enregistrée chez '+activeCoach.name+'.');}catch{state.documentId=previousId;notify('Stockage plein : exportez votre composition.');}
+ try{coachStorageSet('vestiaire-saves',JSON.stringify(next));state=structuredClone(snapshot);saves=next;persist();render();renderSaves();notify('Composition enregistrée chez '+activeCoach.name+'.');}catch(error){state.documentId=previousId;notify(error.code==='local_library_conflict'?clubNetworkMessage(error):'Stockage plein : exportez votre composition.');}
 }
 $('save').onclick=()=>saveNamedComposition();
 $('composition-copy').onclick=()=>saveNamedComposition(true);

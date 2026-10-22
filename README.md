@@ -479,3 +479,12 @@ côté serveur et concerne une version précise du document. Installer la migrat
 [club-references.sql](supabase/club-references.sql) et désigner le responsable selon
 [le guide](supabase/INSTALLATION.md#repères-du-club-et-validation-sportive-étape-14).
 Voir la [recette et l’activation restante](docs/club-references-acceptance.md).
+
+### Sauvegardes et partage · étape 15
+
+Un journal local conserve les intentions de partage lorsqu’une écriture de la file
+échoue. Les réponses réseau perdues sont vérifiées avant de déclarer un conflit,
+et un nouvel enregistrement pendant un envoi reste en attente jusqu’à confirmation.
+Les bibliothèques modifiées dans un autre onglet sont protégées contre une écriture
+périmée. Voir la [recette, les limites et l’essai réel restant](docs/save-reliability-acceptance.md).
+Aucun nouveau script Supabase à installer pour cette étape.
