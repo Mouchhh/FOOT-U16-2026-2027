@@ -72,10 +72,8 @@
     const present=rows().filter(r=>r.included&&r.status==='present'),names=present.map(r=>r.name.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase());
     if(present.some(r=>r.name.trim().length<2||r.name==='Participant à identifier')||new Set(names).size!==names.length)throw Error('Identifiez chaque joueur présent avec un nom distinct.');
     const c=counts();if(!$('whatsapp-confirm').checked||c.players<2||c.players>80||c.keepers>Math.min(12,c.players-2))throw Error('Vérifiez l’effectif : au moins deux joueurs de champ, 80 joueurs et 12 gardiens maximum.');
-    const oldPlayers=$('training-players').value,oldKeepers=$('training-keepers').value;$('training-players').value=c.players;$('training-keepers').value=c.keepers;
-    if(!applyTrainingForm()){$('training-players').value=oldPlayers;$('training-keepers').value=oldKeepers;throw Error('La séance n’a pas pu être mise à jour.');}
-    if(!saveTrainingDraft())throw Error('Effectif modifié à l’écran, mais le brouillon n’a pas pu être enregistré. Vérifiez le stockage avant de quitter la page.');
-    renderTrainingBlocks();renderTrainingCatalogue();status.textContent='Effectif appliqué au brouillon : '+c.players+' joueurs, dont '+c.keepers+' gardien(s). Enregistrez la séance pour la partager. Les réglages manuels restent conservés.';
+    if(!trainingApplyAttendance(rows().map(r=>({id:r.senderKey,name:r.name,status:r.status,keeper:!!r.keeper,included:!!r.included})),'whatsapp'))throw Error('La séance n’a pas pu être enregistrée. L’effectif précédent est conservé.');
+    status.textContent='Effectif appliqué au brouillon : '+c.players+' joueurs, dont '+c.keepers+' gardien(s). Enregistrez la séance pour la partager. Les réglages manuels restent conservés.';
    },'primary');apply.id='whatsapp-apply';content.append(apply);updateTotals();
   }
   if(data&&state!=='disconnected')content.append(button('Déconnecter WhatsApp et effacer mes collectes',async()=>{if(!confirm('Déconnecter ce compte WhatsApp du serveur et effacer ses collectes de réactions ?'))return;await request('/api/disconnect','DELETE');data=null;edits.clear();manual=[];render();}));

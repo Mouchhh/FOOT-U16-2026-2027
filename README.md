@@ -52,6 +52,10 @@ Remplacer un exercice après aperçu, conserver ses notes et son créneau, puis 
 
 « Mes exercices » retrouve les créations de vos séances enregistrées et du brouillon ouvert. Ajoutez une copie indépendante dans une autre séance, puis personnalisez-la sans changer la source. L’atelier protège la fermeture des modifications non validées et les rotations animées suivent le trajet le plus court. Voir la [recette de création libre](docs/free-creation-acceptance.md).
 
+## Agenda et présences · étape 12
+
+Agenda filtrable par semaine, catégorie et éducateur de la fiche. Les duplications vérifient les créneaux chargés et ne recopient plus les anciennes présences. Une liste manuelle distingue présents, absents et réponses manquantes ; enregistrer les réponses ne modifie pas le groupe avant validation explicite. Voir la [recette agenda et présences](docs/agenda-attendance-acceptance.md), qui précise aussi l’état de la connexion WhatsApp.
+
 ## Démarrer
 
 Depuis ce dépôt :

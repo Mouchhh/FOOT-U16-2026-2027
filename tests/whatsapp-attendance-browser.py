@@ -41,7 +41,7 @@ with sync_playwright() as p:
  context.route('**/whatsapp-config.js*',lambda r:r.fulfill(content_type='application/javascript',body="window.CLUB_WHATSAPP_GATEWAY='https://wa-test.example';"))
  context.route('https://wa-test.example/**',gateway)
  page=context.new_page();page.on('dialog',lambda d:d.accept());page.on('pageerror',lambda e:errors.append(str(e)));page.goto(URL+'?auth=login');login(page,'a@example.test')
- page.locator('#view-training').click();page.locator('#training-step-link-2').click();page.locator('#training-whatsapp>summary').click()
+ page.locator('#view-training').evaluate('e=>e.click()');page.locator('#training-step-link-2').evaluate('e=>e.click()');page.locator('#training-whatsapp>summary').click()
  page.get_by_role('button',name='Associer mon compte',exact=True).click();page.locator('.whatsapp-qr').wait_for(state='visible')
  wa['state']='ready';wa.pop('qr',None);page.get_by_role('button',name='Actualiser',exact=True).click();page.get_by_role('button',name='Choisir mon groupe',exact=True).click();page.get_by_role('button',name='Utiliser ce groupe',exact=True).click()
  page.get_by_role('button',name='Choisir le message de cette séance',exact=True).click();page.locator('#whatsapp-message').wait_for();page.get_by_role('button',name='Lire ses réactions',exact=True).click()
