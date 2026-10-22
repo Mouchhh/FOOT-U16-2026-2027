@@ -252,3 +252,9 @@
 .bible-role-choices button[aria-pressed=true]{outline:2px solid #ba8b33;outline-offset:1px}
 .bible-placement-reading{font-size:11px!important;color:#526a85!important;line-height:1.6!important;margin:7px 0!important}
 @media print{.bible-detail .bible-decision-reading,.bible-detail .bible-role-choices,.bible-detail .bible-placement-reading,.bible-detail .bible-decision-prompt{display:none!important}}
+
+/* Références vidéo du coach : terrain dégagé, repères lisibles hors du dessin. */
+.bible-scene-metrics{margin:0 0 9px!important;color:#526c8b!important;font-size:11px!important;font-weight:600;line-height:1.5!important;font-variant-numeric:tabular-nums}
+.training-diagram-screen [data-reader="clean"]{background:#f8fafc}
+.training-diagram-screen [data-reader-zone]{font-weight:600;paint-order:stroke;stroke:#2d6948;stroke-width:2px}
+@media print{.bible-scene-metrics{display:none!important}}

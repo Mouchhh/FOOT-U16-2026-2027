@@ -515,3 +515,9 @@ contrôles des droits, du volume, du clavier, du tactile et des petits écrans, 
 leurs limites. Le [guide administrateur de sauvegarde et reprise](docs/club-backup-guide.md)
 distingue les données applicatives du projet Supabase complet et des brouillons locaux.
 Les scripts ne sont pas exécutés automatiquement sur le projet du club.
+
+## Revue visuelle à partir des vidéos du coach
+
+Le [relevé du 22 octobre](docs/bible-video-reference-review.md) distingue les sept
+extraits accessibles, les six transferts bloqués, les corrections effectives et
+les 63 fiches / 189 variantes contrôlées. Les vidéos originales ne sont pas publiées.

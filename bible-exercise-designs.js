@@ -1068,12 +1068,12 @@ function bibleDesignedPlacement(exercise,group,field,tokens,index){
   blue.forEach((p,i)=>{const angle=-Math.PI/2+i*2*Math.PI/blue.length+(index===2?.16:0);set(p,.5+.39*Math.cos(angle),.5+.38*Math.sin(angle),'Soutien extérieur');});red.forEach((p,i)=>set(p,.43+(i%2)*.13,.27+(i+1)*.46/(red.length+1),'Fermer une ligne de passe'));return;
  }
  if(m==='reinforcements'){
-  if(index===0&&exercise.id==='far-post')set(blue[1],.64,.78,'Arrivée tardive au second poteau');
-  if(index===0&&['finish','keeper'].includes(template)){set(blue[0],.43,.22,'Service / soutien');set(blue[1],.68,.48,'Finisseur');set(blue[2],.39,.8,'Soutien complémentaire');set(red[0],.8,.37,'Défenseur proche');set(red[1],.86,.68,'Couverture');}
   if(index>0){set(blue[1],.12,index===1?.82:.2,'Renfort offensif au signal');set(red[1],.21,index===2?.51:.81,'Renfort défensif au signal');}return;
  }
  // Keep the short, deliberately local structure of corners, finishing and goalkeeper duels.
  if(['corner','finish','wide-finish','keeper'].includes(template)){
+  if(index===0&&exercise.id==='far-post')set(blue[1],.64,.78,'Arrivée tardive au second poteau');
+  if(index===0&&['finish','keeper'].includes(template)&&m!=='keeperpass'){set(blue[0],.43,.22,'Service / soutien');set(blue[1],.68,.48,'Finisseur');set(blue[2],.39,.8,'Soutien complémentaire');set(red[0],.8,.37,'Défenseur proche');set(red[1],.86,.68,'Couverture');}
   if(template==='corner'){blue.slice(3).forEach((p,i)=>set(p,.57+(i%2)*.09,.23+(i+1)*.62/(Math.max(1,blue.length-3)+1),'Second ballon / sécurité'));red.slice(2).forEach((p,i)=>set(p,.84+(i%2)*.05,.22+(i+1)*.58/(Math.max(1,red.length-2)+1),'Protéger la surface'));}
   else{blue.slice(3).forEach((p,i)=>set(p,.28+(i%2)*.13,.16+(i+1)*.68/(Math.max(1,blue.length-3)+1),'Soutien / prochain départ'));red.slice(2).forEach((p,i)=>set(p,.76+(i%2)*.08,.22+(i+1)*.58/(Math.max(1,red.length-2)+1),'Protéger le but'));}
   if(index>0){set(blue[1],template==='corner'?.81:.63,index===1?.24:.72,'Soutien décalé');set(blue[2],.77,index===1?.69:.37,'Course complémentaire');}return;
