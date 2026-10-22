@@ -13,7 +13,7 @@ contrôle déjà effectué. Aucun nouveau chantier ne remplace une étape non ab
 | 13 · Préparation et bilan du match | Relier composition, objectifs et observations ; bilan rapide/détaillé ; priorités et suivi dans les séances | Logiciel vérifié ; semaine réelle à essayer — [recette](match-followup-acceptance.md) |
 | 14 · Travail du club | Recherche, auteur, lecture seule et copie indépendante ; distinguer partagé, repère proposé et repère validé par le responsable sportif | Logiciel vérifié ; activation Supabase à effectuer — [recette](club-references-acceptance.md) |
 | 15 · Sauvegardes et partage | Modifications simultanées, coupures, stockage plein, reconnexion ; états exacts et récupération | Logiciel vérifié ; essai sur deux appareils réels à effectuer — [recette](save-reliability-acceptance.md) |
-| 16 · Exports | PDF, images et vidéos fidèles ; téléchargement et import réel dans Canva | À traiter |
+| 16 · Exports | PDF, images et vidéos fidèles ; téléchargement et import réel dans Canva | Fichiers vérifiés ; import dans le compte Canva à effectuer — [recette](exports-acceptance.md) |
 | 17 · Assistant du club | Aide exacte, documents autorisés, faits du club distingués des suggestions ; proposition avant modification | À traiter |
 | 18 · Fiabilité générale | Droits, volume de données/photos, navigateurs, tactile, clavier, petits écrans ; sauvegarde et restauration du club | À traiter |
 

@@ -1,0 +1,16 @@
+@media print{
+ body.training-printing,body.report-printing{display:block!important;height:auto!important;min-height:0!important;overflow:visible!important}
+ #training-print,#report-print{height:auto!important;max-height:none!important;overflow:visible!important}
+ .report-document table{width:100%;table-layout:fixed}
+ .report-document thead{display:table-header-group}
+ .report-document tr{break-inside:avoid}
+ .report-document td,.report-document th{overflow-wrap:anywhere}
+ #training-print .report-document p,#report-print .report-document p,#training-print .training-detail,#training-print .training-detail p,#training-print .training-organisation,#report-print .report-table{font-size:9pt;line-height:1.5}
+ #training-print .report-document h2,#report-print .report-document h2{font-size:12pt}
+ #training-print .report-document h3,#training-print .report-document h4,#report-print .report-document h3{font-size:10pt}
+ .report-document p{orphans:3;widows:3}
+ .report-document h2,.report-document h3,.report-document h4{break-after:avoid}
+ .report-document canvas,.report-document svg{max-width:100%;height:auto;break-inside:avoid}
+ .report-document .exercise-board-preview,.report-document .bible-diagram{break-inside:avoid}
+ .report-document .training-detail{max-height:none!important;overflow:visible!important}
+}

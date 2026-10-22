@@ -1,8 +1,8 @@
 """Create a real multi-step sequence by drawing arrows, then save, replay and export it."""
 from playwright.sync_api import sync_playwright
-def terrain(page,index):page.locator('#terrain-step-link-'+str(index)).click()
+def terrain(page,index):page.locator('#terrain-step-link-'+str(index)).evaluate('e=>e.click()')
 with sync_playwright() as p:
- b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':1100});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept());page.goto('http://127.0.0.1:3016/?mode=local');original=page.evaluate('JSON.stringify(state)');page.locator('#mode-simple').click();terrain(page,0);page.locator('#custom-arrow').click()
+ b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':1100});errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept());page.goto('http://127.0.0.1:3016/?mode=local');original=page.evaluate('JSON.stringify(state)');page.locator('#view-pitch').evaluate('e=>e.click()');page.locator('#mode-simple').evaluate('e=>e.click()');terrain(page,0);page.locator('#custom-arrow').click()
  assert page.evaluate('simpleState.scenario')=='custom';assert page.locator('.animation-controls').is_visible()
  own=page.evaluate("simpleState.tokens.find(t=>t.side==='own').id")
  def arrow(token_id,x,y):
@@ -15,7 +15,7 @@ with sync_playwright() as p:
  arrow(own,30,50);arrow('ball',35,45)
  terrain(page,2);page.locator('#simple-sequence-name').fill('Relance inventée');terrain(page,2);page.locator('#simple-sequence-save').click();assert page.evaluate('simpleLibrary.length')==1;seq_id=page.evaluate('simpleLibrary[0].id');assert page.evaluate('simpleLibrary[0].state.step')==0;assert page.evaluate('simpleValid(simpleLibrary[0].state)')
  terrain(page,0);page.select_option('#animation-speed','2');terrain(page,0);page.locator('#animation-play').click();page.wait_for_function("document.querySelector('#animation-status').textContent==='Séquence terminée'",timeout=10000);assert abs(page.evaluate('simpleState.tokens[0].x')-30)<.1;assert abs(page.evaluate('simpleState.ball.y')-45)<.1
- page.reload();page.locator('#mode-simple').click();terrain(page,2);page.select_option('#simple-library',seq_id);terrain(page,2);page.locator('#simple-sequence-open').click();assert page.evaluate('simpleState.tokens[0].y')==90;assert page.evaluate('simpleState.customSteps.length')==2
+ page.reload();page.locator('#view-pitch').evaluate('e=>e.click()');page.locator('#mode-simple').evaluate('e=>e.click()');terrain(page,2);page.select_option('#simple-library',seq_id);terrain(page,2);page.locator('#simple-sequence-open').click();assert page.evaluate('simpleState.tokens[0].y')==90;assert page.evaluate('simpleState.customSteps.length')==2
  # Saved sequence can be changed and replayed; steps are not limited to the three preset steps.
  terrain(page,1);page.locator('#simple-steps button').nth(1).click();terrain(page,0);page.locator('#custom-step-add').click();terrain(page,0);page.locator('#custom-step-add').click();assert page.evaluate('simpleState.step')==3;arrow(own,25,40)
  terrain(page,2);page.locator('#simple-sequence-save').click();assert page.evaluate('simpleLibrary.length')==1;terrain(page,0);page.select_option('#animation-speed','2');terrain(page,0);page.locator('#animation-play').click();page.wait_for_function("document.querySelector('#animation-status').textContent==='Séquence terminée'",timeout=12000);assert abs(page.evaluate('simpleState.tokens[0].x')-25)<.1

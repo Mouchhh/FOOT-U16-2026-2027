@@ -1,10 +1,12 @@
 // Rendu indépendant de la page : dimensions fixes, photos incorporées, aucun découpage d’impression.
-let compositionCanvas=null,compositionRenderVersion=0,compositionObjectURL=null,compositionExportName='Composition';
+let compositionCanvas=null,compositionRenderVersion=0,compositionObjectURL=null,compositionExportName='Composition',compositionExportSnapshot=null;
 function compositionFit(ctx,text,max){let value=text;while(value.length>1&&ctx.measureText(value).width>max)value=value.slice(0,-1);return value===text?value:value.slice(0,-1)+'…';}
-async function compositionImages(snapshot){
- const sources=[snapshot.clubLogo,...snapshot.players.map(p=>p.photo)].filter(Boolean);const images=new Map();
- await Promise.all([...new Set(sources)].map(async source=>{try{const img=new Image();img.src=source;await img.decode();images.set(source,img);}catch{}}));return images;
+async function compositionImages(snapshot,options={bench:true}){
+ const sources=snapshot.boardKind==='plan'?[]:snapshot.players.filter(p=>options.bench||p.role!=='sub').map(p=>p.photo).filter(Boolean),images=new Map();let failed=false;
+ await Promise.all([...new Set(sources)].map(async source=>{try{const img=new Image();img.src=source;await img.decode();images.set(source,img);}catch{failed=true;}}));
+ if(failed)throw Error('Une photo affichée ne peut pas être lue. Fermez cet aperçu et remplacez ou retirez cette photo avant de réessayer.');return images;
 }
+
 function compositionPortrait(ctx,p,x,y,r,images,color){
  ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();const img=images.get(p.photo);
  if(img){ctx.save();ctx.clip();const side=Math.min(img.naturalWidth,img.naturalHeight);ctx.drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)/2,side,side,x-r,y-r,r*2,r*2);ctx.restore();}
@@ -40,16 +42,16 @@ function compositionPitch(ctx,rect,landscape,snapshot,images,options){
 }
 async function renderCompositionExport(){
  const version=++compositionRenderVersion;compositionCanvas=null;for(const id of ['composition-export-png','composition-export-pdf'])$(id).disabled=true;
- $('composition-export-status').textContent='Préparation de l’aperçu…';
+ $('composition-export-preview').removeAttribute('src');$('composition-export-status').textContent='Préparation de l’aperçu…';
  try{
- const snapshot=structuredClone(state),format=$('composition-export-format').value;
+ const snapshot=structuredClone(compositionExportSnapshot||state),format=$('composition-export-format').value;
  const options={lanes:$('composition-export-lanes').checked,bench:$('composition-export-bench').checked,opponents:$('composition-export-opponents').checked,arrows:$('composition-export-arrows').checked};
- const images=await compositionImages(snapshot);if(version!==compositionRenderVersion)return;
+ const images=await compositionImages(snapshot,options);if(version!==compositionRenderVersion)return;
  const canvas=document.createElement('canvas');const portrait=format==='portrait';[canvas.width,canvas.height]=format==='slides'?[2560,1440]:portrait?[2480,3508]:[3508,2480];const {width:W,height:H}=canvas;const ctx=canvas.getContext('2d');
  compositionPitch(ctx,{x:0,y:0,w:W,h:H},!portrait,snapshot,images,options);
  compositionCanvas=canvas;compositionExportName=snapshot.title||snapshot.team;if(compositionObjectURL)URL.revokeObjectURL(compositionObjectURL);const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(version!==compositionRenderVersion)return;if(!blob)throw Error();compositionObjectURL=URL.createObjectURL(blob);$('composition-export-preview').src=compositionObjectURL;$('composition-export-status').textContent=W+' × '+H+' px · terrain seul · 1 page';
  for(const id of ['composition-export-png','composition-export-pdf'])$(id).disabled=false;
- }catch{$('composition-export-status').textContent='Impossible de préparer l’export. Réessayez après avoir vérifié les photos.';}
+ }catch(error){if(version!==compositionRenderVersion)return;compositionCanvas=null;$('composition-export-status').textContent=error.message||'Impossible de préparer l’export. Réessayez après avoir vérifié les photos.';}
 }
 // PDF autonome : une image JPEG incorporée à une seule page, sans police externe.
 async function compositionPDF(canvas){
@@ -61,12 +63,14 @@ async function compositionPDF(canvas){
  const stream='q\n'+w+' 0 0 '+h+' 0 0 cm\n/Im0 Do\nQ\n';object(5,'<< /Length '+enc.encode(stream).length+' >>\nstream\n'+stream+'endstream');const xref=length;add('xref\n0 6\n0000000000 65535 f \n');for(let i=1;i<=5;i++)add(String(offsets[i]).padStart(10,'0')+' 00000 n \n');add('trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n'+xref+'\n%%EOF');return new Blob(parts,{type:'application/pdf'});
 }
 $('composition-export').onclick=()=>{
+ compositionExportSnapshot=structuredClone(state);
  $('composition-export-arrows').checked=state.arrows.length>0;
  $('composition-export-opponents').checked=!!state.opponents?.visible;
  $('composition-export-bench').checked=state.benchVisible!==false&&state.boardKind!=='plan';
  $('composition-export-lanes').checked=state.lanes!==false;
  $('composition-export-dialog').showModal();renderCompositionExport();};$('composition-export-close').onclick=()=>$('composition-export-dialog').close();
+$('composition-export-dialog').addEventListener('close',()=>{if($('composition-export-dialog').open)return;compositionRenderVersion++;compositionCanvas=null;compositionExportSnapshot=null;$('composition-export-preview').removeAttribute('src');if(compositionObjectURL)URL.revokeObjectURL(compositionObjectURL);compositionObjectURL=null;});
 $('pdf').onclick=()=>$('composition-export').click();
 for(const id of ['composition-export-format','composition-export-bench','composition-export-opponents','composition-export-arrows','composition-export-lanes'])$(id).onchange=renderCompositionExport;
-$('composition-export-png').onclick=()=>{const canvas=compositionCanvas;if(canvas)canvas.toBlob(blob=>{if(blob)mediaDownload(blob,namedDocumentFilename(compositionExportName+'-HD','png'));},'image/png');};
-$('composition-export-pdf').onclick=async()=>{const canvas=compositionCanvas;if(!canvas)return;try{mediaDownload(await compositionPDF(canvas),namedDocumentFilename(compositionExportName,'pdf'));}catch{notify('Impossible de créer le PDF. Essayez l’image PNG.');}};
+$('composition-export-png').onclick=()=>{const canvas=compositionCanvas,name=namedDocumentFilename(compositionExportName+'-HD','png');if(canvas)canvas.toBlob(blob=>{if(blob)mediaDownload(blob,name);else notify('Impossible de créer l’image. Réessayez.');},'image/png');};
+$('composition-export-pdf').onclick=async()=>{const canvas=compositionCanvas,name=namedDocumentFilename(compositionExportName,'pdf');if(!canvas)return;try{mediaDownload(await compositionPDF(canvas),name);}catch{notify('Impossible de créer le PDF. Essayez l’image PNG.');}};

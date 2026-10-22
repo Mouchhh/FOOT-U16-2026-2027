@@ -1,14 +1,14 @@
 // Export local sur canvas : aucun compte, aucune photo ni donnée envoyée à Canva.
 let videoExportJob=null;
 function mediaDownload(blob,name){const url=URL.createObjectURL(blob);const a=el('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);}
-function mediaName(extension){return namedDocumentFilename(simpleState.sequenceTitle?.trim()||'stade-mayennais-'+simpleState.scenario,extension);}
+function mediaName(extension,snapshot=simpleState){return namedDocumentFilename(snapshot.sequenceTitle?.trim()||'stade-mayennais-'+snapshot.scenario,extension);}
 function wrapMediaText(ctx,text,x,y,maxWidth,lineHeight){
  let line='';for(const word of text.split(/\s+/)){const candidate=line?line+' '+word:word;if(ctx.measureText(candidate).width>maxWidth&&line){ctx.fillText(line,x,y);y+=lineHeight;line=word;}else line=candidate;}if(line){ctx.fillText(line,x,y);y+=lineHeight;}return y;
 }
-function renderMedia(canvas,snapshot,landscape){
+function renderMedia(canvas,snapshot,landscape,category=state.category){
  const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;const s=simpleScenario(snapshot);
  ctx.fillStyle='#f0f4fb';ctx.fillRect(0,0,W,H);
- ctx.fillStyle='#2855a2';ctx.font='bold 22px Arial';ctx.fillText('STADE MAYENNAIS · '+(state.category||'FOOTBALL À 11')+' · TABLEAU TACTIQUE',48,48);
+ ctx.fillStyle='#2855a2';ctx.font='bold 22px Arial';ctx.fillText('STADE MAYENNAIS · '+(category||'FOOTBALL À 11')+' · TABLEAU TACTIQUE',48,48);
  ctx.fillStyle='#18345b';ctx.font='bold 36px Arial';ctx.fillText(snapshot.sequenceTitle?.trim()||s.title,48,100,1250);
  const maxW=1250,maxH=860;const aspect=landscape?840/680:680/840;const w=Math.min(maxW,maxH*aspect),h=w/aspect;
  const x=48+(maxW-w)/2,y=148;
@@ -44,8 +44,8 @@ function renderMedia(canvas,snapshot,landscape){
 }
 function createMediaCanvas(){const c=document.createElement('canvas');c.width=1920;c.height=1080;return c;}
 $('export-image').onclick=()=>{
- stopAnimation();const canvas=createMediaCanvas();renderMedia(canvas,structuredClone(simpleState),document.body.classList.contains('landscape-mode'));
- canvas.toBlob(blob=>{if(blob){mediaDownload(blob,mediaName('png'));$('media-status').textContent='Image PNG téléchargée · prête à importer dans Canva.';}else notify('Impossible de créer l’image.');},'image/png');
+ stopAnimation();const snapshot=structuredClone(simpleState),name=mediaName('png',snapshot),canvas=createMediaCanvas();renderMedia(canvas,snapshot,document.body.classList.contains('landscape-mode'));
+ canvas.toBlob(blob=>{if(blob){mediaDownload(blob,name);$('media-status').textContent='Image PNG téléchargée · prête à importer dans Canva.';}else notify('Impossible de créer l’image.');},'image/png');
 };
 function videoMime(){if(typeof MediaRecorder==='undefined')return '';return ['video/mp4;codecs=avc1.42E01E','video/mp4','video/webm;codecs=vp8','video/webm'].find(m=>MediaRecorder.isTypeSupported(m))||'';}
 function exportSegments(snapshot,branch){
@@ -69,14 +69,14 @@ function lockMedia(locked){
 }
 $('cancel-video').onclick=()=>{if(videoExportJob){videoExportJob.cancelled=true;videoExportJob.cancel?.();}};
 $('export-video').onclick=async()=>{
- if(videoExportJob)return;const mime=videoMime();if(!mime){notify('Export vidéo indisponible dans ce navigateur. Essayez une version récente de Chrome, Edge ou Safari.');return;}
- stopAnimation();const input=structuredClone(simpleState),landscape=document.body.classList.contains('landscape-mode'),speed=Number($('animation-speed').value);
+ if(videoExportJob||(typeof exportExerciseVideo==='function'&&exportExerciseVideo.busy))return notify('Une vidéo est déjà en cours.');const mime=videoMime();if(!mime){notify('Export vidéo indisponible dans ce navigateur. Essayez une version récente de Chrome, Edge ou Safari.');return;}
+ stopAnimation();const input=structuredClone(simpleState),category=state.category,landscape=document.body.classList.contains('landscape-mode'),speed=Number($('animation-speed').value);
  if(input.scenario==='custom')customRestoreSnapshot(input,0);
  const canvas=createMediaCanvas();const segments=exportSegments(input,$('animation-choice').value);const duration=2400/speed,total=500+segments.length*duration+800;
- let stream,recorder;const job={cancelled:false};videoExportJob=job;lockMedia(true);$('media-status').textContent='Création de la vidéo… Gardez cet onglet visible.';
+ let stream,recorder,stopTimeout;const job={cancelled:false};videoExportJob=job;lockMedia(true);$('media-status').textContent='Création de la vidéo… Gardez cet onglet visible.';
  try{
-  renderMedia(canvas,segments[0].start,landscape);stream=canvas.captureStream(30);recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6000000});const chunks=[];
-  const finished=new Promise((resolve,reject)=>{recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};recorder.onstop=resolve;recorder.onerror=()=>reject(new Error('Encodage vidéo indisponible.'));});
+  renderMedia(canvas,segments[0].start,landscape,category);stream=canvas.captureStream(30);recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6000000});const chunks=[];
+  const finished=new Promise((resolve,reject)=>{recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};recorder.onstop=()=>{clearTimeout(stopTimeout);resolve();};recorder.onerror=()=>{job.cancelled=true;job.cancel?.();reject(new Error('Encodage vidéo indisponible.'));};});
   finished.catch(()=>{});
   recorder.start(250);const start=performance.now();let last=0;
   await new Promise((resolve,reject)=>{
@@ -85,16 +85,16 @@ $('export-video').onclick=async()=>{
     if(document.hidden)job.cancelled=true;
     if(job.cancelled){resolve();return;}
     const elapsed=now-start,relative=Math.max(0,elapsed-500),index=Math.min(segments.length-1,Math.floor(relative/duration));const t=Math.min(1,(relative-index*duration)/duration);
-    renderMedia(canvas,interpolateMedia(segments[index],t),landscape);
+    renderMedia(canvas,interpolateMedia(segments[index],t),landscape,category);
     const percent=Math.min(100,Math.floor(elapsed/total*10)*10);if(percent!==last){last=percent;$('media-status').textContent='Création de la vidéo : '+percent+' % · gardez cet onglet visible.';}
     if(elapsed>=total){resolve();return;}requestAnimationFrame(tick);
    }catch(error){reject(error);}}requestAnimationFrame(tick);
   });
-  if(recorder.state!=='inactive')recorder.stop();await finished;
+  stopTimeout=setTimeout(()=>{job.cancelled=true;recorder.onerror?.();},10000);if(recorder.state!=='inactive')recorder.stop();await finished;
   if(job.cancelled){$('media-status').textContent='Export annulé. Votre tableau est conservé.';return;}
-  const blob=new Blob(chunks,{type:recorder.mimeType});if(!blob.size)throw new Error('Vidéo vide.');const extension=recorder.mimeType.includes('mp4')?'mp4':'webm';mediaDownload(blob,mediaName(extension));$('media-status').textContent='Vidéo '+extension.toUpperCase()+' téléchargée · importez-la dans Canva.';
+  const blob=new Blob(chunks,{type:recorder.mimeType});if(!blob.size)throw new Error('Vidéo vide.');const extension=recorder.mimeType.includes('mp4')?'mp4':'webm';mediaDownload(blob,mediaName(extension,input));$('media-status').textContent='Vidéo '+extension.toUpperCase()+' téléchargée · importez-la dans Canva.';
  }catch(error){$('media-status').textContent='Export vidéo impossible. Essayez un navigateur récent ou exportez une image PNG.';}
- finally{if(recorder&&recorder.state!=='inactive')recorder.stop();stream?.getTracks().forEach(t=>t.stop());videoExportJob=null;lockMedia(false);}
+ finally{clearTimeout(stopTimeout);try{if(recorder&&recorder.state!=='inactive')recorder.stop();}catch{}stream?.getTracks().forEach(t=>t.stop());videoExportJob=null;lockMedia(false);}
 };
 if(!videoMime()){$('export-video').disabled=true;$('media-status').textContent='Ce navigateur ne permet pas l’export vidéo. L’image PNG reste disponible.';}
 

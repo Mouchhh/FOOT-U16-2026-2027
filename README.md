@@ -488,3 +488,13 @@ et un nouvel enregistrement pendant un envoi reste en attente jusqu’à confirm
 Les bibliothèques modifiées dans un autre onglet sont protégées contre une écriture
 périmée. Voir la [recette, les limites et l’essai réel restant](docs/save-reliability-acceptance.md).
 Aucun nouveau script Supabase à installer pour cette étape.
+
+### Exports · étape 16
+
+La composition exportée conserve son instantané et ses photos ; PNG et PDF partagent
+le même rendu. Les vidéos nettoient leur capture après erreur ou annulation et
+conservent le nom de la séquence préparée. Les PDF de séance/rapport disposent de
+textes imprimés plus lisibles et d’en-têtes de tableaux répétés. Voir la
+[recette des vrais fichiers téléchargés](docs/exports-acceptance.md) et le
+[guide Canva](docs/exports-canva-guide.md). L’import dans le compte Canva du club
+reste à vérifier ; aucune migration Supabase nécessaire.
