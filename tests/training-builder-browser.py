@@ -2,7 +2,7 @@
 from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1366,'height':900});errors=[]
- page.on('pageerror',lambda e:errors.append(str(e)));page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("typeof trainingReplaceBlock==='function'")
+ page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept());page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("typeof trainingReplaceBlock==='function'")
  page.evaluate("()=>{currentTraining={...newTraining(),players:6,keepers:0,space:'full',notes:'Offrir deux angles au porteur',duration:60,themes:['Conservation'],blocks:[]};for(const [id,duration]of [['warm',10],['rondo',30],['cool',14]]){const e=trainingExercises.find(e=>e.id===id);currentTraining.blocks.push({id:'block-'+id,exerciseId:id,duration,setupMinutes:2,notes:'Notes '+id,bibleVariant:bibleInitialVariant(e,currentTraining)});}syncTrainingForm();saveTrainingDraft();document.querySelector('#view-training').click();trainingWizard.go(3);renderTrainingBlocks();}")
  assert page.evaluate("trainingValid(currentTraining)&&trainingTotal()===60&&trainingFinish()==='19:30'")
  assert page.evaluate("()=>{const b=trainingBudget();return b.setup===360&&b.work+b.rest+b.setup+b.unallocated===3600&&b.rest>0}")

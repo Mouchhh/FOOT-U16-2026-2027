@@ -48,6 +48,10 @@ Le jeu unique respecte les rôles et le format de la fiche. En cas d’incompati
 
 Remplacer un exercice après aperçu, conserver ses notes et son créneau, puis réordonner ou retirer sans perdre le déroulé précédent en cas d’échec. Les budgets distinguent activité, récupération et installation ; l’heure de fin inclut les transitions renseignées. La relecture vérifie aussi l’ordre et les temps minimaux. Voir la [recette de construction](docs/session-builder-acceptance.md), avec les essais en situation restant à consigner.
 
+## Création libre · étape 11
+
+« Mes exercices » retrouve les créations de vos séances enregistrées et du brouillon ouvert. Ajoutez une copie indépendante dans une autre séance, puis personnalisez-la sans changer la source. L’atelier protège la fermeture des modifications non validées et les rotations animées suivent le trajet le plus court. Voir la [recette de création libre](docs/free-creation-acceptance.md).
+
 ## Démarrer
 
 Depuis ce dépôt :
