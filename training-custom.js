@@ -41,8 +41,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(!trainingCustomValid(custom)||!Number.isInteger(duration)||duration<1||duration>120)return notify('Vérifiez le nom, la durée et les dimensions de l’exercice.');
   const block=trainingCustomEditing?currentTraining.blocks.find(b=>b.id===trainingCustomEditing):null;
   if(trainingCustomEditing&&!block)return notify('Cet exercice n’est plus présent dans la séance.');
-  if(block){block.custom=custom;block.duration=duration;}else{if(currentTraining.blocks.length>=20)return notify('20 blocs maximum.');currentTraining.blocks.push({id:crypto.randomUUID(),exerciseId:'custom',custom,duration,notes:''});}
-  saveTrainingDraft();renderTrainingBlocks();$('custom-training-dialog').close();
+  if(block&&block.recoveryMinutes!==undefined&&block.recoveryMinutes>=duration)return notify('La récupération comprise dépasse la nouvelle durée. Ajustez-la dans le déroulé avant de raccourcir cet exercice.');
+  if(!block&&currentTraining.blocks.length>=20)return notify('20 blocs maximum.');
+  if(!trainingCommitBlocks(blocks=>{if(block){const target=blocks.find(b=>b.id===block.id);target.custom=custom;target.duration=duration;}else blocks.push({id:crypto.randomUUID(),exerciseId:'custom',custom,duration,notes:''});},!!block))return;
+  $('custom-training-dialog').close();
  };
  renderManualTrainingMode();
 });

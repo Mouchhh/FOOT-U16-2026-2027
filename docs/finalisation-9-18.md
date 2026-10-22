@@ -7,7 +7,7 @@ contrôle déjà effectué. Aucun nouveau chantier ne remplace une étape non ab
 | Étape | Résultat attendu | État |
 |---|---|---|
 | 9 · Adaptations des exercices | Rôles, dimensions, temps et contraintes adaptés au groupe ; incompatibilités explicites et organisations alternatives, sans simple ajout de pions | Logiciel vérifié ; essai terrain à réaliser — [recette](exercise-adaptation-acceptance.md) |
-| 10 · Construction des séances | Objectif, progression, charge et déroulé réalisables ; modifier, retirer, remplacer et réordonner ; distinguer jeu, récupération et installation | À traiter |
+| 10 · Construction des séances | Objectif, progression, charge et déroulé réalisables ; modifier, retirer, remplacer et réordonner ; distinguer jeu, récupération et installation | Logiciel vérifié ; essai en situation à réaliser — [recette](session-builder-acceptance.md) |
 | 11 · Création libre | Matériel lisible, orientable et déplaçable ; schéma et animation modifiables ; variante enregistrable et réutilisable | À traiter |
 | 12 · Agenda et présences | Recherche semaine/catégorie/coach, duplication sans doublon, présents/absents/réponses manquantes, effectif validé avant adaptation | À traiter |
 | 13 · Préparation et bilan du match | Relier composition, objectifs et observations ; bilan rapide/détaillé ; priorités et suivi dans les séances | À traiter |

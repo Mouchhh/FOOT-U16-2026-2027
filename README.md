@@ -44,6 +44,10 @@ Menus, étapes liées, historique et conservation des préparations vérifiés e
 
 Le jeu unique respecte les rôles et le format de la fiche. En cas d’incompatibilité, le coach choisit des ateliers, un groupe actif avec rotations explicites ou un autre exercice du même thème. Les récupérations intermédiaires sont comptées dans le budget réel. Voir la [recette et le protocole terrain](docs/exercise-adaptation-acceptance.md) et la [suite validée des étapes 9 à 18](docs/finalisation-9-18.md).
 
+## Construction des séances · étape 10
+
+Remplacer un exercice après aperçu, conserver ses notes et son créneau, puis réordonner ou retirer sans perdre le déroulé précédent en cas d’échec. Les budgets distinguent activité, récupération et installation ; l’heure de fin inclut les transitions renseignées. La relecture vérifie aussi l’ordre et les temps minimaux. Voir la [recette de construction](docs/session-builder-acceptance.md), avec les essais en situation restant à consigner.
+
 ## Démarrer
 
 Depuis ce dépôt :
