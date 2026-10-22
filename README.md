@@ -507,3 +507,11 @@ contre un contexte obsolète, échec de stockage et récupération du brouillon 
 Les référentiels sont séparés par coach et les aperçus sont vidés à la déconnexion.
 Voir le [guide](docs/assistant-guide.md) et la [recette](docs/assistant-acceptance.md).
 L’assistant reste local et guidé ; aucun service ChatGPT/API n’a été ajouté.
+
+## Fiabilité générale · étape 18
+
+La [recette de fiabilité](docs/general-reliability-acceptance.md) récapitule les
+contrôles des droits, du volume, du clavier, du tactile et des petits écrans, avec
+leurs limites. Le [guide administrateur de sauvegarde et reprise](docs/club-backup-guide.md)
+distingue les données applicatives du projet Supabase complet et des brouillons locaux.
+Les scripts ne sont pas exécutés automatiquement sur le projet du club.

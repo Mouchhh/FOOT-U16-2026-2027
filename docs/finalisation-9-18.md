@@ -15,7 +15,7 @@ contrôle déjà effectué. Aucun nouveau chantier ne remplace une étape non ab
 | 15 · Sauvegardes et partage | Modifications simultanées, coupures, stockage plein, reconnexion ; états exacts et récupération | Logiciel vérifié ; essai sur deux appareils réels à effectuer — [recette](save-reliability-acceptance.md) |
 | 16 · Exports | PDF, images et vidéos fidèles ; téléchargement et import réel dans Canva | Fichiers vérifiés ; import dans le compte Canva à effectuer — [recette](exports-acceptance.md) |
 | 17 · Assistant du club | Aide exacte, documents autorisés, faits du club distingués des suggestions ; proposition avant modification | Assistant local vérifié ; essai avec les comptes réels à effectuer — [recette](assistant-acceptance.md) |
-| 18 · Fiabilité générale | Droits, volume de données/photos, navigateurs, tactile, clavier, petits écrans ; sauvegarde et restauration du club | À traiter |
+| 18 · Fiabilité générale | Droits, volume de données/photos, navigateurs, tactile, clavier, petits écrans ; sauvegarde et restauration du club | Contrôles logiciels effectués ; navigateurs réels et reprise Supabase à vérifier — [recette](general-reliability-acceptance.md) |
 
 Ordre des quatre chantiers : qualité football et essai terrain représentatif ;
 parcours d’une semaine réelle avec éducateurs débutants et expérimentés ; fiabilité
