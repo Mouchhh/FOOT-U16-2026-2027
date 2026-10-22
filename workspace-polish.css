@@ -129,3 +129,14 @@ body:not(.home-mode) .reports-heading h1{font-size:23px;margin:0;line-height:1.2
  .bible-sheet-dialog .bible-design-controls{padding:10px;gap:5px;margin-block:8px}
 }
 @media print{.bible-sheet-dialog>.bible-detail{display:block}.bible-sheet-dialog>.bible-card-actions,.bible-sheet-dialog .bible-sequence-stage{position:static}}
+/* Narrow agenda cards must shrink inside their columns, including action labels. */
+.coach-agenda-counts{grid-template-columns:repeat(3,minmax(0,1fr))}
+.coach-agenda-counts>div{min-width:0}
+.coach-agenda-counts button{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+@media(max-width:360px){.coach-agenda-counts>div{padding:10px 8px}}
+/* Keep group/date setup on a laptop screen without reducing input hit areas. */
+@media(min-width:1000px) and (min-height:650px) and (max-height:800px){
+ body:not(.home-mode) #training-step-2 .report-panel{padding:12px;margin-bottom:8px}
+ body:not(.home-mode) #training-step-2 .training-step-heading{margin-bottom:8px}
+ body:not(.home-mode) #training-step-2 .training-whatsapp{margin-block:4px}
+}

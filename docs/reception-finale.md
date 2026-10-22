@@ -83,6 +83,13 @@ Aucune restauration de production ne doit servir d'essai.
 
 ## 4. Finition visuelle et compatibilité
 
+- [x] Contrôles locaux Chromium et corrections ciblées : raccourcis avec focus sur
+  la bonne section, agenda à 320 pixels, marges du formulaire sur portable,
+  navigation tactile/clavier et exports téléchargés. Voir la
+  [recette de compatibilité](visual-compatibility-acceptance.md).
+- [ ] Firefox et Safari réels : moteurs non installables ici (téléchargements 403).
+- [ ] Import réel du PNG, de la vidéo et du PDF dans le compte Canva du club.
+
 - [ ] Corriger les détails observés dans les essais précédents, sans ajouter de
   boutons ou de fonctions qui ne résolvent pas un blocage constaté.
 - [ ] Vérifier Chrome/Edge Windows, Firefox et Safari iPhone réels, clavier et tactile.

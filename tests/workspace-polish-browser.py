@@ -3,7 +3,7 @@ from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':1050});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("typeof trainingWizard==='object'");page.locator('#view-training').evaluate('e=>e.click()')
- page.locator('#training-bible-tab').evaluate('e=>e.click()');drawer=page.locator('#training-catalogue-drawer');assert drawer.is_visible()
+ page.evaluate('()=>{currentTraining.players=6;currentTraining.keepers=0;syncTrainingForm();}');page.locator('#training-bible-tab').evaluate('e=>e.click()');drawer=page.locator('#training-catalogue-drawer');assert drawer.is_visible()
  sizes=page.evaluate("()=>{const d=document.querySelector('#training-catalogue-drawer').getBoundingClientRect(),l=document.querySelector('.training-drawer-layout').getBoundingClientRect();return {drawer:d.width,layout:l.width,columns:getComputedStyle(document.querySelector('#training-catalogue')).gridTemplateColumns.split(' ').length};}")
  assert sizes['drawer']>=sizes['layout']*.95 and sizes['columns']==3,sizes
  assert page.locator('#training-catalogue .bible-card').count()==3

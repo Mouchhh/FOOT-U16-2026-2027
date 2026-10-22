@@ -2,13 +2,13 @@
 document.addEventListener('DOMContentLoaded',()=>{
  const nav=document.querySelector('.app-navigation');if(!nav||!window.workspaceFlows||!window.trainingWizard)return;
  const menus=new Map();let opened=null,routing=false,positionFrame=0,leaveTimer=0;
- const go=(parent,action)=>()=>{close();routing=true;try{if(window.workspaceNavigation){if(!workspaceNavigation.run(parent,action))return;}else{$(parent).click();action?.();}}finally{routing=false;}requestAnimationFrame(()=>{if(opened)return;window.scrollTo({top:0,behavior:'instant'});if(document.querySelector('dialog[open]'))return;const search=parent==='view-training'?(!$('training-library-page').hidden?$('training-library-search'):!$('training-catalogue-drawer').hidden&&trainingWizard.step()===3?$('training-search'):null):parent==='view-club-network'&&workspaceFlows.club.index()===1?$('club-document-title'):null;const target=search||[...document.querySelectorAll('.training-step:not([hidden]) h2,#report-content h2,.flow-page:not([hidden]) h1,.flow-page:not([hidden]) h2,.flow-page:not([hidden]) h3')].find(e=>e.getClientRects().length);if(target){if(!target.matches('input,select,textarea'))target.tabIndex=-1;target.focus({preventScroll:true});}});};
+ const go=(parent,action,targetFor)=>()=>{close();routing=true;try{if(window.workspaceNavigation){if(!workspaceNavigation.run(parent,action))return;}else{$(parent).click();action?.();}}finally{routing=false;}requestAnimationFrame(()=>{if(opened)return;if(document.querySelector('dialog[open]'))return;const destination=targetFor?.();if(destination?.getClientRects().length){destination.scrollIntoView({block:'nearest',behavior:'instant'});const focus=destination.querySelector('summary')||destination;focus.tabIndex=focus.matches('summary,input,button,select,textarea')?focus.tabIndex:-1;focus.focus({preventScroll:true});return;}window.scrollTo({top:0,behavior:'instant'});const search=parent==='view-training'?(!$('training-library-page').hidden?$('training-library-search'):!$('training-catalogue-drawer').hidden&&trainingWizard.step()===3?$('training-search'):null):parent==='view-club-network'&&workspaceFlows.club.index()===1?$('club-document-title'):null;const target=search||[...document.querySelectorAll('.training-step:not([hidden]) h2,#report-content h2,.flow-page:not([hidden]) h1,.flow-page:not([hidden]) h2,.flow-page:not([hidden]) h3')].find(e=>e.getClientRects().length);if(target){if(!target.matches('input,select,textarea'))target.tabIndex=-1;target.focus({preventScroll:true});}});};
  const at=(name,index)=>()=>workspaceFlows[name].go(index);
  const training=index=>()=>{$('training-prepare-tab').click();trainingWizard.go(index);};
  const report=id=>()=>{reportTab=id;renderReportTabs();renderReportContent();};
  const mode=(id,index=0)=>()=>{$(id).click();workspaceFlows.terrain.go(index);};
  const active=cls=>document.body.classList.contains(cls);
- const item=(label,run,current)=>({label,run,current});
+ const item=(label,run,current,target)=>({label,run,current,target});
  const definitions=[
   ['view-home','Accueil',[
    item('Mon tableau de bord',at('home',0),()=>active('home-mode')&&workspaceFlows.home.index()===0),
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    item('Vue épurée des joueurs',mode('mode-focus'),()=>active('terrain-workflow-active')&&active('focus-mode')&&workspaceFlows.terrain.index()===0),
    item('Explications · pions et animations',mode('mode-simple'),()=>active('terrain-workflow-active')&&active('simple-mode')&&workspaceFlows.terrain.index()===0),
    item('Préparation du match & réglages',mode('mode-team',1),()=>active('terrain-workflow-active')&&workspaceFlows.terrain.index()===1),
-   item('Impacteurs / Finisseurs',()=>{mode('mode-team',1)();if(state.benchVisible===false)$('bench-toggle').click();$('terrain-bench-drawer').open=true;$('terrain-bench-drawer').scrollIntoView({block:'nearest',behavior:'instant'});}),
+   item('Impacteurs / Finisseurs',()=>{mode('mode-team',1)();if(state.benchVisible===false)$('bench-toggle').click();$('terrain-bench-drawer').open=true;},null,()=>$('terrain-bench-drawer')),
    item('Enregistrer, ouvrir & exporter',at('terrain',2),()=>active('terrain-workflow-active')&&workspaceFlows.terrain.index()===2),
    item('Mes joueurs enregistrés',()=>openCoachSquad())
   ]],
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   ]],
   ['view-reports','Après-match · rapports',[
    ...Object.entries(reportTabNames).map(([id,label])=>item(label.replace(/^\d+\s*·\s*/,''),report(id),()=>active('reports-mode')&&reportTab===id)),
-   item('Mes rapports enregistrés',()=>{$('report-library-drawer').open=true;$('report-library-drawer').scrollIntoView({block:'nearest',behavior:'instant'});})
+   item('Mes rapports enregistrés',()=>{$('report-library-drawer').open=true;},null,()=>$('report-library-drawer'))
   ]],
   ['view-club-network','Travail du club',[
    item('Les éducateurs du club',at('club',0),()=>active('club-network-mode')&&workspaceFlows.club.index()===0),
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  for(const [parent,title,entries]of definitions){
   const trigger=$(parent);if(!trigger)continue;const panel=el('div','workspace-submenu');panel.id=parent+'-submenu';panel.hidden=true;panel.setAttribute('role','menu');panel.setAttribute('aria-labelledby',parent);const heading=el('div','workspace-submenu-heading',title);heading.setAttribute('aria-hidden','true');panel.append(heading);const menu={trigger,panel,entries:[]};menus.set(parent,menu);
   trigger.setAttribute('aria-haspopup','menu');trigger.setAttribute('aria-expanded','false');trigger.setAttribute('aria-controls',panel.id);trigger.classList.add('workspace-menu-trigger');const arrow=el('span','workspace-menu-chevron');arrow.setAttribute('aria-hidden','true');trigger.append(arrow);
-  for(const entry of entries){const button=el('button','workspace-submenu-item',entry.label);button.type='button';button.setAttribute('role','menuitem');button.onclick=()=>{const isClub=parent==='view-club-network';go(parent,()=>{if(isClub&&!clubNetworkBound())return;entry.run();const dialog=document.querySelector('dialog[open]');if(dialog)dialog.addEventListener('close',()=>{if(!document.activeElement?.getClientRects().length||document.activeElement===document.body)trigger.focus({preventScroll:true});},{once:true});})();};button.tabIndex=-1;panel.append(button);menu.entries.push([entry,button]);}
+  for(const entry of entries){const button=el('button','workspace-submenu-item',entry.label);button.type='button';button.setAttribute('role','menuitem');button.onclick=()=>{const isClub=parent==='view-club-network';go(parent,()=>{if(isClub&&!clubNetworkBound())return;entry.run();const dialog=document.querySelector('dialog[open]');if(dialog)dialog.addEventListener('close',()=>{if(!document.activeElement?.getClientRects().length||document.activeElement===document.body)trigger.focus({preventScroll:true});},{once:true});},entry.target)();};button.tabIndex=-1;panel.append(button);menu.entries.push([entry,button]);}
   // A real click opens the menu. Programmatic clicks remain the routing API used
   // by home shortcuts and existing workflows, so their original handlers run.
   trigger.addEventListener('pointerenter',event=>{if(hoverMouse(event))open(menu);});
