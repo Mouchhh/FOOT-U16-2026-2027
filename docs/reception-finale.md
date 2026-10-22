@@ -47,12 +47,27 @@ Les autres fiches conservent leur contrôle de rendu et de trajectoires ; leur
 réception pédagogique approfondie ne doit pas être déduite de ces seuls tests.
 Les références reçues sont recensées dans [la revue vidéo](bible-video-reference-review.md).
 
+### Lot suivant : réaction à la perte
+
+- [x] `transition` et `counterpress-escape` : interception visible, réaction bleue
+  pendant la conduite adverse, rôles de pression et de couverture distincts.
+- [x] Conservation sans cible : ne pas inventer un but à défendre ou un sens
+  d’attaque obligatoire. La direction illustrée est une sortie de densité.
+- [x] Variante repli : passe réellement interceptée avant le changement de mission.
+- [x] Variante sécurisation : départ « ballon déjà récupéré » annoncé explicitement.
+- [x] Contrôles de trajectoires et lecture des trois variantes : aucune récupération
+  bleue garantie pour conclure la démonstration.
+- [ ] Compréhension sans aide et mise en place réelle par les deux éducateurs.
+
 ## 2. Parcours d'une semaine — logiciel vérifié, réception humaine ouverte
 
 - [x] Deux scénarios automatisés complets, découverte et confirmé, avec rechargements,
   deux semaines, conservation du document original et liaison bilan–séance —
   [recette détaillée](full-week-acceptance.md).
 - [x] Destination de la séance suivante explicite et remplacement de brouillon protégé.
+
+La [semaine d’essai avec deux éducateurs](semaine-essai-educateurs.md) est préparée ;
+participants et date restent à renseigner. Elle ne constitue pas un essai réalisé.
 
 - [ ] Un éducateur débutant prépare son groupe, cherche un exercice, adapte sa
   séance, la retrouve dans l'agenda, prépare le match, saisit un bilan puis reprend

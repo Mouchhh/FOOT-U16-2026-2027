@@ -214,12 +214,11 @@ function bibleAnimationPlan(exercise,group,options={}){
   else carry(a,point(.34,.62),'1 · Déplacer le ballon','Le porteur change de couloir pour déplacer le bloc.');
   add('2 · Coulisser ensemble','Les défenseurs se déplacent ensemble en conservant leurs écarts et la protection de l’axe.',2,red.map(p=>advance(p,-.04,.13)));
   add('3 · Stabiliser le bloc','Le plus proche peut sortir ; ses partenaires restent en couverture.',1.4,[advance(red[0],-.035,-.025)]);
- }else if(mechanism.type==='loss'&&red[0]&&a){
-  const intended=feet(b||a),cut={x:ball.x+(intended.x-ball.x)*.6,y:ball.y+(intended.y-ball.y)*.6};gamePhase='interception';
-  add('1 · Voir la perte de balle','Exemple d’une passe fermée : le rouge coupe sa trajectoire et prend le ballon. Les bleus doivent changer de mission.',1.5,[move(red[0],cut)],()=>feet(red[0]));Object.assign(steps.at(-1),{action:'recovery',from:a.number,to:red[0].number,intendedTo:intended});ballOwner=red[0].number;possessionTeam='red';gamePhase='transition';
-  carry(red[0],point(.56,.46),'2 · Sortir de la zone de récupération','Le nouveau porteur conduit pendant que les bleus réagissent ; un seul ballon reste en jeu.',1.4);
-  add('3 · Réagir et fermer','Le bleu proche intervient ; un partenaire ferme une solution de passe.',1.8,[move(a,point(.46,.44)),move(b,point(.63,.64))]);
-  if(red[1])pass(red[0],red[1],'4 · Tester la sortie de pression','Le nouveau porteur cherche une solution ; les bleus ajustent leur pression.',1.8,[advance(a,.05,.035),advance(b,.035,-.035)]);
+ }else if(mechanism.type==='loss'&&red[0]&&a&&b){
+  intercept(a,b,red[0],'1 · La passe est interceptée','Exemple d’une passe fermée : le rouge coupe sa trajectoire. À la maîtrise du ballon, les bleus deviennent défenseurs ; la récupération immédiate n’est pas garantie.');
+  carry(red[0],point(.42,.38),'2 · Réagir pendant la sortie adverse','Dans ce jeu de conservation sans but imposé, le rouge cherche à sortir de la densité. Le bleu proche ralentit le porteur ; un partenaire ferme l’intérieur et un autre protège derrière. Ne pas attendre la fin de la conduite pour réagir.',1.8,[move(a,point(.32,.5)),move(b,point(.23,.62)),c?move(c,point(.62,.35)):null,red[1]?move(red[1],point(.68,.78)):null]);
+  add('3 · Choisir : presser ou protéger','Le proche cadre sans se jeter. Ici, le rouge garde un appui visible ; les autres bleus restent reliés au lieu de tous poursuivre le ballon.',1.3);
+  if(red[1])pass(red[0],red[1],'4 · La sortie oblige à se réorganiser','Exemple d’une sortie réussie : les bleus se reconnectent et ferment les relais intérieurs. Ne pas annoncer une récupération automatique.',1.8,[move(a,point(.3,.56)),move(b,point(.17,.54)),c?move(c,point(.55,.44)):null]);
  }else if(exercise.id==='counter-wide'&&a&&b){
   carry(a,point(.46,.46),'1 · Fixer dans l’axe','Le porteur avance ; un partenaire ouvre le couloir tandis qu’un autre accompagne à une hauteur différente.',2,[move(b,point(.58,.1)),move(red[0],point(.58,.52)),c?move(c,point(.68,.81)):null]);
   pass(a,b,'2 · Servir l’appel large','La passe rejoint le coureur dans le couloir libre, pendant sa course.',2,[move(b,point(.74,.12),{start:.1}),move(red[0],point(.61,.49))]);

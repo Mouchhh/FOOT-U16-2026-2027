@@ -106,7 +106,7 @@ function bibleVariantDemonstration(design,h){
   let holder=a;
   if(code==='regain-safe')add('Après la récupération : lire la pression','La situation commence ballon déjà récupéré par les bleus. Si la progression est fermée, trouver le soutien de sécurité plutôt que forcer vers l’avant.',1.4);
   if(code==='retreat'){
-   if(['transition','counterpress-escape','rest-defence'].includes(h.exerciseId)&&red[0]){recover(red[0],'L’adversaire sort de la première pression','Exemple d’une perte bleue : les rouges maîtrisent le ballon ; les bleus protègent maintenant leur cible à gauche.',[move(red[0],point(.49,.43))]);holder=red[0];}
+   if(['transition','counterpress-escape','rest-defence'].includes(h.exerciseId)&&red[0]){intercept(a,b||a,red[0],'1 · Voir la passe interceptée','Exemple d’une perte bleue : le rouge coupe la passe puis maîtrise le ballon. Les bleus se reconnectent derrière le joueur proche ; s’il y a une cible, ils restent entre elle et le porteur.');holder=red[0];}
    const defending=holder.team==='red'?blue:red,direction=holder.team==='red'?-1:1;
    carry(holder,point(.5+direction*.1,.4),'Ralentir le porteur',detail,2,defending.map((p,i)=>move(p,point(.5+direction*(.2+.06*(i%2)),.2+(i+1)*.6/(defending.length+1)))));
    add('Revenir à des hauteurs différentes','Un joueur intervient ; les autres protègent les passes et la profondeur. Tous ne viennent pas sur le ballon.',2,defending.map((p,i)=>advance(p,direction*.025,i%2?-.025:.025)));
