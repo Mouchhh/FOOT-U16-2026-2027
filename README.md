@@ -524,3 +524,6 @@ les 63 fiches / 189 variantes contrôlées. Les vidéos originales ne sont pas p
 
 Le suivi des quatre derniers chantiers et les critères de fermeture sont dans
 [la réception finale](docs/reception-finale.md), avec les essais réels restant à effectuer.
+
+La [recette du parcours complet](docs/full-week-acceptance.md) décrit les deux
+semaines rejouées dans le site et les essais humains et connectés restant à effectuer.

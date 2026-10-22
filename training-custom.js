@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(currentTraining.creationMode==='manual')return $('training-title').focus();
   if(!applyTrainingForm())return;
   if(currentTraining.blocks.length&&!confirm('Créer une nouvelle séance vide avec ces paramètres ? Enregistrez la séance actuelle avant de continuer si vous souhaitez la conserver.'))return;
-  const next=structuredClone(currentTraining);next.id=crypto.randomUUID();next.title='';next.updatedAt='';next.blocks=[];next.creationMode='manual';delete next.clubAdvice;delete next.coachingLoad;currentTraining=next;saveTrainingDraft();syncTrainingForm();renderTrainingBlocks();renderTrainingLibrary();$('training-title').focus();notify('Séance vierge créée : choisissez vos paramètres, puis ajoutez vos exercices.');
+  const next=structuredClone(currentTraining);next.id=crypto.randomUUID();next.title='';next.updatedAt='';next.blocks=[];next.creationMode='manual';delete next.clubAdvice;delete next.coachingLoad;if(typeof workspaceReplaceDraft==='function'){if(!workspaceReplaceDraft('training',next))return;}else{const previous=currentTraining;currentTraining=next;if(!saveTrainingDraft()){currentTraining=previous;return;}syncTrainingForm();renderTrainingBlocks();renderTrainingLibrary();}$('training-title').focus();notify('Séance vierge créée : choisissez vos paramètres, puis ajoutez vos exercices.');
  };
  $('training-assisted').onclick=()=>{if(!applyTrainingForm())return;currentTraining.creationMode='assisted';saveTrainingDraft();renderManualTrainingMode();};
  $('training-custom-add').onclick=()=>openCustomTrainingExercise();$('training-custom-catalogue').onclick=()=>$('training-search').focus();$('custom-training-close').onclick=()=>$('custom-training-dialog').close();

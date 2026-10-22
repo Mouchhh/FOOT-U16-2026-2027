@@ -47,7 +47,12 @@ Les autres fiches conservent leur contrôle de rendu et de trajectoires ; leur
 réception pédagogique approfondie ne doit pas être déduite de ces seuls tests.
 Les références reçues sont recensées dans [la revue vidéo](bible-video-reference-review.md).
 
-## 2. Parcours d'une semaine — après la réception du premier chantier
+## 2. Parcours d'une semaine — logiciel vérifié, réception humaine ouverte
+
+- [x] Deux scénarios automatisés complets, découverte et confirmé, avec rechargements,
+  deux semaines, conservation du document original et liaison bilan–séance —
+  [recette détaillée](full-week-acceptance.md).
+- [x] Destination de la séance suivante explicite et remplacement de brouillon protégé.
 
 - [ ] Un éducateur débutant prépare son groupe, cherche un exercice, adapte sa
   séance, la retrouve dans l'agenda, prépare le match, saisit un bilan puis reprend
