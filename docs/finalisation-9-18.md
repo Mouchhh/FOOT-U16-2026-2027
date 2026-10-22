@@ -14,7 +14,7 @@ contrôle déjà effectué. Aucun nouveau chantier ne remplace une étape non ab
 | 14 · Travail du club | Recherche, auteur, lecture seule et copie indépendante ; distinguer partagé, repère proposé et repère validé par le responsable sportif | Logiciel vérifié ; activation Supabase à effectuer — [recette](club-references-acceptance.md) |
 | 15 · Sauvegardes et partage | Modifications simultanées, coupures, stockage plein, reconnexion ; états exacts et récupération | Logiciel vérifié ; essai sur deux appareils réels à effectuer — [recette](save-reliability-acceptance.md) |
 | 16 · Exports | PDF, images et vidéos fidèles ; téléchargement et import réel dans Canva | Fichiers vérifiés ; import dans le compte Canva à effectuer — [recette](exports-acceptance.md) |
-| 17 · Assistant du club | Aide exacte, documents autorisés, faits du club distingués des suggestions ; proposition avant modification | À traiter |
+| 17 · Assistant du club | Aide exacte, documents autorisés, faits du club distingués des suggestions ; proposition avant modification | Assistant local vérifié ; essai avec les comptes réels à effectuer — [recette](assistant-acceptance.md) |
 | 18 · Fiabilité générale | Droits, volume de données/photos, navigateurs, tactile, clavier, petits écrans ; sauvegarde et restauration du club | À traiter |
 
 Ordre des quatre chantiers : qualité football et essai terrain représentatif ;

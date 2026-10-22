@@ -498,3 +498,12 @@ textes imprimés plus lisibles et d’en-têtes de tableaux répétés. Voir la
 [recette des vrais fichiers téléchargés](docs/exports-acceptance.md) et le
 [guide Canva](docs/exports-canva-guide.md). L’import dans le compte Canva du club
 reste à vérifier ; aucune migration Supabase nécessaire.
+
+### Assistant du club · étape 17
+
+El crakito distingue aide locale, extraits des auteurs et propositions à relire.
+Les séances et bilans proposés s’appliquent seulement après aperçu, avec protection
+contre un contexte obsolète, échec de stockage et récupération du brouillon précédent.
+Les référentiels sont séparés par coach et les aperçus sont vidés à la déconnexion.
+Voir le [guide](docs/assistant-guide.md) et la [recette](docs/assistant-acceptance.md).
+L’assistant reste local et guidé ; aucun service ChatGPT/API n’a été ajouté.

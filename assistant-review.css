@@ -1,0 +1,5 @@
+#crakito-report-proposal form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#crakito-report-proposal form>.primary{grid-column:1/-1}
+#crakito-report-proposal textarea{width:100%;min-width:0;resize:vertical}
+#crakito-report-proposal p{overflow-wrap:anywhere}
+@media(max-width:650px){#crakito-report-proposal form{grid-template-columns:minmax(0,1fr)}}
