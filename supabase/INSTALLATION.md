@@ -105,8 +105,8 @@ Sans la migration ou pendant une panne, les noms des éducateurs autorisés rest
 ## Repères du club et validation sportive (étape 14)
 
 L’éducateur reste auteur de son document. **Proposer comme repère** ne le valide
-pas. Seul un responsable sportif désigné dans la base peut valider la version
-consultée. Cette décision est interne au club : elle ne constitue pas une
+pas. Seul un responsable sportif désigné pour le **pôle de la fiche** peut valider
+la version consultée. Les droits seniors et jeunes sont distincts. Cette décision est interne au club : elle ne constitue pas une
 homologation FFF. Un changement de contenu ou une nouvelle version retire le
 statut validé jusqu’à une nouvelle lecture et validation. La copie d’un collègue
 n’hérite pas de sa validation, ni de ses présences nominatives.
@@ -120,19 +120,23 @@ Si la base existe déjà, **ne remplacez pas le script de base** :
    en remplaçant l’adresse d’exemple par celle de leur compte existant :
 
 ```sql
-insert into public.club_sport_leads(user_id)
-select m.user_id from public.club_members m
+insert into public.club_sport_leads(user_id,pole)
+select m.user_id,'jeunes' from public.club_members m
 join auth.users u on u.id=m.user_id
 where lower(u.email)=lower('responsable@exemple.fr') and m.active
-on conflict(user_id) do nothing
-returning user_id;
+on conflict(user_id,pole) do nothing
+returning user_id,pole;
 ```
+
+Dans cette requête, utiliser `'jeunes'` pour le responsable du pôle jeunes
+ou `'seniors'` pour celui des seniors. **Ne pas attribuer les deux par défaut.**
+Le compte doit déjà avoir été créé et être autorisé.
 
 Un identifiant doit apparaître. Zéro ligne signifie compte absent, inactif ou déjà
 responsable. Pour vérifier la désignation, depuis SQL Editor :
 
 ```sql
-select m.display_name, u.email, m.active
+select m.display_name, u.email, m.active, l.pole
 from public.club_sport_leads l
 join public.club_members m on m.user_id=l.user_id
 join auth.users u on u.id=l.user_id;
@@ -160,3 +164,43 @@ une validation depuis l’aperçu du document. Aucun éducateur ne peut s’attr
 ce droit depuis le navigateur, ni valider en modifiant le JSON d’une séance.
 Sans cette migration, les documents restent consultables et copiables ; le site
 indique que la validation sportive n’est pas installée et n’invente aucun statut.
+
+### Mise à jour depuis les droits de validation globaux
+
+Si vous avez déjà exécuté la première version, ouvrez **New query**, nommez-la
+**Validation par pôle · seniors et jeunes**, puis exécutez de nouveau tout
+[club-references.sql](club-references.sql). Ne remplacez pas `club.sql` et ne
+supprimez aucune table.
+
+Les anciens responsables sont conservés avec `pole = 'unassigned'` : ils n’ont
+plus de droit de validation global. Attribuez explicitement `jeunes` ou `seniors`
+avec la requête ci-dessus. Une ancienne décision sans pôle reste conservée dans
+l’historique mais n’apparaît plus comme validée : elle doit être relue.
+
+Le pôle est calculé par le serveur depuis **Catégorie** : U6 à U20 pour les jeunes,
+Seniors pour les adultes. Les niveaux sont reconnus, par exemple U15 R2, U17 R2,
+U17 D1, U18 R2 et U14 D1. Les catégories féminines sont reconnues aussi. Pour un
+rapport, la catégorie est celle des informations du match. Le nom du coach, le
+nom de l’équipe et un champ JSON `pole` ne donnent aucun droit.
+
+Une catégorie vide, inconnue ou mélangeant jeunes et seniors empêche la validation.
+L’auteur précise la catégorie dans sa fiche puis enregistre et partage la nouvelle
+version. La consultation et la copie restent accessibles aux éducateurs autorisés.
+Les catégories Vétérans et Loisirs ne sont pas assimilées automatiquement au pôle
+seniors : elles restent à définir avec le club.
+
+Le responsable d’un pôle ne peut pas retirer la validation d’un autre pôle. Si la
+catégorie d’une fiche change de pôle, la nouvelle version doit être relue par le
+responsable du nouveau pôle. Retirer un droit pour un seul pôle :
+
+```sql
+delete from public.club_sport_leads
+where pole='jeunes'
+  and user_id in (select id from auth.users
+                 where lower(email)=lower('responsable@exemple.fr'));
+```
+
+Pour une personne qui n’a pas encore de compte : l’inviter d’abord avec
+`club_authorize_educator`, lui transmettre son code individuellement, la laisser
+créer son compte, **puis** attribuer son pôle avec la requête prévue. Ni une invitation
+ni un nom d’éducateur ne désignent automatiquement un responsable sportif.

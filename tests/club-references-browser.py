@@ -15,8 +15,8 @@ def api(route):
    for r in rows:
     if r['payload'].get('clubReference') is True:
      approved=lead and reviews.get(r['id'])==r['revision']
-     refs.append(dict(document_id=r['id'],revision=r['revision'],reviewer_id=A if approved else None,reviewed_at='2026-10-22T15:00:00Z' if approved else None))
-   return reply(dict(can_review=actor==A and lead,references=refs))
+     refs.append(dict(document_id=r['id'],revision=r['revision'],reviewer_id=A if approved else None,reviewed_at='2026-10-22T15:00:00Z' if approved else None,pole='jeunes',can_review=actor==A and lead))
+   return reply(dict(scope_version=2,can_review=actor==A and lead,poles=['jeunes'] if actor==A and lead else [],references=refs))
   body=req.post_data_json
   if actor!=A or not lead:return reply({'code':'42501'},403)
   r=next((r for r in rows if r['id']==body['p_document_id']),None)

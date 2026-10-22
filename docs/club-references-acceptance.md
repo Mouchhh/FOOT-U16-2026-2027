@@ -56,3 +56,28 @@ La publication du site n’installe pas une migration SQL. Cette étape reste
 explicitement en attente d’activation réelle pour la validation sportive ; la
 recherche et le partage habituels continuent à fonctionner sans cette migration.
 Une validation interne au club ne constitue pas une homologation fédérale.
+
+## Complément · validation séparée par pôle
+
+- [x] Migration depuis le schéma global : conserve comptes, documents, anciennes
+  désignations et décisions, sans droit global implicite. Anciennes décisions
+  sans pôle non présentées comme des validations sectorisées.
+- [x] Attribution explicite du pôle par administration : jeunes ou seniors.
+  Aucun lien automatique entre un nom de coach, son équipe et ses permissions.
+- [x] Catégorie calculée côté serveur pour séance, composition et rapport.
+  U6 à U20 reconnus ; suffixes R2/D1 et catégories féminines pris en compte.
+  Catégories inconnues ou ambiguës bloquées pour validation seulement.
+- [x] Validation et retrait refusés entre pôles, y compris par appel direct RPC.
+- [x] Interface : pôle visible, bouton uniquement pour le responsable concerné.
+  Ancienne migration sans version de périmètre : validation désactivée dans
+  l’interface, message de mise à jour Supabase, consultation/copie conservées.
+- [x] Changement de catégorie : nouvelle version et nouvelle validation par le
+  responsable du nouveau pôle. Réinstallation conserve les rôles sectorisés.
+
+Tests supplémentaires : `tests/club-poles-access.sql` dans PostgreSQL temporaire
+PGlite et `tests/club-poles-browser.py` (deux responsables simulés, catégorie
+inconnue, ancienne migration et mobile).
+
+Reste en production : réexécuter le script actualisé, inviter les personnes qui
+n’ont pas encore de compte puis attribuer leurs pôles. Les adresses privées et
+codes d’invitation ne sont pas enregistrés dans ce dépôt public.

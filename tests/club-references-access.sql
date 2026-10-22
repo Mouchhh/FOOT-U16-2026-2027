@@ -17,15 +17,15 @@ insert into auth.users values
 insert into public.club_members(user_id,display_name) values
  ('00000000-0000-4000-8000-000000000001','Responsable'),
  ('00000000-0000-4000-8000-000000000002','Éducateur');
-insert into public.club_sport_leads values('00000000-0000-4000-8000-000000000001');
+insert into public.club_sport_leads(user_id,pole) values('00000000-0000-4000-8000-000000000001','jeunes');
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-4000-8000-000000000002';
-select public.club_publish_document('training','exercise','Séance','{"clubReference":true,"clubApproval":"forged"}',0);
+select public.club_publish_document('training','exercise','Séance','{"category":"U17","clubReference":true,"clubApproval":"forged"}',0);
 do $$declare doc public.club_documents;v jsonb;begin
  select * into doc from public.club_documents where source_id='exercise';
  begin perform public.club_review_reference(doc.id,doc.revision,true);raise exception 'Ordinary educator approved';exception when insufficient_privilege then null;end;
  begin insert into public.club_sport_leads values(auth.uid());raise exception 'Self promotion accepted';exception when insufficient_privilege then null;end;
- begin insert into public.club_document_reviews values(doc.id,doc.revision,auth.uid(),now());raise exception 'Forged approval accepted';exception when insufficient_privilege then null;end;
+ begin insert into public.club_document_reviews(document_id,revision,reviewer_id,reviewed_at) values(doc.id,doc.revision,auth.uid(),now());raise exception 'Forged approval accepted';exception when insufficient_privilege then null;end;
  v:=public.club_reference_overview();
  if (v->>'can_review')::boolean or v->'references'->0->>'reviewer_id' is not null then raise exception 'False approval or role';end if;
 end $$;
@@ -47,11 +47,11 @@ set role authenticated;
 set request.jwt.claim.sub='00000000-0000-4000-8000-000000000002';
 do $$declare doc public.club_documents;v jsonb;begin
  select * into doc from public.club_documents where source_id='exercise';
- perform public.club_publish_document('training','exercise','Edited','{"clubReference":true}',1,doc.id);
+ perform public.club_publish_document('training','exercise','Edited','{"category":"U17","clubReference":true}',1,doc.id);
  v:=public.club_reference_overview();
  if v->'references'->0->>'reviewer_id' is not null then raise exception 'New revision kept old approval';end if;
  -- Payload flag alone cannot validate the copy.
- perform public.club_publish_document('training','copy','Copy','{"clubApproval":"validated"}',0);
+ perform public.club_publish_document('training','copy','Copy','{"category":"U17","clubApproval":"validated"}',0);
 end $$;
 set request.jwt.claim.sub='00000000-0000-4000-8000-000000000001';
 do $$declare doc public.club_documents;v jsonb;begin
@@ -75,7 +75,7 @@ do $$begin
  begin perform public.club_review_reference(gen_random_uuid(),1,true);raise exception 'Former lead approves';exception when insufficient_privilege then null;end;
 end $$;
 reset role;
-insert into public.club_sport_leads values('00000000-0000-4000-8000-000000000001');
+insert into public.club_sport_leads(user_id,pole) values('00000000-0000-4000-8000-000000000001','jeunes');
 update public.club_members set active=false where display_name='Responsable';
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-4000-8000-000000000002';
