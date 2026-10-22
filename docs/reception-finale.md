@@ -64,6 +64,12 @@ Les références reçues sont recensées dans [la revue vidéo](bible-video-refe
 
 ## 3. Données réelles — réception sur deux appareils
 
+- [x] Contrôles logiciels Chromium avec service simulé : coupure et reprise,
+  conflits, réponse perdue, quota, brouillons remplacés et récupération de plusieurs
+  documents d’un journal interrompu après rechargement. Archives conservées avant
+  reprise ; une erreur de quota laisse le journal et le brouillon ouverts intacts.
+  Ces contrôles ne remplacent pas les essais réels ci-dessous.
+
 - [ ] Même coach : modification concurrente, message de conflit compréhensible,
   conservation des deux travaux utiles et reprise sans écrasement silencieux.
 - [ ] Deux coachs : partage lisible, original du collègue protégé, copie indépendante.

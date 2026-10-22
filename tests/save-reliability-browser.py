@@ -70,13 +70,29 @@ with sync_playwright() as p:
  assert replacement in rows
  page.evaluate("localStorage.removeItem(clubNetworkPendingKey('training',currentTraining.id))");rows.remove(replacement)
  # Simulate interruption after the journal but before library commit; candidate is recoverable.
- page.evaluate("""()=>{clearInterval(clubNetworkTimer);const next=structuredClone(currentTraining);next.id=crypto.randomUUID();next.title='Interruption récupérable';const key='vestiaire-training-library',value=JSON.stringify([next,...trainingLibrary]),jobs=clubNetworkSaveIntents('training',coachStorageGet(key),value);localStorage.setItem(clubNetworkSaveJournalKey(key),JSON.stringify({key,value,jobs}));}""")
+ page.evaluate("""()=>{clearInterval(clubNetworkTimer);const next=structuredClone(currentTraining);next.id=crypto.randomUUID();next.title='Interruption récupérable';const key='vestiaire-training-library',second=structuredClone(next);second.id=crypto.randomUUID();second.title='Deuxième interruption récupérable';const value=JSON.stringify([next,second,...trainingLibrary]),jobs=clubNetworkSaveIntents('training',coachStorageGet(key),value);localStorage.setItem(clubNetworkSaveJournalKey(key),JSON.stringify({key,value,jobs}));}""")
  page.reload();page.wait_for_function("typeof clubNetworkBound==='function'&&clubNetworkBound()&&!clubNetworkBusy");wait_sync(page)
  assert page.locator('#club-save-label').inner_text()=='Échec'
- page.evaluate('workspaceOpenRecovery()');page.get_by_role('button',name='Ouvrir une copie du travail interrompu',exact=True).click()
+ page.evaluate('workspaceOpenRecovery()')
+ before=page.evaluate('currentTraining.id')
+ page.evaluate("()=>{window.restoreSetItem=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k.startsWith('vestiaire-private-recovery:'))throw new DOMException('Full','QuotaExceededError');return window.restoreSetItem.call(this,k,v)}}")
+ page.get_by_role('button',name='Ouvrir une copie du travail interrompu',exact=True).first.click()
+ assert page.evaluate('currentTraining.id')==before
+ assert page.evaluate("!!localStorage.getItem(clubNetworkSaveJournalKey('vestiaire-training-library'))")
+ page.evaluate('()=>{Storage.prototype.setItem=window.restoreSetItem;}')
+ page.get_by_role('button',name='Ouvrir une copie du travail interrompu',exact=True).first.click()
  assert page.evaluate("currentTraining.title.includes('Interruption récupérable')")
  page.evaluate("document.querySelector('#training-save').click()");wait_sync(page)
  assert any('Interruption récupérable' in r['title'] for r in rows)
+ # Saving the first copy must not destroy the other document from the same journal.
+ page.reload();page.wait_for_function("typeof clubNetworkBound==='function'&&clubNetworkBound()&&!clubNetworkBusy");wait_sync(page)
+ assert page.evaluate("clubNetworkRecoveryArchives().length===1&&clubNetworkRecoveryCandidates().some(x=>x.payload.title==='Deuxième interruption récupérable')")
+ page.evaluate('workspaceOpenRecovery()')
+ page.locator('.completion-row').filter(has_text='Deuxième interruption récupérable').get_by_role('button',name='Ouvrir une copie du travail interrompu').click()
+ page.evaluate("document.querySelector('#training-save').click()");wait_sync(page)
+ assert any('Deuxième interruption récupérable' in r['title'] for r in rows)
+ assert page.evaluate('clubNetworkRecoveryCandidates().length>=2')
+
  # Actual shared localStorage mutation from another tab must not be overwritten by stale memory.
  page.evaluate('clearInterval(clubNetworkTimer)');key=page.evaluate("coachStorageKey('vestiaire-training-library')")
  raw=page.evaluate("coachStorageGet('vestiaire-training-library')");changed=json.loads(raw);changed[0]['notes']='Version de l’autre onglet'

@@ -72,3 +72,24 @@ Reste à essayer sur deux appareils réels avec des comptes du club : modificati
 concurrente d’une séance, coupure pendant Enregistrer, reprise, puis récupération
 d’un brouillon. Ces essais de production ne sont pas revendiqués par la simulation.
 Aucune nouvelle migration SQL n’est nécessaire pour cette étape.
+
+## Reprise de plusieurs documents interrompus
+
+Le journal interrompu est désormais archivé localement avant toute reprise ou
+remplacement. Enregistrer une première copie ne détruit plus les autres candidats
+du même journal. Les copies reçoivent de nouveaux identifiants, sans reprendre les
+marques de validation du document source. Les archives sont propres au coach et
+au service ; une déconnexion ferme la fenêtre de récupération.
+
+Les archives restent disponibles dans « Mon espace · agenda → Brouillons &
+récupération », même après rechargement. Leur suppression demande confirmation
+et ne touche ni aux bibliothèques ni aux envois en attente. Les suppressions
+interrompues archivées doivent être revérifiées manuellement dans Travail du club.
+L’archivage doit réussir avant le remplacement du journal : faute d’espace, la
+reprise est bloquée. Il ne constitue pas une sauvegarde indépendante du navigateur.
+
+Le test de fiabilité couvre désormais deux séances dans le même journal :
+récupération et partage de la première, rechargement, puis récupération et partage
+de la seconde. La restauration réelle de Supabase reste à effectuer selon
+`docs/club-backup-guide.md`, avec les comptes Auth nécessaires et un environnement
+de restauration distinct.
