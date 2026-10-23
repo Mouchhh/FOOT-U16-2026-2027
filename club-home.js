@@ -18,7 +18,7 @@ function renderClubHomeStats(){
  $('home-greeting').textContent='Bonjour '+(clubNetworkMember?.display_name||activeCoach.name)+'.';
  $('home-greeting').title=$('home-greeting').textContent;
  $('home-date').textContent=new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',timeZone:'Europe/Paris'}).format(new Date());
- $('home-training-count').textContent=trainingLibrary.length;$('home-report-count').textContent=reportLibrary.length;$('home-composition-count').textContent=saves.filter(s=>valid(s.state)&&!s.state.squadDirectory).length;
+ $('home-training-count').textContent=trainingLibrary.length;$('home-report-count').textContent=reportLibrary.length;$('home-composition-count').textContent=saves.filter(s=>valid(s.state)&&!s.state.squadDirectory&&!s.state.pionExplanation).length;
 }
 const clubShowBeforeHome=clubNetworkShowView;
 clubNetworkShowView=function(on=true){if(on)hideClubHome();return clubShowBeforeHome(on);};

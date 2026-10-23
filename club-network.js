@@ -75,14 +75,15 @@ async function clubNetworkRequest(path,{method='GET',body,auth=true,retry=true}=
  }
  return result;
 }
-function clubNetworkPayloadValid(kind,payload){try{return kind==='training'?trainingValid(payload):kind==='report'?reportValid(payload):kind==='composition'?!!valid(payload):false;}catch{return false;}}
+function clubNetworkPayloadValid(kind,payload){try{return kind==='training'?trainingValid(payload):kind==='report'?reportValid(payload):kind==='composition'?!!valid(payload)&&(!payload.pionExplanation||simpleExplanationValid(payload)):false;}catch{return false;}}
 function clubNetworkSource(kind,payload){
  const id=kind==='composition'?payload.documentId:payload.id;
  if(!id||!clubNetworkPayloadValid(kind,payload))return null;
  const fallback=kind==='training'?payload.date+' · '+payload.team:kind==='report'?(payload.info.date||'Match')+' · '+payload.info.team+' / '+payload.info.opponent:payload.team+' · '+payload.formation;
- return {kind,id,title:((kind==='composition'&&payload.boardKind==='plan'&&!payload.title?.startsWith('Plan de jeu · ')?'Plan de jeu · ':'')+(payload.title?.trim()||fallback||clubNetworkKinds[kind])).slice(0,150),payload:structuredClone(payload)};
+ return {kind,id,title:((kind==='composition'&&payload.pionExplanation?'Explication · ':'')+(kind==='composition'&&payload.boardKind==='plan'&&!payload.title?.startsWith('Plan de jeu · ')?'Plan de jeu · ':'')+(payload.title?.trim()||fallback||clubNetworkKinds[kind])).slice(0,150),payload:structuredClone(payload)};
 }
 function clubNetworkComposition(payload){
+ if(payload.pionExplanation)return simpleExplanationPreview(payload);
  if(payload.squadDirectory&&typeof squadReadOnly==='function')return squadReadOnly(payload);
  const root=el('article','report-document');root.append(el('h2','',payload.title||payload.team),el('p','',payload.team+' · '+(payload.category||'')+' · '+payload.formation));
  const pitch=el('div','club-network-pitch');pitch.setAttribute('aria-label','Composition en lecture seule');
@@ -126,7 +127,7 @@ const clubNetworkOriginalStorageSet=coachStorageSet;
 function clubNetworkSetLibrary(kind,list){
  const next=kind==='composition'?list.map(state=>({date:new Date().toISOString(),state})):list;
  clubNetworkOriginalStorageSet(clubNetworkLibraryKey(kind),JSON.stringify(next));clubSaveLocalErrors.delete(clubNetworkLibraryKey(kind));clubSaveLocalConflicts.delete(clubNetworkLibraryKey(kind));
- if(kind==='training'){trainingLibrary=next;renderTrainingLibrary();}else if(kind==='report'){reportLibrary=next;renderReportLibrary();}else{saves=next;renderSaves();if(typeof squadLibraryChanged==='function')squadLibraryChanged();}
+ if(kind==='training'){trainingLibrary=next;renderTrainingLibrary();}else if(kind==='report'){reportLibrary=next;renderReportLibrary();}else{saves=next;renderSaves();renderSimpleLibrary();if(typeof squadLibraryChanged==='function')squadLibraryChanged();}
 }
 function clubNetworkPayloadId(kind,payload){return kind==='composition'?payload.documentId:payload.id;}
 function clubNetworkPendingPrefix(){return coachStorageKey('vestiaire-cloud-pending:');}
@@ -204,7 +205,7 @@ function clubNetworkAuthor(id){return clubNetworkMembers.find(m=>m.user_id===id)
 function clubNetworkRenderSources(){
  clubNetworkSources=[];for(const kind of Object.keys(clubNetworkKinds))for(const payload of clubNetworkLibrary(kind)){const source=clubNetworkSource(kind,payload);if(source)clubNetworkSources.push(source);}
  const select=$('club-network-source'),previous=select.value;select.replaceChildren();const empty=el('option','',clubNetworkSources.length?'Choisir un document enregistré…':'Enregistrez une séance, une composition ou un rapport');empty.value='';select.append(empty);
- clubNetworkSources.forEach((s,i)=>{const o=el('option','',(s.payload.squadDirectory?'Effectif':clubNetworkKinds[s.kind])+' · '+s.title);o.value=String(i);select.append(o);});if([...select.options].some(x=>x.value===previous))select.value=previous;
+ clubNetworkSources.forEach((s,i)=>{const o=el('option','',(s.payload.squadDirectory?'Effectif':s.payload.pionExplanation?'Explication · pions':clubNetworkKinds[s.kind])+' · '+s.title);o.value=String(i);select.append(o);});if([...select.options].some(x=>x.value===previous))select.value=previous;
 }
 async function clubNetworkLoadMember(){
  const members=await clubNetworkRequest('/rest/v1/club_members?select=user_id,display_name,active&order=display_name');
@@ -290,7 +291,7 @@ async function clubNetworkSync(){
     const rows=await clubNetworkRequest('/rest/v1/club_documents?select=*&id=eq.'+encodeURIComponent(metadata.id)+'&limit=1'),row=rows?.[0];if(!row||!clubNetworkPayloadValid(row.kind,row.payload)||clubNetworkPayloadId(row.kind,row.payload)!==row.source_id)continue;
     const list=clubNetworkLibrary(row.kind),opened=row.kind==='training'?currentTraining:row.kind==='report'?currentReport:state;
     // Une mise à jour distante ne touche jamais le brouillon ouvert, ni sa version de départ.
-    const isOpen=row.kind==='composition'&&typeof terrainHasDraftId==='function'?terrainHasDraftId(row.source_id):clubNetworkPayloadId(row.kind,opened)===row.source_id;
+    const isOpen=row.kind==='composition'&&typeof terrainHasDraftId==='function'?(row.payload.pionExplanation?simpleState.sequenceId===row.source_id:terrainHasDraftId(row.source_id)):clubNetworkPayloadId(row.kind,opened)===row.source_id;
     clubNetworkSetLibrary(row.kind,[structuredClone(row.payload),...list.filter(p=>clubNetworkPayloadId(row.kind,p)!==row.source_id)]);
     clubNetworkCachedVersions.set(row.kind+':'+row.source_id,{id:row.id,revision:row.revision});
     if(!isOpen)clubNetworkRememberVersion(row.kind,row.source_id,row.revision,row.id);
@@ -316,10 +317,10 @@ function clubNetworkRenderRows(){
  for(const member of clubNetworkMembers){const count=countsByCoach.get(member.user_id)||0;if(!member.active&&!count)continue;const button=el('button','club-coach-card');button.dataset.userId=member.user_id;button.append(el('strong','',member.display_name),el('span','',(member.user_id===clubNetworkSession.user.id?'Mon profil · ':'')+count+' document(s)'),el('span','club-coach-activity'));button.setAttribute('aria-pressed',String($('club-network-author').value===member.user_id));button.onclick=()=>{$('club-network-author').value=member.user_id;$('club-network-author').dispatchEvent(new Event('change'));};profiles.append(button);}
  clubNetworkRenderCoachActivity();
  const root=$('club-network-list'),author=$('club-network-author').value,kind=$('club-network-kind').value;root.replaceChildren();
- const rows=clubNetworkRows.filter(r=>(!author||r.owner_id===author)&&(!kind||r.kind===kind)&&(typeof clubDocumentTitleMatches!=='function'||clubDocumentTitleMatches(r))&&(typeof clubDocumentMatches!=='function'||clubDocumentMatches(r)));
+ const rows=clubNetworkRows.filter(r=>(!author||r.owner_id===author)&&clubNetworkKindMatches(r,kind)&&(typeof clubDocumentTitleMatches!=='function'||clubDocumentTitleMatches(r))&&(typeof clubDocumentMatches!=='function'||clubDocumentMatches(r)));
  if(!rows.length)root.append(el('p','report-panel','Aucun document affiché pour ces critères. Modifiez les filtres ou poursuivez la recherche si elle est partielle.'));
  for(const row of rows.slice(0,clubNetworkPageSize)){
-  const own=row.owner_id===clubNetworkSession.user.id,card=el('article','report-panel club-network-card'),info=el('div');info.append(el('h3','',row.title),el('p','',(row.title.startsWith('Effectif · ')?'Effectif':clubNetworkKinds[row.kind])+' · '+clubNetworkAuthor(row.owner_id)),el('p','hint','Version '+row.revision+' · '+new Date(row.updated_at).toLocaleString('fr-FR',{timeZone:'Europe/Paris'})));
+  const own=row.owner_id===clubNetworkSession.user.id,card=el('article','report-panel club-network-card'),info=el('div');info.append(el('h3','',row.title),el('p','',(row.title.startsWith('Effectif · ')?'Effectif':row.title.startsWith('Explication · ')?'Explication · pions':clubNetworkKinds[row.kind])+' · '+clubNetworkAuthor(row.owner_id)),el('p','hint','Version '+row.revision+' · '+new Date(row.updated_at).toLocaleString('fr-FR',{timeZone:'Europe/Paris'})));
   const actions=el('div','report-actions'),open=el('button',own?'primary':'export',own?'Ouvrir pour modifier':'Consulter');open.onclick=()=>clubNetworkRun(()=>clubNetworkOpen(row));actions.append(open);
   if(own){const remove=el('button','export','Supprimer du club');remove.onclick=()=>clubNetworkRun(async()=>{
    if(!confirm('Supprimer ce document enregistré du club et de votre bibliothèque ? Le brouillon ouvert reste conservé.'))return;
@@ -352,6 +353,7 @@ async function clubNetworkOpen(metadata,previewOnly=false){
 }
 function clubNetworkImport(openOwn=false,forceCopy=false){
  const row=clubNetworkPreview;if(!row||!clubNetworkBound())return;if(row.payload.squadDirectory)return notify('Cet effectif est consultable ici. Gérez vos joueurs depuis « Mes joueurs enregistrés ».');
+ if(row.payload.pionExplanation)return simpleExplanationImport(row,forceCopy);
  const kind=row.kind,own=row.owner_id===clubNetworkSession.user.id&&!forceCopy,payload=structuredClone(row.payload),opened=kind==='training'?currentTraining:kind==='report'?currentReport:(typeof getTerrainDraftFor==='function'?getTerrainDraftFor(row.payload):state);
  if(own){
   if(!confirm('Ouvrir cette version enregistrée ? Le brouillon courant sera conservé sur cet appareil dans une copie si nécessaire.'))return;
@@ -421,7 +423,7 @@ $('club-network-import-local').onclick=()=>clubNetworkRun(async()=>{
  if(!confirm('Importer les documents du profil local sélectionné dans votre compte et les partager au club ? Ne continuez que pour vos propres documents. Les originaux locaux seront conservés.'))return;
  let count=0;for(const kind of Object.keys(clubNetworkKinds)){
   const list=[...clubNetworkLibrary(kind)];for(const profile of coachProfiles.filter(p=>p.id===$('club-network-legacy-profile').value)){let raw;try{raw=JSON.parse(localStorage.getItem(coachStorageKey(clubNetworkLibraryKey(kind),profile.id))||'[]');}catch{continue;}if(!Array.isArray(raw))continue;
-   for(const entry of raw){const payload=structuredClone(kind==='composition'?entry.state:entry);if(!clubNetworkPayloadValid(kind,payload))continue;if(kind==='composition')payload.documentId=crypto.randomUUID();else payload.id=crypto.randomUUID();list.push(payload);clubNetworkMarkPending(kind,clubNetworkPayloadId(kind,payload),'save');count++;}
+   for(const entry of raw){const payload=structuredClone(kind==='composition'?entry.state:entry);if(!clubNetworkPayloadValid(kind,payload))continue;if(kind==='composition'){payload.documentId=crypto.randomUUID();if(payload.pionExplanation){payload.pionExplanation.id=payload.documentId;payload.pionExplanation.state.sequenceId=payload.documentId;}}else payload.id=crypto.randomUUID();list.push(payload);clubNetworkMarkPending(kind,clubNetworkPayloadId(kind,payload),'save');count++;}
   }clubNetworkSetLibrary(kind,list);
  }clubNetworkStatus(count+' document(s) importé(s).');await clubNetworkQueueSync();
 });
