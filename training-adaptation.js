@@ -27,6 +27,8 @@ function bibleExerciseLearning(exercise,session={}){
  if(exercise.id==='warm')constraint=['Chacun garde son ballon ; conduire doucement et regarder avant de changer de direction.','Chacun garde son ballon ; adapter la conduite à l’espace repéré avant le changement de direction.','Chacun garde son ballon ; annoncer une information visuelle puis changer de direction sans accélérer inutilement.'][index];
  if(exercise.id==='cool')constraint=profile.level==='advanced'?'Faire expliquer une décision du thème et le contexte où elle serait utile en match.':'Faire citer une réussite et un point à reprendre, sans nouvelle charge physique.';
  if(exercise.id==='rondo-direction')constraint=profile.level==='discovery'?'Touches libres ; donner un point à une passe qui franchit la pression, sans la forcer si la ligne est fermée.':'Identifier le moment de franchir la pression ; la passe traversante maîtrisée vaut un point, la conservation reste possible.';
+ if(exercise.id==='video-coordination-shot'){constraint=['Parcourir le matériel à allure lente, sans saut imposé ; contrôle autorisé avant chaque passe.','Synchroniser le relais et le coureur ; préparer le dernier contact avant la frappe, sans défenseur de champ.','Conserver la précision à rythme maîtrisé et observer le gardien avant le dernier contact ; aucune opposition de champ ajoutée.'][index];profile.focus='Relier la coordination, la passe et l’équilibre avant frappe ; le transfert sous opposition sera travaillé dans une autre situation.';}
+ if(exercise.id==='video-bounce-2v2')constraint=['Touches libres ; identifier son appui de couleur et les deux cibles adverses.','Remettre dans un appel décalé si la ligne reste ouverte ; conserver autrement.','Reconnaître appui disponible, autre cible ou changement de statut sans rendre la remise obligatoire.'][index];
  return {profile,constraint,success:profile.level==='discovery'?'Faire évoluer seulement après 3 répétitions maîtrisées sur le critère observé.':profile.level==='advanced'?'Retirer l’aide ou le bonus et vérifier que le comportement reste présent dans le jeu.':'Faire évoluer une seule contrainte quand les réussites deviennent régulières.'};
 }
 function bibleAvailable(session={}){
@@ -65,7 +67,7 @@ function bibleRolePlan(exercise,format,group,template,profile={level:'developing
  const field=group.players-(feet?0:group.keepers);
  let blue=0,red=0,neutral=0;
  if(exercise.id==='rondo-expand'&&field===13){blue=8;red=5;}
- else if(exercise.id==='duel-renforts'){blue=Math.ceil(field/2);red=Math.floor(field/2);}
+ else if(exercise.id==='duel-renforts'||exercise.id==='video-bounce-2v2'){blue=Math.ceil(field/2);red=Math.floor(field/2);}
  else if(circuit||format.opposition==='none')blue=field;
  else if(template==='rondo'){
   // Rondo : une véritable supériorité, avec un rapport de pression raisonnable.
@@ -88,12 +90,13 @@ function bibleRolePlan(exercise,format,group,template,profile={level:'developing
  let remaining=fieldKeepers;
  for(const name of ['blue','red','neutral'])for(let i=0;i<teams[name]&&remaining>0;i++,remaining--)keeperSlots.push({team:name,index:i});
  let roles=circuit?blue+' participants dans le circuit':format.opposition==='none'?blue+' joueurs de champ en alternance, sans défenseur':blue+' bleus contre '+red+' rouges'+(neutral?' + '+neutral+' appui'+(neutral>1?'s':'')+' neutre'+(neutral>1?'s':''):'');
+ if(exercise.id==='video-bounce-2v2')roles='2 bleus contre 2 rouges + un appui de chaque couleur · '+Math.max(0,group.players-6)+' suivant(s) hors du jeu ; changer après chaque vague';
  if(exercise.id==='duel-renforts')roles+=' · une vague de 2 bleus et 2 rouges maximum ; les autres attendent et tournent à chaque vague';
  if(fieldKeepers)roles+=' · '+fieldKeepers+' gardien'+(fieldKeepers>1?'s':'')+' inclus au jeu au pied';
  if(activeKeepers)roles+=' + '+activeKeepers+' gardien'+(activeKeepers>1?'s':'')+' en but';
  if(rotatingKeepers)roles+=' + '+rotatingKeepers+' gardien'+(rotatingKeepers>1?'s':'')+' en rotation';
  const allocation=circuit?[group.players]:[blue,red,neutral,feet?0:group.keepers];
- return {teams,roles,allocation,activeKeepers,rotatingKeepers,fieldKeepers,rotationPlayers:rotatingKeepers,keeperSlots};
+ return {teams,roles,allocation,activeKeepers,rotatingKeepers,fieldKeepers,rotationPlayers:rotatingKeepers+(exercise.id==='video-bounce-2v2'?Math.max(0,field-6):exercise.id==='video-coordination-shot'?Math.max(0,field-5):0),keeperSlots};
 }
 function bibleMaterial(exercise,format,group,template){
  let goals=0,miniGoals=0,gates=0;
@@ -106,14 +109,14 @@ function bibleMaterial(exercise,format,group,template){
  const equipment=format.equipment||{},extra={};
  for(const key of ['hurdles','poles','ladders','hoops','dummies'])if(Number.isInteger(equipment[key])&&equipment[key]>=0&&equipment[key]<=12)extra[key]=equipment[key];
  const circuitCones=template==='circuit'&&!['warm','cool'].includes(exercise.id)?3*activeBalls:0;
- const discs=Number.isInteger(format.discs)&&format.discs>=2&&format.discs<=20?format.discs:4+2*(format.zones-1),cones=2*gates+circuitCones;
+ const discs=Number.isInteger(format.discs)&&format.discs>=2&&format.discs<=20?format.discs:4+2*(format.zones-1),cones=exercise.id==='video-coordination-shot'?3:2*gates+circuitCones;
  return {balls,activeBalls,reserveBalls:balls-activeBalls,discs,cones,circuitCones,bibsBlue:group.teams.blue,bibsRed:group.teams.red,bibsNeutral:group.teams.neutral,bibsKeeper:group.activeKeepers+group.rotatingKeepers,goals,miniGoals,gates,...extra};
 }
 function bibleDimensions(exercise,session,group,template,options){
  const minima={combination:[20,28,10],rondo:[6,6,6],possession:[10,12,15],endzones:[14,18,22],'four-goals':[14,18,22],build:[16,20,28],press:[16,20,28],transition:[16,20,28],finish:[12,18,22],'wide-finish':[20,24,32],circuit:[6,6,7],duel:[8,10,16],corner:[22,26,25],keeper:[10,14,20]};
  const basis=minima[template]||minima.possession;
  const factor=bibleTrainingProfile(session).spaceFactor;
- const scaling=Math.sqrt(group.players/Math.max(2,exercise.target||8))*factor;
+ const scaling=(['video-bounce-2v2','video-coordination-shot'].includes(exercise.id)?1:Math.sqrt(group.players/Math.max(2,exercise.target||8)))*factor;
  const desiredW=Math.max(basis[0],Math.round((exercise.width||24)*scaling)),desiredL=Math.max(basis[1],Math.round((exercise.length||24)*scaling));
  const densityFactor=Math.sqrt((basis[2]*group.players)/(desiredW*desiredL));
  const minimumFactor=Math.max(.67,Math.min(1,densityFactor));
@@ -143,10 +146,11 @@ function bibleLayout(groups,available,allowReduce){
   for(const rotated of [false,true]){
    const usableW=available.width-2*margin-gap*(cols-1),usableL=available.length-2*margin-gap*(rows-1);
    const desiredW=Math.max(...groups.map(g=>rotated?g.desired.length:g.desired.width)),desiredL=Math.max(...groups.map(g=>rotated?g.desired.width:g.desired.length));
-   const rawFactor=Math.min(1,usableW/(cols*desiredW),usableL/(rows*desiredL));
+   const clearW=Math.max(...groups.map(g=>rotated?(g.clearance?.length||0):(g.clearance?.width||0))),clearL=Math.max(...groups.map(g=>rotated?(g.clearance?.width||0):(g.clearance?.length||0)));
+   const rawFactor=Math.min(1,(usableW-cols*clearW)/(cols*desiredW),(usableL-rows*clearL)/(rows*desiredL));
    const factor=allowReduce?Math.max(0,rawFactor):1;
    const fitted=groups.map(g=>({width:Math.max(g.minimum.width,Math.floor(g.desired.width*factor)),length:Math.max(g.minimum.length,Math.floor(g.desired.length*factor))}));
-   const cellW=Math.max(...fitted.map(g=>rotated?g.length:g.width)),cellL=Math.max(...fitted.map(g=>rotated?g.width:g.length));
+   const cellW=Math.max(...fitted.map((g,i)=>rotated?g.length+(groups[i].clearance?.length||0):g.width+(groups[i].clearance?.width||0))),cellL=Math.max(...fitted.map((g,i)=>rotated?g.width+(groups[i].clearance?.width||0):g.length+(groups[i].clearance?.length||0)));
    const width=2*margin+cols*cellW+gap*(cols-1),length=2*margin+rows*cellL+gap*(rows-1),fits=width<=available.width&&length<=available.length;
    const overflow=Math.max(0,width-available.width)/available.width+Math.max(0,length-available.length)/available.length;
    const score=(fits?0:100+overflow*100)+(1-factor)*12+(cols*rows-count)*.05+(rotated?.01:0);
@@ -178,7 +182,7 @@ function biblePlan(exercise,session={},options={}){
    const keeperPresent=!format.requiresKeeper||rolePlan.activeKeepers+rolePlan.fieldKeepers>0;
    const appuiPresent=format.neutrals===0||rolePlan.teams.neutral>0;
    const superiority=!format.attackAdvantage||rolePlan.teams.blue>rolePlan.teams.red,actors=bibleActors(format,rolePlan,template);
-   return {...group,...rolePlan,...dims,...actors,index:i+1,template,format,learning,pedagogyFits:group.players>=format.min&&group.players<=format.max&&opposition&&keeperPresent&&appuiPresent&&superiority&&actors.actorsFit};
+   return {...group,...rolePlan,...dims,...actors,...(['video-bounce-2v2','video-coordination-shot'].includes(exercise.id)?{clearance:{width:0,length:6}}:{}),index:i+1,template,format,learning,pedagogyFits:group.players>=format.min&&group.players<=format.max&&opposition&&keeperPresent&&appuiPresent&&superiority&&actors.actorsFit};
   });
   const layout=bibleLayout(groups,available,true);
   const sizePenalty=groups.reduce((sum,g)=>sum+Math.abs(g.players-format.ideal)/format.ideal,0)/count;
@@ -192,6 +196,7 @@ function biblePlan(exercise,session={},options={}){
   const belowRecommended=dims.width<raw.recommendedMinimum.width||dims.length<raw.recommendedMinimum.length;
   const fits=layout.fits&&raw.pedagogyFits&&!belowRecommended;
   const g={...raw,...dims,tight:reduced,fits,layout:{x:layout.footprint.margin+(i%layout.footprint.cols)*(layout.footprint.cellWidth+layout.footprint.gap),y:layout.footprint.margin+Math.floor(i/layout.footprint.cols)*(layout.footprint.cellLength+layout.footprint.gap),rotation:layout.footprint.rotated?90:0},notes:[]};
+  if(g.clearance){if(g.layout.rotation)g.layout.x+=g.clearance.length/2;else g.layout.y+=g.clearance.length/2;g.notes.push('Dimensions du dessin : aire de jeu. Emprise calculée avec 3 m libres derrière chaque fond pour les cibles, les appuis et les suivants.');}
   g.material=bibleMaterial(exercise,format,g,template);g.zoneDimensions=bibleZones(g,format,template);
   if(template==='circuit'&&!['warm','cool'].includes(exercise.id)){
    const count=g.material.activeBalls,cols=Math.min(count,Math.max(1,Math.ceil(Math.sqrt(count*g.length/g.width)))),rows=Math.ceil(count/cols);
@@ -204,6 +209,8 @@ function biblePlan(exercise,session={},options={}){
   if(g.rotatingKeepers)g.notes.push(g.rotatingKeepers+' gardien(s) hors de l’opposition en rotation ; permuter au signal du coach ou à chaque séquence.');
   if(format.goalType==='full'&&g.material.gates)g.notes.push('Sans gardien pour chaque cible : '+g.material.gates+' but(s) remplacé(s) par des portes ; alterner les sens de jeu.');
   g.rotation=g.rotatingKeepers?'Tourner les gardiens à chaque séquence ; les gardiens hors jeu récupèrent les ballons depuis une zone protégée.':g.teams.neutral?'Changer les appuis à chaque séquence pour répartir les rôles.':template==='rondo'?'Permuter les défenseurs à la fin de chaque séquence, sans punition liée à une erreur.':'Inverser équipes, côtés ou fonctions à chaque séquence.';
+  if(exercise.id==='video-bounce-2v2')g.rotation='Après chaque vague, un intérieur échange avec son appui ; avec des suivants, faire entrer les deux prochains par ordre d’arrivée. Tous changent de fonction entre les séries.';
+  if(exercise.id==='video-coordination-shot')g.rotation='Passeur → relais haut ; relais → départ latéral par l’extérieur ; tireur → file hors de l’axe ; suivant → départ central. Alterner les côtés après chaque vague.';
   return g;
  });
  if(requestedGroups!==null&&requestedGroups!==groups.length)warnings.push('Le nombre d’ateliers demandé ne permet pas au moins deux joueurs par atelier : proposition limitée à '+groups.length+'.');

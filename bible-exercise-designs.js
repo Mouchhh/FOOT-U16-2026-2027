@@ -1039,11 +1039,13 @@ const bibleExerciseDesigns={
   }
  ]
 };
+if(typeof coachVideoDesigns==='function')for(const id of ['video-bounce-2v2','video-coordination-shot'])bibleExerciseDesigns[id]=coachVideoDesigns(id);
 function bibleExerciseDesign(exercise,index=0){return bibleExerciseDesigns[exercise.id]?.[Math.max(0,Math.min(2,Number(index)||0))]||null;}
 // Full-team occupation. The first actors retain the authored problem; supporting
 // roles use the whole useful area, while defenders protect interior and depth.
 function bibleDesignedPlacement(exercise,group,field,tokens,index){
  const design=bibleExerciseDesign(exercise,index);if(!design)return;
+ if(typeof coachVideoPlacement==='function'&&coachVideoPlacement(exercise,group,field,tokens,index))return;
  const template=group.template||bibleDiagramKnowledge(exercise).template,m=bibleDiagramMechanism(exercise).type;
  const {fx,fy,fw,fh,scale}=field,teams=team=>tokens.filter(p=>p.team===team&&!p.rotation&&(!p.keeper||p.fieldKeeper)),blue=teams('blue'),red=teams('red'),neutral=teams('neutral');
  const set=(p,x,y,role)=>{if(!p)return;Object.assign(p,{x:fx+x*fw,y:fy+y*fh,long:x*group.length,wide:y*group.width,role});};

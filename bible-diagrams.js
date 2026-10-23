@@ -199,6 +199,8 @@ function bibleDiagramBallActors(tokens,count){
 // Intent of play is explicit, including games without a directional target.
 function bibleGameIntent(exercise,group){
  const template=group.template||bibleDiagramKnowledge(exercise).template,material=group.material||{},targets=(material.goals||0)+(material.miniGoals||0)+(material.gates||0);
+ if(exercise.id==='video-bounce-2v2')return {mode:'directional',blue:'2 intérieurs + appui bleu : deux cibles à droite',red:'2 intérieurs + appui rouge : deux cibles à gauche',turnover:true};
+ if(exercise.id==='video-coordination-shot')return {mode:'finish',blue:'Relais → coordination → slalom → frappe ; un côté actif',red:'Gardien : se préparer, puis autoriser le retour',turnover:false};
  if(exercise.id==='possession-quadrants')return {mode:'directional',blue:'Relier l’appui de droite sans quitter son quadrant',red:'À la récupération : relier l’appui de gauche',turnover:true};
  if(exercise.id==='rondo-expand')return {mode:'keep',staged:true,blue:'2 défenseurs au centre, puis 8 conservateurs dans le grand carré',red:'5 conservateurs au centre, puis 5 défenseurs dans le grand carré',turnover:true};
  if(exercise.id==='keeper-distribute')return {mode:'build',blue:'Fermer la relance et récupérer',red:'Gardien : relancer vers les soutiens à gauche',turnover:false};
@@ -286,6 +288,7 @@ function bibleDiagramSVG(exercise,group,options={}){
  if(exercise.id==='possession-quadrants'){[[length/2,0],[length/2,width],[0,width/2],[length,width/2],[length/2-1.5,width/2-1.5],[length/2+1.5,width/2-1.5],[length/2+1.5,width/2+1.5],[length/2-1.5,width/2+1.5]].forEach(([x,y])=>addDisc(x,y));}
  const discCount=Number(material.discs||0);
  while(discs.length<discCount){const i=discs.length-4;discs.push(point(length*(i+1)/(Math.max(1,discCount-4)+1),width));}
+ if(typeof coachVideoEquipment==='function')for(let i=0;i<discCount;i++){const at=coachVideoEquipment(exercise,'disc',i);if(at)discs[i]=[fx+at.x*fw,fy+at.y*fh];}
  discs.slice(0,discCount).forEach(([x,y])=>{const g=make('g',{'class':'bible-equipment','data-equipment':'disc'});g.append(make('ellipse',{cx:x,cy:y+1.5,rx:6,ry:3.2,fill:'#e8a135',stroke:'#fff0c7','stroke-width':1}),make('ellipse',{cx:x,cy:y,rx:2,ry:1,fill:'#a26920'}));svg.append(g);placement('disc',x,y);});
  const cones=[];
  targetSlots.slice(fullGoal+smallGoal).forEach(g=>{const opening=3,long=g.side==='left'?0:length;cones.push(point(long,g.wide-opening/2),point(long,g.wide+opening/2));goalPositions.push({...g,type:'gate',width:opening});});
@@ -293,6 +296,7 @@ function bibleDiagramSVG(exercise,group,options={}){
  const stationPoints=stations.flatMap(s=>s.points);for(let i=0;i<circuitCones;i++){const p=stationPoints[i];if(p)cones.push([p.x,p.y]);else{const a=-Math.PI/2+i*Math.PI*2/circuitCones;cones.push(point(length/2+length*.41*Math.cos(a),width/2+width*.4*Math.sin(a)));}}
  for(const s of stations){svg.append(make('text',{'class':'bible-station-label',x:s.x+s.w/2,y:s.y+s.h*.52,'text-anchor':'middle',fill:'#def0e7','font-size':11},'Circuit '+(s.index+1)+' · '+s.players+' j.'));if(s.index%Math.max(1,Math.round(fw/s.w))>0)svg.append(make('line',{x1:s.x,y1:s.y+6,x2:s.x,y2:s.y+s.h-6,stroke:'#b6d4c5','stroke-width':1,'stroke-dasharray':'4 6',opacity:.45}));}
  while(cones.length<coneCount){const i=cones.length;cones.push([fx+10+i*15,fy+fh+15]);}
+ if(typeof coachVideoEquipment==='function')for(let i=0;i<coneCount;i++){const at=coachVideoEquipment(exercise,'cone',i);if(at)cones[i]=[fx+at.x*fw,fy+at.y*fh];}
  cones.slice(0,coneCount).forEach(([x,y])=>{const cone=make('g',{'class':'bible-equipment','data-equipment':'cone'});cone.append(make('ellipse',{cx:x,cy:y+4,rx:6,ry:2.8,fill:'#9e541d',opacity:.6}),make('path',{d:'M'+(x-5)+' '+(y+3)+'L'+x+' '+(y-9)+'L'+(x+5)+' '+(y+3)+'Z',fill:'#ffa64c',stroke:'#fff0d7','stroke-width':1}),make('path',{d:'M'+(x-2.6)+' '+(y-3)+'H'+(x+2.6),stroke:'#fff','stroke-width':1.6}));svg.append(cone);placement('cone',x,y);});
 
  if(exercise.id==='rondo-expand')svg.append(make('text',{'class':'bible-zone-label',x:440,y:fy+fh*.25-9,'text-anchor':'middle',fill:'#fff0a8','font-size':10},'Petit carré · '+fmt(length/2)+' × '+fmt(width/2)+' m'),make('rect',{'data-feature':'inner-rondo',x:fx+fw*.25,y:fy+fh*.25,width:fw*.5,height:fh*.5,fill:'#ffffff09',stroke:'#fff0a8','stroke-width':2,'stroke-dasharray':'8 5'}));
@@ -319,7 +323,9 @@ function bibleDiagramSVG(exercise,group,options={}){
  const returnArrow=(from,to,label)=>{const dx=to.x-from.x,dy=to.y-from.y,d=Math.hypot(dx,dy);if(d<playerRadius*3)return;const ux=dx/d,uy=dy/d,cx=(from.x+to.x)/2-uy*32,cy=(from.y+to.y)/2+ux*32;svg.append(make('path',{'class':'bible-action-pass',d:'M'+(from.x+ux*(playerRadius+4))+' '+(from.y+uy*(playerRadius+4))+'Q'+cx+' '+cy+' '+(to.x-ux*(playerRadius+8))+' '+(to.y-uy*(playerRadius+8)),fill:'none',stroke:'#fff','stroke-width':2.2,'stroke-dasharray':'6 5','marker-end':'url(#'+markerId+')'}),make('text',{'class':'bible-action-label',x:cx,y:cy,'text-anchor':'middle',fill:'#fff','font-size':10,'paint-order':'stroke',stroke:'#176247','stroke-width':3},label));};
  // Une à trois actions de principe, rattachées au mécanisme football travaillé.
  let ballOwner=blue[0]||neutral[0]||red[0]||keepers[0],ballPoint=ballOwner?ballFeet(ballOwner):px(length*.5,width*.5);
- if(mechanism.type==='third'&&a&&relay&&third){clearArrow(a,relay,true,'1');returnArrow(relay,a,'2');clearArrow(a,third,true,'3');ballPoint=ballFeet(a);}
+ if(exercise.id==='video-coordination-shot'&&blue.length>=3){const mirrored=(options.designIndex||0)===1,yy=v=>mirrored?1-v:v;clearArrow(a,blue[1],true,'1 · passe');clearArrow(a,px(length*.54,width*yy(.16)),false,'2 · haies');clearArrow(px(length*.54,width*yy(.17)),blue[2],true,'3 · diagonale');ballPoint=ballFeet(a);}
+ else if(exercise.id==='video-bounce-2v2'&&blue.length>=3){clearArrow(a,blue[1],true,'1');clearArrow(blue[1],blue[2],true,'2 · appui');ballPoint=ballFeet(a);}
+ else if(mechanism.type==='third'&&a&&relay&&third){clearArrow(a,relay,true,'1');returnArrow(relay,a,'2');clearArrow(a,third,true,'3');ballPoint=ballFeet(a);}
  else if(['back','turn'].includes(mechanism.type)&&(blue[1]||neutral[0])){const receiver=blue[1]||neutral[0];clearArrow(a,receiver,true,'1');returnArrow(receiver,a,'2 · soutien');ballPoint=ballFeet(a);}
  else if(mechanism.type==='split'&&blue.length>1){clearArrow(a,blue[1],true,'fenêtre');ballPoint=ballFeet(a);}
  else if(mechanism.type==='delay'&&red[0]){clearArrow(a,px(length*.46,width*.32),false,'avancer');clearArrow(red[0],px(length*.64,width*.37),false,'temporiser');ballPoint=ballFeet(a);}
@@ -367,7 +373,7 @@ function bibleDiagramSVG(exercise,group,options={}){
   model.append(make('text',{'data-feature':'shirt-number',x:0,y:r*.4,'text-anchor':'middle',fill:'#193d71','font-family':'Arial, sans-serif','font-size':Math.max(10,r*.86),'font-weight':900,'paint-order':'stroke',stroke:'#fff','stroke-width':.6},t.keeper?'G'+t.number:t.number));player.append(model);
   }
   if(t.fieldKeeper)player.append(make('circle',{cx:r*.78,cy:-r*.78,r:3,fill:'#ffd166',stroke:'#fff','stroke-width':.7}));
-  if(t.rotation)player.append(make('circle',{cx:0,cy:0,r:r*1.35,fill:'none',stroke:'#687f9d','stroke-width':1,'stroke-dasharray':'3 3'}));svg.append(player);placement(t.keeper&&!t.fieldKeeper?'keeper':t.team==='red'?'red':'blue',t.x,t.y,{color,label:t.rotation?'G'+t.number+' rotation':t.keeper?'G'+t.number:String(t.number)});
+  if(t.rotation)player.append(make('circle',{cx:0,cy:0,r:r*1.35,fill:'none',stroke:'#687f9d','stroke-width':1,'stroke-dasharray':'3 3'}));svg.append(player);placement(t.keeper&&!t.fieldKeeper?'keeper':t.team==='red'?'red':'blue',t.x,t.y,{color,label:t.rotation?(t.keeper?'G':'')+t.number+' rotation':t.keeper?'G'+t.number:String(t.number)});
  });
  if(mechanism.type==='combine'){ballOwner=a;ballPoint=ballFeet(a);}
  if(exercise.id==='rondo-expand'){ballOwner=red[0];ballPoint=ballFeet(ballOwner);}
@@ -376,17 +382,18 @@ function bibleDiagramSVG(exercise,group,options={}){
  const ballCount=Number(material.balls||0),drawBall=(x,y,reserve=false)=>{
   const g=make('g',{'class':'bible-equipment','data-equipment':'ball','data-reserve':String(reserve)});g.append(make('circle',{cx:x,cy:y,r:8,fill:'url(#bible-ball-'+serial+')',stroke:'#263b35','stroke-width':.9}),make('path',{d:'M'+x+' '+(y-3.1)+'l2.9 2.1-1.1 3.3h-3.6l-1.1-3.3z',fill:'#253c35'}));for(let i=0;i<5;i++){const a=-Math.PI/2+i*Math.PI*2/5;g.append(make('path',{d:'M'+(x+Math.cos(a)*3.3)+' '+(y+Math.sin(a)*3.3)+'L'+(x+Math.cos(a)*6)+' '+(y+Math.sin(a)*6),stroke:'#42574c','stroke-width':.8}));}svg.append(g);placement('ball',x,y,{color:'#ffffff'});
  };
+ if(exercise.id==='video-coordination-shot'&&a)ballPoint=ballFeet(a);
  const activeBalls=Math.min(ballCount,Math.max(0,Number(material.activeBalls??1)));
  if(template==='circuit'){for(const t of bibleDiagramBallActors(tokens,activeBalls)){const at=ballFeet(t);drawBall(at.x,at.y);}for(let i=activeBalls;i<ballCount;i++)drawBall(fx+10+(i-activeBalls)*14,fy+fh+27,true);}
  else{if(activeBalls)drawBall(ballPoint.x,ballPoint.y);for(let i=1;i<activeBalls;i++){const t=tokens[i%tokens.length];{const at=ballFeet(t);drawBall(at.x,at.y);}}for(let i=activeBalls;i<ballCount;i++)drawBall(fx+10+(i-activeBalls)*14,fy+fh+27,true);}
  const extraEquipment=[['poles','pole'],['dummies','dummy'],['hurdles','hurdle'],['ladders','ladder'],['hoops','hoop']];let extraIndex=0;
  extraEquipment.forEach(([key,type])=>{for(let i=0;i<Number(material[key]||0);i++){
-  const x=fx+fw*.15+(extraIndex%6)*Math.min(38,fw*.11),y=fy+fh-23-Math.floor(extraIndex/6)*28,g=make('g',{'class':'bible-equipment','data-equipment':type,transform:'translate('+x+' '+y+')'});extraIndex++;
+  const spot=typeof coachVideoEquipment==='function'?coachVideoEquipment(exercise,type,i):null,x=spot?fx+spot.x*fw:fx+fw*.15+(extraIndex%6)*Math.min(38,fw*.11),y=spot?fy+spot.y*fh:fy+fh-23-Math.floor(extraIndex/6)*28,g=make('g',{'class':'bible-equipment','data-equipment':type,transform:'translate('+x+' '+y+')'+(spot?.rotation?' rotate('+spot.rotation+')':'')});extraIndex++;
   if(type==='pole')g.append(make('ellipse',{cx:0,cy:8,rx:6,ry:3,fill:'#263e46'}),make('line',{x1:0,y1:8,x2:0,y2:-19,stroke:'#ffd166','stroke-width':4}));
   if(type==='dummy')g.append(make('circle',{cx:0,cy:-13,r:4,fill:'#ffce5e',stroke:'#fff','stroke-width':.8}),make('path',{d:'M-6-7H6L8 7H-8Z',fill:'#ffce5e',stroke:'#fff','stroke-width':1}),make('line',{x1:0,y1:7,x2:0,y2:15,stroke:'#d1e1eb','stroke-width':2}));
   if(type==='hurdle')g.append(make('path',{d:'M-10 9V-4H10V9',fill:'none',stroke:'#f9c64c','stroke-width':3}));
   if(type==='ladder'){g.append(make('path',{d:'M-6-17V17M6-17V17',stroke:'#1e3544','stroke-width':2}));for(let j=-15;j<=15;j+=6)g.append(make('path',{d:'M-6 '+j+'H6',stroke:'#f4c34b','stroke-width':2}));}
-  if(type==='hoop')g.append(make('ellipse',{cx:0,cy:0,rx:10,ry:7,fill:'none',stroke:'#ffd166','stroke-width':3}));svg.append(g);placement(type,x,y);
+  if(type==='hoop')g.append(make('ellipse',{cx:0,cy:0,rx:10,ry:7,fill:'none',stroke:'#ffd166','stroke-width':3}));svg.append(g);placement(type,x,y,spot?.rotation?{rotation:spot.rotation}:{});
  }});
  // L’inventaire présenté à côté du schéma et les éléments dessinés ont les mêmes comptes.
  const reserveBallCount=ballCount-activeBalls;
@@ -444,8 +451,8 @@ function bibleDiagram(exercise,session,options={}){
   const svg=bibleDiagramSVG(exercise,groups[selected],{...options,sequenceIndex});display.replaceChildren(svg);
   const installed=groups[selected],inventory=installed.material||{},fmt=n=>String(Math.round(n*10)/10).replace('.',',');
   metrics.textContent='L '+fmt(installed.length)+' × l '+fmt(installed.width)+' m · '+installed.players+' joueurs'+[inventory.goals?inventory.goals+' but'+(inventory.goals>1?'s':''):null,inventory.miniGoals?inventory.miniGoals+' mini-but'+(inventory.miniGoals>1?'s':''):null,inventory.gates?inventory.gates+' porte'+(inventory.gates>1?'s':''):null].filter(Boolean).map(t=>' · '+t).join('');
-  matchup.replaceChildren();const actors=svg.bibleScene?.tokens||[],opponents=actors.filter(p=>!p.rotation&&p.team==='red');matchup.hidden=!opponents.length;root.classList.toggle('bible-opposition',Boolean(opponents.length));structure.hidden=!svg.querySelector('.bible-team-volumes');
-  if(opponents.length){for(const [team,label]of [['blue','Bleus'],['red','Rouges'],['neutral','Appuis']]){const members=actors.filter(p=>!p.rotation&&p.team===team);if(!members.length)continue;if(team==='red'){const vs=document.createElement('span');vs.className='bible-matchup-versus';vs.textContent='VS';vs.setAttribute('aria-hidden','true');matchup.append(vs);}const chip=document.createElement('span');chip.className='bible-matchup-team bible-matchup-'+team;const dot=document.createElement('i');dot.setAttribute('aria-hidden','true');const text=document.createElement('strong');text.textContent=members.length+' '+(members.length===1?{blue:'bleu',red:'rouge',neutral:'appui'}[team]:label.toLowerCase());chip.append(dot,text);const keepers=members.filter(p=>p.keeper).length;if(keepers){const note=document.createElement('small');note.textContent='dont '+keepers+' G';chip.append(note);}matchup.append(chip);}}
+  matchup.replaceChildren();const actors=svg.bibleScene?.tokens||[],opponents=actors.filter(p=>!p.rotation&&p.team==='red');matchup.hidden=!opponents.length;root.classList.toggle('bible-opposition',Boolean(opponents.length)&&exercise.id!=='video-coordination-shot');structure.hidden=!svg.querySelector('.bible-team-volumes');
+  if(opponents.length){for(const [team,label]of [['blue','Bleus'],['red','Rouges'],['neutral','Appuis']]){const members=actors.filter(p=>!p.rotation&&p.team===team);if(!members.length)continue;if(team==='red'){const vs=document.createElement('span');vs.className='bible-matchup-versus';vs.textContent=exercise.id==='video-coordination-shot'?'avec':'VS';vs.setAttribute('aria-hidden','true');matchup.append(vs);}const chip=document.createElement('span');chip.className='bible-matchup-team bible-matchup-'+team;const dot=document.createElement('i');dot.setAttribute('aria-hidden','true');const text=document.createElement('strong');text.textContent=exercise.id==='video-bounce-2v2'?'2 '+label.toLowerCase()+' + 1 appui':exercise.id==='video-coordination-shot'?(team==='blue'?'5 postes · alternance':'Gardien'):members.length+' '+(members.length===1?{blue:'bleu',red:'rouge',neutral:'appui'}[team]:label.toLowerCase());chip.append(dot,text);const keepers=members.filter(p=>p.keeper).length;if(keepers){const note=document.createElement('small');note.textContent='dont '+keepers+' G';chip.append(note);}matchup.append(chip);}}
 
   if(options.animation!==false&&typeof bibleAnimationMount==='function'&&!svg.dataset.invalid){animation=bibleAnimationMount(root,svg,exercise,groups[selected],{...options,sequenceIndex});animationHost.append(animation.element);root.bibleAnimation=animation;}
   orient();

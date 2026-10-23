@@ -1,5 +1,7 @@
 # Revue à partir des vidéos du coach — 22 octobre 2026
 
+Complément du 23 octobre : [deux exercices reconstruits et ajoutés à la Bible](coach-video-exercises-2026-10-23.md). Les limites et comptes ci-dessous décrivent le lot du 22 octobre, pas l’état actuel de 65 fiches.
+
 Cette livraison améliore le lecteur commun et corrige des placements précis ; elle
 ne prétend pas avoir réécrit les 189 chorégraphies à partir de 13 vidéos. Les
 63 fiches et leurs trois variantes ont été parcourues dans le lecteur, avec une
