@@ -1,0 +1,60 @@
+/* Atelier inspiré de la référence vidéo : le terrain reste au centre du travail. */
+@media screen {
+ #custom-training-dialog{width:1480px;max-width:calc(100vw - 24px);max-height:96dvh}
+ #custom-training-form>*{min-width:0}
+ #custom-training-form .exercise-editor{background:#182638;color:#edf3fa;padding:20px;gap:14px}
+ #custom-training-form .exercise-editor h3{color:#f1f5fb}
+ #custom-training-form .exercise-editor>.hint{color:#bdcbdb;font-size:12px;max-width:none}
+ #custom-training-form .exercise-editor>.section-heading{align-items:center}
+ #custom-training-form .exercise-editor>.section-heading label{color:#d3deec}
+ #custom-training-form .exercise-editor>.exercise-board-actions:not(.studio-animation) label{color:#d3deec}
+ #custom-training-form .studio-board-layout{grid-template-columns:116px minmax(0,1fr) 224px;gap:14px;align-items:start}
+ #custom-training-form .studio-stage{align-self:center;min-width:0;padding:8px;background:#111e2d;border:1px solid #344357;border-radius:12px}
+ #custom-training-form .studio-stage>canvas{width:100%;margin:0;border-radius:6px;box-shadow:none;aspect-ratio:8/5;touch-action:none}
+ #custom-training-form .studio-tools{padding:10px 6px;background:#233247;border-color:#3c4a60;border-radius:12px}
+ #custom-training-form .studio-tools h4{color:#d3deec;line-height:1.5;font-size:11px;margin:0 4px 10px}
+ #custom-training-form .studio-tools .exercise-equipment-button{min-height:64px;min-width:0}
+ #custom-training-form .studio-tools .exercise-equipment-button canvas{width:46px!important;height:34px!important}
+ #custom-training-form .studio-tools .exercise-equipment-button span{color:#e1e9f3;font-size:10px;overflow-wrap:anywhere}
+ #custom-training-form .studio-tools .exercise-equipment-button:hover{background:#354c69!important}
+ #custom-training-form .studio-inspector{margin:0;padding:14px;background:#f6f8fb;border-color:#dbe3ee;min-width:0;border-radius:12px}
+ #custom-training-form .studio-inspector summary{font-size:12px;color:#2d4666;line-height:1.5;min-height:28px}
+ #custom-training-form .studio-inspector>.custom-training-grid{grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+ #custom-training-form .studio-inspector>.custom-training-grid>label:first-child{grid-column:1/-1}
+ #custom-training-form .studio-inspector label{min-width:0}
+ #custom-training-form .studio-inspector input,#custom-training-form .studio-inspector select{width:100%;min-width:0;padding:9px 8px}
+ #custom-training-form .studio-inspector .exercise-rotation-presets{gap:6px;margin-top:14px}
+ #custom-training-form .studio-inspector .exercise-rotation-presets>span{flex-basis:100%;color:#526984}
+ #custom-training-form .exercise-editor button:not(.exercise-equipment-button){min-height:40px}
+ #custom-training-form .studio-animation{background:#f6f8fb;border:0;border-radius:12px;padding:14px;align-items:end}
+ #custom-training-form .studio-animation label{max-width:170px}
+ #custom-training-form .studio-footer{padding:12px 24px}
+ @media(min-width:1100px){
+  #custom-training-form .studio-tools{max-height:65dvh;overflow-y:auto;scrollbar-width:thin}
+ }
+ @media(max-width:1099px){
+  #custom-training-form .studio-board-layout{grid-template-columns:100px minmax(0,1fr)}
+  #custom-training-form .studio-inspector{grid-column:2}
+  #custom-training-form .studio-inspector>.custom-training-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #custom-training-form .studio-inspector>.custom-training-grid>label:first-child{grid-column:1/-1}
+ }
+ @media(max-width:700px){
+  #custom-training-dialog{max-width:calc(100vw - 12px);max-height:97dvh;border-radius:14px}
+  #custom-training-form .studio-tabs{padding-inline:8px;gap:2px}
+  #custom-training-form .studio-tab{flex:1;justify-content:center;padding:10px 6px!important;gap:5px;font-size:11px!important;min-width:0}
+  #custom-training-form .exercise-editor{padding:12px;gap:12px}
+  #custom-training-form .studio-board-layout{grid-template-columns:minmax(0,1fr);gap:10px}
+  #custom-training-form .studio-tools{padding:8px}
+  #custom-training-form .studio-tools h4{margin-bottom:5px}
+  #custom-training-form .studio-tools h4::after{color:#c3cfdd}
+  #custom-training-form .studio-tools .exercise-equipment-button{flex:0 0 66px;min-height:64px}
+  #custom-training-form .studio-stage{padding:4px}
+  #custom-training-form .studio-inspector{grid-column:1;padding:12px}
+  #custom-training-form .studio-inspector>.custom-training-grid{grid-template-columns:1fr 1fr}
+  #custom-training-form input,#custom-training-form select,#custom-training-form textarea{font-size:16px}
+  #custom-training-form .exercise-editor button:not(.exercise-equipment-button){min-height:44px}
+  #custom-training-form .studio-animation{padding:12px;gap:10px}
+  #custom-training-form .studio-animation label{max-width:none;flex:1 1 120px;min-width:0}
+  #custom-training-form .studio-footer{padding:12px}
+ }
+}
