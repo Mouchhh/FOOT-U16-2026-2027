@@ -1,0 +1,163 @@
+/* Shared controls and reading surfaces; pitch geometry and printed documents stay independent. */
+@media screen {
+  :root {
+    --workspace-ink: #203958;
+    --workspace-muted: #526780;
+    --workspace-line: #dce4ed;
+    --workspace-soft: #f5f7fa;
+    --action-blue: #2855a2;
+    --action-hover: #204783;
+    --control-radius: 10px;
+  }
+
+  body { background: #f5f7fa; }
+  :where(.reports-heading, .section-heading, .training-step-heading) h2 {
+    color: var(--workspace-ink);
+    text-wrap: balance;
+  }
+
+  /* Restrict sizing to workspace controls, never the draggable pitch pieces. */
+  :is(.reports-heading, .report-actions, .dialog-actions, .training-step-footer,
+      .flow-footer, .training-catalogue-actions, .bible-card-actions) button {
+    min-height: 40px;
+    padding: 10px 14px;
+    border-radius: var(--control-radius);
+    font-size: 12px;
+    line-height: 1.35;
+    font-weight: 600;
+    box-shadow: none;
+  }
+  :is(.reports-heading, .report-actions, .dialog-actions, .training-step-footer,
+      .flow-footer, .training-catalogue-actions, .bible-card-actions) button:not(.primary):not(:disabled) {
+    background: #fff;
+    border: 1px solid #ccd8e6;
+    color: #365575;
+  }
+  button.primary:not(:disabled), #training-next:not(:disabled) {
+    background: var(--action-blue);
+    border-color: var(--action-blue);
+    color: #fff;
+  }
+  button:disabled { cursor: not-allowed; }
+  :is(button, a, summary, input, select, textarea):focus-visible {
+    outline: 3px solid #2855a2;
+    outline-offset: 3px;
+  }
+  :is(input, select, textarea):focus-visible {
+    border-color: var(--action-blue);
+    outline: 3px solid #b7cdf0;
+    outline-offset: 1px;
+  }
+
+  :is(.flow-page, .training-step, .training-library-page, #report-content, dialog)
+    :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]), select, textarea) {
+    border: 1px solid #cdd8e5;
+    background: #fff;
+    color: var(--workspace-ink);
+    border-radius: var(--control-radius);
+    min-height: 40px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  :is(.flow-page, .training-step, #report-content, dialog) label {
+    color: #415a76;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  :is(input, textarea)::placeholder { color: #67788c; opacity: 1; }
+  textarea { resize: vertical; }
+  :is(.flow-page, .training-step, #report-content) .report-panel {
+    border-color: var(--workspace-line);
+    border-radius: 14px;
+    box-shadow: none;
+  }
+  .training-step-heading h2 { font-size: 21px; letter-spacing: -.5px; }
+  .training-step-footer {
+    border-top-color: var(--workspace-line);
+    background: #f5f7fa;
+    gap: 12px;
+  }
+
+  /* Quiet catalogue chrome; the diagram, title and add action lead each card. */
+  #training-space .training-drawer-layout.catalogue-open > .training-catalogue {
+    border: 1px solid var(--workspace-line) !important;
+    border-radius: 16px;
+    box-shadow: none;
+  }
+  #training-space .bible-group-context,
+  #training-space .bible-results { color: var(--workspace-muted); }
+  #training-space #training-search {
+    background: #f5f7fa;
+    border-color: #cdd8e5;
+    font-size: 14px;
+  }
+  .bible-phase-shortcuts button {
+    color: #435d79;
+    background: #f1f4f8;
+    border-radius: 8px;
+  }
+  .bible-phase-shortcuts button[aria-pressed=true] {
+    background: #e8effb;
+    color: #244d91;
+    border-color: #a9bfe2;
+  }
+  #training-catalogue { align-items: stretch; gap: 14px; }
+  #training-catalogue .bible-card {
+    border-color: var(--workspace-line);
+    border-radius: 12px;
+    box-shadow: none;
+  }
+  #training-catalogue .bible-card-picture { background: #edf3ef; }
+  #training-catalogue .bible-card > h3 { color: var(--workspace-ink); font-size: 16px; }
+  #training-catalogue .bible-card > .bible-card-goal { color: var(--workspace-muted); }
+  #training-catalogue .bible-card > .bible-card-format { color: #526780 !important; }
+  #training-catalogue .bible-card-preview > summary { color: #435d79; }
+  #training-catalogue .bible-card-actions { margin-top: auto; padding-top: 9px; }
+  #training-catalogue .bible-card-actions button { min-height: 40px; font-size: 12px; }
+  #training-catalogue .bible-card-actions button:not(.primary) {
+    background: transparent;
+    border-color: transparent;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .bible-result-pages { color: #526780; }
+  .bible-sheet-dialog { box-shadow: 0 20px 80px #162c4930; }
+  dialog::backdrop { background: #162c4966; }
+
+  @media (hover: hover) {
+    button.primary:not(:disabled):hover, #training-next:not(:disabled):hover {
+      background: var(--action-hover);
+      border-color: var(--action-hover);
+    }
+    :is(.reports-heading, .report-actions, .training-step-footer, .bible-card-actions)
+      button:not(.primary):not(:disabled):hover { background: #edf2f8; }
+    .bible-card-picture:hover { background: #e2ece5; }
+  }
+
+  /* Keep the complete appointment step visible on a standard laptop. */
+  @media (min-width: 1000px) and (min-height: 650px) and (max-height: 800px) {
+    #training-step-2 .training-form { row-gap: 8px; }
+    #training-step-2 .report-panel:has(#training-attendance-open) { padding-block: 10px; }
+    #training-step-2 #training-attendance-summary { margin: 6px 0 0; }
+  }
+
+  @media (max-width: 650px) {
+    :is(.flow-page, .training-step, #report-content, dialog)
+      :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]), select, textarea) {
+      font-size: 16px; /* Keep iOS from zooming the form on focus. */
+    }
+    :is(.reports-heading, .report-actions, .dialog-actions, .training-step-footer,
+        .flow-footer) button { min-height: 44px; }
+    .reports-heading { flex-wrap: wrap; gap: 12px; }
+    .reports-heading .report-actions { flex-wrap: wrap; gap: 8px; }
+    .training-form > label:has(select) { grid-column: 1 / -1; }
+    .training-step-footer { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+    #training-catalogue .bible-card-actions { flex-wrap: wrap; gap: 4px; }
+    #training-catalogue .bible-card-actions button { min-height: 44px; padding: 9px 10px; }
+    #training-catalogue .bible-card-picture { height: 80px; }
+    #training-catalogue .bible-card > h3 { font-size: 16px; }
+    #training-space .bible-catalogue > .training-catalogue-actions button { min-height: 40px; }
+    .bible-result-pages button { min-height: 44px; }
+    .bible-sheet-dialog { max-height: calc(100dvh - 20px); }
+  }
+}

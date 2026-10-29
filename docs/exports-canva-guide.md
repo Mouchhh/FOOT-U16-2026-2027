@@ -1,5 +1,90 @@
 # Exporter vers Canva
 
+## Le cadre Mon Canva
+
+Sur la dernière page **Enregistrer & exporter**, **Créer et ouvrir ma causerie
+ dans Canva** lance la création de la présentation complète dans le compte
+Canva autorisé du coach, puis ouvre le lien d’édition effectivement renvoyé
+par Canva. Lors de la première utilisation, l’autorisation précède la création,
+qui reprend automatiquement. Les autorisations sont conservées côté serveur.
+Ce parcours nécessite le service configuré et validé : il n’est pas actif tant
+que `CLUB_CANVA_GATEWAY` est vide. Le site affiche alors explicitement l’activation
+manquante, sans annoncer qu’une présentation a été créée.
+
+La dernière présentation créée est mémorisée dans l’espace du coach sur cet
+appareil et peut être rouverte depuis le cadre. Le lien favori vers un espace ou
+un dossier Canva reste une option distincte : **Mon espace Canva** n’envoie aucun
+contenu. Il utilise la session Canva du navigateur et peut être modifié ou retiré.
+Ces liens locaux ne sont pas synchronisés entre appareils.
+
+**Vérifier ou télécharger une copie de ma causerie** conserve l’inventaire et
+le téléchargement manuel de la présentation, sans les mettre devant l’action
+principale. Une copie locale peut être préparée sans connecter Canva.
+
+## Causerie complète · première étape locale
+
+Dans **Préparation du match**, le bouton **Causerie · Canva** prépare une
+présentation PowerPoint (`.pptx`). Le même bouton figure à côté de l’export
+de composition. La dernière page **Enregistrer & exporter** présente aussi le
+bloc **Votre causerie dans Canva**, avec le bouton **Préparer ma causerie pour
+Canva** et les trois étapes de téléchargement et d’import dans le compte personnel.
+Il reprend le document ouvert : équipe et composition,
+repères du match, contexte, adversaire, quatre idées fortes, animations
+défensive et offensive, spécificités, consignes et effectif complet. Une vue
+épurée n’est proposée que si elle est explicitement liée à la composition.
+Les autres documents de la bibliothèque et les tableaux de pions indépendants
+ne sont pas intégrés automatiquement.
+
+Les textes sont repris sans reformulation, résumé ou suppression des espaces
+et retours à la ligne. Les passages longs continuent sur des pages supplémentaires.
+Les textes restent des zones de texte modifiables dans le fichier PowerPoint.
+Les terrains utilisent le rendu existant (photos, positions, flèches, couleurs,
+adversaires et visibilité du banc) sous forme d’images PNG fixes. Les pions ne
+deviennent pas des objets Canva séparés, et une animation n’est pas une vidéo
+dans cette présentation. Aucun contenu n’est transmis au clic de téléchargement.
+
+Ouvrir l’inventaire pour vérifier les rubriques, télécharger la présentation,
+puis l’importer dans Canva. Cette étape produit le fichier local ; elle ne crée
+pas de connexion au compte Canva. L’import réel, la conversion et le rendu dans
+Canva restent à valider avec un compte autorisé. Ne pas promettre une conversion
+identique avant cette validation.
+
+L’export utilise une copie figée lors de l’ouverture de la fenêtre. Fermer puis
+rouvrir cette fenêtre pour reprendre des changements plus récents. Une photo
+illisible bloque la génération, au lieu d’être omise silencieusement.
+
+`python3 tests/causerie-export-browser.py` télécharge de vrais fichiers et contrôle
+leur XML : tous les champs de préparation, les objectifs, les accents, les
+espaces, les longs textes, les images de terrain, la sélection de la vue liée,
+le brouillon figé et l’absence d’envoi réseau. Ce contrôle ne valide pas Canva.
+
+Pour la connexion persistante demandée, voir [Connexion Canva](canva-connection.md).
+
+## Création directe dans le compte du coach · service à activer
+
+Lorsque le responsable a déployé et validé le service puis renseigné son origine
+HTTPS dans `canva-config.js`, la même fenêtre propose **Connecter Canva**.
+Le coach doit être connecté au club. La nouvelle fenêtre ouvre le consentement
+Canva ; il peut ensuite revenir au site et choisir **Créer dans mon Canva**.
+
+La présentation n’est envoyée qu’à ce clic. Le site attend le résultat réel de
+l’import avant de proposer **Ouvrir ma présentation dans Canva**. En cas de
+traitement long ou de connexion interrompue, **Vérifier la connexion** permet
+de retrouver le dernier import sans relancer une création. **Déconnecter Canva**
+supprime l’autorisation conservée par le site et demande sa révocation chez Canva.
+Si cette révocation distante échoue, retirer également l’accès depuis Canva.
+
+Le service garde les autorisations chiffrées par compte éducateur et les
+renouvelle tant que Canva le permet ; se reconnecter reste nécessaire en cas de
+révocation. Le changement de coach pendant la préparation interdit l’envoi du
+document capturé sous le compte précédent. Les comptes Canva ne sont pas liés
+aux simples profils locaux de démonstration.
+
+Ce parcours est testé avec un service simulé, pas avec un vrai compte Canva.
+L’intégration et son retour ont été configurés par le responsable. La valeur
+publique `CLUB_CANVA_GATEWAY` vise désormais le service Render du club ; le
+consentement et le rendu réels doivent encore être testés.
+
 ## Composition ou plan de jeu
 
 1. Dans Terrain & tactique, ouvrir le document puis **Exporter**.

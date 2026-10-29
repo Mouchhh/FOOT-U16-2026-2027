@@ -8,6 +8,7 @@ browser-extension/club-project.json
 whatsapp-gateway/node_modules/
 whatsapp-gateway/data/
 whatsapp-gateway/.wwebjs_cache/
+canva-gateway/data/
 
 # Archives administrateur privées : jamais dans GitHub Pages
 *.dump

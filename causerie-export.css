@@ -1,0 +1,27 @@
+@media screen {
+ .causerie-export-panel{padding:22px;margin-bottom:20px;border:1px solid #ccd8e6;border-radius:14px;background:#fff;min-width:0}
+ .causerie-export-panel h2{font-size:21px;color:#203958;margin:0 0 10px}
+ .causerie-export-panel>p,.causerie-export-panel li{color:#415a76;font-size:14px;line-height:1.65}
+ .causerie-export-panel ol{padding-left:22px;margin:14px 0 18px}
+ .causerie-export-panel li{padding-left:4px;margin:7px 0}
+ .causerie-export-panel button{min-height:44px;white-space:normal;font-size:14px;padding:12px 18px}
+ .causerie-export-panel .hint{font-size:12px;margin:12px 0 0}
+ .causerie-dialog{width:min(680px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;padding:24px;border:1px solid #dce4ed;border-radius:16px;background:#fff;color:#203958}
+ .causerie-dialog .section-heading{align-items:start;gap:16px}
+ .causerie-dialog h2{font-size:22px;line-height:1.35}
+ .causerie-dialog .icon-button{flex-shrink:0;min-width:40px;min-height:40px}
+ .causerie-dialog .hint{font-size:13px;color:#526780;line-height:1.65;margin:16px 0}
+ .causerie-summary{font-size:14px;color:#203958;overflow-wrap:anywhere}
+ .causerie-option{display:flex;align-items:center;gap:10px;margin:16px 0;font-size:14px}
+ .causerie-option[hidden]{display:none}
+ .causerie-option input{width:20px;height:20px;flex-shrink:0}
+ .causerie-dialog details{margin:16px 0;border:1px solid #dce4ed;border-radius:10px;padding:12px;font-size:13px}
+ .causerie-dialog summary{cursor:pointer;font-weight:600}
+ .causerie-dialog li{margin:8px 0;overflow-wrap:anywhere}
+ .causerie-dialog .report-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+ .causerie-dialog [hidden]{display:none!important}
+ .causerie-results{display:grid;gap:8px;margin-top:16px}
+ .causerie-canva-link{padding:12px;color:#2855a2;text-underline-offset:3px}
+ @media(max-width:650px){.causerie-export-panel{padding:17px}.causerie-export-panel button{width:100%}.causerie-dialog{padding:18px}.causerie-dialog button,.causerie-canva-link{min-height:44px}}
+}
+@media print{.causerie-export-panel{display:none!important}}
