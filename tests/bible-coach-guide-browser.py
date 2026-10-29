@@ -19,11 +19,12 @@ with sync_playwright() as p:
           assert(s.roles===g.roles&&s.dimensions.includes(g.width+' m'),e.id+' wrong setup');cards++;
         }
       }
-      const e=trainingExercises.find(e=>e.id==='passes'),g=biblePlan(e,{players:14,keepers:0,space:'full',age:18,level:'developing'},{organisation:'single'}).groups[0],field=bibleDiagramField(g),stations=bibleCircuitStations(g,field),svg=bibleDiagramSVG(e,g),scene=svg.bibleScene;
-      assert(g.fits&&stations.length===4,'four real circuits');
-      assert(g.material.circuitCones===12&&svg.querySelectorAll('[data-equipment="cone"]').length===12,'three marked posts per circuit');
+      const e=trainingExercises.find(e=>e.id==='passes'),all=biblePlan(e,{players:14,keepers:0,space:'full',age:18,level:'developing'},{organisation:'auto'}),g=biblePlan(e,{players:7,keepers:0,space:'full',age:18,level:'developing'},{organisation:'single'}).groups[0],field=bibleDiagramField(g),stations=bibleCircuitStations(g,field),svg=bibleDiagramSVG(e,g),scene=svg.bibleScene;
+      assert(all.fits&&all.groups.reduce((n,g)=>n+g.players,0)===14&&stations.length===2&&all.totalMaterial.activeBalls===4,'four circuits across compatible workshops');
+      assert(!biblePlan(e,{players:14,keepers:0,space:'full'},{organisation:'single'}).fits,'oversized single workshop accepted');
+      assert(g.material.circuitCones===6&&svg.querySelectorAll('[data-equipment="cone"]').length===6,'three marked posts per circuit');
       assert(Math.abs((stations[1].x-stations[0].x-stations[0].w)/field.scale-3)<.001,'three metre separation not drawn');
-      assert(scene.balls.length===4,'one live ball per circuit');
+      assert(scene.balls.length===2,'one live ball per circuit');
       for(const s of stations){
         const ball=scene.balls[s.index];assert(ball.owner===s.offset+1,'wrong circuit ball owner');
         for(const a of scene.tokens.filter(t=>t.number>s.offset&&t.number<=s.offset+s.players))assert(a.x>=s.x&&a.x<=s.x+s.w&&a.y>=s.y&&a.y<=s.y+s.h,'participant outside own circuit');
@@ -37,13 +38,14 @@ with sync_playwright() as p:
       assert(w.material.activeBalls===12&&w.material.circuitCones===0,'activation material');
       assert(![...warm.rules,...bibleKnowledge.warm.sequences.map(s=>s.rule)].some(s=>/passe/i.test(s)),'individual activation still asks for passes');
       const rondo=trainingExercises.find(e=>e.id==='rondo'),base={id:'preview-criteria-test',players:18,keepers:0,space:'full',age:18,level:'developing'};
-      const big=biblePreviewState(rondo,base).variant.width,small=biblePreviewState(rondo,{...base,players:6});assert(small.variant.width<big&&small.variant.width===12,'default preview keeps old group dimensions');
+      const big=biblePreviewState(rondo,base).variant.width,small=biblePreviewState(rondo,{...base,players:6});assert(small.variant.width===12&&big===12&&biblePreviewState(rondo,base).variant.groups===3,'default preview keeps old group dimensions');
       small.customised=true;small.variant.width=17;assert(biblePreviewState(rondo,{...base,players:8}).variant.width===17,'coach dimensions overwritten');
       return {cards,circuits:stations.length};
     }''')
     for exercise,players,keepers in [('rondo',6,0),('build',12,2),('cover',6,0),('passes',14,0)]:
         page.evaluate('''([id,n,g])=>{Object.assign(currentTraining,{players:n,keepers:g,space:'full'});openBibleSheet(trainingExercises.find(e=>e.id===id));}''',[exercise,players,keepers])
         dialog=page.locator('#bible-sheet-dialog')
+        dialog.locator('.bible-depth-panel > summary').click()
         guide=dialog.locator('.bible-coach-guide')
         assert guide.is_visible()
         assert 'Installer' in guide.inner_text() and 'Lancer et faire jouer' in guide.inner_text()
@@ -53,6 +55,7 @@ with sync_playwright() as p:
         assert figure.locator('.training-diagram-screen [data-feature="coach"]').count()==1
         assert 'Installation' in figure.locator('.training-diagram-controls>strong').inner_text()
         assert 'À observer' in figure.locator('.bible-animation-observe').inner_text()
+        figure.locator('.bible-animation-chapters > summary').click()
         figure.locator('.bible-animation-phase').first.click()
         assert 'Exemple d’action' in figure.locator('.training-diagram-controls>strong').inner_text()
         figure.locator('.bible-animation-reset').click()

@@ -63,7 +63,7 @@ function trainingDiagramSVG(exercise,group){
  for(const [x,y] of [[62,72],[578,72],[62,368],[578,368]])svg.append(node('path',{d:'M'+x+' '+(y-6)+'l-6 12h12z',fill:'#f2bc69',stroke:'#74491a','stroke-width':1}));
  svg.append(node('text',{x:320,y:32,'text-anchor':'middle',fill:'#2855a2','font-size':16,'font-weight':700},'Atelier '+group.index+' · '+group.players+' joueurs · '+group.width+' × '+group.length+' m'));
  const defs=node('defs');const markerId='training-arrow-'+serial;const marker=node('marker',{id:markerId,markerWidth:7,markerHeight:7,refX:5,refY:3,orient:'auto',markerUnits:'strokeWidth'});marker.append(node('path',{d:'M0 0L6 3L0 6',fill:'none',stroke:'#fff','stroke-width':1}));defs.append(marker);svg.append(defs);
- const arrow=(a,b,dashed=false)=>{if(!a||!b||Math.hypot(a[0]-b[0],a[1]-b[1])<20)return;svg.append(node('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:'#fff','stroke-width':2.5,'stroke-dasharray':dashed?'7 5':'none','marker-end':'url(#'+markerId+')'}));};
+ const arrow=(a,b,dashed=false)=>{if(!a||!b||Math.hypot(a[0]-b[0],a[1]-b[1])<20)return;svg.append(node('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:'#fff','stroke-width':2.5,'stroke-dasharray':dashed?'none':'7 5','marker-end':'url(#'+markerId+')'}));};
  const blue=tokens.filter(t=>t.team===(plan.actors||'blue')&&(!t.keeper||['circuit','possession','duel'].includes(exercise.kind))&&!t.rotation),at=i=>blue.length?blue[i%blue.length]:null,point=t=>t?[t.x,t.y]:null;
  for(const [i,j] of plan.passes||[])arrow(point(at(i)),point(at(j)),true);
  for(const [i,x,y] of plan.moves||[])arrow(point(at(i)),[x,y]);
@@ -79,5 +79,5 @@ function trainingDiagram(exercise,session){
  const select=el('select');select.setAttribute('aria-label','Atelier illustré · '+exercise.title);groups.forEach(g=>{const option=el('option','','Atelier '+g.index+' · '+g.players+' joueurs');option.value=String(g.index-1);select.append(option);});controls.append(select);root.append(controls);
  const display=el('div','training-diagram-screen');display.append(trainingDiagramSVG(exercise,groups[0]));select.onchange=()=>display.replaceChildren(trainingDiagramSVG(exercise,groups[Number(select.value)]));root.append(display);
  const variants=el('div','training-diagram-print');const seen=new Set();groups.forEach(g=>{const key=[g.players,g.keepers,g.width,g.length].join('-');if(!seen.has(key)){seen.add(key);variants.append(trainingDiagramSVG(exercise,g));}});root.append(variants);
- const plan=trainingDiagramPlans[exercise.id];root.append(el('figcaption','',(plan?.caption||exercise.goal)+' Traits pleins : déplacements. Pointillés : passes ou frappes. Croquis de principe, sans échelle ni séquence obligatoire.'));return root;
+ const plan=trainingDiagramPlans[exercise.id];root.append(el('figcaption','',(plan?.caption||exercise.goal)+' Traits pleins : passes ou frappes. Pointillés : courses sans ballon. Croquis de principe, sans échelle ni séquence obligatoire.'));return root;
 }

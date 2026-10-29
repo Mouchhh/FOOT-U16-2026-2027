@@ -8,6 +8,7 @@ function bibleTrainingProfile(session={}){
 }
 function bibleExerciseLearning(exercise,session={}){
  const profile=bibleTrainingProfile(session),template=bibleExerciseKnowledge(exercise).template||'possession',index={discovery:0,developing:1,advanced:2}[profile.level];
+ if(typeof bibleExerciseDose==='function')Object.assign(profile,bibleExerciseDose(exercise,session));
  const rules={
   rondo:['Touches libres ; rechercher deux solutions et 3 passes maîtrisées avant de compliquer.','Après la passe, changer d’angle ; rechercher 5 passes sous une pression réelle.','Chercher la passe qui traverse la pression si elle existe ; 6 passes ou une sortie maîtrisée de la densité.'],
   possession:['Touches libres ; 3 passes pour un point et une priorité : rendre un soutien visible.','5 passes pour un point ; le receveur prépare sa solution suivante avant le contrôle.','6 passes pour un point ; valoriser la sortie de pression, puis retirer le bonus pour vérifier le transfert.'],
@@ -130,7 +131,8 @@ function bibleActors(format,rolePlan,template){
  const minAttackers=bibleInteger(format.minAttackers,defaults[template]||1,1,20);
  const minDefenders=bibleInteger(format.minDefenders,template==='circuit'||format.opposition==='none'?0:1,0,20);
  const attackers=rolePlan.teams.blue+rolePlan.teams.neutral,defenders=rolePlan.teams.red;
- return {minAttackers,minDefenders,attackers,defenders,actorsFit:attackers>=minAttackers&&defenders>=minDefenders};
+ const minTeamAttackers=bibleInteger(format.minTeamAttackers,1,1,20);
+ return {minAttackers,minDefenders,minTeamAttackers,attackers,defenders,actorsFit:attackers>=minAttackers&&defenders>=minDefenders&&rolePlan.teams.blue>=minTeamAttackers};
 }
 function bibleZones(group,format,template){
  const zones=[],n=format.zones,axis=format.zoneAxis==='width'?'width':'length',total=group[axis];
@@ -187,7 +189,8 @@ function biblePlan(exercise,session={},options={}){
   const layout=bibleLayout(groups,available,true);
   const sizePenalty=groups.reduce((sum,g)=>sum+Math.abs(g.players-format.ideal)/format.ideal,0)/count;
   const invalid=groups.some(g=>!g.pedagogyFits);
-  const score=layout.score+(invalid?80:0)+sizePenalty*4+Math.abs(count-players/format.ideal)*.1;
+  const queuePenalty=template==='circuit'&&!['warm','cool'].includes(exercise.id)?groups.reduce((n,g)=>n+g.players-3*Math.floor(g.players/3),0)/players*12:0;
+  const score=layout.score+(invalid?80:0)+sizePenalty*4+queuePenalty+Math.abs(count-players/format.ideal)*.1;
   if(!chosen||score<chosen.score)chosen={groups,layout,score};
  }
  const {layout}=chosen;
@@ -209,6 +212,12 @@ function biblePlan(exercise,session={},options={}){
   if(g.rotatingKeepers)g.notes.push(g.rotatingKeepers+' gardien(s) hors de l’opposition en rotation ; permuter au signal du coach ou à chaque séquence.');
   if(format.goalType==='full'&&g.material.gates)g.notes.push('Sans gardien pour chaque cible : '+g.material.gates+' but(s) remplacé(s) par des portes ; alterner les sens de jeu.');
   g.rotation=g.rotatingKeepers?'Tourner les gardiens à chaque séquence ; les gardiens hors jeu récupèrent les ballons depuis une zone protégée.':g.teams.neutral?'Changer les appuis à chaque séquence pour répartir les rôles.':template==='rondo'?'Permuter les défenseurs à la fin de chaque séquence, sans punition liée à une erreur.':'Inverser équipes, côtés ou fonctions à chaque séquence.';
+  if(typeof bibleExerciseRotation==='function')g.rotation=bibleExerciseRotation(exercise,g)||g.rotation;
+  if(template==='circuit'&&!['warm','cool'].includes(exercise.id))g.rotation='Après chaque chaîne : départ → deuxième poste → troisième poste → fin de file. Le suivant prend le départ ; alterner aussi le poste doublé.';
+  if(exercise.id==='warm')g.rotation='Chacun conserve son ballon ; varier les directions sans échange de rôles ni attente.';
+  if(exercise.id==='cool')g.rotation='Partager la parole dans chaque petit groupe ; aucune nouvelle opposition à organiser.';
+  if(exercise.id==='wall-pass')g.rotation='Départ → soutien → appui haut ; joueur lancé → retour par le matériel puis fin de file. Alterner les côtés et laisser le suivant repartir quand le circuit est libre.';
+  if(exercise.id==='duel-renforts')g.rotation='Après chaque vague de 20 secondes maximum : quatre joueurs sortent sur le côté, les suivants entrent. Changer les premiers entrants ; inverser les attaquants entre séries.';
   if(exercise.id==='video-bounce-2v2')g.rotation='Après chaque vague, un intérieur échange avec son appui ; avec des suivants, faire entrer les deux prochains par ordre d’arrivée. Tous changent de fonction entre les séries.';
   if(exercise.id==='video-coordination-shot')g.rotation='Passeur → relais haut ; relais → départ latéral par l’extérieur ; tireur → file hors de l’axe ; suivant → départ central. Alterner les côtés après chaque vague.';
   return g;
@@ -220,7 +229,7 @@ function biblePlan(exercise,session={},options={}){
  if(format.requiresKeeper&&groups.some(g=>g.activeKeepers+g.fieldKeepers===0))warnings.push('Cet exercice nécessite un gardien dans chaque atelier. Réduire les ateliers simultanés ou choisir une autre fiche de relance si aucun gardien n’est présent.');
  if(format.neutrals>0&&groups.some(g=>g.teams.neutral===0))warnings.push('L’effectif de champ ne permet pas de conserver l’appui nécessaire à l’objectif : regrouper les ateliers ou sélectionner une autre fiche.');
  if(format.attackAdvantage&&groups.some(g=>g.teams.blue<=g.teams.red))warnings.push('L’effectif de champ ne permet pas la supériorité offensive prévue : revoir les groupes ou sélectionner une autre fiche.');
- if(groups.some(g=>!g.actorsFit))warnings.push('Pas assez de joueurs de champ dans les rôles nécessaires : au moins '+groups[0].minAttackers+' attaquant(s)/appui(s) et '+groups[0].minDefenders+' défenseur(s) par atelier. Les gardiens en rotation ne remplacent pas ces rôles ; regrouper les ateliers ou choisir une autre fiche.');
+ if(groups.some(g=>!g.actorsFit))warnings.push('Pas assez de joueurs de champ dans les rôles nécessaires : au moins '+groups[0].minAttackers+' attaquant(s)/appui(s) et '+groups[0].minDefenders+' défenseur(s) par atelier'+(groups[0].minTeamAttackers>1?', dont '+groups[0].minTeamAttackers+' attaquants de la même équipe':'')+'. Les gardiens en rotation ne remplacent pas ces rôles ; regrouper les ateliers ou choisir une autre fiche.');
  if(groups.some(g=>g.teams.blue===0||g.teams.red===0)&&template!=='circuit'&&format.opposition!=='none')warnings.push('Ce groupe ne permet pas l’opposition prévue. Utiliser une situation technique sans opposition ou choisir une autre fiche.');
  if(!layout.fits)warnings.push('Installation impossible dans '+available.width+' × '+available.length+' m avec les dégagements : emprise requise '+layout.footprint.width+' × '+layout.footprint.length+' m. Réduire le nombre d’ateliers simultanés, alterner les groupes ou choisir une situation plus compacte.');
  if(groups.some(g=>g.width<g.recommendedMinimum.width||g.length<g.recommendedMinimum.length))warnings.push('Dimensions personnalisées trop serrées pour conserver l’intention de cette fiche ; agrandir ou choisir un format plus compact.');
@@ -287,16 +296,20 @@ function bibleSequenceContext(exercise,session={},variant={},index=0){
  return {session:effectiveSession,options,plan,activePlayers,activeKeepers,offPlayers,offKeepers,offFieldPlayers,warnings,errors,valid:true,fits:plan.fits};
 }
 function bibleSequenceIntervals(seconds,profile){
- const count=seconds>profile.workSeconds*1.5?Math.max(2,Math.ceil((seconds+profile.restSeconds)/(profile.workSeconds+profile.restSeconds))):1;
- const rest=count>1?Math.min(profile.restSeconds,Math.max(0,Math.floor((seconds-count*30)/(count-1)))):0,available=seconds-rest*(count-1),base=Math.floor(available/count),remainder=available%count;
- return Array.from({length:count},(_,i)=>({workSeconds:base+(i<remainder?1:0),restSeconds:i<count-1?rest:0}));
+ // Répétitions au plafond proposé, récupération puis reprise. La dernière
+ // récupération peut terminer la séquence : ne pas inventer une petite reprise
+ // pour absorber un arrondi ni raccourcir toutes les répétitions à parts égales.
+ const intervals=[];let remaining=Math.max(1,Math.round(seconds));
+ const work=Math.max(1,Math.round(profile.workSeconds)),rest=Math.max(0,Math.round(profile.restSeconds));
+ while(remaining>0){if(intervals.length&&rest>0&&remaining<Math.min(10,work)){intervals.at(-1).restSeconds+=remaining;break;}const workSeconds=Math.min(work,remaining);remaining-=workSeconds;const restSeconds=Math.min(rest,remaining);remaining-=restSeconds;intervals.push({workSeconds,restSeconds});}
+ return intervals;
 }
 function bibleTimeline(exercise,minutes,session={},options={}){
  const knowledge=bibleExerciseKnowledge(exercise),contents=Array.isArray(knowledge.sequences)?knowledge.sequences:[];
  const totalSeconds=Math.max(60,Math.round((Number.isFinite(minutes)?minutes:12)*60)),warnings=[];
- const learning=bibleExerciseLearning(exercise,session),nominalWork=learning.profile.workSeconds,nominalRest=learning.profile.restSeconds;
+ const learning=bibleExerciseLearning(exercise,session),countProfile=session.coachingLoad==='light'?bibleExerciseLearning(exercise,{...session,coachingLoad:'normal'}).profile:learning.profile,nominalWork=countProfile.workSeconds,nominalRest=learning.profile.restSeconds;
  const requestedCount=Number.isInteger(options.sequences)?Math.max(1,Math.min(4,options.sequences)):null;
- const count=requestedCount??Math.max(1,Math.min(contents.length||3,Math.round((totalSeconds+nominalRest)/(nominalWork+nominalRest)),4));
+ const count=requestedCount??Math.max(1,Math.min(contents.length||3,Math.round((totalSeconds+countProfile.restSeconds)/(nominalWork+countProfile.restSeconds)),4));
  let rest=count>1?Number.isInteger(options.restSeconds)?Math.max(0,Math.min(300,options.restSeconds)):nominalRest:0;
  const minimumWork=Math.min(30,Math.floor(totalSeconds/count));
  const maxRest=count>1?Math.max(0,Math.floor((totalSeconds-count*minimumWork)/(count-1))):0;

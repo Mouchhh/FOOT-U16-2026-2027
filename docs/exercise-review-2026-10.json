@@ -1,0 +1,4822 @@
+{
+  "cases": 6240,
+  "animations": 195,
+  "date": "2026-10-29",
+  "exercises": [
+    {
+      "id": "warm",
+      "title": "Activation avec ballon",
+      "objective": "Se préparer progressivement en prenant des informations.",
+      "task": "Conduire dans un espace libre sans collision, puis changer de direction après une prise d’information.",
+      "observe": "La tête se lève avant le changement de direction, sans arrêter la maîtrise du ballon.",
+      "question": "Quel espace avais-tu repéré avant de tourner ?",
+      "correction": "Ralentir la conduite et faire désigner l’espace libre avant le changement de direction.",
+      "invariant": "Un ballon par joueur, aucun défenseur et aucune file. Ne pas ajouter de passe à un exercice de conduite individuelle.",
+      "easier": "Conduite lente, touches libres et un seul signal visuel.",
+      "harder": "Changer la surface de contact après avoir annoncé une information visuelle, sans imposer une accélération maximale.",
+      "family": "activation",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "6 participants dans le circuit · 1 gardien inclus au jeu au pied",
+        "width": 20,
+        "length": 20,
+        "material": {
+          "balls": 6,
+          "activeBalls": 6,
+          "reserveBalls": 0,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 6,
+          "bibsRed": 0,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "6 participants dans le circuit · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "activation",
+        "workSeconds": 120,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Monter progressivement en disponibilité ; ne pas rechercher la fatigue."
+      },
+      "variants": [
+        {
+          "title": "Conduite et espaces libres",
+          "actions": 5,
+          "seconds": 6.09
+        },
+        {
+          "title": "Changer de surface",
+          "actions": 4,
+          "seconds": 4.2
+        },
+        {
+          "title": "Regarder avant de repartir",
+          "actions": 5,
+          "seconds": 5.32
+        }
+      ]
+    },
+    {
+      "id": "cool",
+      "title": "Retour au calme et bilan",
+      "objective": "Faire le bilan sans ajouter de charge.",
+      "task": "Échanger doucement puis décrire une action réussie et un point à reprendre.",
+      "observe": "Chaque petit groupe donne un exemple concret du travail réalisé, sans nouvelle opposition.",
+      "question": "Quelle décision t’a aidé aujourd’hui, et à quel moment du match pourrait-elle servir ?",
+      "correction": "Repartir d’une action vécue plutôt que demander de réciter un principe abstrait.",
+      "invariant": "Aucune course intense ni défi chronométré ; le rangement reste séparé des échanges avec ballon.",
+      "easier": "Bilan par binômes avant une restitution courte.",
+      "harder": "Faire expliquer pourquoi une autre décision aurait été moins adaptée, sans ajouter de charge physique.",
+      "family": "recovery",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "8 participants dans le circuit · 1 gardien inclus au jeu au pied",
+        "width": 20,
+        "length": 20,
+        "material": {
+          "balls": 4,
+          "activeBalls": 2,
+          "reserveBalls": 2,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 8,
+          "bibsRed": 0,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "8 participants dans le circuit · 1 gardien inclus au jeu au pied",
+          "description": "Tous participent aux échanges et au bilan, sans opposition."
+        }
+      },
+      "dose": {
+        "family": "recovery",
+        "workSeconds": 180,
+        "restSeconds": 30,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Aucune charge supplémentaire : marche, échanges doux et bilan."
+      },
+      "variants": [
+        {
+          "title": "Marcher et échanger",
+          "actions": 4,
+          "seconds": 4.29
+        },
+        {
+          "title": "Expliquer une réussite",
+          "actions": 4,
+          "seconds": 4.06
+        },
+        {
+          "title": "Expliquer une décision",
+          "actions": 5,
+          "seconds": 5.32
+        }
+      ]
+    },
+    {
+      "id": "passes",
+      "title": "Passer et se déplacer",
+      "objective": "Enchaîner passe, contrôle orienté et déplacement.",
+      "task": "Transmettre au poste suivant et rejoindre le poste libéré sans couper la passe suivante.",
+      "observe": "Le premier contact prépare la transmission et le joueur suivant est prêt avant le ballon.",
+      "question": "Vers quel poste ton premier contact doit-il t’ouvrir ?",
+      "correction": "Rejouer à vitesse réduite : contrôle vers le poste suivant, passe accessible, déplacement après le départ du ballon.",
+      "invariant": "Trois postes et un ballon par circuit. Les joueurs supplémentaires doublent un poste ; pas de défenseur dans ce format technique.",
+      "easier": "Raccourcir les passes et autoriser contrôle puis passe.",
+      "harder": "Alterner le sens du circuit ; choisir remise directe ou contrôle selon la qualité du service, sans obligation d’une touche.",
+      "family": "technical",
+      "reference": {
+        "session": {
+          "players": 5,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 5,
+        "keepers": 1,
+        "roles": "5 participants dans le circuit · 1 gardien inclus au jeu au pied",
+        "width": 20,
+        "length": 18,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 4,
+          "cones": 3,
+          "circuitCones": 3,
+          "bibsBlue": 5,
+          "bibsRed": 0,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 3,
+          "waiting": 2,
+          "field": 4,
+          "format": "5 participants dans le circuit · 1 gardien inclus au jeu au pied",
+          "description": "1 circuit(s) à trois postes ; 2 suivant(s) au départ, rotation à chaque chaîne."
+        }
+      },
+      "dose": {
+        "family": "technical",
+        "workSeconds": 120,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Garder le contrôle et la précision ; réduire le rythme avant de limiter les touches."
+      },
+      "variants": [
+        {
+          "title": "Contrôler puis passer",
+          "actions": 22,
+          "seconds": 26.105090955862526
+        },
+        {
+          "title": "Remise au soutien",
+          "actions": 27,
+          "seconds": 36.48023273115458
+        },
+        {
+          "title": "Trouver le troisième",
+          "actions": 22,
+          "seconds": 32.06358560852354
+        }
+      ]
+    },
+    {
+      "id": "rondo",
+      "title": "Conserver sous pression",
+      "objective": "Offrir plusieurs angles au porteur face à la pression.",
+      "task": "Conserver autour des défenseurs ; les défenseurs cherchent une interception maîtrisée.",
+      "observe": "Le porteur dispose de deux lignes de passe distinctes avant de recevoir.",
+      "question": "Où te déplacer pour ne plus être caché par le défenseur ?",
+      "correction": "Figer avant la passe, décaler un soutien de quelques pas puis rejouer avec le même défenseur actif.",
+      "invariant": "Conserver une supériorité numérique réelle. Les défenseurs changent à la pause, sans sanctionner automatiquement le joueur qui perd le ballon.",
+      "easier": "Touches libres et espace légèrement agrandi, sans modifier les équipes.",
+      "harder": "Réduire une seule dimension si les angles restent disponibles ; ne pas ajouter un défenseur sans recalculer les rôles.",
+      "family": "possession",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "4 bleus contre 2 rouges · 1 gardien inclus au jeu au pied",
+        "width": 12,
+        "length": 12,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 2,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "4 bleus contre 2 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "possession",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Offrir deux angles",
+          "actions": 8,
+          "seconds": 5.76
+        },
+        {
+          "title": "Ressortir de la pression",
+          "actions": 5,
+          "seconds": 5.18
+        },
+        {
+          "title": "Franchir si ouvert",
+          "actions": 5,
+          "seconds": 5.04
+        }
+      ]
+    },
+    {
+      "id": "triangle",
+      "title": "Trouver le troisième homme",
+      "objective": "Trouver un troisième joueur face au jeu par une remise.",
+      "task": "Progresser vers la porte en utilisant une remise lorsque le joueur d’appui ne peut pas se retourner.",
+      "observe": "Le troisième joueur se rend disponible pendant la première passe et reçoit face au jeu.",
+      "question": "L’appui peut-il se retourner ou a-t-il besoin d’une remise ?",
+      "correction": "Rejouer un temps avant la remise ; déplacer le troisième hors de l’alignement du défenseur.",
+      "invariant": "Au moins trois partenaires impliqués dans la relation passeur–appui–troisième. La combinaison est une possibilité, jamais une obligation si le jeu direct est ouvert.",
+      "easier": "Retarder la pression sur la première réception ; conserver les mêmes partenaires.",
+      "harder": "Libérer la pression dès la première passe et laisser le choix entre jeu direct, remise et conservation.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+        "width": 24,
+        "length": 22,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 8,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Appui remise troisième",
+          "actions": 5,
+          "seconds": 5.6
+        },
+        {
+          "title": "Appui marqué",
+          "actions": 5,
+          "seconds": 5.64
+        },
+        {
+          "title": "Appui qui se retourne",
+          "actions": 4,
+          "seconds": 4.06
+        }
+      ]
+    },
+    {
+      "id": "build",
+      "title": "Sortir de la pression",
+      "objective": "Dépasser la première ligne de pression.",
+      "task": "Les bleus sortent par la porte opposée ; les rouges récupèrent puis attaquent la porte de départ.",
+      "observe": "Le receveur offre un angle visible et conserve une solution de retour quand l’avant se ferme.",
+      "question": "Quelle sortie est libre, et qui sécurise si elle se ferme ?",
+      "correction": "Replacer un soutien bas et un relais plus haut ; rejouer le départ sans imposer la passe.",
+      "invariant": "Deux sens de jeu et deux portes. Le gardien éventuellement présent joue au pied dans ce format, pas dans un but ajouté au dessin.",
+      "easier": "Déclencher le pressing après le premier contrôle.",
+      "harder": "Pression immédiate à la mise en jeu ; conserver les mêmes portes et autoriser le contre.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+        "width": 34,
+        "length": 30,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 6,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Sortir par un côté",
+          "actions": 4,
+          "seconds": 4.81
+        },
+        {
+          "title": "Axe fermé",
+          "actions": 5,
+          "seconds": 6.52
+        },
+        {
+          "title": "Pression attirée",
+          "actions": 5,
+          "seconds": 9.63
+        }
+      ]
+    },
+    {
+      "id": "press",
+      "title": "Déclencher le pressing ensemble",
+      "objective": "Presser avec couverture plutôt qu’en solitaire.",
+      "task": "Les rouges ferment la progression puis attaquent la porte adverse après récupération.",
+      "observe": "La sortie du premier presseur est accompagnée d’une couverture intérieure.",
+      "question": "Quel signal te permet de sortir, et qui protège derrière toi ?",
+      "correction": "Figer sur une passe latérale ; faire nommer le presseur et sa couverture avant de rejouer.",
+      "invariant": "Un signal de pressing partagé ; si le rideau est battu, se réorganiser au lieu de poursuivre isolément.",
+      "easier": "Annoncer un seul déclencheur : passe latérale lente.",
+      "harder": "Laisser reconnaître le déclencheur sans annonce ; les bleus peuvent changer de côté.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+        "width": 26,
+        "length": 24,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Pression coordonnée",
+          "actions": 5,
+          "seconds": 7.37
+        },
+        {
+          "title": "Passe de retour",
+          "actions": 5,
+          "seconds": 7.8
+        },
+        {
+          "title": "Premier rideau dépassé",
+          "actions": 5,
+          "seconds": 7.22
+        }
+      ]
+    },
+    {
+      "id": "trap",
+      "title": "Enfermer sur le côté",
+      "objective": "Utiliser la touche pour réduire les solutions adverses.",
+      "task": "Orienter la relance vers un côté, récupérer à plusieurs puis ressortir vers la porte opposée.",
+      "observe": "La course du premier défenseur ferme l’axe et le deuxième protège la sortie intérieure.",
+      "question": "Quelle passe veux-tu laisser, et quelle passe dois-tu fermer ?",
+      "correction": "Rejouer la passe vers le côté en corrigeant l’angle de course et la distance de couverture.",
+      "invariant": "Les couloirs sont des repères, pas des cages. La couverture doit pouvoir réagir au renversement.",
+      "easier": "Commencer toujours du même côté avec un déclencheur connu.",
+      "harder": "Alterner le côté de départ et laisser les relanceurs renverser librement.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+        "width": 32,
+        "length": 26,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 8,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Orienter vers la touche",
+          "actions": 5,
+          "seconds": 5.41
+        },
+        {
+          "title": "Le porteur ressort",
+          "actions": 5,
+          "seconds": 9.43
+        },
+        {
+          "title": "Le piège est évité",
+          "actions": 5,
+          "seconds": 9.44
+        }
+      ]
+    },
+    {
+      "id": "cover",
+      "title": "Cadrer, couvrir et coulisser",
+      "objective": "Articuler cadrage, couverture et équilibre.",
+      "task": "Ralentir l’attaque vers la porte tout en couvrant la sortie du partenaire.",
+      "observe": "Le deuxième défenseur reste derrière et à l’intérieur du premier, à une distance permettant d’intervenir.",
+      "question": "Si ton partenaire est éliminé maintenant, peux-tu défendre la suite ?",
+      "correction": "Figer le duel ; reculer et décaler la couverture, puis rejouer la même approche.",
+      "invariant": "Au moins deux défenseurs dans l’action. Cadrage et couverture ne sont pas deux courses simultanées vers le ballon.",
+      "easier": "Attaque à rythme maîtrisé, départ frontal et espace lisible.",
+      "harder": "Changer le côté du service et laisser l’attaque choisir passe ou conduite.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+        "width": 26,
+        "length": 24,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Pression et couverture",
+          "actions": 5,
+          "seconds": 5.88
+        },
+        {
+          "title": "Changer le premier défenseur",
+          "actions": 5,
+          "seconds": 7.8
+        },
+        {
+          "title": "Duel perdu",
+          "actions": 5,
+          "seconds": 7.22
+        }
+      ]
+    },
+    {
+      "id": "block",
+      "title": "Défendre l’axe en bloc",
+      "objective": "Protéger l’axe avec des distances collectives adaptées.",
+      "task": "Protéger la porte axiale, coulisser avec le ballon puis progresser après récupération.",
+      "observe": "Les défenseurs se déplacent ensemble sans ouvrir un intervalle direct vers la cible.",
+      "question": "Quel intervalle s’ouvre quand tu sors de la ligne ?",
+      "correction": "Figer le renversement et rapprocher les partenaires concernés, sans faire reculer tout le bloc sur sa porte.",
+      "invariant": "Le bloc doit avoir plusieurs défenseurs reliés ; un simple duel ne représente pas le coulissement collectif annoncé.",
+      "easier": "Circulation adverse plus lente et départ du même côté.",
+      "harder": "Laisser le porteur choisir conduite, passe intérieure ou changement de côté.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+        "width": 40,
+        "length": 32,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 8,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 5,
+          "bibsRed": 5,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Bloc compact",
+          "actions": 5,
+          "seconds": 5.9
+        },
+        {
+          "title": "Renversement adverse",
+          "actions": 6,
+          "seconds": 11.85
+        },
+        {
+          "title": "Passe entre les lignes",
+          "actions": 7,
+          "seconds": 14.2
+        }
+      ]
+    },
+    {
+      "id": "transition",
+      "title": "Réagir à la perte",
+      "objective": "Choisir contre-pression ou repli selon la situation.",
+      "task": "Conserver ; dès la perte, gêner le nouveau porteur et fermer ses passes proches.",
+      "observe": "Le proche ralentit pendant qu’un partenaire ferme une solution, au lieu de courir tous sur le ballon.",
+      "question": "Peut-on presser ensemble ou faut-il d’abord se replacer ?",
+      "correction": "Revenir à l’instant de la perte et répartir pression du proche et fermeture d’une passe.",
+      "invariant": "Le jeu continue au changement de possession ; pas de remise au coach à chaque interception.",
+      "easier": "Touches libres et distances permettant une réaction collective.",
+      "harder": "Laisser les deux équipes exploiter immédiatement la récupération sans rappel du coach.",
+      "family": "transition",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+        "width": 22,
+        "length": 22,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "transition",
+        "workSeconds": 90,
+        "restSeconds": 75,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Réagir à la perte",
+          "actions": 6,
+          "seconds": 7.13
+        },
+        {
+          "title": "Le premier pressing est sorti",
+          "actions": 5,
+          "seconds": 7.13
+        },
+        {
+          "title": "Récupérer puis sécuriser",
+          "actions": 4,
+          "seconds": 3.64
+        }
+      ]
+    },
+    {
+      "id": "counter",
+      "title": "Se projeter à la récupération",
+      "objective": "Exploiter une récupération sans confondre vitesse et précipitation.",
+      "task": "Après récupération, attaquer le mini-but disponible ; conserver si l’avantage a disparu.",
+      "observe": "La première décision trouve une sortie de pression et les appels occupent deux hauteurs.",
+      "question": "L’adversaire est-il désorganisé ou déjà replacé ?",
+      "correction": "Rejouer la récupération avec un soutien proche et un appel profond, sans exiger une passe vers l’avant.",
+      "invariant": "Deux mini-buts et changement immédiat de statut ; le contre n’est pas un sprint obligatoire à chaque gain.",
+      "easier": "Ralentir le retour défensif au départ de la répétition.",
+      "harder": "Récupération non annoncée et défense libre de se replier immédiatement.",
+      "family": "transition",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+        "width": 36,
+        "length": 28,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "transition",
+        "workSeconds": 90,
+        "restSeconds": 75,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Première passe vers l’avant",
+          "actions": 5,
+          "seconds": 5.69
+        },
+        {
+          "title": "Axe fermé",
+          "actions": 5,
+          "seconds": 10.31
+        },
+        {
+          "title": "Avantage refermé",
+          "actions": 5,
+          "seconds": 9.94
+        }
+      ]
+    },
+    {
+      "id": "switch",
+      "title": "Fixer puis renverser",
+      "objective": "Fixer d’un côté pour progresser à l’opposé.",
+      "task": "Attaquer l’une des deux portes adverses et changer de côté si la pression ferme le passage proche.",
+      "observe": "Le joueur éloigné reste visible ; le relais regarde le côté opposé avant de recevoir.",
+      "question": "As-tu réellement attiré un défenseur avant de renverser ?",
+      "correction": "Figer la pression d’un côté, montrer le soutien intermédiaire et rejouer sans imposer le renversement.",
+      "invariant": "Quatre portes, deux par sens. Le renversement est utile s’il libère une progression, pas pour respecter un circuit.",
+      "easier": "Touches libres et temps de préparation de la passe.",
+      "harder": "Retirer le bonus et observer si la cible éloignée est encore choisie au bon moment.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+        "width": 38,
+        "length": 28,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 8,
+          "cones": 8,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 4
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Attirer et renverser",
+          "actions": 5,
+          "seconds": 5.41
+        },
+        {
+          "title": "Renversement fermé",
+          "actions": 5,
+          "seconds": 10.31
+        },
+        {
+          "title": "Changer de relais",
+          "actions": 4,
+          "seconds": 4.02
+        }
+      ]
+    },
+    {
+      "id": "overlap",
+      "title": "Combiner sur un côté",
+      "objective": "Créer un avantage par un appel extérieur ou intérieur.",
+      "task": "Fixer sur un côté puis exploiter l’appel du partenaire ou conserver si le passage se ferme.",
+      "observe": "L’appel part après l’engagement du défenseur et reste dans un couloir différent du porteur.",
+      "question": "L’espace libre est-il à l’intérieur ou à l’extérieur du défenseur ?",
+      "correction": "Rejouer le départ de l’appel une seconde plus tard, en gardant le porteur libre de décider.",
+      "invariant": "Au moins un porteur, un soutien et une opposition ; les autres joueurs soutiennent ou couvrent, sans file cachée.",
+      "easier": "Défenseur retardé sur le premier contrôle.",
+      "harder": "Défense active et possibilité de contre vers la porte opposée.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+        "width": 28,
+        "length": 22,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Dédoublement extérieur",
+          "actions": 6,
+          "seconds": 7.88
+        },
+        {
+          "title": "Appel intérieur",
+          "actions": 5,
+          "seconds": 7.12
+        },
+        {
+          "title": "Défenseur qui accompagne",
+          "actions": 4,
+          "seconds": 7.47
+        }
+      ]
+    },
+    {
+      "id": "finish",
+      "title": "Finir après une passe",
+      "objective": "Préparer une finition précise par la première touche.",
+      "task": "Recevoir, préparer la frappe et choisir tir ou passe selon l’opposition présente.",
+      "observe": "Le dernier contact ouvre un angle de frappe sans éloigner le ballon du joueur.",
+      "question": "Ton premier contact prépare-t-il le tir ou te ferme-t-il l’angle ?",
+      "correction": "Rejouer le service et orienter le contrôle vers une zone de frappe libre avant de retrouver le défenseur.",
+      "invariant": "Les défenseurs dessinés participent réellement ; sans gardien, la version à porte travaille la précision et non la finition face à un gardien.",
+      "easier": "Retarder la pression jusqu’au contrôle, sans retirer discrètement un défenseur.",
+      "harder": "Opposition active dès le service ; autoriser la remise si la frappe est fermée.",
+      "family": "finishing",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "2 bleus contre 2 rouges + 1 appui neutre + 1 gardien en but",
+        "width": 28,
+        "length": 24,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 2,
+          "bibsRed": 2,
+          "bibsNeutral": 1,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "2 bleus contre 2 rouges + 1 appui neutre + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "finishing",
+        "workSeconds": 45,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Préparer sa frappe",
+          "actions": 7,
+          "seconds": 6.08
+        },
+        {
+          "title": "Remise avant le tir",
+          "actions": 5,
+          "seconds": 5.94
+        },
+        {
+          "title": "Décaler le gardien",
+          "actions": 5,
+          "seconds": 6.6
+        }
+      ]
+    },
+    {
+      "id": "cutback",
+      "title": "Conclure un centre en retrait",
+      "objective": "Créer des arrivées complémentaires sur centre en retrait.",
+      "task": "Atteindre le côté puis trouver une arrivée en retrait, disponible derrière la première ligne défensive.",
+      "observe": "Les deux receveurs arrivent à des hauteurs différentes ; le centreur regarde avant de donner.",
+      "question": "Qui arrive en retrait pendant que le premier attaquant entraîne la défense ?",
+      "correction": "Repartir avant le centre et retarder le receveur de retrait, sans figer les zones de finition.",
+      "invariant": "Un centreur et deux solutions complémentaires au minimum. Conserver si le centre est fermé.",
+      "easier": "Service au sol et pression retardée sur le centreur.",
+      "harder": "La défense choisit de fermer le retrait ou le premier poteau ; le centreur adapte son choix.",
+      "family": "finishing",
+      "reference": {
+        "session": {
+          "players": 7,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 7,
+        "keepers": 1,
+        "roles": "3 bleus contre 3 rouges + 1 gardien en but",
+        "width": 32,
+        "length": 28,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 0,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 7,
+          "waiting": 0,
+          "field": 6,
+          "format": "3 bleus contre 3 rouges + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "finishing",
+        "workSeconds": 45,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Arriver en retrait",
+          "actions": 5,
+          "seconds": 5.3
+        },
+        {
+          "title": "Zone en retrait fermée",
+          "actions": 5,
+          "seconds": 8.44
+        },
+        {
+          "title": "Premier poteau libre",
+          "actions": 5,
+          "seconds": 7.17
+        }
+      ]
+    },
+    {
+      "id": "duel",
+      "title": "Gagner son duel et protéger",
+      "objective": "Choisir entre éliminer et protéger.",
+      "task": "Franchir la porte disponible en maîtrisant le ballon ; après récupération, attaquer dans l’autre sens.",
+      "observe": "Le porteur change de rythme après avoir provoqué un déplacement du défenseur.",
+      "question": "De quel côté le défenseur te laisse-t-il un passage ?",
+      "correction": "Rejouer l’approche à distance utile ; le porteur fixe avant de choisir sa sortie.",
+      "invariant": "Le rapport réel est celui de la fiche adaptée : ne pas annoncer un 1 contre 1 si quatre joueurs jouent en même temps.",
+      "easier": "Départ plus éloigné et pression retardée.",
+      "harder": "Défenseur actif dès le service, avec contre conservé après récupération.",
+      "family": "duel",
+      "reference": {
+        "session": {
+          "players": 4,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 4,
+        "keepers": 1,
+        "roles": "2 bleus contre 2 rouges · 1 gardien inclus au jeu au pied",
+        "width": 18,
+        "length": 16,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 2,
+          "bibsRed": 2,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 4,
+          "waiting": 0,
+          "field": 3,
+          "format": "2 bleus contre 2 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "duel",
+        "workSeconds": 30,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Fixer en un contre un",
+          "actions": 4,
+          "seconds": 4.32
+        },
+        {
+          "title": "Utiliser le soutien",
+          "actions": 4,
+          "seconds": 3.92
+        },
+        {
+          "title": "Défenseur en recul",
+          "actions": 4,
+          "seconds": 4.2
+        }
+      ]
+    },
+    {
+      "id": "support",
+      "title": "Se démarquer entre les lignes",
+      "objective": "Recevoir entre les lignes avec une suite possible.",
+      "task": "Recevoir entre les lignes puis relier un partenaire vers la cible, ou remettre si le retournement est fermé.",
+      "observe": "Le receveur sort de l’ombre avant la passe et vérifie sa prochaine solution.",
+      "question": "Peux-tu voir le porteur et la suite du jeu au même moment ?",
+      "correction": "Figer avant la passe ; décaler le receveur et rejouer avec les mêmes adversaires.",
+      "invariant": "Les tiers sont des repères ; le receveur n’est pas protégé artificiellement dans la version de base.",
+      "easier": "Pression retardée à la réception, touches libres.",
+      "harder": "Opposition libre et possibilité de conduire si la ligne s’ouvre.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+        "width": 26,
+        "length": 22,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 8,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Sortir de l’ombre",
+          "actions": 5,
+          "seconds": 6.68
+        },
+        {
+          "title": "Soutien suivi",
+          "actions": 5,
+          "seconds": 5.73
+        },
+        {
+          "title": "Remise et nouvel angle",
+          "actions": 5,
+          "seconds": 8.16
+        }
+      ]
+    },
+    {
+      "id": "cpa-attack",
+      "title": "Organiser un corner offensif",
+      "objective": "Coordonner les courses et protéger le contre.",
+      "task": "Attaquer des zones complémentaires sur corner tout en gardant une couverture du ballon repoussé.",
+      "observe": "Le signal et les courses sont synchronisés ; au moins un joueur est disponible pour la seconde action.",
+      "question": "Qui joue le second ballon si le premier centre est repoussé ?",
+      "correction": "Rejouer le signal sans contact, séparer les courses qui arrivent au même endroit puis réintroduire l’opposition.",
+      "invariant": "Ni blocage irrégulier ni gêne du gardien. La répétition ne commence qu’une fois tous les joueurs replacés.",
+      "easier": "Courses à vitesse maîtrisée et défense passive annoncée dans la première séquence.",
+      "harder": "Défense active et choix entre cible proche, éloignée ou corner court selon le placement.",
+      "family": "restart",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges + 1 appui neutre + 1 gardien en but",
+        "width": 40,
+        "length": 35,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 1,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "4 bleus contre 4 rouges + 1 appui neutre + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "restart",
+        "workSeconds": 90,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Courses coordonnées",
+          "actions": 5,
+          "seconds": 5.27
+        },
+        {
+          "title": "Corner court",
+          "actions": 4,
+          "seconds": 6.19
+        },
+        {
+          "title": "Second ballon",
+          "actions": 6,
+          "seconds": 8.59
+        }
+      ]
+    },
+    {
+      "id": "cpa-defence",
+      "title": "Défendre un corner",
+      "objective": "Répartir les responsabilités sur corner puis sortir ensemble.",
+      "task": "Protéger les zones dangereuses, jouer le ballon puis sortir ensemble sur la seconde action.",
+      "observe": "Chaque défenseur voit ballon et menace ; la sortie courte et le second ballon ont un responsable.",
+      "question": "Que protèges-tu si tu ne peux pas intervenir sur ce centre ?",
+      "correction": "Figer avant la livraison et faire annoncer les responsabilités avec le gardien.",
+      "invariant": "Pas de sortie collective avant le dégagement maîtrisé ; les missions dépendent du placement réellement dessiné.",
+      "easier": "Centre au sol ou trajectoire annoncée, sans duel aérien imposé.",
+      "harder": "Varier corner court et centre direct sans annoncer la cible.",
+      "family": "restart",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges + 1 appui neutre + 1 gardien en but",
+        "width": 40,
+        "length": 35,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 1,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "4 bleus contre 4 rouges + 1 appui neutre + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "restart",
+        "workSeconds": 90,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Voir ballon et adversaire",
+          "actions": 6,
+          "seconds": 8.15
+        },
+        {
+          "title": "Corner court adverse",
+          "actions": 4,
+          "seconds": 4.59
+        },
+        {
+          "title": "Après le dégagement",
+          "actions": 4,
+          "seconds": 4.77
+        }
+      ]
+    },
+    {
+      "id": "keeper-feet",
+      "title": "Relance et jeu au pied du gardien",
+      "objective": "Faire du gardien un soutien de la construction.",
+      "task": "Le gardien trouve un soutien disponible puis reste une solution de retour.",
+      "observe": "Il regarde la pression avant réception et sa passe permet une action suivante au receveur.",
+      "question": "Quel partenaire sera encore libre quand ton ballon arrivera ?",
+      "correction": "Rejouer le service au gardien avec deux soutiens décalés et un seul déclencheur de pression.",
+      "invariant": "Un gardien réel par atelier et au moins deux soutiens. Les gardiens en rotation ne deviennent pas des joueurs de champ.",
+      "easier": "Pressing retardé jusqu’au premier contrôle.",
+      "harder": "Pressing immédiat et changement de côté possible par retour au gardien.",
+      "family": "keeper-feet",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "2 bleus contre 2 rouges + 1 appui neutre + 1 gardien en but",
+        "width": 28,
+        "length": 24,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 2,
+          "bibsRed": 2,
+          "bibsNeutral": 1,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "2 bleus contre 2 rouges + 1 appui neutre + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "keeper-feet",
+        "workSeconds": 90,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Deux angles de relance",
+          "actions": 5,
+          "seconds": 5.48
+        },
+        {
+          "title": "Côté fermé",
+          "actions": 4,
+          "seconds": 4.33
+        },
+        {
+          "title": "Remise au gardien",
+          "actions": 5,
+          "seconds": 5.18
+        }
+      ]
+    },
+    {
+      "id": "keeper-duel",
+      "title": "Gardien : cadrage et sortie",
+      "objective": "Décider de sortir ou temporiser en fonction de la distance.",
+      "task": "L’attaquant cherche le but ; le gardien ajuste distance, posture et moment d’intervention.",
+      "observe": "Le gardien réduit l’angle puis se stabilise au moment de la frappe, sans sortie tardive incontrôlée.",
+      "question": "À quelle distance peux-tu encore réagir au choix du porteur ?",
+      "correction": "Rejouer l’avant-dernière touche plus lentement puis reprendre avec une décision libre.",
+      "invariant": "Un seul ballon menaçant à la fois ; nouvelle action seulement quand le gardien est prêt. Aucun choc recherché.",
+      "easier": "Porteur ralenti et côté de départ connu.",
+      "harder": "Varier l’angle et laisser le choix passe ou frappe, sans accélération automatique de la cadence.",
+      "family": "keeper",
+      "reference": {
+        "session": {
+          "players": 5,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 5,
+        "keepers": 1,
+        "roles": "2 bleus contre 2 rouges + 1 gardien en but",
+        "width": 24,
+        "length": 22,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 2,
+          "bibsRed": 2,
+          "bibsNeutral": 0,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 5,
+          "waiting": 0,
+          "field": 4,
+          "format": "2 bleus contre 2 rouges + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "keeper",
+        "workSeconds": 30,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Réduire l’angle",
+          "actions": 7,
+          "seconds": 5.85
+        },
+        {
+          "title": "Contrôle long",
+          "actions": 4,
+          "seconds": 4.38
+        },
+        {
+          "title": "Attaquant excentré",
+          "actions": 4,
+          "seconds": 5.76
+        }
+      ]
+    },
+    {
+      "id": "touch",
+      "title": "Conserver sur une touche",
+      "objective": "Offrir trois solutions utiles au lanceur.",
+      "task": "Conserver une touche par une solution courte, une profondeur ou un soutien disponible.",
+      "observe": "Les trois solutions ne se présentent pas dans le même alignement.",
+      "question": "Qui te donne une solution si la première remise est fermée ?",
+      "correction": "Figer avant le lancer ; échelonner trois partenaires puis rejouer une touche réglementaire.",
+      "invariant": "Le lanceur et trois solutions nécessitent au moins quatre attaquants ; remise à deux mains et pieds réglementaires.",
+      "easier": "Opposition retardée au premier contrôle.",
+      "harder": "Défense libre et poursuite de l’action vers la cible après réception.",
+      "family": "restart",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+        "width": 24,
+        "length": 20,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "restart",
+        "workSeconds": 90,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Court puis soutien",
+          "actions": 5,
+          "seconds": 5.13
+        },
+        {
+          "title": "Court marqué",
+          "actions": 4,
+          "seconds": 6.35
+        },
+        {
+          "title": "Retour au lanceur",
+          "actions": 5,
+          "seconds": 9.72
+        }
+      ]
+    },
+    {
+      "id": "freegame",
+      "title": "Jeu de réinvestissement",
+      "objective": "Observer le transfert du principe dans un jeu libre.",
+      "task": "Marquer dans la cible adverse en réutilisant librement le principe travaillé.",
+      "observe": "Le comportement recherché apparaît sans rappel permanent ni passage imposé.",
+      "question": "Quand as-tu retrouvé le problème travaillé dans ce jeu libre ?",
+      "correction": "Laisser une phase se terminer, puis revenir sur une décision précise plutôt que rajouter plusieurs règles.",
+      "invariant": "Un seul bonus éventuel, puis retrait du bonus. Le thème du coach doit être nommé avant le départ.",
+      "easier": "Conserver les touches libres et clarifier uniquement le sens de jeu.",
+      "harder": "Retirer les aides sans réduire automatiquement l’espace ni multiplier les contraintes.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 12,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 12,
+        "keepers": 1,
+        "roles": "6 bleus contre 6 rouges · 1 gardien inclus au jeu au pied",
+        "width": 45,
+        "length": 36,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 6,
+          "bibsRed": 6,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 12,
+          "waiting": 0,
+          "field": 11,
+          "format": "6 bleus contre 6 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Observer le principe choisi",
+          "actions": 5,
+          "seconds": 16.4
+        },
+        {
+          "title": "Sortie sous pression",
+          "actions": 5,
+          "seconds": 12.05
+        },
+        {
+          "title": "Attaque d’un espace libre",
+          "actions": 4,
+          "seconds": 6.75
+        }
+      ]
+    },
+    {
+      "id": "scan-receive",
+      "title": "Regarder avant de recevoir",
+      "objective": "Préparer son premier contact en identifiant la prochaine solution.",
+      "task": "Prendre une information avant réception puis orienter vers le poste suivant.",
+      "observe": "Le regard précède l’arrivée du ballon et le contrôle ouvre la prochaine passe.",
+      "question": "Qu’as-tu vu avant de recevoir ?",
+      "correction": "Ralentir le service ; faire regarder le prochain poste avant le premier contact.",
+      "invariant": "Trois postes par circuit ; l’information demandée doit être visible, pas une couleur annoncée au hasard derrière le joueur.",
+      "easier": "Contrôle autorisé et prochain poste connu.",
+      "harder": "Changer le sens au signal avant le service ; aucun signal tardif pendant le contrôle.",
+      "family": "technical",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "6 participants dans le circuit · 1 gardien inclus au jeu au pied",
+        "width": 22,
+        "length": 20,
+        "material": {
+          "balls": 3,
+          "activeBalls": 2,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 6,
+          "circuitCones": 6,
+          "bibsBlue": 6,
+          "bibsRed": 0,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "6 participants dans le circuit · 1 gardien inclus au jeu au pied",
+          "description": "2 circuit(s) à trois postes ; 0 suivant(s) au départ, rotation à chaque chaîne."
+        }
+      },
+      "dose": {
+        "family": "technical",
+        "workSeconds": 120,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Garder le contrôle et la précision ; réduire le rythme avant de limiter les touches."
+      },
+      "variants": [
+        {
+          "title": "Voir avant la réception",
+          "actions": 11,
+          "seconds": 13.507093907495513
+        },
+        {
+          "title": "Soutien fermé",
+          "actions": 14,
+          "seconds": 18.035493571764874
+        },
+        {
+          "title": "Orientation opposée",
+          "actions": 11,
+          "seconds": 16.997286694919943
+        }
+      ]
+    },
+    {
+      "id": "wall-pass",
+      "title": "Remise et passe dans la course",
+      "objective": "Jouer un appui-remise en conservant le rythme de la course.",
+      "task": "Donner, remettre puis servir dans la course avant une rotation par les retours extérieurs.",
+      "observe": "Le receveur arrive sur un ballon dosé et les joueurs libèrent le prochain poste.",
+      "question": "À quel moment le partenaire est-il prêt pour la remise ?",
+      "correction": "Rejouer sans vitesse ni saut ; synchroniser passe et disponibilité du receveur.",
+      "invariant": "Un ballon actif ; retours par l’échelle ou les haies séparés des passes. Pas de défenseur ajouté à ce circuit.",
+      "easier": "Passes courtes et matériel franchi en marchant.",
+      "harder": "Alterner réellement les côtés et ajuster le dosage à la course, sans obligation de jouer en une touche.",
+      "family": "technical",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "6 joueurs de champ en alternance, sans défenseur · 1 gardien inclus au jeu au pied",
+        "width": 24,
+        "length": 32,
+        "material": {
+          "balls": 1,
+          "activeBalls": 1,
+          "reserveBalls": 0,
+          "discs": 2,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 6,
+          "bibsRed": 0,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0,
+          "hurdles": 3,
+          "poles": 6,
+          "ladders": 1
+        },
+        "activity": {
+          "engaged": 3,
+          "waiting": 3,
+          "field": 5,
+          "format": "6 joueurs de champ en alternance, sans défenseur · 1 gardien inclus au jeu au pied",
+          "description": "Trois postes dans la chaîne ; 3 suivant(s) au départ. Tourner après chaque chaîne, retours extérieurs séparés."
+        }
+      },
+      "dose": {
+        "family": "technical",
+        "workSeconds": 120,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Garder le contrôle et la précision ; réduire le rythme avant de limiter les touches."
+      },
+      "variants": [
+        {
+          "title": "Remise et appel",
+          "actions": 24,
+          "seconds": 42.2
+        },
+        {
+          "title": "Appui plus haut",
+          "actions": 24,
+          "seconds": 42.2
+        },
+        {
+          "title": "Remise vers l’autre angle",
+          "actions": 24,
+          "seconds": 42.2
+        }
+      ]
+    },
+    {
+      "id": "receive-back",
+      "title": "Recevoir dos au jeu et choisir",
+      "objective": "Protéger une réception sous pression puis choisir retour ou retournement.",
+      "task": "Protéger dos au jeu puis remettre ou se retourner selon la pression réelle.",
+      "observe": "Le corps protège le ballon côté opposé au défenseur ; le soutien reste visible.",
+      "question": "Le défenseur te laisse-t-il te retourner ou faut-il remettre ?",
+      "correction": "Rejouer avant réception avec un défenseur d’abord retardé, puis actif.",
+      "invariant": "Le retournement n’est jamais obligatoire ; une remise qui préserve le ballon est une décision valable.",
+      "easier": "Pression déclenchée après le premier contact.",
+      "harder": "Défenseur actif dès la passe et choix libre du côté de sortie.",
+      "family": "duel",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+        "width": 22,
+        "length": 24,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "3 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "duel",
+        "workSeconds": 30,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Protéger et remettre",
+          "actions": 6,
+          "seconds": 5.83
+        },
+        {
+          "title": "Retourner côté libre",
+          "actions": 4,
+          "seconds": 4.06
+        },
+        {
+          "title": "Appui suivi",
+          "actions": 5,
+          "seconds": 7.51
+        }
+      ]
+    },
+    {
+      "id": "escape-turn",
+      "title": "Se retourner pour sortir de la pression",
+      "objective": "Utiliser son premier contact et son corps pour s’échapper d’une pression proche.",
+      "task": "Quitter la pression par un contrôle orienté, une conduite ou une passe de sécurité.",
+      "observe": "Le premier contact éloigne le ballon du défenseur sans supprimer le soutien.",
+      "question": "Où est la sortie avant même que la passe arrive ?",
+      "correction": "Rejouer le service du même côté et faire identifier une porte libre avant le contrôle.",
+      "invariant": "Conserver une solution de retour ; ne pas exiger une feinte ou un côté de sortie identiques à chaque passage.",
+      "easier": "Service lent et défenseur retardé.",
+      "harder": "Changer l’angle du service et laisser l’adversaire fermer la sortie de son choix.",
+      "family": "duel",
+      "reference": {
+        "session": {
+          "players": 4,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 4,
+        "keepers": 1,
+        "roles": "2 bleus contre 2 rouges · 1 gardien inclus au jeu au pied",
+        "width": 16,
+        "length": 20,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 2,
+          "bibsRed": 2,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 4,
+          "waiting": 0,
+          "field": 3,
+          "format": "2 bleus contre 2 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "duel",
+        "workSeconds": 30,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Premier contact hors pression",
+          "actions": 5,
+          "seconds": 4.94
+        },
+        {
+          "title": "Retournement fermé",
+          "actions": 4,
+          "seconds": 3.92
+        },
+        {
+          "title": "Défenseur déséquilibré",
+          "actions": 4,
+          "seconds": 4.06
+        }
+      ]
+    },
+    {
+      "id": "rondo-direction",
+      "title": "Conserver puis trouver la passe qui traverse",
+      "objective": "Identifier le moment où une passe peut dépasser la pression.",
+      "task": "Trouver une passe au-delà de la pression quand la fenêtre existe ; conserver autour autrement.",
+      "observe": "La passe traversante atteint un partenaire disponible et permet de garder le ballon.",
+      "question": "La fenêtre était-elle ouverte au départ du ballon ?",
+      "correction": "Figer avant une passe forcée et montrer le soutien extérieur pour préparer une nouvelle fenêtre.",
+      "invariant": "Aucun nombre de passes préalable obligatoire et aucune passe forcée entre deux défenseurs.",
+      "easier": "Touches libres et zone légèrement agrandie.",
+      "harder": "Laisser les défenseurs modifier leur alignement sans changer le nombre de conservateurs.",
+      "family": "possession",
+      "reference": {
+        "session": {
+          "players": 7,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 7,
+        "keepers": 1,
+        "roles": "5 bleus contre 2 rouges · 1 gardien inclus au jeu au pied",
+        "width": 16,
+        "length": 14,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 5,
+          "bibsRed": 2,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 7,
+          "waiting": 0,
+          "field": 6,
+          "format": "5 bleus contre 2 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "possession",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Fenêtre ouverte",
+          "actions": 5,
+          "seconds": 4.78
+        },
+        {
+          "title": "Fenêtre fermée",
+          "actions": 5,
+          "seconds": 5.18
+        },
+        {
+          "title": "Trouver un autre intervalle",
+          "actions": 5,
+          "seconds": 5.04
+        }
+      ]
+    },
+    {
+      "id": "possession-neutral",
+      "title": "Conserver avec un joueur de liaison",
+      "objective": "Utiliser un appui neutre pour garder un joueur libre autour de la pression.",
+      "task": "Conserver en utilisant les appuis neutres pour trouver un joueur libre.",
+      "observe": "L’appui se déplace hors de l’ombre et change immédiatement d’équipe à la récupération.",
+      "question": "L’appui te libère-t-il une solution ou attire-t-il tout le monde au ballon ?",
+      "correction": "Rejouer une réception avec l’appui décalé, sans imposer de le servir.",
+      "invariant": "Au moins un neutre ; il ne défend pas contre l’équipe qui vient de récupérer.",
+      "easier": "Touches libres pour tous, priorité aux angles de passe.",
+      "harder": "Demander une prise d’information avant réception, puis observer sans bonus obligatoire.",
+      "family": "possession",
+      "reference": {
+        "session": {
+          "players": 9,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 9,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges + 1 appui neutre · 1 gardien inclus au jeu au pied",
+        "width": 28,
+        "length": 24,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 1,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 9,
+          "waiting": 0,
+          "field": 8,
+          "format": "4 bleus contre 4 rouges + 1 appui neutre · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "possession",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Relais libre",
+          "actions": 6,
+          "seconds": 6.68
+        },
+        {
+          "title": "Joker suivi",
+          "actions": 5,
+          "seconds": 5.89
+        },
+        {
+          "title": "Remise du joker",
+          "actions": 5,
+          "seconds": 8.49
+        }
+      ]
+    },
+    {
+      "id": "possession-endzones",
+      "title": "Progresser vers une zone cible",
+      "objective": "Faire avancer le ballon en trouvant un partenaire lancé dans une zone cible.",
+      "task": "Marquer par une réception maîtrisée dans la zone cible adverse sur un appel.",
+      "observe": "Le receveur entre au bon moment plutôt que d’attendre dans la zone cible.",
+      "question": "Le porteur est-il prêt à donner quand tu démarres ?",
+      "correction": "Revenir avant l’appel et laisser le passeur montrer le moment où la passe devient possible.",
+      "invariant": "Pas de joueur stationné en cible ; la zone reste défendable et le point exige une maîtrise du ballon.",
+      "easier": "Élargir la cible sans y protéger le receveur.",
+      "harder": "Défense libre d’accompagner et de changer sa hauteur.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+        "width": 26,
+        "length": 36,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Arriver dans la cible",
+          "actions": 7,
+          "seconds": 10.21
+        },
+        {
+          "title": "Profondeur fermée",
+          "actions": 5,
+          "seconds": 8.74
+        },
+        {
+          "title": "Appel opposé",
+          "actions": 5,
+          "seconds": 9.65
+        }
+      ]
+    },
+    {
+      "id": "break-lines",
+      "title": "Franchir les trois tiers",
+      "objective": "Choisir une passe ou une conduite qui dépasse une ligne adverse.",
+      "task": "Franchir une ligne par passe ou conduite, puis exploiter la réception vers la cible.",
+      "observe": "La réception au-delà d’un tiers permet une action utile, pas une passe aussitôt rendue sous pression.",
+      "question": "Peux-tu franchir directement ou faut-il d’abord déplacer l’adversaire ?",
+      "correction": "Figer avant le franchissement et décaler le receveur pour qu’il voie une suite.",
+      "invariant": "Les joueurs peuvent changer de tiers ; aucun circuit obligé avec une passe dans chaque zone.",
+      "easier": "Départ sous pression retardée et touches libres.",
+      "harder": "Retirer le bonus de franchissement et observer la progression spontanée.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+        "width": 32,
+        "length": 42,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 5,
+          "bibsRed": 5,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Passe qui franchit",
+          "actions": 6,
+          "seconds": 8.02
+        },
+        {
+          "title": "Conduite qui fixe",
+          "actions": 4,
+          "seconds": 6.76
+        },
+        {
+          "title": "Ligne fermée",
+          "actions": 5,
+          "seconds": 9.65
+        }
+      ]
+    },
+    {
+      "id": "attract-release",
+      "title": "Attirer la pression pour libérer un partenaire",
+      "objective": "Déplacer les défenseurs par la circulation et trouver le joueur devenu libre.",
+      "task": "Attirer un opposant pour transmettre au partenaire qu’il vient de libérer.",
+      "observe": "Le porteur donne avant d’être enfermé et le receveur s’écarte réellement de la pression.",
+      "question": "Quel adversaire as-tu déplacé, et quel partenaire est devenu libre ?",
+      "correction": "Rejouer la fixation à vitesse réduite ; arrêter avant que les deux défenseurs ne ferment toutes les sorties.",
+      "invariant": "Fixer ne signifie pas attendre le contact. Un soutien doit rester accessible.",
+      "easier": "Espace légèrement agrandi et touches libres.",
+      "harder": "Défense libre de ne pas sortir ; le porteur peut alors progresser ou conserver.",
+      "family": "possession",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+        "width": 26,
+        "length": 24,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "possession",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Fixer puis libérer",
+          "actions": 5,
+          "seconds": 5.41
+        },
+        {
+          "title": "Pression qui attend",
+          "actions": 4,
+          "seconds": 4.78
+        },
+        {
+          "title": "Passe lointaine fermée",
+          "actions": 4,
+          "seconds": 3.92
+        }
+      ]
+    },
+    {
+      "id": "build-three",
+      "title": "Élargir la première ligne de relance",
+      "objective": "Créer plusieurs angles de départ et déplacer la première pression.",
+      "task": "Élargir la relance pour dépasser la première pression et atteindre la cible opposée.",
+      "observe": "Les premiers soutiens donnent plusieurs angles sans s’aligner sur une même passe.",
+      "question": "Quelle largeur oblige le presseur à choisir ?",
+      "correction": "Repartir du fond en décalant un soutien bas et un relais plus haut.",
+      "invariant": "Les couloirs sont des repères de largeur ; tous les joueurs peuvent les quitter pour offrir un soutien.",
+      "easier": "Pression retardée sur la première réception.",
+      "harder": "Départs alternés et pressing libre dès la passe initiale.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+        "width": 36,
+        "length": 38,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 5,
+          "bibsRed": 5,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Première ligne ouverte",
+          "actions": 4,
+          "seconds": 5.14
+        },
+        {
+          "title": "Un côté enfermé",
+          "actions": 4,
+          "seconds": 4.28
+        },
+        {
+          "title": "Porteur libre",
+          "actions": 4,
+          "seconds": 6.52
+        }
+      ]
+    },
+    {
+      "id": "build-pivot",
+      "title": "Trouver le pivot sans le piéger",
+      "objective": "Connecter la relance au milieu en lisant la pression autour du pivot.",
+      "task": "Utiliser le pivot quand il peut jouer la suite, ou contourner si sa réception serait piégée.",
+      "observe": "Le pivot voit la pression et garde une remise disponible avant la passe.",
+      "question": "Le pivot peut-il jouer après réception ou est-il seulement libre avant la passe ?",
+      "correction": "Figer avant le service au pivot et montrer son adversaire proche et une remise possible.",
+      "invariant": "Appui de liaison présent, non protégé ; son utilisation n’est pas obligatoire.",
+      "easier": "Retarder l’intervention sur la première réception du pivot.",
+      "harder": "Pression active et possibilité de contourner librement le pivot.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 9,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 9,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges + 1 appui neutre · 1 gardien inclus au jeu au pied",
+        "width": 30,
+        "length": 36,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 1,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 9,
+          "waiting": 0,
+          "field": 8,
+          "format": "4 bleus contre 4 rouges + 1 appui neutre · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Pivot accessible",
+          "actions": 6,
+          "seconds": 6.4
+        },
+        {
+          "title": "Pivot marqué",
+          "actions": 5,
+          "seconds": 6.68
+        },
+        {
+          "title": "Pivot libre de tourner",
+          "actions": 4,
+          "seconds": 4.81
+        }
+      ]
+    },
+    {
+      "id": "build-switch",
+      "title": "Choisir la sortie libre à la relance",
+      "objective": "Déplacer la pression pour choisir une sortie axiale ou latérale disponible.",
+      "task": "Sortir vers l’une des deux cibles en déplaçant la pression si nécessaire.",
+      "observe": "Le choix de sortie suit le déplacement réel des défenseurs.",
+      "question": "Quelle cible est accessible maintenant, pas celle prévue au départ ?",
+      "correction": "Rejouer le départ avec la même pression et laisser identifier la cible opposée.",
+      "invariant": "Quatre mini-buts et deux sens de jeu ; ne pas annoncer une seule sortie obligatoire.",
+      "easier": "Défense déclenchée après la première passe.",
+      "harder": "Pressing libre, y compris fermeture de la première sortie choisie.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+        "width": 36,
+        "length": 34,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 5,
+          "bibsRed": 5,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 4,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Trouver la sortie libre",
+          "actions": 5,
+          "seconds": 5.41
+        },
+        {
+          "title": "Retour par la base",
+          "actions": 4,
+          "seconds": 4.16
+        },
+        {
+          "title": "Sortie directe disponible",
+          "actions": 4,
+          "seconds": 6.15
+        }
+      ]
+    },
+    {
+      "id": "thirdman-depth",
+      "title": "Remiser pour lancer dans le dos",
+      "objective": "Utiliser un appui pour servir un partenaire lancé derrière une ligne.",
+      "task": "Utiliser une remise pour servir un troisième partenaire lancé derrière une ligne.",
+      "observe": "Le troisième part pendant la relation avec l’appui et reçoit face à la cible.",
+      "question": "Qui peut recevoir face au jeu si l’appui reçoit dos au jeu ?",
+      "correction": "Rejouer avant la première passe en retardant l’appel profond jusqu’au moment utile.",
+      "invariant": "Au moins trois partenaires utiles ; garder le choix du jeu direct si la ligne est ouverte.",
+      "easier": "Première pression retardée, touches libres pour la remise.",
+      "harder": "Le défenseur choisit de suivre l’appui ou la profondeur ; adapter la suite.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 9,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 9,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges + 1 appui neutre · 1 gardien inclus au jeu au pied",
+        "width": 30,
+        "length": 40,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 1,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 9,
+          "waiting": 0,
+          "field": 8,
+          "format": "4 bleus contre 4 rouges + 1 appui neutre · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Appui remise profondeur",
+          "actions": 5,
+          "seconds": 7.15
+        },
+        {
+          "title": "Appui fermé",
+          "actions": 5,
+          "seconds": 6.96
+        },
+        {
+          "title": "Profondeur fermée",
+          "actions": 5,
+          "seconds": 9.23
+        }
+      ]
+    },
+    {
+      "id": "forward-runs",
+      "title": "Appeler dans le dos au bon moment",
+      "objective": "Synchroniser l’appel profond avec la disponibilité du porteur.",
+      "task": "Recevoir dans la cible sur une course déclenchée quand le passeur peut jouer.",
+      "observe": "L’appel conserve une trajectoire visible et ne part pas avant que le porteur puisse donner.",
+      "question": "Quel indice chez le passeur déclenche ton appel ?",
+      "correction": "Revenir avant son contrôle et synchroniser ouverture du corps et départ de la course.",
+      "invariant": "Pas d’attente permanente dans la cible ; si la passe est fermée, conserver reste possible.",
+      "easier": "Cible plus large et service sans pression immédiate.",
+      "harder": "Défense libre d’avancer ou de suivre la profondeur.",
+      "family": "transition",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+        "width": 34,
+        "length": 42,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 5,
+          "bibsRed": 5,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "transition",
+        "workSeconds": 90,
+        "restSeconds": 75,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Départ sur passeur disponible",
+          "actions": 4,
+          "seconds": 5.4
+        },
+        {
+          "title": "Passeur sous pression",
+          "actions": 5,
+          "seconds": 10.49
+        },
+        {
+          "title": "Appel diagonal",
+          "actions": 5,
+          "seconds": 11.55
+        }
+      ]
+    },
+    {
+      "id": "wide-isolate",
+      "title": "Isoler un joueur de côté puis l’aider",
+      "objective": "Créer un duel favorable sur un côté tout en gardant une solution collective.",
+      "task": "Servir un joueur large puis choisir duel, combinaison ou retour selon l’opposition.",
+      "observe": "Le soutien accompagne à distance utile sans fermer le couloir de conduite.",
+      "question": "Es-tu vraiment en un contre un ou le deuxième défenseur ferme-t-il déjà le côté ?",
+      "correction": "Rejouer avec le soutien décalé à l’intérieur et laisser le receveur choisir.",
+      "invariant": "Aucun dribble obligatoire ; deux cibles dans chaque sens permettent de sortir du côté fermé.",
+      "easier": "Pression retardée sur le joueur large.",
+      "harder": "La couverture intervient librement ; autoriser le retour et le changement de cible.",
+      "family": "duel",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+        "width": 32,
+        "length": 28,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 4,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "duel",
+        "workSeconds": 30,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Servir le joueur large",
+          "actions": 4,
+          "seconds": 4.62
+        },
+        {
+          "title": "Prise à deux",
+          "actions": 5,
+          "seconds": 9.21
+        },
+        {
+          "title": "Duel favorable",
+          "actions": 4,
+          "seconds": 6.79
+        }
+      ]
+    },
+    {
+      "id": "underlap",
+      "title": "Déclencher une course intérieure depuis le côté",
+      "objective": "Utiliser une course dans le demi-espace pour déséquilibrer une défense qui ferme l’extérieur.",
+      "task": "Fixer à l’extérieur puis trouver une course intérieure si le défenseur libère le demi-espace.",
+      "observe": "Le soutien part à l’intérieur au bon moment sans arriver dans la trajectoire du porteur.",
+      "question": "Quelle zone le défenseur libère-t-il en fermant l’extérieur ?",
+      "correction": "Rejouer le déclenchement de l’appel après la fixation, avec une solution de retour maintenue.",
+      "invariant": "La course intérieure reste un choix ; ne pas imposer une passe dans une ligne fermée.",
+      "easier": "Défenseur retardé et service côté annoncé.",
+      "harder": "Le défenseur peut fermer l’intérieur ; le porteur peut poursuivre sur le côté.",
+      "family": "finishing",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "3 bleus contre 3 rouges + 1 appui neutre + 1 gardien en but",
+        "width": 34,
+        "length": 32,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 1,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "3 bleus contre 3 rouges + 1 appui neutre + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "finishing",
+        "workSeconds": 45,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Course intérieure",
+          "actions": 5,
+          "seconds": 6.61
+        },
+        {
+          "title": "Intérieur protégé",
+          "actions": 5,
+          "seconds": 15.72
+        },
+        {
+          "title": "Porteur libre à l’extérieur",
+          "actions": 4,
+          "seconds": 5.49
+        }
+      ]
+    },
+    {
+      "id": "box-combine",
+      "title": "Combiner devant un bloc bas",
+      "objective": "Créer un angle de finition par la passe et le déplacement autour de la surface.",
+      "task": "Créer une frappe face au but par remise, retournement ou passe dans un intervalle.",
+      "observe": "Le joueur qui donne se redéplace et les soutiens offrent deux hauteurs distinctes.",
+      "question": "La remise ouvre-t-elle réellement la frappe ?",
+      "correction": "Rejouer la passe d’appui avec un soutien décalé, sans exiger une remise si le tir direct est ouvert.",
+      "invariant": "Supériorité offensive réelle et au moins trois partenaires de combinaison ; ne pas empiler tous les joueurs devant le gardien.",
+      "easier": "Pression retardée sur l’appui et contrôle autorisé.",
+      "harder": "Défense active et choix entre jeu direct et combinaison.",
+      "family": "finishing",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 3 rouges + 1 gardien en but",
+        "width": 32,
+        "length": 28,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 3,
+          "bibsNeutral": 0,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 3 rouges + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "finishing",
+        "workSeconds": 45,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Remise pour ouvrir le tir",
+          "actions": 5,
+          "seconds": 5.16
+        },
+        {
+          "title": "Tir direct ouvert",
+          "actions": 4,
+          "seconds": 5.88
+        },
+        {
+          "title": "Dernière passe",
+          "actions": 5,
+          "seconds": 6.86
+        }
+      ]
+    },
+    {
+      "id": "finish-opposition",
+      "title": "Finir avec un défenseur actif",
+      "objective": "Choisir une finition adaptée au défenseur et au placement du gardien.",
+      "task": "Finir une action face à un défenseur actif ou transmettre si celui-ci ferme le tir.",
+      "observe": "Le choix de frappe tient compte du défenseur et du gardien, pas d’une zone imposée.",
+      "question": "Qui ferme ton angle : le défenseur ou le gardien ?",
+      "correction": "Rejouer l’avant-dernière touche en laissant une vraie possibilité de passe.",
+      "invariant": "L’opposition est réelle dès le départ annoncé ; le tir n’est pas obligatoire si la ligne est fermée.",
+      "easier": "Défenseur retardé au premier contrôle.",
+      "harder": "Varier l’angle du service et laisser le défenseur intervenir dès la passe.",
+      "family": "finishing",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "3 bleus contre 3 rouges + 1 appui neutre + 1 gardien en but",
+        "width": 28,
+        "length": 30,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 1,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "3 bleus contre 3 rouges + 1 appui neutre + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "finishing",
+        "workSeconds": 45,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Finir sous pression",
+          "actions": 7,
+          "seconds": 6.27
+        },
+        {
+          "title": "Frappe fermée",
+          "actions": 5,
+          "seconds": 7.43
+        },
+        {
+          "title": "Partenaire mieux placé",
+          "actions": 5,
+          "seconds": 7.66
+        }
+      ]
+    },
+    {
+      "id": "far-post",
+      "title": "Occuper la surface sur un centre",
+      "objective": "Répartir les courses devant le but en fonction du centre et de la défense.",
+      "task": "Occuper des zones complémentaires sur centre et faire arriver le joueur éloigné au second poteau.",
+      "observe": "L’arrivée éloignée est lancée au moment du centre, pas déjà immobile devant le gardien.",
+      "question": "Qui occupe le second poteau quand le ballon part du côté opposé ?",
+      "correction": "Replacer le joueur éloigné en retrait et rejouer son départ au moment où le centreur peut lever la tête.",
+      "invariant": "Un centreur, une arrivée proche et une arrivée éloignée ; la défense reste libre de suivre les appels.",
+      "easier": "Centre au sol et côté de départ connu.",
+      "harder": "Alterner côté et type de centre selon les espaces réellement laissés.",
+      "family": "finishing",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges + 1 appui neutre + 1 gardien en but",
+        "width": 40,
+        "length": 34,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 1,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "4 bleus contre 4 rouges + 1 appui neutre + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "finishing",
+        "workSeconds": 45,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Arrivée second poteau",
+          "actions": 5,
+          "seconds": 5.7
+        },
+        {
+          "title": "Premier poteau ouvert",
+          "actions": 5,
+          "seconds": 6.86
+        },
+        {
+          "title": "Centre impossible",
+          "actions": 5,
+          "seconds": 6.55
+        }
+      ]
+    },
+    {
+      "id": "finish-rebound",
+      "title": "Se rendre disponible sur le ballon repoussé",
+      "objective": "Préparer une seconde action tout en conservant l’équilibre derrière le tir.",
+      "task": "Préparer une seconde action sur ballon repoussé sans abandonner l’équilibre derrière le tir.",
+      "observe": "Un soutien se tient derrière et hors de l’alignement du tir pour recevoir un ballon repoussé.",
+      "question": "Si le gardien repousse maintenant, qui joue le prochain ballon ?",
+      "correction": "Figer avant le tir ; échelonner un soutien puis rejouer la seconde action.",
+      "invariant": "Gardien nécessaire et ballon vivant après déviation ; aucune charge sur un gardien qui maîtrise le ballon.",
+      "easier": "Service de départ annoncé et opposition retardée.",
+      "harder": "Gardien libre de bloquer, dévier ou relancer ; ne pas annoncer la zone du rebond.",
+      "family": "finishing",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "3 bleus contre 3 rouges + 1 appui neutre + 1 gardien en but",
+        "width": 30,
+        "length": 28,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 1,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "3 bleus contre 3 rouges + 1 appui neutre + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "finishing",
+        "workSeconds": 45,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Préparer le second ballon",
+          "actions": 6,
+          "seconds": 8
+        },
+        {
+          "title": "Tir bloqué",
+          "actions": 5,
+          "seconds": 7.43
+        },
+        {
+          "title": "Frappe ouverte",
+          "actions": 4,
+          "seconds": 3.71
+        }
+      ]
+    },
+    {
+      "id": "press-goalkick",
+      "title": "Presser une relance depuis le fond",
+      "objective": "Coordonner le premier rideau et les joueurs qui ferment les soutiens.",
+      "task": "Les bleus sortent vers les mini-buts ; les rouges récupèrent pour attaquer le grand but.",
+      "observe": "Le premier presseur oriente pendant que la couverture ferme la passe intérieure.",
+      "question": "Quel soutien devient dangereux si tu presses seul le gardien ?",
+      "correction": "Rejouer la première passe et répartir pression, couverture et fermeture du relais.",
+      "invariant": "Un gardien bleu au grand but et deux mini-buts de sortie. Les rôles ne sont pas ceux d’un jeu symétrique.",
+      "easier": "Un seul déclencheur annoncé sur la première réception.",
+      "harder": "Le gardien varie sa première passe et les presseurs choisissent leur déclencheur.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges + 1 appui neutre + 1 gardien en but",
+        "width": 36,
+        "length": 40,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 6,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 1,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "4 bleus contre 4 rouges + 1 appui neutre + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Fermer une première sortie",
+          "actions": 5,
+          "seconds": 6.85
+        },
+        {
+          "title": "Retour au gardien",
+          "actions": 5,
+          "seconds": 6.2
+        },
+        {
+          "title": "Relance qui dépasse le pressing",
+          "actions": 5,
+          "seconds": 8.88
+        }
+      ]
+    },
+    {
+      "id": "press-cover-three",
+      "title": "Défendre à trois : pression, couverture, équilibre",
+      "objective": "Répartir les trois responsabilités défensives autour du ballon.",
+      "task": "Défendre en répartissant pression, couverture et équilibre du côté éloigné.",
+      "observe": "Les trois responsabilités changent avec le ballon sans que deux joueurs abandonnent simultanément l’intérieur.",
+      "question": "Qui prend l’équilibre quand ton partenaire devient presseur ?",
+      "correction": "Figer sur un changement de côté et faire nommer les trois rôles avant de rejouer.",
+      "invariant": "Au moins trois défenseurs réellement présents ; ne pas prétendre travailler trois rôles avec seulement deux défenseurs.",
+      "easier": "Circulation latérale annoncée et rythme modéré.",
+      "harder": "La circulation peut revenir à l’intérieur ou renverser sans annonce.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+        "width": 28,
+        "length": 24,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Pression couverture équilibre",
+          "actions": 5,
+          "seconds": 9.21
+        },
+        {
+          "title": "Ballon de l’autre côté",
+          "actions": 5,
+          "seconds": 8.44
+        },
+        {
+          "title": "Premier défenseur éliminé",
+          "actions": 5,
+          "seconds": 8.62
+        }
+      ]
+    },
+    {
+      "id": "block-two-lines",
+      "title": "Relier les milieux et la dernière ligne",
+      "objective": "Protéger l’espace entre deux lignes sans se coller à sa propre défense.",
+      "task": "Protéger l’espace entre les lignes tout en pouvant avancer sur une passe adverse.",
+      "observe": "La deuxième ligne accompagne la sortie de la première sans créer une coupure.",
+      "question": "L’espace derrière le premier presseur est-il encore protégé ?",
+      "correction": "Rejouer la passe qui a séparé les lignes, en corrigeant leur déplacement commun.",
+      "invariant": "Au moins quatre défenseurs pour matérialiser deux lignes ; les tiers ne limitent pas les déplacements.",
+      "easier": "Départs identiques et circulation adverse plus lente.",
+      "harder": "L’adversaire varie progression courte et passe derrière la première ligne.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 12,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 12,
+        "keepers": 1,
+        "roles": "6 bleus contre 6 rouges · 1 gardien inclus au jeu au pied",
+        "width": 40,
+        "length": 40,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 6,
+          "bibsRed": 6,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 12,
+          "waiting": 0,
+          "field": 11,
+          "format": "6 bleus contre 6 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Deux lignes liées",
+          "actions": 5,
+          "seconds": 6.6
+        },
+        {
+          "title": "Circulation latérale",
+          "actions": 6,
+          "seconds": 11.91
+        },
+        {
+          "title": "Réception entre les lignes",
+          "actions": 7,
+          "seconds": 15.25
+        }
+      ]
+    },
+    {
+      "id": "defend-depth",
+      "title": "Protéger la profondeur sans reculer trop tôt",
+      "objective": "Ajuster la hauteur défensive à la pression sur le passeur et aux courses adverses.",
+      "task": "Empêcher une réception dans la cible en ajustant sa hauteur à la pression sur le passeur.",
+      "observe": "Le défenseur contrôle ballon et course, sans reculer automatiquement sur chaque passe.",
+      "question": "Le porteur peut-il jouer long maintenant ou est-il réellement pressé ?",
+      "correction": "Rejouer un même appel avec un passeur pressé puis libre pour comparer les ajustements.",
+      "invariant": "Cible défendable et appels libres ; ne pas transformer la profondeur en zone interdite aux défenseurs.",
+      "easier": "Un côté de départ et une menace profonde annoncés.",
+      "harder": "Passeur libre de jouer court ou profond selon la pression.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+        "width": 32,
+        "length": 42,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 5,
+          "bibsRed": 5,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Voir passeur et appel",
+          "actions": 4,
+          "seconds": 5.69
+        },
+        {
+          "title": "Passeur libre",
+          "actions": 4,
+          "seconds": 6.31
+        },
+        {
+          "title": "Passeur fermé",
+          "actions": 5,
+          "seconds": 10.45
+        }
+      ]
+    },
+    {
+      "id": "defend-cross",
+      "title": "Défendre le centre et la zone de retrait",
+      "objective": "Coordonner pression sur le centreur, défense de surface et communication du gardien.",
+      "task": "Cadrer le centreur, protéger l’intérieur et traiter la zone de retrait avec le gardien.",
+      "observe": "Les défenseurs gardent ballon et adversaire dans leur champ visuel et annoncent les prises en charge.",
+      "question": "Qui protège le retrait quand tu accompagnes l’appel au premier poteau ?",
+      "correction": "Figer avant le centre et attribuer pression du côté, défense axiale et retrait.",
+      "invariant": "Gardien actif et plusieurs défenseurs de surface ; ne pas imposer une sortie du gardien sur tous les centres.",
+      "easier": "Centre au sol, côté connu et vitesse maîtrisée.",
+      "harder": "Le centreur choisit centre direct, retrait ou conservation selon la défense.",
+      "family": "finishing",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges + 1 appui neutre + 1 gardien en but",
+        "width": 40,
+        "length": 32,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 1,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "4 bleus contre 4 rouges + 1 appui neutre + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "finishing",
+        "workSeconds": 45,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Protéger l’intérieur",
+          "actions": 5,
+          "seconds": 5.47
+        },
+        {
+          "title": "Centre en retrait",
+          "actions": 5,
+          "seconds": 7.32
+        },
+        {
+          "title": "Centreur bloqué",
+          "actions": 5,
+          "seconds": 10.51
+        }
+      ]
+    },
+    {
+      "id": "defend-outnumbered",
+      "title": "Défendre en infériorité et gagner du temps",
+      "objective": "Ralentir une attaque supérieure en nombre sans ouvrir une passe facile dans l’axe.",
+      "task": "Retarder une attaque en supériorité et protéger la passe axiale avant de chercher le gain.",
+      "observe": "Le proche ralentit ; la couverture ne sort pas sur le même porteur.",
+      "question": "Quel danger dois-tu retarder avant de tenter de récupérer ?",
+      "correction": "Rejouer l’entrée de l’attaque en protégeant d’abord la ligne vers la cible.",
+      "invariant": "Supériorité offensive et au moins deux défenseurs pour une couverture ; les appuis neutres ne doivent pas annuler le surnombre.",
+      "easier": "Attaque à vitesse maîtrisée au départ.",
+      "harder": "L’attaque peut varier le côté de fixation et déclencher plus tôt sa passe.",
+      "family": "duel",
+      "reference": {
+        "session": {
+          "players": 7,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 7,
+        "keepers": 1,
+        "roles": "4 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+        "width": 26,
+        "length": 30,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 4,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 3,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 2
+        },
+        "activity": {
+          "engaged": 7,
+          "waiting": 0,
+          "field": 6,
+          "format": "4 bleus contre 3 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "duel",
+        "workSeconds": 30,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Temporiser en infériorité",
+          "actions": 5,
+          "seconds": 4.85
+        },
+        {
+          "title": "Porteur excentré",
+          "actions": 5,
+          "seconds": 7.81
+        },
+        {
+          "title": "Premier défenseur dépassé",
+          "actions": 5,
+          "seconds": 7.34
+        }
+      ]
+    },
+    {
+      "id": "recovery-firstpass",
+      "title": "Sécuriser la première passe après récupération",
+      "objective": "Sortir le ballon de la pression dès le gain sans forcer une passe vers l’avant.",
+      "task": "Après récupération, quitter la pression avec une passe ou une conduite maîtrisée.",
+      "observe": "Le nouveau porteur regarde avant d’accélérer et un partenaire offre une sécurité.",
+      "question": "Quelle solution t’évite de reperdre immédiatement le ballon ?",
+      "correction": "Revenir au gain du ballon et faire nommer une solution proche et une solution vers l’avant.",
+      "invariant": "Pas de passe vers l’avant obligatoire ni de minimum de passes avant la progression.",
+      "easier": "Première pression retardée après récupération.",
+      "harder": "L’équipe qui perd réagit immédiatement ; le porteur peut choisir de sécuriser.",
+      "family": "transition",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+        "width": 30,
+        "length": 32,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "transition",
+        "workSeconds": 90,
+        "restSeconds": 75,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Sortir par la première passe",
+          "actions": 5,
+          "seconds": 5.38
+        },
+        {
+          "title": "Vers l’avant disponible",
+          "actions": 5,
+          "seconds": 9.23
+        },
+        {
+          "title": "Vers l’avant fermé",
+          "actions": 4,
+          "seconds": 3.64
+        }
+      ]
+    },
+    {
+      "id": "counter-wide",
+      "title": "Élargir la contre-attaque pour libérer l’axe",
+      "objective": "Utiliser une course large pour offrir plusieurs chemins après récupération.",
+      "task": "Exploiter la récupération par des courses en largeur et profondeur, sans forcer le contre.",
+      "observe": "Les deux premiers soutiens n’attaquent pas le même couloir.",
+      "question": "Quelle course ouvre un passage à ton partenaire ?",
+      "correction": "Rejouer la récupération en séparant la course large du soutien axial.",
+      "invariant": "Les trois couloirs sont des repères ; aucune présence permanente obligatoire dans chacun.",
+      "easier": "Retour défensif retardé sur le premier ballon.",
+      "harder": "Défense libre de se replacer ; conserver si le passage se ferme.",
+      "family": "transition",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+        "width": 38,
+        "length": 36,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 5,
+          "bibsRed": 5,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "transition",
+        "workSeconds": 90,
+        "restSeconds": 75,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Écarter la contre-attaque",
+          "actions": 5,
+          "seconds": 8.76
+        },
+        {
+          "title": "Axe fermé",
+          "actions": 5,
+          "seconds": 11.1
+        },
+        {
+          "title": "Retour adverse réussi",
+          "actions": 5,
+          "seconds": 10.59
+        }
+      ]
+    },
+    {
+      "id": "secure-regain",
+      "title": "Récupérer puis choisir le bon rythme",
+      "objective": "Distinguer une récupération exploitable d’un ballon qu’il faut d’abord sécuriser.",
+      "task": "Maîtriser le ballon gagné puis choisir le rythme utile avec les appuis neutres.",
+      "observe": "Le porteur choisit une solution accessible plutôt qu’une passe précipitée dans la densité.",
+      "question": "Faut-il accélérer maintenant ou d’abord sortir de la pression ?",
+      "correction": "Rejouer le gain avec une remise disponible puis demander de justifier le choix après l’action.",
+      "invariant": "L’appui change immédiatement de camp à la récupération ; aucune temporisation arbitraire obligatoire.",
+      "easier": "Touches libres et premier soutien proche.",
+      "harder": "Contre-pression immédiate et choix libre entre passe directe et sécurisation.",
+      "family": "possession",
+      "reference": {
+        "session": {
+          "players": 9,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 9,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges + 1 appui neutre · 1 gardien inclus au jeu au pied",
+        "width": 28,
+        "length": 26,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 1,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 9,
+          "waiting": 0,
+          "field": 8,
+          "format": "4 bleus contre 4 rouges + 1 appui neutre · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "possession",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Reconnaître l’avantage",
+          "actions": 5,
+          "seconds": 7.64
+        },
+        {
+          "title": "Sécurité d’abord",
+          "actions": 4,
+          "seconds": 3.64
+        },
+        {
+          "title": "Projection disponible",
+          "actions": 5,
+          "seconds": 8.52
+        }
+      ]
+    },
+    {
+      "id": "counterpress-escape",
+      "title": "Fermer les sorties juste après la perte",
+      "objective": "Coordonner la pression proche et les interceptions autour du nouveau porteur.",
+      "task": "À la perte, fermer les sorties proches ; au gain, trouver une sortie hors de la densité.",
+      "observe": "Le presseur gêne le porteur pendant qu’un partenaire coupe une passe réellement disponible.",
+      "question": "Quelle sortie doit être fermée avant d’aller au ballon ?",
+      "correction": "Figer à la perte et replacer un seul partenaire dans la ligne à couper, puis rejouer.",
+      "invariant": "Le ballon reste en jeu au changement de statut. Pas d’objectif automatique de récupération en trois secondes.",
+      "easier": "Débuter avec des distances courtes entre partenaires et des touches libres.",
+      "harder": "Retirer les annonces de changement de possession et laisser les nouveaux porteurs sortir librement.",
+      "family": "transition",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+        "width": 24,
+        "length": 24,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "transition",
+        "workSeconds": 90,
+        "restSeconds": 75,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Fermer les sorties proches",
+          "actions": 6,
+          "seconds": 6.46
+        },
+        {
+          "title": "Première sortie adverse réussie",
+          "actions": 5,
+          "seconds": 7.6
+        },
+        {
+          "title": "Récupération obtenue",
+          "actions": 4,
+          "seconds": 3.64
+        }
+      ]
+    },
+    {
+      "id": "rest-defence",
+      "title": "Attaquer en préparant la perte",
+      "objective": "Conserver une couverture autour et derrière le ballon pendant l’attaque.",
+      "task": "Attaquer en gardant des joueurs capables de ralentir la transition adverse à la perte.",
+      "observe": "La couverture suit le ballon tout en contrôlant les premières sorties adverses.",
+      "question": "Si nous perdons ici, quelle passe adverse est la plus dangereuse ?",
+      "correction": "Figer pendant l’attaque et ajuster une position de couverture avant de rejouer la perte.",
+      "invariant": "Pas de joueur enfermé dans un tiers ni de nombre fixe derrière le ballon, mais une couverture réellement utile.",
+      "easier": "Faire repérer une seule sortie adverse prioritaire.",
+      "harder": "L’adversaire varie sa première sortie après gain, sans signal du coach.",
+      "family": "opposition",
+      "reference": {
+        "session": {
+          "players": 12,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 12,
+        "keepers": 1,
+        "roles": "6 bleus contre 6 rouges · 1 gardien inclus au jeu au pied",
+        "width": 40,
+        "length": 42,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 6,
+          "bibsRed": 6,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 12,
+          "waiting": 0,
+          "field": 11,
+          "format": "6 bleus contre 6 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "opposition",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Équilibre derrière l’attaque",
+          "actions": 5,
+          "seconds": 5.68
+        },
+        {
+          "title": "Perte pendant l’attaque",
+          "actions": 5,
+          "seconds": 11.19
+        },
+        {
+          "title": "Adversaire bloqué",
+          "actions": 4,
+          "seconds": 4.45
+        }
+      ]
+    },
+    {
+      "id": "retreat-delay",
+      "title": "Ralentir le contre puis reformer le bloc",
+      "objective": "Gagner le temps nécessaire au retour des partenaires lorsque la pression immédiate est impossible.",
+      "task": "Ralentir le contre pour permettre le retour des partenaires entre le ballon et la cible.",
+      "observe": "Le premier défenseur ne se fait pas éliminer ; les retours protègent l’axe avant le marquage lointain.",
+      "question": "Quel délai peux-tu donner aux partenaires qui reviennent ?",
+      "correction": "Rejouer le départ du contre en corrigeant l’angle de recul et une course de retour intérieure.",
+      "invariant": "Le contre progresse dans le sens réel de l’équipe qui a récupéré ; pas de poursuite collective derrière le ballon.",
+      "easier": "Contre lancé à vitesse maîtrisée et largeur réduite.",
+      "harder": "Le porteur choisit passe ou conduite tandis que les retours restent libres.",
+      "family": "transition",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+        "width": 34,
+        "length": 40,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 5,
+          "bibsRed": 5,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "transition",
+        "workSeconds": 90,
+        "restSeconds": 75,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Ralentir puis protéger",
+          "actions": 5,
+          "seconds": 5.31
+        },
+        {
+          "title": "Passe adverse latérale",
+          "actions": 5,
+          "seconds": 12.21
+        },
+        {
+          "title": "Repli réussi",
+          "actions": 5,
+          "seconds": 12.95
+        }
+      ]
+    },
+    {
+      "id": "throw-progression",
+      "title": "Transformer la touche en progression",
+      "objective": "Créer une sortie sur touche puis exploiter l’espace libéré par les premiers appels.",
+      "task": "Conserver la touche puis exploiter l’espace libéré par le premier appel.",
+      "observe": "Le soutien reste disponible après la réception et le lanceur rentre dans le jeu.",
+      "question": "Qui devient libre quand le premier appel attire son défenseur ?",
+      "correction": "Rejouer le lancer et la première remise, en décalant la solution suivante.",
+      "invariant": "Un lanceur et trois partenaires de champ utiles ; la touche réglementaire ne devient pas une passe au pied.",
+      "easier": "Défense retardée au contrôle de la première réception.",
+      "harder": "Défense active et choix libre entre remise, conduite et progression directe.",
+      "family": "restart",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+        "width": 26,
+        "length": 30,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "4 bleus contre 4 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "restart",
+        "workSeconds": 90,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Solution courte et soutien",
+          "actions": 5,
+          "seconds": 5.13
+        },
+        {
+          "title": "Court suivi",
+          "actions": 4,
+          "seconds": 7.1
+        },
+        {
+          "title": "Retour au lanceur",
+          "actions": 5,
+          "seconds": 10.87
+        }
+      ]
+    },
+    {
+      "id": "corner-secondball",
+      "title": "Gérer la seconde action après un corner",
+      "objective": "Coordonner attaque du ballon repoussé et protection de la sortie adverse.",
+      "task": "Jouer la seconde action après corner et conserver une couverture contre la relance adverse.",
+      "observe": "Les joueurs hors du premier duel anticipent une zone de retombée sans tous attaquer le but.",
+      "question": "Qui peut jouer le ballon repoussé et qui protège le contre ?",
+      "correction": "Figer avant le premier duel et séparer les missions second ballon et couverture.",
+      "invariant": "Un seul ballon vivant ; gardien protégé lorsqu’il maîtrise et nouvelle livraison seulement après la fin de l’action.",
+      "easier": "Livraison au sol et zone de retombée annoncée.",
+      "harder": "Livraison variée et défense autorisée à relancer immédiatement après maîtrise.",
+      "family": "restart",
+      "reference": {
+        "session": {
+          "players": 12,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 12,
+        "keepers": 1,
+        "roles": "5 bleus contre 5 rouges + 1 appui neutre + 1 gardien en but",
+        "width": 40,
+        "length": 35,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 5,
+          "bibsRed": 5,
+          "bibsNeutral": 1,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 12,
+          "waiting": 0,
+          "field": 11,
+          "format": "5 bleus contre 5 rouges + 1 appui neutre + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "restart",
+        "workSeconds": 90,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Préparer la zone de chute",
+          "actions": 7,
+          "seconds": 12.55
+        },
+        {
+          "title": "Récupérer le dégagement",
+          "actions": 6,
+          "seconds": 13.57
+        },
+        {
+          "title": "Dégagement récupéré adverse",
+          "actions": 4,
+          "seconds": 7.11
+        }
+      ]
+    },
+    {
+      "id": "freekick-restart",
+      "title": "Repartir vite ou installer la relance sur coup franc",
+      "objective": "Lire l’organisation adverse avant de choisir une remise en jeu rapide ou préparée.",
+      "task": "Choisir une remise rapide si une ligne est ouverte ou installer la relance si elle est fermée.",
+      "observe": "Le joueur regarde l’adversaire avant de poser son choix, sans attendre automatiquement le signal du coach.",
+      "question": "Peut-on jouer maintenant dans les conditions réglementaires ?",
+      "correction": "Rejouer le même arrêt avec une solution libre puis fermée, et comparer les décisions.",
+      "invariant": "Respecter la distance et les conditions de reprise annoncées ; un coup franc indirect exige une seconde touche avant le but.",
+      "easier": "Départ connu et opposition à distance réglementaire.",
+      "harder": "Varier le placement adverse sans annoncer si la reprise doit être rapide.",
+      "family": "restart",
+      "reference": {
+        "session": {
+          "players": 10,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 10,
+        "keepers": 1,
+        "roles": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+        "width": 32,
+        "length": 36,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 5,
+          "bibsRed": 5,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 10,
+          "waiting": 0,
+          "field": 9,
+          "format": "5 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "restart",
+        "workSeconds": 90,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Jouer quand c’est disponible",
+          "actions": 4,
+          "seconds": 4.78
+        },
+        {
+          "title": "Option rapide fermée",
+          "actions": 5,
+          "seconds": 9.46
+        },
+        {
+          "title": "Adversaire compact",
+          "actions": 5,
+          "seconds": 6.79
+        }
+      ]
+    },
+    {
+      "id": "keeper-distribute",
+      "title": "Le gardien lance la transition",
+      "objective": "Associer le placement du gardien à une distribution adaptée après récupération.",
+      "task": "Après maîtrise, le gardien choisit une relance utile ou sécurise avec un soutien.",
+      "observe": "Le gardien regarde les sorties avant la maîtrise définitive et ne relance pas sur un partenaire enfermé.",
+      "question": "Quel partenaire peut poursuivre l’action après ta distribution ?",
+      "correction": "Figer après la prise de balle et montrer une solution immédiate et une solution de sécurité.",
+      "invariant": "Gardien réel ; aucune distribution imposée si la prise de balle n’est pas maîtrisée.",
+      "easier": "Sortie annoncée et pression retardée sur le receveur.",
+      "harder": "Les adversaires choisissent leur contre-pression ; le gardien garde le droit de temporiser.",
+      "family": "keeper",
+      "reference": {
+        "session": {
+          "players": 8,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 8,
+        "keepers": 1,
+        "roles": "3 bleus contre 3 rouges + 1 appui neutre + 1 gardien en but",
+        "width": 34,
+        "length": 34,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 1,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 8,
+          "waiting": 0,
+          "field": 7,
+          "format": "3 bleus contre 3 rouges + 1 appui neutre + 1 gardien en but",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "keeper",
+        "workSeconds": 30,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Arrêt puis relance",
+          "actions": 5,
+          "seconds": 5.8
+        },
+        {
+          "title": "Première sortie fermée",
+          "actions": 4,
+          "seconds": 5.55
+        },
+        {
+          "title": "Soutien sous pression",
+          "actions": 5,
+          "seconds": 5.18
+        }
+      ]
+    },
+    {
+      "id": "duel-renforts",
+      "title": "Attaquer et défendre · renforts progressifs",
+      "objective": "Reconnaître le passage du duel à la supériorité puis à l’égalité, et réagir immédiatement à la récupération.",
+      "task": "Passer de 1 contre 1 à 2 contre 1 puis 2 contre 2, avec un seul ballon et un contre possible.",
+      "observe": "Le nouvel entrant occupe un angle utile et les défenseurs changent de rôle au renfort.",
+      "question": "Le rapport vient de changer : peux-tu encore attaquer seul ?",
+      "correction": "Rejouer l’entrée du renfort en laissant un intervalle entre les deux signaux.",
+      "invariant": "Quatre joueurs de champ au maximum par vague, un gardien et deux entrées annoncées ; fin à 20 secondes, but ou sortie.",
+      "easier": "Renfort offensif annoncé et second signal plus tardif.",
+      "harder": "Le coach varie le moment du second renfort, sans dépasser la durée de vague.",
+      "family": "duel",
+      "reference": {
+        "session": {
+          "players": 9,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 9,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges · une vague de 2 bleus et 2 rouges maximum ; les autres attendent et tournent à chaque vague + 1 gardien en but",
+        "width": 22,
+        "length": 28,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 0,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 2,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 5,
+          "waiting": 4,
+          "field": 8,
+          "format": "4 bleus contre 4 rouges · une vague de 2 bleus et 2 rouges maximum ; les autres attendent et tournent à chaque vague + 1 gardien en but",
+          "description": "De 2 à 4 joueurs de champ dans l’action + 1 gardien ; les suivants restent hors des trajectoires."
+        }
+      },
+      "dose": {
+        "family": "duel",
+        "workSeconds": 20,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Entrées annoncées",
+          "actions": 10,
+          "seconds": 19.11
+        },
+        {
+          "title": "Renfort côté libre",
+          "actions": 11,
+          "seconds": 17.42
+        },
+        {
+          "title": "Retour défensif intérieur",
+          "actions": 11,
+          "seconds": 18.72
+        }
+      ]
+    },
+    {
+      "id": "rondo-expand",
+      "title": "Rondo évolutif · 5 contre 2 puis 8 contre 5",
+      "objective": "Passer de la récupération en petit espace à la conservation dans le grand espace.",
+      "task": "Sortir du 5 contre 2 puis conserver en 8 contre 5 après récupération bleue.",
+      "observe": "Un extérieur offre déjà une ligne de sortie à l’instant de l’interception.",
+      "question": "Quelle passe te sort du petit carré dès la récupération ?",
+      "correction": "Revenir à l’interception et décaler deux extérieurs à des angles différents.",
+      "invariant": "Exactement treize joueurs et un ballon : cinq rouges, deux bleus intérieurs et six bleus extérieurs. Ne pas adapter à douze ou quatorze en ajoutant un pion.",
+      "easier": "Touches libres et carré intérieur légèrement agrandi.",
+      "harder": "Réduire le petit carré seulement si la première passe extérieure reste réalisable.",
+      "family": "transition",
+      "reference": {
+        "session": {
+          "players": 13,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 13,
+        "keepers": 1,
+        "roles": "8 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+        "width": 32,
+        "length": 32,
+        "material": {
+          "balls": 4,
+          "activeBalls": 1,
+          "reserveBalls": 3,
+          "discs": 8,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 8,
+          "bibsRed": 5,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 13,
+          "waiting": 0,
+          "field": 12,
+          "format": "8 bleus contre 5 rouges · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "transition",
+        "workSeconds": 90,
+        "restSeconds": 75,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Sortir dès la récupération",
+          "actions": 6,
+          "seconds": 10.06
+        },
+        {
+          "title": "Première sortie fermée",
+          "actions": 6,
+          "seconds": 10.06
+        },
+        {
+          "title": "Changer de côté après la sortie",
+          "actions": 7,
+          "seconds": 11.32
+        }
+      ]
+    },
+    {
+      "id": "possession-quadrants",
+      "title": "Quatre secteurs · 4 contre 4 et 3 appuis",
+      "objective": "Créer des lignes de passe dans un jeu de position à secteurs fixes.",
+      "task": "Relier les appuis de bout en ajustant son angle dans son quadrant.",
+      "observe": "Le receveur prépare une passe suivante sans quitter son secteur.",
+      "question": "Comment changer ton angle tout en restant dans ton quadrant ?",
+      "correction": "Figer avant réception et déplacer le receveur dans son secteur, pas le défenseur hors de sa zone.",
+      "invariant": "Exactement onze joueurs : quatre contre quatre, deux appuis de bout et un central protégé. Le carré central reste de 3 × 3 m.",
+      "easier": "Touches libres et rythme de circulation maîtrisé.",
+      "harder": "Opposition réelle dans chaque quadrant sans libérer les secteurs ni supprimer l’appui central.",
+      "family": "possession",
+      "reference": {
+        "session": {
+          "players": 11,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 11,
+        "keepers": 1,
+        "roles": "4 bleus contre 4 rouges + 3 appuis neutres · 1 gardien inclus au jeu au pied",
+        "width": 20,
+        "length": 20,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 12,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 4,
+          "bibsRed": 4,
+          "bibsNeutral": 3,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 0,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 11,
+          "waiting": 0,
+          "field": 10,
+          "format": "4 bleus contre 4 rouges + 3 appuis neutres · 1 gardien inclus au jeu au pied",
+          "description": "Tous ont un rôle dans l’organisation ; cela ne signifie pas un effort maximal permanent."
+        }
+      },
+      "dose": {
+        "family": "possession",
+        "workSeconds": 150,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Passer par l’appui central",
+          "actions": 6,
+          "seconds": 6.44
+        },
+        {
+          "title": "Contourner le centre",
+          "actions": 5,
+          "seconds": 5.18
+        },
+        {
+          "title": "Revenir pour progresser",
+          "actions": 7,
+          "seconds": 7.7
+        }
+      ]
+    },
+    {
+      "id": "video-bounce-2v2",
+      "title": "2 contre 2 · appuis de fond et quatre mini-buts",
+      "objective": "Fixer, jouer en appui puis se rendre de nouveau disponible pour finir.",
+      "task": "Utiliser son appui de couleur pour attaquer l’un des deux mini-buts, ou conserver si la passe est fermée.",
+      "observe": "Le partenaire intérieur arrive décalé sur la remise, face à une cible accessible.",
+      "question": "Quel mini-but est ouvert après la remise de ton appui ?",
+      "correction": "Rejouer la passe vers l’appui avec le second intérieur à une autre hauteur.",
+      "invariant": "Deux intérieurs et un appui par couleur ; les appuis ne sont pas neutres. Les autres tournent hors du terrain après chaque vague.",
+      "easier": "Touches libres et pression retardée sur la première réception.",
+      "harder": "Les défenseurs ferment l’appui ou une cible au choix ; aucune remise obligatoire pour marquer.",
+      "family": "duel",
+      "reference": {
+        "session": {
+          "players": 6,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 6,
+        "keepers": 1,
+        "roles": "2 bleus contre 2 rouges + un appui de chaque couleur · 0 suivant(s) hors du jeu ; changer après chaque vague · 1 gardien inclus au jeu au pied",
+        "width": 22,
+        "length": 30,
+        "material": {
+          "balls": 2,
+          "activeBalls": 1,
+          "reserveBalls": 1,
+          "discs": 4,
+          "cones": 0,
+          "circuitCones": 0,
+          "bibsBlue": 3,
+          "bibsRed": 3,
+          "bibsNeutral": 0,
+          "bibsKeeper": 0,
+          "goals": 0,
+          "miniGoals": 4,
+          "gates": 0
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 0,
+          "field": 5,
+          "format": "2 bleus contre 2 rouges + un appui de chaque couleur · 0 suivant(s) hors du jeu ; changer après chaque vague · 1 gardien inclus au jeu au pied",
+          "description": "4 intérieurs + 2 appuis de couleur ; les suivants entrent après chaque fin de vague."
+        }
+      },
+      "dose": {
+        "family": "duel",
+        "workSeconds": 30,
+        "restSeconds": 45,
+        "loadLabel": "Charge habituelle",
+        "guidance": "La difficulté de décision et la charge physique sont distinctes. Réduire le temps actif et conserver les pauses si les distances ou la qualité se dégradent."
+      },
+      "variants": [
+        {
+          "title": "Appui et appel croisé",
+          "actions": 7,
+          "seconds": 11.3
+        },
+        {
+          "title": "Remise vers l’autre cible",
+          "actions": 6,
+          "seconds": 9.75
+        },
+        {
+          "title": "Interception et changement de sens",
+          "actions": 7,
+          "seconds": 10.12
+        }
+      ]
+    },
+    {
+      "id": "video-coordination-shot",
+      "title": "Coordination · relais, slalom et frappe",
+      "objective": "Relier coordination, dosage de passe, conduite et équilibre de frappe.",
+      "task": "Servir le relais, franchir les haies sans ballon, remettre vers le central puis conduire et frapper.",
+      "observe": "Chaque transmission attend un partenaire équilibré et la frappe suit un dernier contact maîtrisé.",
+      "question": "Ton partenaire a-t-il fini ses appuis et peut-il recevoir maintenant ?",
+      "correction": "Rejouer à allure lente sans saut imposé ; séparer la sortie du matériel de la remise.",
+      "invariant": "Un côté et un ballon actifs, cinq postes de champ et un gardien ; retours extérieurs et nouvelle frappe seulement quand le gardien est prêt.",
+      "easier": "Franchissement marché, contrôle autorisé et côté de départ connu.",
+      "harder": "Alterner les côtés et ouvrir l’angle du dernier contact, sans ajouter un défenseur ni accélérer la cadence.",
+      "family": "coordination",
+      "reference": {
+        "session": {
+          "players": 9,
+          "keepers": 1,
+          "category": "U16",
+          "age": 16,
+          "level": "developing",
+          "space": "full"
+        },
+        "players": 9,
+        "keepers": 1,
+        "roles": "8 joueurs de champ en alternance, sans défenseur + 1 gardien en but",
+        "width": 28,
+        "length": 36,
+        "material": {
+          "balls": 3,
+          "activeBalls": 1,
+          "reserveBalls": 2,
+          "discs": 6,
+          "cones": 3,
+          "circuitCones": 0,
+          "bibsBlue": 8,
+          "bibsRed": 0,
+          "bibsNeutral": 0,
+          "bibsKeeper": 1,
+          "goals": 1,
+          "miniGoals": 0,
+          "gates": 0,
+          "hurdles": 6,
+          "ladders": 2
+        },
+        "activity": {
+          "engaged": 6,
+          "waiting": 3,
+          "field": 8,
+          "format": "8 joueurs de champ en alternance, sans défenseur + 1 gardien en but",
+          "description": "5 postes de champ + 1 gardien ; trois joueurs de champ exécutent la chaîne, le côté opposé reste prêt pour la vague suivante."
+        }
+      },
+      "dose": {
+        "family": "coordination",
+        "workSeconds": 60,
+        "restSeconds": 60,
+        "loadLabel": "Charge habituelle",
+        "guidance": "Chaque répétition attend la remise en place et la disponibilité du gardien lorsqu’il est présent. Une réserve de ballons ne justifie pas des départs en rafale."
+      },
+      "variants": [
+        {
+          "title": "Relais côté gauche",
+          "actions": 15,
+          "seconds": 33.67
+        },
+        {
+          "title": "Relais côté droit",
+          "actions": 15,
+          "seconds": 33.67
+        },
+        {
+          "title": "Préparer le dernier contact",
+          "actions": 15,
+          "seconds": 33.24
+        }
+      ]
+    }
+  ]
+}

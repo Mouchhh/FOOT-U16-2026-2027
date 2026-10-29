@@ -12,7 +12,7 @@ function localCoachPlan(session,settings={},reference=null,variant=0){
  if(!trainingValid(session))throw Error('Les paramètres de séance sont invalides.');
  const inferred=localCoachGoalThemes(settings.goal);const themes=settings.goal&&Object.hasOwn(localCoachProgressions,settings.goal)?[settings.goal]:inferred.length?inferred:session.themes;
  let days=null;if(settings.matchDate){if(!trainingDateValid(settings.matchDate))throw Error('Date du match invalide.');days=Math.round((new Date(settings.matchDate+'T12:00:00')-new Date(session.date+'T12:00:00'))/86400000);if(days<0)throw Error('La date du match doit être égale ou postérieure à la séance.');}
- const light=days!==null&&days<=2;
+ const light=session.coachingLoad==='light'||days!==null&&days<=2;
  const profile=bibleTrainingProfile({...session,coachingLoad:light?'light':'normal'});
  const count=session.duration>=60?4:3;
  const picks=[],used=new Set();const reasons=[];

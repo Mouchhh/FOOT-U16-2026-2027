@@ -1,7 +1,7 @@
 // Three actual scenarios, persistent identities, no hidden enlargement of the group.
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
 const ctx=vm.createContext({console});
-for(const file of ['training-data.js','training-knowledge.js','bible-additional-exercises.js','training-adaptation.js','bible-exercise-designs.js','bible-variant-demonstrations.js','bible-diagrams.js','bible-circuit-animation.js','bible-animation.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
+for(const file of ['training-data.js','training-knowledge.js','bible-additional-exercises.js','exercise-pedagogy.js','training-adaptation.js','bible-exercise-designs.js','bible-variant-demonstrations.js','bible-diagrams.js','bible-circuit-animation.js','bible-animation.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx);
 const out=vm.runInContext(`(()=>{
  const check=(v,m)=>{if(!v)throw Error(m)};let cases=0,playable=0;const signatures={},issues=[];
  for(const e of trainingExercises){

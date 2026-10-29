@@ -1,0 +1,11 @@
+/* Une fiche de travail lisible ; la grille BMF n'est pas reproduite. */
+.exercise-essentials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0;color:#203c59}
+.exercise-essentials>section{min-width:0;padding:16px;border:1px solid #dce5ee;border-radius:12px;background:#fff}
+.exercise-essentials h4{margin:0 0 8px;font-size:14px;color:#1f5486}
+.exercise-essentials p{font-size:13px;line-height:1.65;margin:8px 0;overflow-wrap:anywhere}
+.exercise-essentials .exercise-score,.exercise-essentials .exercise-question{color:#526a80}
+.exercise-essentials>.exercise-invariant{grid-column:1/-1;margin:0;padding:12px 16px;border-left:3px solid #3982ae;background:#f0f6fb;border-radius:4px}
+.exercise-outside{padding:10px;background:#fff5dd;border-radius:8px;color:#6a4c13}
+.exercise-correction{border-top:1px solid #e4ebf2;padding-top:8px}
+@media(max-width:700px){.exercise-essentials{grid-template-columns:minmax(0,1fr);gap:8px}.exercise-essentials>section{padding:12px}.exercise-essentials p{font-size:14px}}
+@media print{.exercise-essentials{display:block}.exercise-essentials>section{break-inside:avoid;padding:8px;margin-bottom:8px}.exercise-essentials p{font-size:10pt}.exercise-essentials h4{font-size:11pt}.exercise-invariant{break-inside:avoid}}

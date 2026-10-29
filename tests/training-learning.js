@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const root=path.join(__dirname,'..'),c=vm.createContext({});
-for(const f of ['training-data.js','training-knowledge.js','training-adaptation.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),c);
+for(const f of ['training-data.js','training-knowledge.js','exercise-pedagogy.js','training-adaptation.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),c);
 vm.runInContext(fs.readFileSync(path.join(root,'training.js'),'utf8').split('let currentTraining=')[0]+fs.readFileSync(path.join(root,'local-coach-rules.js'),'utf8')+';globalThis.exercises=trainingExercises;',c);
 const base={version:1,id:'learning',updatedAt:'',team:'Club',category:'U14',age:18,date:'2026-10-19',time:'18:30',duration:90,players:14,keepers:2,space:'half',level:'discovery',context:'District',themes:['Relance'],notes:'',blocks:[]};
 const youth=c.bibleTrainingProfile(base),senior=c.bibleTrainingProfile({...base,category:'Seniors',level:'advanced'});

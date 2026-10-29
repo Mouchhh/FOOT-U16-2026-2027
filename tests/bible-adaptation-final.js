@@ -1,7 +1,7 @@
 // Catalogue-wide adaptation contracts, including explicit rotation alternatives.
 const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
 const c=vm.createContext({console});
-for(const file of ['training-data.js','training-knowledge.js','bible-additional-exercises.js','training-adaptation.js'])vm.runInContext(fs.readFileSync(file,'utf8'),c);
+for(const file of ['training-data.js','training-knowledge.js','bible-additional-exercises.js','exercise-pedagogy.js','training-adaptation.js'])vm.runInContext(fs.readFileSync(file,'utf8'),c);
 const result=vm.runInContext(`(()=>{
  const check=(v,m)=>{if(!v)throw Error(m)};let cases=0,alternatives=0;
  for(const e of trainingExercises)for(const level of ['discovery','advanced'])for(const players of [2,6,14,40])for(const space of ['small','full']){

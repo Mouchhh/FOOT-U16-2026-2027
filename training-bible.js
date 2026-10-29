@@ -14,7 +14,7 @@ function bibleVariantValid(v){
 }
 const bibleNormalise=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[’']/g,' ');
 const bibleTime=seconds=>{const s=Math.round(seconds);return Math.floor(s/60)+'′'+(s%60?String(s%60).padStart(2,'0')+'″':'');};
-const bibleIntervalText=sequence=>sequence.intervals?.length>1?sequence.intervals.length+' répétitions de '+[...new Set(sequence.intervals.map(i=>bibleTime(i.workSeconds)))].join(' à ')+' de jeu · '+bibleTime(sequence.intervals[0].restSeconds)+' de récupération entre répétitions, comprise dans la séquence.':'';
+const bibleIntervalText=sequence=>{const list=sequence.intervals||[],rests=list.filter(i=>i.restSeconds>0);return list.length>1||rests.length?list.length+' répétition(s) de '+[...new Set(list.map(i=>bibleTime(i.workSeconds)))].join(' à ')+' de jeu'+(rests.length?' · récupération(s) de '+[...new Set(rests.map(i=>bibleTime(i.restSeconds)))].join(' à ')+', comprises dans la séquence.':'.'):'';};
 let bibleCataloguePage=0,bibleCatalogueSignature='',bibleVariantEditing=null;
 
 function bibleMaterialText(material){

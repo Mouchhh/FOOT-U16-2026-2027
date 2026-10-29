@@ -2,7 +2,7 @@
 // no unexplained change of ball holder, real calls, real pivot and real restarts.
 const fs=require('fs'),vm=require('vm'),assert=require('assert');
 const c=vm.createContext({console});
-for(const file of ['training-data.js','training-knowledge.js','bible-additional-exercises.js','training-adaptation.js','bible-exercise-designs.js','bible-variant-demonstrations.js','bible-diagrams.js','bible-circuit-animation.js','bible-animation.js'])vm.runInContext(fs.readFileSync(file,'utf8'),c);
+for(const file of ['training-data.js','training-knowledge.js','bible-additional-exercises.js','exercise-pedagogy.js','training-adaptation.js','bible-exercise-designs.js','bible-variant-demonstrations.js','bible-diagrams.js','bible-circuit-animation.js','bible-animation.js'])vm.runInContext(fs.readFileSync(file,'utf8'),c);
 const result=vm.runInContext(`(()=>{
  const failures=[],seen=new Set();let cases=0,passes=0,delayedCalls=0;
  const check=(ok,label)=>{if(!ok)failures.push(label)};
