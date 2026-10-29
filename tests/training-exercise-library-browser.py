@@ -8,7 +8,7 @@ with sync_playwright() as p:
  page.locator('#studio-tab-board').click();page.locator('#exercise-five').click();page.locator('#studio-tab-animation').click();page.locator('#exercise-add-frame').click()
  page.locator('.studio-inspector summary').click();first=page.evaluate('exerciseDraft.frames[0].objects[0].id');page.locator('#exercise-object').select_option(first);page.locator('#exercise-board-canvas').focus();page.keyboard.press('ArrowRight');page.locator('[data-exercise-angle="120"]').click()
  page.locator('#custom-training-form button[type=submit]').click();page.locator('#training-save').click()
- source=page.evaluate('structuredClone(trainingLibrary.find(s=>s.id===currentTraining.id))');assert source['blocks'][0]['custom']['board']['frames'][1]['objects'][0]['y']!=source['blocks'][0]['custom']['board']['frames'][0]['objects'][0]['y']
+ source=page.evaluate('structuredClone(trainingLibrary.find(s=>s.id===currentTraining.id))');assert source['blocks'][0]['custom']['board']['frames'][1]['objects'][0]['x']!=source['blocks'][0]['custom']['board']['frames'][0]['objects'][0]['x']
  page.evaluate("()=>{const next=newTraining();next.title='Autre séance';workspaceReplaceDraft('training',next);trainingWizard.go(3)}")
  page.locator('#training-personal-exercises').click();d=page.locator('#training-personal-library');d.get_by_label('Chercher un exercice personnel',exact=True).fill('cote droit')
  assert d.get_by_role('button',name='Ajouter une copie',exact=True).count()==1

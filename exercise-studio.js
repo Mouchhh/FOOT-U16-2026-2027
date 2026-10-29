@@ -12,8 +12,8 @@ document.addEventListener('DOMContentLoaded',()=>{
  const palette=$('exercise-palette'),canvas=$('exercise-board-canvas'),settings=canvas.nextElementSibling,rotation=editor.querySelector('.exercise-rotation-presets'),objectActions=$('exercise-delete').parentElement,animation=$('exercise-frame').closest('.exercise-board-actions');
  animation.classList.add('studio-animation');
  const layout=el('div','studio-board-layout'),tools=el('details','studio-tools'),stage=el('div','studio-stage'),inspector=el('details','studio-inspector');
- tools.append(el('summary','','Joueurs & matériel'),palette);const summary=el('summary','','Réglages de l’élément'),inspectorBody=el('div','studio-inspector-body');inspectorBody.append(settings,rotation,objectActions);inspector.append(summary,inspectorBody);inspector.open=false;
- canvas.dataset.portrait='true';canvas.before(layout);stage.append(canvas);layout.append(stage);editor.append(animation);
+ tools.append(el('summary','','Matériel'),palette);const summary=el('summary','','Réglages'),inspectorBody=el('div','studio-inspector-body');inspectorBody.append(settings,rotation,objectActions);inspector.append(summary,inspectorBody);inspector.open=false;
+ canvas.dataset.portrait='false';canvas.before(layout);stage.append(canvas);layout.append(stage);editor.append(animation);
  const toolbar=el('div','studio-toolbar'),boardActions=editor.querySelector(':scope>.exercise-board-actions');toolbar.append(tools,inspector,boardActions,editorHeading.querySelector('label'));layout.before(toolbar);editorHeading.hidden=true;
  for(const menu of [tools,inspector])menu.addEventListener('toggle',()=>{if(menu.open)(menu===tools?inspector:tools).open=false;});
  document.addEventListener('pointerdown',event=>{if(dialog.open&&!toolbar.contains(event.target)){tools.open=false;inspector.open=false;}});

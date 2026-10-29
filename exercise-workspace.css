@@ -10,7 +10,7 @@
  #custom-training-form .exercise-editor>.exercise-board-actions:not(.studio-animation) label{color:#d3deec}
  #custom-training-form .studio-board-layout{grid-template-columns:220px minmax(0,1fr) 224px;gap:14px;align-items:start}
  #custom-training-form .studio-stage{align-self:start;justify-self:center;width:min(100%,calc(min(54dvh,calc(96dvh - 360px)) * .625));min-width:0;padding:6px;background:#111e2d;border:1px solid #344357;border-radius:12px}
- #custom-training-form .studio-stage>canvas{width:100%;margin:0;border-radius:6px;box-shadow:none;aspect-ratio:5/8;touch-action:none}
+ #custom-training-form .studio-stage>canvas{width:100%;margin:0;border-radius:6px;box-shadow:none;aspect-ratio:8/5;touch-action:none}
  #custom-training-form .studio-tools{padding:10px 6px;background:#233247;border-color:#3c4a60;border-radius:12px}
  #custom-training-form .studio-tools summary{cursor:pointer;min-height:32px;color:#d3deec;line-height:1.5;font-size:11px;margin:0 4px 10px}
  #custom-training-form .studio-tools #exercise-palette{margin-top:12px}
@@ -83,11 +83,11 @@
  #custom-training-form .studio-inspector-body .custom-training-grid>label:first-child{grid-column:1/-1}
  #custom-training-form .studio-inspector-body label{color:#526984}
  #custom-training-form .studio-board-layout{display:block}
- #custom-training-form .studio-stage{width:min(100%,calc((100dvh - 232px) * .625));max-width:540px;margin-inline:auto;padding:5px}
+ #custom-training-form .studio-stage{width:min(100%,calc((100dvh - 248px) * 1.6));max-width:1280px;margin-inline:auto;padding:5px}
  #custom-training-form .studio-footer{padding:8px 16px}
  #custom-training-form .studio-footer>button{padding:10px 20px}
  @media(max-width:1000px){
-  #custom-training-form .studio-stage{width:min(100%,calc((100dvh - 270px) * .625))}
+  #custom-training-form .studio-stage{width:min(100%,calc((100dvh - 270px) * 1.6))}
   #custom-training-form .studio-toolbar>label{margin-left:0}
  }
  @media(max-width:700px){
@@ -97,7 +97,17 @@
   #custom-training-form .studio-tools #exercise-palette,#custom-training-form .studio-inspector-body{left:0;top:46px;width:min(100%,340px);max-height:50dvh}
   #custom-training-form .studio-tools #exercise-palette{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
   #custom-training-form .studio-toolbar summary{padding:10px;font-size:11px}
-  #custom-training-form .studio-stage{width:100%;max-width:420px;padding:4px}
+  #custom-training-form .studio-stage{width:100%;max-width:none;padding:4px}
   #custom-training-form .studio-footer{padding:8px 10px}
  }
+}
+
+@media screen {
+ #custom-training-form .studio-toolbar details{border:1px solid #9ab6dd;background:#f3f7fe}
+ #custom-training-form .studio-toolbar summary{display:flex;align-items:center;justify-content:space-between;gap:20px;min-width:132px;min-height:44px;color:#173f73;font-size:14px;font-weight:700;list-style:none}
+ #custom-training-form .studio-toolbar summary::-webkit-details-marker{display:none}
+ #custom-training-form .studio-toolbar summary::after{content:'⌄';display:inline-block;font-size:22px;line-height:1;color:#235fc1}
+ #custom-training-form .studio-toolbar details[open]{border-color:#8ab6ff;background:#dceaff;box-shadow:0 0 0 2px #8ab6ff55}
+ #custom-training-form .studio-toolbar details[open] summary::after{content:'⌃'}
+ #custom-training-form .studio-toolbar summary:focus-visible{outline:3px solid #8ab6ff;outline-offset:3px;border-radius:8px}
 }
