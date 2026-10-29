@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
-NS = {'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
+NS = {'a': 'http://schemas.openxmlformats.org/drawingml/2006/main', 'p':'http://schemas.openxmlformats.org/presentationml/2006/main'}
 OUT = Path('/tmp/causerie-export-test.pptx')
 
 def slide_texts(path):
@@ -32,6 +32,21 @@ def slide_texts(path):
         assert 'Calistoga' in theme and 'Montserrat' in theme
         assert any('214FA0' in archive.read(name).decode() for name in files)
         return slides, len(pitch_images)
+
+def sources(path):
+    result={}
+    with zipfile.ZipFile(path) as archive:
+        files=sorted((name for name in archive.namelist() if re.fullmatch(r'ppt/slides/slide\d+\.xml',name)),key=lambda name:int(re.search(r'(\d+)\.xml',name).group(1)))
+        for name in files:
+            root=ET.fromstring(archive.read(name))
+            for shape in root.findall('.//p:sp',NS):
+                prop=shape.find('p:nvSpPr/p:cNvPr',NS)
+                key=prop.get('name','') if prop is not None else ''
+                if not key.startswith('causerie:'):continue
+                text='\n'.join(''.join(t.text or '' for t in para.findall('.//a:t',NS)) for para in shape.findall('p:txBody/a:p',NS))
+                for source_key in key.removeprefix('causerie:').split('|'):
+                    result[source_key]=result.get(source_key,'')+text
+    return result
 
 with sync_playwright() as p:
     browser = p.chromium.launch(executable_path='/usr/bin/chromium', args=['--no-sandbox'])
@@ -92,11 +107,18 @@ with sync_playwright() as p:
     assert download.value.suggested_filename.endswith('.pptx')
     slides, image_count = slide_texts(OUT)
     assert image_count == 1
-    # Extract the body from every labelled slide, including every continuation page.
-    for entry in expected:
-        bodies = [texts[-1] for texts in slides if texts and (texts[0] == entry['label'] or
-                   texts[0].startswith(entry['label']+' · '))]
-        assert ''.join(bodies) == entry['value'], (entry['label'], repr(''.join(bodies)[:100]))
+    # The deck may regroup fields, but every authored source stays verbatim, once.
+    written=sources(OUT)
+    for key in ['title','team','category','section','squad','matchDuration','formation','notes']:
+        value=fixture['board'].get(key,'')
+        if value:assert written['board.0.'+key]==value,key
+    for key,value in fixture['board']['matchPreparation'].items():
+        if key=='objectives':
+            for i,goal in enumerate(value):
+                if goal:assert written['board.0.matchPreparation.objectives.'+str(i)]==goal
+        elif value:assert written['board.0.matchPreparation.'+key]==value,key
+    assert written['board.0.players.0.name']=='Prénom exact'
+    assert written['board.0.players.1.name']=='Remplaçant'
     assert not any('Vue liée EXACTE' in text for texts in slides for text in texts)
     assert page.evaluate('JSON.stringify({state,gamePlanBoard})') == before
     # The snapshot remains frozen even if the draft changes while the dialog is open.
@@ -107,8 +129,36 @@ with sync_playwright() as p:
     linked_path = Path('/tmp/causerie-linked-test.pptx');linked_download.value.save_as(linked_path)
     linked_slides, linked_images = slide_texts(linked_path)
     assert linked_images == 2
-    assert any('Vue liée EXACTE' == text for texts in linked_slides for text in texts)
+    assert len(linked_slides)==len(slides)+1, 'Inherited fields must not become duplicate slides'
+    linked_written=sources(linked_path)
+    assert linked_written['board.1.title']=='Vue liée EXACTE'
+    assert linked_written['board.1.notes']=='Note propre à la vue épurée'
+    assert not any(key.startswith('board.1.matchPreparation.') for key in linked_written)
     assert not any('NOUVELLE VERSION À NE PAS EXPORTER' in text for texts in linked_slides for text in texts)
+    # A normal causerie follows the printed board, not a slide for every form field.
+    with page.expect_download(timeout=30000) as adaptive_download:
+        page.evaluate(r'''async snapshot=>{
+          const sample=structuredClone(snapshot);sample.board.notes='Consigne à ne pas répéter.';
+          Object.assign(sample.board.matchPreparation,{context:'Contexte saisi par le coach.',opponent:'Adversaire observé.',objectives:['Premier repère','Deuxième repère','Troisième repère','Quatrième repère'],defensive:'Consignes défensives exactes.',offensive:'Consignes offensives exactes.',specific:sample.board.notes});
+          sample.board.players.forEach((p,i)=>{p.name='Joueur '+(i+1);delete p.role;});
+          const deck=await causerieExport.build(sample,false);mediaDownload(await deck.write({outputType:'blob'}),'adaptive-test.pptx');
+        }''', fixture)
+    adaptive_path=Path('/tmp/causerie-adaptive-test.pptx');adaptive_download.value.save_as(adaptive_path)
+    adaptive_slides,_=slide_texts(adaptive_path)
+    assert len(adaptive_slides)==6, 'One cover + context/opponent + ideas + defence + attack + complements'
+    assert not any(texts and texts[0] in ['Effectif','La composition','Équipe & composition','Repères du match'] for texts in adaptive_slides)
+    assert sum(text.count('Consigne à ne pas répéter.') for texts in adaptive_slides for text in texts)==1
+    adaptive_sources=sources(adaptive_path)
+    assert adaptive_sources['board.0.notes']==adaptive_sources['board.0.matchPreparation.specific']=='Consigne à ne pas répéter.'
+    with page.expect_download(timeout=30000) as empty_download:
+        page.evaluate(r'''async snapshot=>{
+          const sample=structuredClone(snapshot);sample.board.title='';sample.board.notes='';sample.board.arrows=[];delete sample.board.opponents;sample.board.formation='4-3-3';sample.board.matchPreparation=newMatchPreparation();
+          sample.board.players.forEach((p,i)=>{p.name='Joueur '+(i+1);delete p.role;p.x=layouts['4-3-3'][i][0];p.y=layouts['4-3-3'][i][1];});
+          const deck=await causerieExport.build(sample,false);mediaDownload(await deck.write({outputType:'blob'}),'empty-test.pptx');
+        }''', fixture)
+    empty_path=Path('/tmp/causerie-empty-test.pptx');empty_download.value.save_as(empty_path)
+    with zipfile.ZipFile(empty_path) as archive:
+        assert len([name for name in archive.namelist() if re.fullmatch(r'ppt/slides/slide\d+\.xml',name)])==1, 'Blank/default sections must not create filler slides'
     # Responsive dialog, retained inventory and visible, honest account status.
     for width in [320, 390, 768, 1366]:
         page.set_viewport_size({'width': width, 'height': 844})

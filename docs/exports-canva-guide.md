@@ -11,11 +11,30 @@ pour être publiée comme nouveau contenu du site.
 Seul le logo du club a été extrait tel quel pour la couverture, dans
 `assets/causerie-logo.jpeg` ; un logo personnalisé du coach garde la priorité.
 
-La composition a sa page de terrain en paysage. Les pages d’animation défensive,
-offensive et de consignes placent le terrain du document à gauche du texte.
-Une vue épurée n’est affichée que si elle est effectivement liée et sélectionnée.
-Le schéma affiché reste celui du coach : aucune formation n’est inventée à partir
-de ses phrases. Les autres rubriques utilisent le panneau photographique.
+Le fil suit les rubriques imprimées du tableau de préparation fourni par le coach :
+repères du match, contexte et adversaire, objectif du jour / idées fortes,
+animation défensive, animation offensive, spécificités / compléments du plan de jeu.
+Les annotations manuscrites de cette référence ne sont pas utilisées comme contenu.
+
+La couverture porte les repères et les métadonnées de l’équipe, sans une deuxième
+page identique. Contexte et adversaire partagent une page si leurs textes tiennent
+lisiblement ; les idées fortes utilisent une page bleue. Les phases défensive et
+offensive inversent le côté du terrain et du texte. Les compléments peuvent
+utiliser les photos obliques ou un espace de texte plus large selon leur longueur.
+
+La composition et l’effectif ne sont pas des chapitres imposés. Les noms renseignés
+peuvent être intégrés à la première illustration tactique. Une vue d’ensemble
+séparée n’est ajoutée qu’en l’absence d’une telle illustration et lorsqu’il existe
+un terrain effectivement préparé. Les données par défaut ne créent pas de pages
+vides ; une liste de joueurs supplémentaires n’est ajoutée qu’au-delà de la place
+disponible. Les continuations de longs textes utilisent toute la largeur.
+
+La vue épurée n’est affichée que si elle est liée et sélectionnée : elle n’a pas
+une seconde couverture, et ses champs hérités identiques sont omis. Ses éléments
+propres restent présents. Des consignes générales exactement identiques aux
+spécificités sont affichées une seule fois, sans réécrire leur contenu. Les champs
+ayant un rôle différent ne sont pas fusionnés simplement parce qu’ils se ressemblent.
+Le schéma reste celui du coach : aucune formation n’est inventée depuis ses phrases.
 
 Les textes restent modifiables et sont paginés selon la largeur et les polices
 réelles, sans réécriture. Les passages longs continuent sur d’autres pages.
@@ -23,6 +42,11 @@ Les masques réutilisent les images pour éviter de dupliquer les terrains sur
 chaque page. Un logo personnalisé valide prend la place du logo du club.
 L’apparence dans Canva après conversion doit encore être contrôlée ; le PDF
 de prévisualisation ne constitue pas une validation de l’import réel.
+
+Les tests vérifient notamment un cas court à six pages, une préparation vide sans
+pages de remplissage, l’absence de copie des champs hérités et la restitution
+exacte des champs source dans les zones de texte PowerPoint, y compris les notes
+longues. Six pages est un cas d’essai, pas un nombre de diapositives imposé.
 
 ## Le cadre Mon Canva
 

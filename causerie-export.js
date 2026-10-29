@@ -90,63 +90,12 @@
   return {data:canvas.toDataURL('image/png'),width:canvas.width,height:canvas.height};
  }
  async function build(snapshot,includeLinked){
+  if(!window.causerieLayout?.build)throw Error('La présentation ne peut pas être préparée. Actualisez le site, puis réessayez.');
   const [,style]=await Promise.all([loadLibrary(),loadStyle()]);
   const pptx=new window.PptxGenJS();pptx.layout='LAYOUT_WIDE';pptx.author='Le Vestiaire';
   pptx.subject='Causerie du coach';pptx.title=snapshot.board.title||snapshot.board.team;pptx.lang='fr-FR';
   pptx.theme={headFontFace:'Montserrat',bodyFontFace:'Calistoga',lang:'fr-FR'};
-  const shapes=pptx.ShapeType;
-  function arrows(){return [{image:{data:style.chevrons,x:4.1,y:.36,w:2.2,h:.7}}];}
-  const photoObjects=[{image:{data:style.decor,x:0,y:0,w:6.24,h:7.5}},...arrows()];
-  pptx.defineSlideMaster({title:'CLUB_PHOTOS',background:{color:'FFFFFF'},objects:photoObjects});
-  let number=0;
-  function slide(title,scope,master){
-   const s=pptx.addSlide({masterName:master});
-   s.addText(title,{x:6.25,y:.19,w:6.75,h:1,fontFace:'Montserrat',fontSize:title.length>34?24:29,bold:true,italic:true,underline:true,color:clubBlue,align:'center',margin:0,fit:'shrink',breakLine:false});
-   if(master==='CLUB_PHOTOS')for(const [i,color] of ['1F21C0','5C5EDD','BEBDF4'].entries())s.addShape(shapes.rect,{x:7.45+i*.72,y:1.17,w:.74,h:.08,line:{transparency:100},fill:{color}});
-   s.addText(scope,{x:6.25,y:7.15,w:5.9,h:.17,fontSize:9,color:'526780',margin:0,fit:'shrink'});
-   s.addText(String(++number),{x:12.45,y:7.15,w:.5,h:.17,fontSize:9,color:clubBlue,align:'right',margin:0});
-   return s;
-  }
-  const boards=[snapshot.board];if(includeLinked&&snapshot.linked)boards.push(snapshot.linked);
-  const diagrams=await Promise.all(boards.map(board=>pitchImage(board,true)));
-  for(const [boardIndex,board] of boards.entries()){
-   const scope=board.boardKind==='plan'?'Vue épurée liée':'Composition & préparation du match';
-   const image=diagrams[boardIndex],cover=pptx.addSlide();cover.background={color:'FFFFFF'};
-   cover.addImage({data:style.photo,x:.4,y:0,w:4.65,h:7.5});
-   cover.addShape(shapes.rect,{x:0,y:0,w:.4,h:7.5,line:{transparency:100},fill:{color:clubBlue}});
-   cover.addShape(shapes.rect,{x:5.05,y:0,w:1,h:7.5,line:{transparency:100},fill:{color:clubBlue}});
-   cover.addShape(shapes.rect,{x:5.8,y:1.9,w:7.533333,h:3.75,line:{transparency:100},fill:{color:clubBlue}});
-   const logo=board.clubLogo||style.logo;
-   let logoWidth=style.logoWidth,logoHeight=style.logoHeight;
-   if(board.clubLogo){const check=new Image();check.src=logo;try{await check.decode();logoWidth=check.naturalWidth;logoHeight=check.naturalHeight;}catch{throw Error('Le logo de votre équipe ne peut pas être lu. Vérifiez-le avant de réessayer.');}}
-   const logoScale=Math.min(1.8/logoWidth,1.65/logoHeight),lw=logoWidth*logoScale,lh=logoHeight*logoScale;
-   cover.addImage({data:logo,x:11.35+(1.8-lw)/2,y:.12+(1.65-lh)/2,w:lw,h:lh});
-   cover.addText(board.title||board.team,{x:6.35,y:2.45,w:6.45,h:1.65,fontFace:'Calistoga',fontSize:30,color:'FFFFFF',align:'center',valign:'mid',margin:0,fit:'shrink'});
-   const match=board.matchPreparation;
-   const subtitle=[match?.date,match?.match].filter(Boolean).join('\n');
-   if(subtitle)cover.addText(subtitle,{x:6.35,y:4.2,w:6.45,h:1.05,fontSize:18,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
-   number++;
-   const field=pptx.addSlide();field.addImage({data:image.data,x:0,y:0,w:13.333333,h:7.5});number++;
-   const master='CLUB_TACTICS_'+boardIndex,objects=[{rect:{x:0,y:0,w:5.9,h:7.5,line:{transparency:100},fill:{color:clubBlue}}},...arrows()];
-   const side=boardIndex===0&&boards.length>1?diagrams:[image];
-   side.forEach((diagram,index)=>{
-    const y=side.length>1?.6+index*3.45:1.65;
-    objects.push({image:{data:diagram.data,x:.24,y,w:5.42,h:3.05}});
-    objects.push({text:{text:side.length>1?(index===0?'Terrain de la composition':'Vue épurée liée'):'Terrain du document',options:{x:.3,y:y+3.08,w:5.3,h:.2,fontFace:'Montserrat',italic:true,fontSize:10,color:'FFFFFF',align:'center',margin:0}}});
-   });
-   pptx.defineSlideMaster({title:master,background:{color:'FFFFFF'},objects});
-   const entries=collect(board);
-   for(const entry of entries){
-    const tactical=['Animation défensive / système','Animation offensive / système','Spécificités / compléments du plan de jeu','Consignes tactiques'].includes(entry.label);
-    const fontSize=entry.value.length>320?19:24;
-    const chunks=textPages(entry.value,{fontSize,maxRows:fontSize===24?11:14});
-    chunks.forEach((text,index)=>{
-     const s=slide(entry.label+(chunks.length>1?' · '+(index+1)+' / '+chunks.length:''),scope,tactical?master:'CLUB_PHOTOS');
-     s.addText(text,{x:6.25,y:1.6,w:6.6,h:5.3,fontFace:'Calistoga',fontSize,color:clubBlue,margin:0,breakLine:false,fit:'shrink',valign:'top',paraSpaceAfterPt:0,lineSpacingMultiple:1.15});
-    });
-   }
-  }
-  return pptx;
+  return window.causerieLayout.build(pptx,snapshot,includeLinked,style,{textPages,pitchImage});
  }
  window.causerieExport={textPages,collect,capture,build};
  document.addEventListener('DOMContentLoaded',()=>{
@@ -157,7 +106,7 @@
   const dialog=el('dialog','causerie-dialog');dialog.id='causerie-dialog';dialog.setAttribute('aria-labelledby','causerie-heading');
   const heading=el('div','section-heading'),title=el('h2','','Préparer ma causerie pour Canva');title.id='causerie-heading';
   const close=el('button','icon-button','×');close.type='button';close.setAttribute('aria-label','Fermer la préparation Canva');heading.append(title,close);dialog.append(heading);
-  dialog.append(el('p','hint','Textes repris tels quels, sans résumé ni reformulation. Les textes sont modifiables ; les terrains sont des images fixes. Les animations restent disponibles sur le site.'));
+  dialog.append(el('p','hint','La présentation suit les rubriques de votre préparation. Les pages s’adaptent aux textes saisis, sans résumé ni reformulation. Les textes sont modifiables ; les terrains sont des images fixes. Les animations restent disponibles sur le site.'));
   const summary=el('p','causerie-summary');dialog.append(summary);
   const label=el('label','causerie-option'),include=el('input');include.type='checkbox';include.id='causerie-linked';label.append(include,document.createTextNode('Inclure la vue épurée liée à cette composition'));dialog.append(label);
   const details=el('details'),count=el('summary'),inventory=el('ul');count.textContent='Vérifier les informations reprises';details.append(count,inventory);dialog.append(details);
@@ -288,13 +237,15 @@
   document.body.append(dialog);
   function refresh(){
    inventory.replaceChildren();
-   const boards=[snapshot.board];if(include.checked&&snapshot.linked)boards.push(snapshot.linked);
-   for(const board of boards){
-    inventory.append(el('li','','Terrain · '+(board.title||board.team)));
-    for(const entry of collect(board))inventory.append(el('li','',entry.label+' · '+entry.value.length+' caractères'));
+   const plans=window.causerieLayout.analyze(snapshot,include.checked);
+   for(const plan of plans){
+    const fields=[plan.title,...plan.meta,...plan.repères,...plan.context,...plan.goals,...plan.tactics].filter(Boolean);
+    for(const entry of fields)inventory.append(el('li','',entry.label+' · '+entry.value.length+' caractères'));
+    if(plan.index)inventory.append(el('li','','Schéma de la vue épurée liée'));
    }
   }
   function open(check=true){
+   if(!window.causerieLayout?.analyze){notify('Actualisez le site pour charger la présentation, puis réessayez.');return null;}
    viewVersion++;
    stopConnectionPoll();results.replaceChildren();ownerAtOpen=currentUser();snapshot=capture();include.checked=!!snapshot.linked;label.hidden=!snapshot.linked;
    summary.textContent='Document ouvert : '+(snapshot.board.title||snapshot.board.team);
@@ -307,6 +258,7 @@
   window.causerieExport.createAndOpen=async()=>{
    if(busy||launching)return;
    const version=open(false);
+   if(version===null)return;
    if(!gateway){status.textContent='La création directe dans votre Canva attend l’activation du service par le responsable du site. Votre causerie peut déjà être vérifiée et téléchargée ici.';return;}
    const popup=reserveWindow();launching=true;
    status.textContent='Connexion au service Canva… Son réveil peut prendre une minute avec l’offre gratuite.';
