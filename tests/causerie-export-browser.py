@@ -1,5 +1,7 @@
 """Real PPTX download: exact texts, pagination, diagrams, frozen snapshot and local-only data."""
 import re
+import hashlib
+import struct
 import zipfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -23,7 +25,13 @@ def slide_texts(path):
         assert images, 'Missing pitch image'
         for name in images:
             assert archive.read(name).startswith(b'\x89PNG\r\n\x1a\n')
-        return slides, len(images)
+        pitch_images={hashlib.sha256(archive.read(name)).hexdigest() for name in images
+                      if struct.unpack('>II',archive.read(name)[16:24])==(1920,1080)}
+        assert pitch_images, 'Missing full landscape pitch'
+        theme=archive.read('ppt/theme/theme1.xml').decode()
+        assert 'Calistoga' in theme and 'Montserrat' in theme
+        assert any('214FA0' in archive.read(name).decode() for name in files)
+        return slides, len(pitch_images)
 
 with sync_playwright() as p:
     browser = p.chromium.launch(executable_path='/usr/bin/chromium', args=['--no-sandbox'])
@@ -116,5 +124,10 @@ with sync_playwright() as p:
     page.wait_for_function("document.querySelector('#causerie-status').textContent.startsWith('Export impossible')")
     assert 'Aucun fichier incomplet' in page.locator('#causerie-status').inner_text()
     assert not page.locator('#causerie-download').is_disabled()
+    page.get_by_role('button', name='Fermer la préparation Canva', exact=True).click()
+    page.evaluate("state.players[0].photo='';state.clubLogo='data:image/png;base64,invalid';document.querySelector('[data-causerie-export]').click()")
+    page.locator('#causerie-download').click()
+    page.wait_for_function("document.querySelector('#causerie-status').textContent.includes('logo de votre équipe')")
+    assert 'Aucun fichier incomplet' in page.locator('#causerie-status').inner_text()
     browser.close()
     print('PASS: exact PPTX text including long notes/whitespace/accents, pagination, pitch PNG, linked plan selection, frozen draft, mobile dialog and no uploads.')

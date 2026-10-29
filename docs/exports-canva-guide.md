@@ -1,5 +1,29 @@
 # Exporter vers Canva
 
+## Style de la présentation
+
+La mise en page s’inspire du PDF de référence « Copie de PROJET DE JEU » fourni
+par le coach : bleu `#214FA0` et blanc, couverture avec photo et logo, titres
+Montserrat gras italiques soulignés, texte Calistoga, chevrons et découpes
+photographiques obliques. Les photos de décoration sont celles déjà présentes
+sur le site ; aucune page, photo de joueur ou consigne n’est extraite du PDF
+pour être publiée comme nouveau contenu du site.
+Seul le logo du club a été extrait tel quel pour la couverture, dans
+`assets/causerie-logo.jpeg` ; un logo personnalisé du coach garde la priorité.
+
+La composition a sa page de terrain en paysage. Les pages d’animation défensive,
+offensive et de consignes placent le terrain du document à gauche du texte.
+Une vue épurée n’est affichée que si elle est effectivement liée et sélectionnée.
+Le schéma affiché reste celui du coach : aucune formation n’est inventée à partir
+de ses phrases. Les autres rubriques utilisent le panneau photographique.
+
+Les textes restent modifiables et sont paginés selon la largeur et les polices
+réelles, sans réécriture. Les passages longs continuent sur d’autres pages.
+Les masques réutilisent les images pour éviter de dupliquer les terrains sur
+chaque page. Un logo personnalisé valide prend la place du logo du club.
+L’apparence dans Canva après conversion doit encore être contrôlée ; le PDF
+de prévisualisation ne constitue pas une validation de l’import réel.
+
 ## Le cadre Mon Canva
 
 Sur la dernière page **Enregistrer & exporter**, **Créer et ouvrir ma causerie

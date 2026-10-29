@@ -1,7 +1,33 @@
-// Local presentation generation. No upload, OAuth token or account connection is implied.
+// Exact causerie generation and explicit Canva transfer through the configured gateway.
 (() => {
  'use strict';
- let libraryPromise=null;
+ let libraryPromise=null,stylePromise=null;
+ const clubBlue='214FA0';
+ function loadStyle(){
+  if(!stylePromise)stylePromise=(async()=>{
+   const fonts=[new FontFace('Calistoga','url(assets/fonts/calistoga/Calistoga-Regular.ttf)'),new FontFace('Montserrat','url(assets/fonts/montserrat/Montserrat-Italic.ttf)',{style:'italic',weight:'100 900'})];
+   await Promise.all(fonts.map(async font=>document.fonts.add(await font.load())));
+   const load=async src=>{const image=new Image();image.src=src;await image.decode();return image;};
+   const [photo,second,logo]=await Promise.all(['assets/photos/celebration-jeunes.jpg','assets/photos/groupe-piste.jpg','assets/causerie-logo.jpeg'].map(load));
+   const canvas=document.createElement('canvas');canvas.width=936;canvas.height=1125;const ctx=canvas.getContext('2d');
+   ctx.fillStyle='#fff';ctx.fillRect(0,0,936,1125);ctx.fillStyle='#'+clubBlue;ctx.beginPath();ctx.moveTo(0,188);ctx.lineTo(936,1125);ctx.lineTo(0,1125);ctx.fill();
+   function cut(image,points,box){
+    ctx.save();ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.clip();
+    const [x,y,w,h]=box,scale=Math.max(w/image.naturalWidth,h/image.naturalHeight);ctx.globalAlpha=.78;
+    ctx.drawImage(image,x+(w-image.naturalWidth*scale)/2,y+(h-image.naturalHeight*scale)/2,image.naturalWidth*scale,image.naturalHeight*scale);ctx.restore();
+   }
+   cut(photo,[[275,0],[570,0],[375,830],[80,830]],[80,0,490,830]);
+   cut(second,[[550,295],[840,295],[650,1100],[360,1100]],[360,295,480,805]);
+   const toData=image=>{const c=document.createElement('canvas');c.width=image.naturalWidth;c.height=image.naturalHeight;c.getContext('2d').drawImage(image,0,0);return c.toDataURL('image/png');};
+   const decor=canvas.toDataURL('image/png');
+   canvas.width=930;canvas.height=1500;const crop=canvas.getContext('2d'),scale=Math.max(930/photo.naturalWidth,1500/photo.naturalHeight);
+   crop.drawImage(photo,(930-photo.naturalWidth*scale)/2,(1500-photo.naturalHeight*scale)/2,photo.naturalWidth*scale,photo.naturalHeight*scale);
+   const cover=canvas.toDataURL('image/png');canvas.width=480;canvas.height=160;const arrows=canvas.getContext('2d');arrows.fillStyle='#'+clubBlue;
+   for(let x=0;x<360;x+=120){arrows.beginPath();[[x,0],[x+70,0],[x+150,80],[x+70,160],[x,160],[x+80,80]].forEach(([px,py],i)=>i?arrows.lineTo(px,py):arrows.moveTo(px,py));arrows.closePath();arrows.fill();}
+   return {decor,photo:cover,logo:toData(logo),logoWidth:logo.naturalWidth,logoHeight:logo.naturalHeight,chevrons:canvas.toDataURL('image/png')};
+  })().catch(()=>{stylePromise=null;throw Error('Impossible de charger la charte de présentation. Vérifiez les polices et les images du site.');});
+  return stylePromise;
+ }
  function loadLibrary(){
   if(window.PptxGenJS)return Promise.resolve();
   if(!libraryPromise)libraryPromise=new Promise((resolve,reject)=>{
@@ -13,13 +39,13 @@
   return libraryPromise;
  }
  // Split without trimming, summarizing or discarding characters, including blank lines.
- function textPages(value){
+ function textPages(value,{fontSize=19,width=6.6,maxRows=14}={}){
   if(!value)return [];
-  const ctx=document.createElement('canvas').getContext('2d');ctx.font='20pt Arial';
+  const ctx=document.createElement('canvas').getContext('2d');ctx.font=fontSize+'pt Calistoga';
   const pages=[];let chunk='',line='',rows=1;
   for(const char of value){
-   const newline=char==='\n',wrap=!newline&&ctx.measureText(line+char).width>1000;
-   if((newline||wrap)&&rows===12){
+   const newline=char==='\n',wrap=!newline&&ctx.measureText(line+char).width>width*96;
+   if((newline||wrap)&&rows===maxRows){
     // Prefer a word boundary between slides; retain the separator verbatim.
     const tail=!newline&&chunk.match(/[ \t]+([^\s]*)$/),cut=tail?chunk.length-tail[1].length:chunk.length;
     pages.push(chunk.slice(0,cut));chunk=chunk.slice(cut);line=chunk;rows=1;
@@ -46,7 +72,7 @@
   add('Consignes tactiques',board.notes);
   add('Effectif',board.players.map(player=>'N° '+player.number+' · '+(player.role==='sub'?'Impacteur / Finisseur':'Titulaire')+' · '+player.name).join('\n'));
   if(board.opponents){
-   add('Équipe adverse',board.opponents.name);add('Formation adverse',board.opponents.formation);
+   group('Équipe adverse',[['name','Équipe'],['formation','Formation']],board.opponents);
    add('Effectif adverse',board.opponents.players.map(player=>'N° '+player.number+(player.name?' · '+player.name:'')).join('\n'));
   }
   return entries;
@@ -59,37 +85,64 @@
  async function pitchImage(board,landscape){
   const options={bench:board.benchVisible!==false,opponents:!!board.opponents?.visible,arrows:true,lanes:!!board.lanes};
   const images=await compositionImages(board,options),canvas=document.createElement('canvas');
-  canvas.width=(landscape?840:680)*2;canvas.height=(landscape?680:840)*2;
+  canvas.width=1920;canvas.height=1080;
   compositionPitch(canvas.getContext('2d'),{x:0,y:0,w:canvas.width,h:canvas.height},landscape,board,images,options);
   return {data:canvas.toDataURL('image/png'),width:canvas.width,height:canvas.height};
  }
  async function build(snapshot,includeLinked){
-  await loadLibrary();
+  const [,style]=await Promise.all([loadLibrary(),loadStyle()]);
   const pptx=new window.PptxGenJS();pptx.layout='LAYOUT_WIDE';pptx.author='Le Vestiaire';
   pptx.subject='Causerie du coach';pptx.title=snapshot.board.title||snapshot.board.team;pptx.lang='fr-FR';
-  pptx.theme={headFontFace:'Arial',bodyFontFace:'Arial',lang:'fr-FR'};
+  pptx.theme={headFontFace:'Montserrat',bodyFontFace:'Calistoga',lang:'fr-FR'};
+  const shapes=pptx.ShapeType;
+  function arrows(){return [{image:{data:style.chevrons,x:4.1,y:.36,w:2.2,h:.7}}];}
+  const photoObjects=[{image:{data:style.decor,x:0,y:0,w:6.24,h:7.5}},...arrows()];
+  pptx.defineSlideMaster({title:'CLUB_PHOTOS',background:{color:'FFFFFF'},objects:photoObjects});
   let number=0;
-  function slide(title,scope){
-   const s=pptx.addSlide();s.background={color:'FFFFFF'};
-   s.addShape(pptx.ShapeType.rect,{x:.55,y:.48,w:.48,h:.06,line:{color:'2855A2'},fill:{color:'2855A2'}});
-   s.addText(title,{x:.55,y:.7,w:12.2,h:.6,fontFace:'Arial',fontSize:24,bold:true,color:'203958',margin:0,fit:'shrink',breakLine:false});
-   s.addText(scope,{x:.55,y:7.05,w:11.4,h:.2,fontSize:10,color:'526780',margin:0,fit:'shrink'});
-   s.addText(String(++number),{x:12.1,y:7.05,w:.6,h:.2,fontSize:10,color:'526780',align:'right',margin:0});
+  function slide(title,scope,master){
+   const s=pptx.addSlide({masterName:master});
+   s.addText(title,{x:6.25,y:.19,w:6.75,h:1,fontFace:'Montserrat',fontSize:title.length>34?24:29,bold:true,italic:true,underline:true,color:clubBlue,align:'center',margin:0,fit:'shrink',breakLine:false});
+   if(master==='CLUB_PHOTOS')for(const [i,color] of ['1F21C0','5C5EDD','BEBDF4'].entries())s.addShape(shapes.rect,{x:7.45+i*.72,y:1.17,w:.74,h:.08,line:{transparency:100},fill:{color}});
+   s.addText(scope,{x:6.25,y:7.15,w:5.9,h:.17,fontSize:9,color:'526780',margin:0,fit:'shrink'});
+   s.addText(String(++number),{x:12.45,y:7.15,w:.5,h:.17,fontSize:9,color:clubBlue,align:'right',margin:0});
    return s;
   }
   const boards=[snapshot.board];if(includeLinked&&snapshot.linked)boards.push(snapshot.linked);
-  for(const board of boards){
+  const diagrams=await Promise.all(boards.map(board=>pitchImage(board,true)));
+  for(const [boardIndex,board] of boards.entries()){
    const scope=board.boardKind==='plan'?'Vue épurée liée':'Composition & préparation du match';
-   const image=await pitchImage(board,snapshot.landscape);
-   const cover=slide(board.title||board.team,scope);
-   const ratio=image.width/image.height,h=Math.min(5.25,12.1/ratio),w=h*ratio;
-   cover.addImage({data:image.data,x:(13.333333-w)/2,y:1.5,w,h});
+   const image=diagrams[boardIndex],cover=pptx.addSlide();cover.background={color:'FFFFFF'};
+   cover.addImage({data:style.photo,x:.4,y:0,w:4.65,h:7.5});
+   cover.addShape(shapes.rect,{x:0,y:0,w:.4,h:7.5,line:{transparency:100},fill:{color:clubBlue}});
+   cover.addShape(shapes.rect,{x:5.05,y:0,w:1,h:7.5,line:{transparency:100},fill:{color:clubBlue}});
+   cover.addShape(shapes.rect,{x:5.8,y:1.9,w:7.533333,h:3.75,line:{transparency:100},fill:{color:clubBlue}});
+   const logo=board.clubLogo||style.logo;
+   let logoWidth=style.logoWidth,logoHeight=style.logoHeight;
+   if(board.clubLogo){const check=new Image();check.src=logo;try{await check.decode();logoWidth=check.naturalWidth;logoHeight=check.naturalHeight;}catch{throw Error('Le logo de votre équipe ne peut pas être lu. Vérifiez-le avant de réessayer.');}}
+   const logoScale=Math.min(1.8/logoWidth,1.65/logoHeight),lw=logoWidth*logoScale,lh=logoHeight*logoScale;
+   cover.addImage({data:logo,x:11.35+(1.8-lw)/2,y:.12+(1.65-lh)/2,w:lw,h:lh});
+   cover.addText(board.title||board.team,{x:6.35,y:2.45,w:6.45,h:1.65,fontFace:'Calistoga',fontSize:30,color:'FFFFFF',align:'center',valign:'mid',margin:0,fit:'shrink'});
+   const match=board.matchPreparation;
+   const subtitle=[match?.date,match?.match].filter(Boolean).join('\n');
+   if(subtitle)cover.addText(subtitle,{x:6.35,y:4.2,w:6.45,h:1.05,fontSize:18,color:'FFFFFF',align:'center',margin:0,fit:'shrink'});
+   number++;
+   const field=pptx.addSlide();field.addImage({data:image.data,x:0,y:0,w:13.333333,h:7.5});number++;
+   const master='CLUB_TACTICS_'+boardIndex,objects=[{rect:{x:0,y:0,w:5.9,h:7.5,line:{transparency:100},fill:{color:clubBlue}}},...arrows()];
+   const side=boardIndex===0&&boards.length>1?diagrams:[image];
+   side.forEach((diagram,index)=>{
+    const y=side.length>1?.6+index*3.45:1.65;
+    objects.push({image:{data:diagram.data,x:.24,y,w:5.42,h:3.05}});
+    objects.push({text:{text:side.length>1?(index===0?'Terrain de la composition':'Vue épurée liée'):'Terrain du document',options:{x:.3,y:y+3.08,w:5.3,h:.2,fontFace:'Montserrat',italic:true,fontSize:10,color:'FFFFFF',align:'center',margin:0}}});
+   });
+   pptx.defineSlideMaster({title:master,background:{color:'FFFFFF'},objects});
    const entries=collect(board);
    for(const entry of entries){
-    const chunks=textPages(entry.value);
+    const tactical=['Animation défensive / système','Animation offensive / système','Spécificités / compléments du plan de jeu','Consignes tactiques'].includes(entry.label);
+    const fontSize=entry.value.length>320?19:24;
+    const chunks=textPages(entry.value,{fontSize,maxRows:fontSize===24?11:14});
     chunks.forEach((text,index)=>{
-     const s=slide(entry.label+(chunks.length>1?' · '+(index+1)+' / '+chunks.length:''),scope);
-     s.addText(text,{x:.65,y:1.6,w:12,h:5.1,fontSize:20,color:'203958',margin:0,breakLine:false,fit:'shrink',valign:'top',paraSpaceAfterPt:0});
+     const s=slide(entry.label+(chunks.length>1?' · '+(index+1)+' / '+chunks.length:''),scope,tactical?master:'CLUB_PHOTOS');
+     s.addText(text,{x:6.25,y:1.6,w:6.6,h:5.3,fontFace:'Calistoga',fontSize,color:clubBlue,margin:0,breakLine:false,fit:'shrink',valign:'top',paraSpaceAfterPt:0,lineSpacingMultiple:1.15});
     });
    }
   }
