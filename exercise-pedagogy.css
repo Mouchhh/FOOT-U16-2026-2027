@@ -9,3 +9,5 @@
 .exercise-correction{border-top:1px solid #e4ebf2;padding-top:8px}
 @media(max-width:700px){.exercise-essentials{grid-template-columns:minmax(0,1fr);gap:8px}.exercise-essentials>section{padding:12px}.exercise-essentials p{font-size:14px}}
 @media print{.exercise-essentials{display:block}.exercise-essentials>section{break-inside:avoid;padding:8px;margin-bottom:8px}.exercise-essentials p{font-size:10pt}.exercise-essentials h4{font-size:11pt}.exercise-invariant{break-inside:avoid}}
+.bible-bmf-filter{display:flex;flex-direction:column;gap:7px;min-width:0;font-size:12px;font-weight:650;color:#31516e}.bible-bmf-filter select{width:100%;min-width:0;font-size:14px}.exercise-classification{color:#255d86;font-size:12px;line-height:1.6;background:#edf5fb;border-radius:7px;padding:8px 10px;margin:10px 0}.bible-main-filters{align-items:end}.bible-search-options .bible-phase-shortcuts{margin-top:12px}.bible-card .exercise-classification{font-size:11px}
+@media(max-width:700px){.bible-bmf-filter select,#training-bmf-category{font-size:16px}}
