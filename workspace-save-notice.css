@@ -1,0 +1,5 @@
+.task-navigation .workspace-save-trigger{font-size:11px!important;padding:8px 10px!important;min-height:38px;border:1px solid #cbd9e8;background:#fff;color:#476482;white-space:normal}
+.task-navigation .workspace-save-trigger[data-state="error"]{border-color:#dca59d;color:#8b3426;background:#fff7f4}
+.workspace-save-dialog p{line-height:1.65}.workspace-save-state{font-weight:700;color:#294f7d}
+@media(max-width:650px){.task-navigation .workspace-save-trigger{min-height:44px;flex:1 1 auto;text-align:center}.workspace-save-dialog .workflow-actions button{width:100%;min-height:44px}}
+@media print{.workspace-save-trigger,.workspace-save-dialog{display:none!important}}

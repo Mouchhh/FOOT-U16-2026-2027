@@ -20,8 +20,12 @@ with sync_playwright() as p:
  page.evaluate("document.querySelector('#view-home').click()");assert page.locator('#home-work-quick .completion-card').count()==3
  assert page.locator('#home-work-quick').get_by_text('Prochain rendez-vous',exact=True).is_visible()
  page.set_viewport_size({'width':1366,'height':768});page.evaluate("document.querySelector('#view-home').click();workspaceFlows.home.go(0)");page.wait_for_timeout(150)
- assert page.evaluate("[...document.querySelectorAll('#home-work-quick button')].every(e=>e.getBoundingClientRect().bottom<=document.querySelector('#home-page-0').getBoundingClientRect().bottom)")
+ # The dashboard is a scrollable page: every action must be reachable, not simultaneous.
+ for button in page.locator('#home-work-quick button').all():
+  button.scroll_into_view_if_needed()
+  assert button.evaluate("e=>{const r=e.getBoundingClientRect(),p=document.querySelector('#home-page-0').getBoundingClientRect();return r.top>=p.top-1&&r.bottom<=p.bottom+1}")
  page.evaluate("document.querySelector('#view-reports').click();reportTab='general';reportQuickDetailed=false;renderReportContent()");page.wait_for_timeout(150)
- assert page.locator('#report-quick-panel .primary').bounding_box()['y']+page.locator('#report-quick-panel .primary').bounding_box()['height']<700
+ action=page.locator('#report-quick-panel .primary');action.scroll_into_view_if_needed()
+ assert action.evaluate("e=>{const r=e.getBoundingClientRect(),p=document.querySelector('#report-content').getBoundingClientRect();return r.top>=p.top-1&&r.bottom<=p.bottom+1}")
  assert not errors,errors
  b.close();print('PASS completion stages 1–3: recovery after reload, quota failure without overwrite, restoration, coach isolation and report drafts.')
