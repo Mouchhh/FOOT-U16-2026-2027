@@ -1,0 +1,57 @@
+@media screen{
+ .comfort-board-controls{min-width:0}
+ .comfort-board-controls>summary{padding:10px 12px;min-height:44px;box-sizing:border-box;font-size:13px;font-weight:650;color:#345777;cursor:pointer;border-bottom:1px solid #dce5ee;background:#f5f8fc}
+ .comfort-board-controls .tactic-tabs{display:flex;flex-direction:column;padding:8px;gap:5px}
+ .comfort-board-controls .board-toolbar{border-bottom:0}
+ .comfort-plan-help{min-width:0;font-size:12px;color:#45647f}
+ .comfort-plan-help>summary{cursor:pointer;padding:8px}
+ .comfort-plan-help>div{padding:10px;font-size:12px}
+ .comfort-plan-help p{line-height:1.6}
+ .task-navigation #game-plan-context:not([hidden]){display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:10px 12px;margin:0 0 10px}
+ .task-navigation #game-plan-context>label{flex:1;min-width:180px;margin:0;font-size:12px}
+ .task-navigation #game-plan-context input{margin-top:4px;padding:8px 10px;min-height:38px}
+ .task-navigation #game-plan-context>.report-actions{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+ .task-navigation #game-plan-context>.report-actions button{padding:8px 10px;font-size:11px}
+ #training-space #training-search{height:44px;min-height:44px;align-self:start;margin:0;padding:10px 12px;font-size:14px}
+ #training-space .bible-main-filters{align-self:start;margin:0;gap:10px}
+ #training-space .bible-bmf-filter select{min-height:44px}
+ #training-space .bible-search-options{align-self:start}
+ dialog{scroll-padding-block:18px}
+ dialog form{min-width:0}
+ @media(min-width:1000px) and (min-height:650px){
+  .task-navigation .task-section-navigation{padding:6px 0;gap:6px}
+  .task-navigation .app-navigation>button{padding:9px 15px!important;min-height:42px}
+  .task-navigation .task-section-tab,.task-navigation .workspace-tools-trigger{padding:8px 12px!important;min-height:38px}
+  .task-navigation .flow-footer,.task-navigation .training-step-footer{padding-block:6px;min-height:46px;flex-shrink:0}
+  .terrain-flow #terrain-page-0>.terrain-team-section,.terrain-flow #terrain-page-0 .workspace{height:100%;min-height:0}
+  .terrain-flow .board{height:100%;min-height:0;display:grid;grid-template-columns:166px minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;overflow:hidden}
+  .terrain-flow .comfort-board-controls{grid-column:1;grid-row:1;overflow:auto;max-height:100%;scrollbar-width:thin;overscroll-behavior:contain}
+  .terrain-flow .comfort-board-controls .board-toolbar{display:block;padding:10px}
+  .terrain-flow .comfort-board-controls .board-toolbar>div:first-child{display:block}
+  .terrain-flow .comfort-board-controls .board-toolbar select{width:100%}
+  .terrain-flow .comfort-board-controls .tactic-tool-panel{padding:8px}
+  .terrain-flow .board>#pitch{grid-column:2;grid-row:1;align-self:start;max-width:100%}
+  .terrain-flow .board>.board-footer{grid-column:1/-1;grid-row:2}
+  .terrain-flow #terrain-roster-drawer{height:100%;max-height:100%;overflow:auto}
+  #training-space .training-drawer-layout.catalogue-open>.training-catalogue{padding:16px}
+  #training-space .training-progress button{padding:8px;font-size:12px}
+  #training-space .bible-card-picture{height:clamp(125px,22dvh,220px)}
+ }
+ @media(max-width:999px),(max-height:649px){
+  .comfort-board-controls{border-bottom:1px solid #dce5ee}
+  .comfort-board-controls .board-toolbar{padding:12px}
+  .comfort-board-controls .tactic-tabs{flex-direction:row;flex-wrap:wrap}
+  .task-navigation #game-plan-context:not([hidden]){align-items:stretch}
+  .task-navigation #game-plan-context>.comfort-plan-help{flex-basis:100%}
+  .task-navigation #game-plan-context>.report-actions{width:100%}
+ }
+ @media(max-width:650px){
+  #training-space #training-search{font-size:16px}
+  .task-navigation #game-plan-context input{font-size:16px}
+  .task-navigation #game-plan-context>.report-actions button{min-height:44px;flex:1 1 120px}
+  .task-navigation .flow-footer,.task-navigation .training-step-footer{padding-bottom:max(8px,env(safe-area-inset-bottom));gap:8px}
+  .task-navigation .flow-page,.task-navigation .training-step,#report-content{scroll-padding-bottom:90px}
+  dialog{max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);box-sizing:border-box;overflow:auto}
+ }
+}
+@media print{.comfort-board-controls>summary{display:none}.comfort-board-controls{display:contents}}

@@ -1,0 +1,7 @@
+# Confort des espaces de travail
+
+Les commandes du tableau Match sont regroupées dans un bloc repliable : ouvert sur ordinateur, fermé par défaut sur téléphone et écran de faible hauteur. Les mêmes éléments, identifiants et événements sont conservés. Les repères explicatifs de la tactique sont repliables ; le nom, la synchronisation, l’enregistrement et l’export restent accessibles.
+
+Sur ordinateur, le terrain est dimensionné selon la hauteur réellement disponible, sans largeur minimale qui coupe sa partie basse. Les outils et l’effectif défilent indépendamment. Le choix portrait/paysage reste disponible. Dans la Bible, le champ de recherche garde une hauteur normale au lieu de s’étirer sur toute la rangée des filtres. Sur téléphone, les fenêtres restent contenues dans l’écran et les formulaires prévoient de la marge pour les commandes de bas de page.
+
+Validation automatisée : `tests/workspace-comfort-browser.py` couvre 1280×720, 1366×768, 1920×1080, 390×844, 320×740 et 844×390 : terrain entier sur ordinateur, accès aux outils repliés, recherche compacte, absence de débordement horizontal des espaces principaux et conservation de la causerie après navigation. Les suites navigation, parcours et éditeur paysage vérifient aussi les fonctions conservées. Vérification visuelle locale de Match et de la Bible sur portable et téléphone. Ces contrôles Chromium ne remplacent pas un essai sur les appareils physiques des éducateurs.

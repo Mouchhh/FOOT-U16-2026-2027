@@ -32,9 +32,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Measure controls themselves, never scrollHeight minus the current pitch size:
   // grid columns can make that value grow each time the pitch is resized.
   const team=pitch.id==='pitch',footer=team?container.querySelector('.board-footer'):null;
-  const chrome=team?(footer?.offsetHeight||0)+24:28;
-  const ratio=document.body.classList.contains('landscape-mode')?840/680:680/840,available=Math.max(380,page.clientHeight-chrome),column=Math.max(280,container.clientWidth-(team?210:280));
-  const width=Math.floor(Math.min(column,Math.max(380,available*ratio)));if(pitch.style.width!==width+'px')pitch.style.width=width+'px';
+  const ratio=document.body.classList.contains('landscape-mode')?840/680:680/840;
+  const footerHeight=team?(footer?.offsetHeight||0):28;
+  const fittedHeight=Math.max(100,page.clientHeight-footerHeight-20),fittedColumn=Math.max(100,container.clientWidth-(team?186:280));
+  const width=Math.floor(Math.min(fittedColumn,fittedHeight*ratio));if(pitch.style.width!==width+'px')pitch.style.width=width+'px';
  }};
  const boardResize=new ResizeObserver(measure);boardResize.observe(workspace.querySelector('.board'));boardResize.observe(simple);
  countsPlaceholder: {}
