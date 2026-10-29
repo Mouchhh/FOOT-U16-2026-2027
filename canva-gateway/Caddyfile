@@ -1,0 +1,3 @@
+{$CANVA_DOMAIN} {
+  reverse_proxy gateway:3001
+}

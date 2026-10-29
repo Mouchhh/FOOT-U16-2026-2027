@@ -1,0 +1,28 @@
+# Optional Render Blueprint: one free native Node service, no database or paid disk.
+# Review the plan shown in Render before deploying; no deployment is performed here.
+services:
+  - type: web
+    name: vestiaire-canva
+    runtime: node
+    plan: free
+    rootDir: canva-gateway
+    buildCommand: node --check server.mjs
+    startCommand: node server.mjs
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: DATA_DIR
+        value: /tmp/vestiaire-canva
+      - key: ALLOWED_ORIGINS
+        value: https://mouchhh.github.io
+      - key: SUPABASE_URL
+        value: https://uesbqljrcaugwcbzijcj.supabase.co
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: CANVA_CLIENT_ID
+        sync: false
+      - key: CANVA_CLIENT_SECRET
+        sync: false
+      - key: TOKEN_ENCRYPTION_KEY
+        sync: false

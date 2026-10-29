@@ -1,0 +1,36 @@
+services:
+  gateway:
+    build: .
+    restart: unless-stopped
+    init: true
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+      PORT: 3001
+    volumes:
+      - canva-data:/data
+    ports:
+      - "127.0.0.1:3001:3001"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+  caddy:
+    image: caddy:2
+    profiles: [https]
+    restart: unless-stopped
+    environment:
+      CANVA_DOMAIN: ${CANVA_DOMAIN:?Renseigner CANVA_DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - gateway
+volumes:
+  canva-data:
+  caddy-data:
+  caddy-config:
