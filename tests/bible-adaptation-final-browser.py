@@ -5,6 +5,8 @@ with sync_playwright() as p:
  page.on('pageerror',lambda e:errors.append(str(e)));page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("typeof bibleAdaptationAlternatives==='function'")
  page.evaluate("()=>{Object.assign(currentTraining,{players:40,keepers:0,category:'U17',level:'developing',space:'full'});syncTrainingForm();document.querySelector('#view-training').click();trainingWizard.openCatalogue();openBibleSheet(trainingExercises.find(e=>e.id==='rondo'));}")
  sheet=page.locator('#bible-sheet-dialog');root=sheet.locator('.bible-detail')
+ # Request a single game explicitly; new previews can already suggest valid workshops.
+ root.locator('.bible-sequence-settings>summary').click();root.get_by_label('Organisation de la séquence',exact=True).select_option('single');root.get_by_role('button',name='Appliquer à toutes les séquences',exact=True).click();root.locator('.bible-sequence-settings>summary').click()
  assert root.evaluate('e=>e.bibleContext.plan.groups.length===1&&!e.bibleContext.fits')
  count=page.evaluate('currentTraining.blocks.length');sheet.get_by_role('button',name='+ Ajouter à la séance',exact=True).click();assert page.evaluate('currentTraining.blocks.length')==count
  sheet.get_by_role('button',name='Voir les adaptations possibles',exact=True).click()

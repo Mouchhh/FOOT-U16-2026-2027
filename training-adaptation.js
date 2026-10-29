@@ -161,14 +161,21 @@ function bibleLayout(groups,available,allowReduce){
  }
  return best;
 }
+// Répartition explicite : joueurs gardiens inclus, sans équilibrage silencieux.
+function bibleGroupRosterValid(roster){
+ return Array.isArray(roster)&&roster.length>=1&&roster.length<=40&&Array.from(roster).every(g=>g&&typeof g==='object'&&!Array.isArray(g)&&Object.keys(g).every(k=>['players','keepers'].includes(k))&&Number.isInteger(g.players)&&g.players>=2&&g.players<=80&&Number.isInteger(g.keepers)&&g.keepers>=0&&g.keepers<=Math.min(12,g.players))&&roster.reduce((n,g)=>n+g.players,0)<=80&&roster.reduce((n,g)=>n+g.keepers,0)<=12;
+}
 function biblePlan(exercise,session={},options={}){
  const knowledge=bibleExerciseKnowledge(exercise),format=bibleFormat(exercise,knowledge,session),template=knowledge.template||'possession',learning=bibleExerciseLearning(exercise,session);
  const players=bibleInteger(session.players,8,2,80),keepers=bibleInteger(session.keepers,0,0,Math.min(12,players));
  const available=bibleAvailable(session),warnings=[];
+ const supplied=options.groupRoster,rosterError=supplied!==undefined&&(!bibleGroupRosterValid(supplied)||supplied.reduce((n,g)=>n+g.players,0)!==players||supplied.reduce((n,g)=>n+g.keepers,0)!==keepers);
+ const roster=supplied!==undefined&&!rosterError?supplied:null;
+ if(rosterError)warnings.push('Répartition des groupes invalide : vérifier les joueurs et les gardiens affectés.');
  // Le jeu unique ne divise jamais le groupe automatiquement ; il reste soumis
  // aux rôles et aux limites du format avant d’être déclaré compatible.
- const organisation=['single','auto','stations'].includes(options.organisation)?options.organisation:'auto';
- const requestedGroups=organisation==='single'?1:options.organisation==='auto'?null:Number.isInteger(options.groups)?options.groups:organisation==='stations'?1:null;
+ const organisation=roster?'stations':['single','auto','stations'].includes(options.organisation)?options.organisation:'auto';
+ const requestedGroups=roster?roster.length:organisation==='single'?1:options.organisation==='auto'?null:Number.isInteger(options.groups)?options.groups:organisation==='stations'?1:null;
  const maxGroups=Math.min(40,Math.floor(players/2));
  let counts=requestedGroups!==null?[Math.max(1,Math.min(maxGroups,requestedGroups))]:Array.from({length:maxGroups},(_,i)=>i+1);
  if(requestedGroups===null&&format.requiresKeeper)counts=keepers?counts.filter(count=>count<=keepers):[1];
@@ -177,7 +184,7 @@ function biblePlan(exercise,session={},options={}){
  else if(requestedGroups===null)counts=[Math.max(1,Math.min(maxGroups,format.requiresKeeper?Math.max(1,keepers):maxGroups,Math.round(players/format.ideal)))];
  let chosen=null;
  for(const count of counts){
-  const distributed=bibleDistribute(players,keepers,count);
+  const distributed=roster?roster.map(g=>({...g})):bibleDistribute(players,keepers,count);
   const groups=distributed.map((group,i)=>{
    const rolePlan=bibleRolePlan(exercise,format,group,template,learning.profile),dims=bibleDimensions(exercise,session,group,template,options);
    const opposition=template==='circuit'||format.opposition==='none'?rolePlan.teams.blue>0:rolePlan.teams.blue>0&&rolePlan.teams.red>0;
@@ -239,7 +246,7 @@ function biblePlan(exercise,session={},options={}){
  if(template==='keeper'&&groups.some(g=>g.activeKeepers===0))warnings.push('Chaque atelier de travail spécifique gardien nécessite un gardien actif : regrouper les joueurs, faire tourner les ateliers ou choisir un autre thème.');
  const totalMaterial={};groups.forEach(g=>{for(const [key,value] of Object.entries(g.material))if(Number.isFinite(value))totalMaterial[key]=(totalMaterial[key]||0)+value;});
  const oppositionFits=template==='circuit'||format.opposition==='none'||groups.every(g=>g.teams.blue>0&&g.teams.red>0);
- return {groups,footprint:layout.footprint,available,fits:layout.fits&&oppositionFits&&groups.every(g=>g.fits),surfaceFits:layout.fits,pedagogyFits:oppositionFits&&groups.every(g=>g.pedagogyFits),warnings,totalMaterial,totalPlayers:players,totalKeepers:keepers,organisation,knowledge,format,template,alternative:layout.fits?'':'Installer moins d’ateliers simultanés et organiser des rotations actives, ou choisir une fiche demandant moins de surface.'};
+ return {groups,footprint:layout.footprint,available,fits:!rosterError&&layout.fits&&oppositionFits&&groups.every(g=>g.fits),surfaceFits:layout.fits,pedagogyFits:oppositionFits&&groups.every(g=>g.pedagogyFits),warnings,totalMaterial,totalPlayers:players,totalKeepers:keepers,organisation,knowledge,format,template,alternative:layout.fits?'':'Installer moins d’ateliers simultanés et organiser des rotations actives, ou choisir une fiche demandant moins de surface.'};
 }
 // Explicit alternatives: never change the coach's current sequence automatically.
 function bibleAdaptationAlternatives(exercise,session={}){
@@ -272,8 +279,11 @@ function bibleSequenceContext(exercise,session={},variant={},index=0){
  const totalPlayers=Number.isInteger(session.players)?session.players:null,totalKeepers=Number.isInteger(session.keepers)?session.keepers:null;
  if(totalPlayers===null||totalPlayers<2||totalPlayers>80)errors.push('L’effectif présent doit comprendre entre 2 et 80 joueurs.');
  if(totalKeepers===null||totalKeepers<0||totalKeepers>Math.min(12,(totalPlayers??2)-2))errors.push('Le nombre de gardiens présents est invalide ; conserver au moins deux joueurs de champ.');
- const activePlayers=setting.players===undefined?totalPlayers:Number.isInteger(setting.players)?setting.players:null;
- const activeKeepers=setting.keepers===undefined?totalKeepers:Number.isInteger(setting.keepers)?setting.keepers:null;
+ const roster=setting.groupRoster,hasRoster=roster!==undefined,validRoster=hasRoster&&bibleGroupRosterValid(roster);
+ if(hasRoster&&!validRoster)errors.push('Renseigner de 1 à 40 groupes : au moins 2 joueurs par groupe et des gardiens compris dans cet effectif.');
+ const activePlayers=validRoster?roster.reduce((n,g)=>n+g.players,0):setting.players===undefined?totalPlayers:Number.isInteger(setting.players)?setting.players:null;
+ const activeKeepers=validRoster?roster.reduce((n,g)=>n+g.keepers,0):setting.keepers===undefined?totalKeepers:Number.isInteger(setting.keepers)?setting.keepers:null;
+ if(validRoster&&((setting.players!==undefined&&setting.players!==activePlayers)||(setting.keepers!==undefined&&setting.keepers!==activeKeepers)||(setting.groups!==undefined&&setting.groups!==roster.length)||(setting.organisation!==undefined&&setting.organisation!=='stations')))errors.push('Les totaux ou l’organisation ne correspondent pas aux groupes renseignés.');
  if(activePlayers===null||activePlayers<2||activePlayers>80)errors.push('Cette séquence doit réunir entre 2 et 80 joueurs, gardiens compris.');
  else if(totalPlayers!==null&&activePlayers>totalPlayers)errors.push('Cette séquence demande '+activePlayers+' joueurs alors que '+totalPlayers+' sont présents.');
  if(activeKeepers===null||activeKeepers<0||activeKeepers>12)errors.push('Le nombre de gardiens de cette séquence doit être compris entre 0 et 12.');
@@ -287,6 +297,7 @@ function bibleSequenceContext(exercise,session={},variant={},index=0){
  for(const [key,label,max] of [['width','La largeur',105],['length','La longueur',120]])if(options[key]!==undefined&&(!Number.isInteger(options[key])||options[key]<6||options[key]>max))errors.push(label+' de l’exercice doit être comprise entre 6 et '+max+' mètres.');
  if(options.organisation!==undefined&&!['single','auto','stations'].includes(options.organisation))errors.push('Choisir un jeu unique, une adaptation automatique ou plusieurs ateliers.');
  if(options.groups!==undefined&&(!Number.isInteger(options.groups)||options.groups<1||options.groups>40))errors.push('Choisir entre 1 et 40 ateliers simultanés.');
+ if(validRoster)Object.assign(options,{groupRoster:roster.map(g=>({...g})),groups:roster.length,organisation:'stations'});
  const effectiveSession={...session,players:activePlayers,keepers:activeKeepers};
  const offPlayers=totalPlayers!==null&&activePlayers!==null?totalPlayers-activePlayers:null,offKeepers=totalKeepers!==null&&activeKeepers!==null?totalKeepers-activeKeepers:null;
  const offFieldPlayers=offPlayers!==null&&offKeepers!==null?offPlayers-offKeepers:null;
