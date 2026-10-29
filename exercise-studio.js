@@ -11,9 +11,9 @@ document.addEventListener('DOMContentLoaded',()=>{
  const hint=editor.querySelector('p.hint');hint.textContent='Choisissez un accessoire, puis placez-le sur le terrain. Sélectionnez-le pour ajuster son orientation.';
  const palette=$('exercise-palette'),canvas=$('exercise-board-canvas'),settings=canvas.nextElementSibling,rotation=editor.querySelector('.exercise-rotation-presets'),objectActions=$('exercise-delete').parentElement,animation=$('exercise-frame').closest('.exercise-board-actions');
  animation.classList.add('studio-animation');
- const layout=el('div','studio-board-layout'),tools=el('aside','studio-tools'),stage=el('div','studio-stage'),inspector=el('details','studio-inspector');
- tools.append(el('h4','','Joueurs & matériel'),palette);const summary=el('summary','','Réglages de l’élément');inspector.append(summary,settings,rotation,objectActions);inspector.open=true;
- canvas.before(layout);stage.append(canvas);layout.append(tools,stage,inspector);editor.append(animation);
+ const layout=el('div','studio-board-layout'),tools=el('details','studio-tools'),stage=el('div','studio-stage'),inspector=el('details','studio-inspector');
+ tools.append(el('summary','','Joueurs & matériel'),palette);const summary=el('summary','','Réglages de l’élément');inspector.append(summary,settings,rotation,objectActions);inspector.open=false;
+ canvas.dataset.portrait='true';canvas.before(layout);stage.append(canvas);layout.append(tools,stage,inspector);editor.append(animation);
  const footer=el('div','studio-footer');footer.append(el('span','','Votre exercice reste modifiable après validation.'),submit);form.append(footer);submit.textContent='Valider mon exercice';
  const buttons={};let mode='sheet';
  function activate(next,focus=false){mode=next;sheet.hidden=next!=='sheet';editor.hidden=next==='sheet';animation.hidden=next!=='animation';editor.setAttribute('aria-labelledby','studio-tab-'+next);hint.textContent=next==='animation'?'Ajoutez une étape, déplacez les joueurs, puis lancez la lecture. Vos trajets se dessinent automatiquement.':'Choisissez un accessoire, puis placez-le sur le terrain. Sélectionnez-le pour ajuster son orientation.';for(const [key,button]of Object.entries(buttons)){button.setAttribute('aria-selected',String(key===next));button.tabIndex=key===next?0:-1;}if(focus)buttons[next].focus();dialog.scrollTop=0;}

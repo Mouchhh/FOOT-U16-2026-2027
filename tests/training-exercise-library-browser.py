@@ -6,16 +6,16 @@ with sync_playwright() as p:
  page.evaluate("document.querySelector('#view-training').click();trainingWizard.go(3);currentTraining.title='Séance source';syncTrainingForm()")
  page.locator('#training-custom-add').click();page.locator('#custom-training-title').fill('Circuit côté droit');page.locator('#custom-training-duration').fill('12')
  page.locator('#studio-tab-board').click();page.locator('#exercise-five').click();page.locator('#studio-tab-animation').click();page.locator('#exercise-add-frame').click()
- first=page.evaluate('exerciseDraft.frames[0].objects[0].id');page.locator('#exercise-object').select_option(first);page.locator('#exercise-board-canvas').focus();page.keyboard.press('ArrowRight');page.locator('[data-exercise-angle="120"]').click()
+ page.locator('.studio-inspector summary').click();first=page.evaluate('exerciseDraft.frames[0].objects[0].id');page.locator('#exercise-object').select_option(first);page.locator('#exercise-board-canvas').focus();page.keyboard.press('ArrowRight');page.locator('[data-exercise-angle="120"]').click()
  page.locator('#custom-training-form button[type=submit]').click();page.locator('#training-save').click()
- source=page.evaluate('structuredClone(trainingLibrary.find(s=>s.id===currentTraining.id))');assert source['blocks'][0]['custom']['board']['frames'][1]['objects'][0]['x']!=source['blocks'][0]['custom']['board']['frames'][0]['objects'][0]['x']
+ source=page.evaluate('structuredClone(trainingLibrary.find(s=>s.id===currentTraining.id))');assert source['blocks'][0]['custom']['board']['frames'][1]['objects'][0]['y']!=source['blocks'][0]['custom']['board']['frames'][0]['objects'][0]['y']
  page.evaluate("()=>{const next=newTraining();next.title='Autre séance';workspaceReplaceDraft('training',next);trainingWizard.go(3)}")
  page.locator('#training-personal-exercises').click();d=page.locator('#training-personal-library');d.get_by_label('Chercher un exercice personnel',exact=True).fill('cote droit')
  assert d.get_by_role('button',name='Ajouter une copie',exact=True).count()==1
  d.get_by_role('button',name='Ajouter une copie',exact=True).click()
  copy=page.evaluate('structuredClone(currentTraining.blocks[0])');assert copy['id']!=source['blocks'][0]['id'] and copy['custom']==source['blocks'][0]['custom']
  page.locator('.training-block').first.get_by_role('button',name='Modifier mon exercice',exact=True).click();page.locator('#custom-training-title').fill('Ma variante du circuit')
- page.locator('#studio-tab-board').click();page.locator('#exercise-object').select_option(first);page.locator('#exercise-board-canvas').focus();page.keyboard.press('ArrowDown')
+ page.locator('#studio-tab-board').click();page.locator('.studio-inspector').evaluate('(e)=>e.open=true');page.locator('#exercise-object').select_option(first);page.locator('#exercise-board-canvas').focus();page.keyboard.press('ArrowDown')
  # Refusing discard preserves the unsaved drawing; accepting leaves the saved block untouched.
  page.once('dialog',lambda dialog:dialog.dismiss());page.locator('#custom-training-close').click();assert page.locator('#custom-training-dialog').is_visible()
  page.once('dialog',lambda dialog:dialog.accept());page.locator('#custom-training-close').click();assert page.locator('#custom-training-dialog').is_hidden()
