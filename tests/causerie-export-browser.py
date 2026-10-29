@@ -59,7 +59,7 @@ with sync_playwright() as p:
     page.goto('http://127.0.0.1:3016/?mode=local')
     page.wait_for_function("typeof causerieExport==='object'")
     assert page.locator('[data-causerie-export]').count() == 3
-    page.evaluate("document.querySelector('#view-pitch').click();workspaceFlows.terrain.go(2)")
+    page.evaluate("document.querySelector('#view-pitch').click();workspaceFlows.terrain.go(1)")
     page.locator('#personal-canva-download>summary').click()
     for width in [390, 1366]:
         page.set_viewport_size({'width': width, 'height': 900})

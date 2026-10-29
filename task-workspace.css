@@ -1,0 +1,47 @@
+@media screen{
+ .task-navigation .app-navigation{gap:6px;margin-bottom:12px;padding-bottom:0}
+ .task-navigation .app-navigation>button{font-size:14px!important;padding:11px 18px!important;min-height:44px}
+ .task-section-navigation{display:flex;align-items:center;flex-wrap:wrap;gap:8px;flex-basis:100%;min-width:0;padding:10px 0;border-top:1px solid #d8e3ef;margin-top:3px;background:var(--bg,#f6f8fc)}
+ .task-section-tabs{display:flex;flex-wrap:wrap;gap:5px;min-width:0;flex:1}
+ .task-navigation .task-section-tab{min-height:42px;padding:10px 14px!important;font-size:13px;border:1px solid transparent;background:#fff;color:#49627b;font-weight:600}
+ .task-navigation .task-section-tab[aria-pressed=true]{background:#e4efff;color:#1e559d;border-color:#9dbde9;box-shadow:inset 0 -2px #235fc1}
+ .task-navigation .workspace-tools-trigger{background:#fff!important;border:1px solid #c8d6e6!important;color:#355572!important;min-height:42px;font-size:12px!important;padding:10px 12px!important;margin-left:auto}
+ .task-tactical-modes{display:flex;gap:6px;flex-wrap:wrap;flex-basis:100%}
+ .task-navigation .task-tactical-modes button{font-size:12px;padding:8px 12px;min-height:40px;border:1px solid #d8e3ef;background:white}
+ .task-navigation .task-tactical-modes button[aria-pressed=true]{color:#205bad;border-color:#205bad}
+ .task-navigation .training-progress:not([hidden]){display:grid!important;margin-bottom:12px}
+ .task-navigation .training-progress button{padding:10px;font-size:12px;min-height:44px}
+ .task-navigation .training-step-number{width:23px;height:23px}
+ .task-causerie{display:grid;gap:18px;max-width:1100px;margin:0 auto;width:100%;min-width:0}
+ .task-causerie .match-plan-card{margin:0;padding:0;border:0}
+ .task-causerie .match-plan-card>.primary{width:auto}
+ .task-causerie #match-plan-form{display:grid;gap:20px;padding:20px;background:white;border:1px solid #dce5ef;border-radius:12px}
+ .task-causerie #match-plan-form label{display:block;font-size:13px;font-weight:650;color:#365b91;min-width:0}
+ .task-causerie #match-plan-form input,.task-causerie #match-plan-form textarea{display:block;width:100%;margin-top:8px;font-weight:400;min-width:0}
+ .task-causerie #match-plan-form textarea{resize:vertical;min-height:100px}
+ .task-match-settings{margin:18px 0}
+ .task-navigation.home-mode .task-section-navigation{background:#ffffffed;border-radius:10px;padding:10px}
+ .task-navigation.home-mode .task-section-tabs button{color:#355572!important;text-shadow:none!important}
+ @media(max-width:700px){
+  .task-navigation .app-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .task-navigation .app-navigation>button{font-size:13px!important;padding:10px 4px!important;min-width:0}
+  .task-section-navigation{grid-column:1/-1;padding:8px 0;gap:7px}
+  .task-section-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));flex-basis:100%}
+  .task-navigation .task-section-tab{font-size:12px;padding:9px 5px!important;min-width:0;white-space:normal;line-height:1.4}
+  .task-causerie #match-plan-form{padding:12px}
+  .task-causerie #match-plan-form input,.task-causerie #match-plan-form textarea{font-size:16px}
+  .task-causerie .match-plan-top,.task-causerie .match-plan-context-grid,.task-causerie .match-plan-tactics-grid{grid-template-columns:minmax(0,1fr)}
+  .task-causerie #match-plan-form>.section-heading{align-items:flex-start;flex-wrap:wrap}
+ }
+}
+@media print{.task-section-navigation{display:none!important}}
+@media screen{
+ .task-navigation #workspace-navigation{display:flex;flex-wrap:wrap;overflow:visible}
+ .task-navigation #task-section-navigation{flex-basis:100%;width:100%;box-sizing:border-box}
+ .task-navigation #club-assistant-open{min-height:42px;padding:9px 12px;font-size:12px;flex-shrink:0;border-radius:8px}
+ .task-causerie-summary{padding:10px 14px;border:1px solid #dce5ef;border-radius:10px;background:#fff}
+ .task-causerie-summary>summary{cursor:pointer;color:#456681;font-size:13px}
+ .task-causerie-summary .match-plan-card{padding-top:12px}
+ .task-navigation:has(#terrain-page-1:not([hidden])) #landscape-toggle{display:none!important}
+ @media(max-width:700px){.task-navigation #workspace-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}}
+}

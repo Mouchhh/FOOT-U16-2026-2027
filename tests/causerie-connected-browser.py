@@ -69,7 +69,7 @@ with sync_playwright() as p:
     page.evaluate("clubNetworkSession={access_token:'fake-club-session',user:{id:'coach-a'}}")
     page.locator('#causerie-refresh').click();page.wait_for_function("!document.querySelector('#causerie-disconnect').disabled")
     page.get_by_role('button',name='Fermer la préparation Canva',exact=True).click()
-    page.evaluate("document.querySelector('#view-pitch').click();workspaceFlows.terrain.go(2)")
+    page.evaluate("document.querySelector('#view-pitch').click();workspaceFlows.terrain.go(1)")
     # The small card now creates and opens the completed design with one click.
     with page.expect_popup() as automatic_popup:
         page.locator('#personal-canva-create').click()

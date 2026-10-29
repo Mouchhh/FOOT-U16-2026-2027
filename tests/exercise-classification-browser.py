@@ -6,9 +6,9 @@ with sync_playwright() as p:
   const ids=Object.values(bmfExerciseGroups).flat();if(ids.length!==65||new Set(ids).size!==65||trainingExercises.some(e=>!ids.includes(e.id)))throw Error('Catalogue coverage');
   for(const [id,key]of [['rondo','progress'],['cutback','finish'],['press','oppose'],['keeper-duel','protect'],['warm','complementary']])if(bmfExerciseCategory(trainingExercises.find(e=>e.id===id))!==key)throw Error(id);
   return Object.fromEntries(Object.entries(bmfExerciseGroups).map(([key,ids])=>[key,ids.length]));}''')
- page.locator('#view-training').click();page.get_by_role('menuitem',name='Thèmes & objectifs',exact=True).click()
+ page.locator('#view-training').click();page.locator('#training-step-link-1').click()
  page.locator('#training-bmf-category').select_option('protect');assert page.evaluate('currentTraining.bmfCategory')=='protect'
- page.locator('#view-training').click();page.get_by_role('menuitem',name='La Bible de l’éduc',exact=True).click()
+ page.locator('#view-training').click();page.locator('#task-training-bible').click()
  assert page.locator('#bible-bmf-category').input_value()=='protect'
  for key in ['progress','finish','oppose','protect','complementary']:
   page.locator('#bible-bmf-category').select_option(key)

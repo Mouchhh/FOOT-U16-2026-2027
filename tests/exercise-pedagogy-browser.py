@@ -8,7 +8,7 @@ with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
  page=b.new_page(viewport={'width':1366,'height':1000});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("typeof exercisePedagogy==='object'")
- page.locator('#view-training').click();page.get_by_role('menuitem',name='Mon équipe · catégorie et niveau',exact=True).click()
+ page.locator('#view-training').click();page.locator('#training-step-link-0').click()
  page.locator('#training-coaching-load').select_option('light');assert page.evaluate('currentTraining.coachingLoad')=='light'
  page.reload();page.wait_for_function("typeof exercisePedagogy==='object'");assert page.evaluate('currentTraining.coachingLoad')=='light'
  # Run real library sheets without the surrounding drawer to examine every diagram.

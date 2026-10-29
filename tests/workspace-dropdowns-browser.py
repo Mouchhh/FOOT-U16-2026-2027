@@ -3,11 +3,11 @@ from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1366,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("document.body.classList.contains('dropdown-navigation')")
- assert page.locator('.workspace-menu-trigger').count()==6
+ assert page.locator('#workspace-navigation>button').count()==6
  def select(parent,label):
-  page.locator('#'+parent).click();menu=page.locator('#'+parent+'-submenu');assert menu.is_visible();menu.get_by_role('menuitem',name=label,exact=True).click();assert menu.is_hidden()
+  page.locator('#'+parent).click();page.locator('#'+parent+'-tools').click();menu=page.locator('#'+parent+'-submenu');assert menu.is_visible();menu.get_by_role('menuitem',name=label,exact=True).click();assert menu.is_hidden()
  # Opening a menu does not prematurely change the page.
- initial=page.evaluate('document.body.className');page.locator('#view-training').click();assert page.evaluate('document.body.className')==initial;assert page.locator('#view-training-submenu').is_visible()
+ page.locator('#view-training').click();initial=page.evaluate('document.body.className');page.locator('#view-training-tools').click();assert page.evaluate('document.body.className')==initial;assert page.locator('#view-training-submenu').is_visible()
  page.keyboard.press('Escape');assert page.locator('#view-training-submenu').is_hidden();assert page.locator('#workspace-navigation').is_visible()
  select('view-home','Les éducateurs · connexion et activité');assert page.locator('#home-page-1').is_visible()
  select('view-home','Mon tableau de bord');assert page.locator('#home-page-0').is_visible()
@@ -32,13 +32,13 @@ with sync_playwright() as p:
  page.evaluate("()=>{clubNetworkBound=()=>true;clubNetworkQueueSync=()=>Promise.resolve();clubNetworkSession={user:{id:'coach-test'}};clubNetworkMember={user_id:'coach-test',display_name:'Coach test'};document.querySelector('#club-network-connected').hidden=false;}")
  for label,index in [('Les éducateurs du club',0),('Documents partagés',1),('Mon compte & mon partage',2)]:select('view-club-network',label);assert page.locator('#club-page-'+str(index)).is_visible()
  # Keyboard navigation and closing preserve the menu bar.
- page.locator('#view-training').focus();page.keyboard.press('ArrowDown');assert page.locator('#view-training-submenu [role=menuitem]').first.evaluate('e=>e===document.activeElement')
+ page.locator('#view-training').click();page.locator('#view-training-tools').focus();page.keyboard.press('ArrowDown');assert page.locator('#view-training-submenu [role=menuitem]').first.evaluate('e=>e===document.activeElement')
  page.keyboard.press('End');assert page.locator('#view-training-submenu [role=menuitem]').last.evaluate('e=>e===document.activeElement')
- page.keyboard.press('Escape');assert page.locator('#view-training').evaluate('e=>e===document.activeElement')
+ page.keyboard.press('Escape');assert page.locator('#view-training-tools').evaluate('e=>e===document.activeElement')
  # Real menus work on touch-size screens and stay within viewport bounds.
  page.set_viewport_size({'width':390,'height':844})
  for parent in ['view-home','view-pitch','view-training','view-coach-agenda','view-reports','view-club-network']:
-  page.locator('#'+parent).click();menu=page.locator('#'+parent+'-submenu');box=menu.bounding_box();assert box and box['x']>=0 and box['x']+box['width']<=391 and box['y']+box['height']<=845,(parent,box)
+  page.locator('#'+parent).click();page.locator('#'+parent+'-tools').click();menu=page.locator('#'+parent+'-submenu');box=menu.bounding_box();assert box and box['x']>=0 and box['x']+box['width']<=391 and box['y']+box['height']<=845,(parent,box)
   page.keyboard.press('Escape')
  select('view-training','La Bible de l’éduc');assert page.locator('#training-search').is_visible();assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
  page.locator('#view-training').click();page.screenshot(path='/tmp/workspace-dropdowns-mobile.png',animations='disabled');page.keyboard.press('Escape')
