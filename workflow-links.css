@@ -1,0 +1,7 @@
+.workflow-links{padding:16px;margin:16px 0;border:1px solid #dce5ef;border-radius:12px;background:#f8fafd;min-width:0}
+.workflow-links h3{font-size:15px;margin:0 0 8px;color:#294f7d}.workflow-links p{line-height:1.6}
+.workflow-actions{display:flex;gap:8px;flex-wrap:wrap}.workflow-links button{min-height:42px;white-space:normal}
+#workflow-match-dialog button{margin:6px 8px 6px 0;white-space:normal;min-height:44px}
+.workflow-highlight{outline:3px solid #7ba5de;outline-offset:-3px}
+@media(max-width:650px){.workflow-actions{flex-direction:column}.workflow-links button{min-height:44px;width:100%}}
+@media print{.workflow-links{display:none!important}}

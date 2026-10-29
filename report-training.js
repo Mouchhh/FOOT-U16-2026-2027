@@ -13,7 +13,7 @@ function reportTrainingSuggestions(axes,session){
  });
 }
 function openReportTraining(){
- if($('report-training-dialog')?.open)return;
+ const previousDialog=$('report-training-dialog');if(previousDialog?.open)return;previousDialog?.remove();
  const coachId=activeCoach.id,reportId=currentReport.id,sessionId=currentTraining.id;
  let axes=reportTrainingAxes(currentReport);if(!axes.length)axes=[{id:'custom',label:'Votre priorité',theme:'Relance',text:''}];
  const dialog=el('dialog','report-training-dialog');dialog.id='report-training-dialog';const head=el('div','section-heading'),title=el('h2','','Du match à la séance'),close=el('button','icon-button','×');title.id='report-training-title';dialog.setAttribute('aria-labelledby',title.id);close.type='button';close.setAttribute('aria-label','Fermer');close.onclick=()=>dialog.close();head.append(title,close);dialog.append(head);
