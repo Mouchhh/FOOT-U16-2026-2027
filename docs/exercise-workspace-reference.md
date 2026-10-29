@@ -4,9 +4,9 @@ La vidéo transmise le 29 octobre 2026 montre un éditeur tactique : terrain cen
 palette latérale, réglages et commandes d’animation. Cette première adaptation
 porte sur l’atelier des exercices personnels, accessible depuis la création de séance.
 
-- Ordinateur : terrain central en portrait, hauteur limitée selon l’écran, matériel et réglages dans deux menus repliables fermés au départ.
-- Tablette : menus sur le côté et terrain vertical compact.
-- Téléphone : menus au-dessus du terrain portrait et palette horizontale à l’ouverture.
+- Ordinateur et portable : en-tête compact, commandes au-dessus du terrain portrait. Les menus superposés ne réduisent pas le terrain. Taille vérifiée de 1280 × 720 à 1920 × 1080 : le terrain occupe au moins 65 % de la hauteur, sans passer sous le bouton de validation.
+- Tablette : commandes regroupées au-dessus du terrain.
+- Téléphone : terrain sur toute la largeur disponible ; matériel et réglages dans des menus superposés.
 - Les données, outils, étapes d’animation, exports et protections avant fermeture
   restent gérés par le moteur existant. Aucun contenu de séance n’est supprimé.
 

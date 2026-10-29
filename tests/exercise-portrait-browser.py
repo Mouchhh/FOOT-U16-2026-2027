@@ -20,10 +20,16 @@ with sync_playwright() as p:
  end=page.evaluate('({...exerciseDraft.frames[0].objects[0]})');assert abs(end['y']-61)<1 and abs(end['x']-51)<1
  page.locator('.studio-inspector summary').click();page.locator('#exercise-label').fill('Capitaine');page.locator('#exercise-label').dispatch_event('change');page.locator('.studio-inspector summary').click()
  assert page.evaluate('exerciseDraft.frames[0].objects[0].label')=='Capitaine'
+ # Laptop and desktop layouts reserve enough space for a usable full portrait pitch.
+ for width,height in [(1280,720),(1366,768),(1440,900),(1920,1080)]:
+  page.set_viewport_size({'width':width,'height':height});page.locator('#custom-training-dialog').evaluate('(e)=>e.scrollTop=0')
+  r=canvas.bounding_box();footer=page.locator('.studio-footer').bounding_box()
+  assert r['height']>=height*.65,(width,height,r)
+  assert r['y']+r['height']<=footer['y'],(width,height,r,footer)
  for width in [320,390,768,1366]:
   page.set_viewport_size({'width':width,'height':900})
   assert page.locator('#custom-training-dialog').evaluate('(e)=>e.scrollWidth<=e.clientWidth'),width
   page.locator('.studio-tools summary').click();assert page.get_by_role('button',name='Ajouter : Ballon',exact=True).is_visible();page.locator('.studio-tools summary').click()
  assert not errors,errors
  b.close()
-print('PASS portrait pointer/keyboard axes, dropdowns, height fit at 1366×768 and responsive widths.')
+print('PASS portrait gestures, dropdowns, usable pitch size on 1280×720 / 1366×768 / 1440×900 / 1920×1080 and responsive widths.')
