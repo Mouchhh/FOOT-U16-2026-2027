@@ -11,6 +11,7 @@ with sync_playwright() as p:
  assert page.locator('#training-catalogue .bible-animation').count()==0
  first=page.locator('#training-catalogue .bible-card').first.get_attribute('data-exercise');page.locator('#bible-more').click();assert page.locator('#training-catalogue .bible-card').count()==3;assert page.locator('#training-catalogue .bible-card').first.get_attribute('data-exercise')!=first;page.locator('#bible-previous').click()
  page.screenshot(path='/tmp/workspace-bible-desktop.png',full_page=True,animations='disabled')
+ page.locator('.bible-search-options>summary').click()
  phase=page.locator('#bible-phase-shortcuts button[data-phase=ball]');phase.click();assert phase.get_attribute('aria-pressed')=='true'
  assert page.evaluate("[...document.querySelectorAll('#training-catalogue .bible-card')].every(c=>bibleKnowledge[c.dataset.exercise].phase==='ball')")
  page.locator('#bible-reset').click();page.locator('#training-search').fill('rondo');card=page.locator('[data-exercise=rondo]');card.locator('.bible-card-picture').click();sheet=page.locator('#bible-sheet-dialog');assert sheet.is_visible();assert sheet.locator('.bible-animation').count()==1

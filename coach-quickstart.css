@@ -1,0 +1,10 @@
+.coach-quickstart-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0;color:#58718e;font-size:12px}.coach-quickstart-entry button{min-height:42px;white-space:nowrap}
+.coach-quickstart-dialog{width:min(760px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;box-sizing:border-box}.coach-quickstart-dialog .section-heading{gap:12px}.coach-quickstart-dialog h2{font-size:23px}
+.coach-quickstart-section{padding:16px 0;border-top:1px solid #dce5ef}.coach-quickstart-section h3{font-size:16px;color:#294f7d;margin:0 0 10px}.coach-quickstart-section ol{padding-left:22px;line-height:1.65;font-size:14px}.coach-quickstart-section li{margin-bottom:7px}.coach-quickstart-section button{min-height:44px}
+@media screen{#training-catalogue>.bible-result-pages{border-bottom:1px solid #dce5ef;padding:0 0 10px;margin-bottom:2px}#training-space:has(#training-catalogue-drawer:not([hidden]))>.training-progress{display:none!important}}
+@media(max-width:650px){.coach-quickstart-entry{align-items:flex-start;flex-direction:column}.coach-quickstart-dialog{padding:16px}.coach-quickstart-dialog h2{font-size:20px}.coach-quickstart-section button{width:100%}}
+@media print{.coach-quickstart-entry,.coach-quickstart-dialog{display:none!important}}
+@media screen and (min-width:1000px){#training-space .bible-main-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}#training-space .bible-main-filters label{min-width:0}}
+.coach-quickstart-dialog>.section-heading{position:sticky;top:0;background:#fff;z-index:1;padding-block:8px}
+@media screen and (min-width:1000px){#training-space .bible-card-picture{height:clamp(110px,16dvh,170px)}}
+@media screen and (min-width:1000px) and (max-height:800px){#training-space .bible-card-picture{height:96px}}

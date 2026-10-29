@@ -12,7 +12,7 @@ with sync_playwright() as p:
   ctx.add_init_script("if(!localStorage.getItem('vestiaire-coach-profiles')){localStorage.setItem('vestiaire-coach-profiles',JSON.stringify([{id:'journey-coach',name:'Coach parcours'}]));localStorage.setItem('vestiaire-active-coach','journey-coach');}")
   page.goto(URL);page.wait_for_function("typeof workspaceNavigation==='object'")
   def menu(parent,name):
-   page.locator('#'+parent).click();page.locator('#'+parent+'-submenu').get_by_role('menuitem',name=name,exact=True).click()
+   page.locator('#'+parent).click();page.locator('#'+parent+'-tools').click();page.locator('#'+parent+'-submenu').get_by_role('menuitem',name=name,exact=True).click()
   def add_exercise(eid,query):
    page.locator('#training-catalogue-toggle').click();page.locator('#training-search').fill(page.evaluate('id=>trainingExercises.find(e=>e.id===id).title',eid))
    before=page.evaluate('currentTraining.blocks.length')
@@ -55,7 +55,7 @@ with sync_playwright() as p:
   # Build the match preparation from the composition and preserve it in a new report.
   menu('view-pitch','Préparation du match & réglages')
   page.locator('#club-profile > summary').click();page.locator('#club-category').fill(category);page.locator('#club-category').blur();page.locator('#club-profile > summary').click()
-  page.locator('#match-plan-open').click();page.locator('#match-plan-date').fill('2026-10-24')
+  page.locator('#task-match-causerie').click();page.locator('#match-plan-date').fill('2026-10-24')
   page.locator('#match-plan-opponent').fill('Adversaire parcours');page.locator('#match-plan-objective-0').fill('Fermer l’axe avec une couverture')
   page.locator('#match-plan-form button[type=submit]').click()
   composition=page.evaluate('structuredClone(getCompositionBoard())')

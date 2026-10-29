@@ -7,7 +7,7 @@ with sync_playwright() as p:
  def connect():
   page.evaluate("()=>{clubNetworkSession={user:{id:'final-coach'}};clubNetworkMember={user_id:'final-coach',display_name:'Coach test',active:true};clubNetworkBound=()=>Boolean(clubNetworkSession&&clubNetworkMember);clubNetworkQueueSync=()=>{};clubNetworkRenderState();}")
  def select(parent,label):
-  page.locator('#'+parent).click();page.locator('#'+parent+'-submenu').get_by_role('menuitem',name=label,exact=True).click();page.wait_for_timeout(100)
+  page.locator('#'+parent).click();page.locator('#'+parent+'-tools').click();page.locator('#'+parent+'-submenu').get_by_role('menuitem',name=label,exact=True).click();page.wait_for_timeout(100)
  connect();select('view-club-network','Documents partagés')
  assert page.locator('#club-document-title').evaluate('e=>document.activeElement===e')
  page.locator('#club-document-title').fill('Pressing du mardi');page.locator('#club-document-title').blur();page.wait_for_timeout(100)
@@ -27,7 +27,7 @@ with sync_playwright() as p:
   assert page.evaluate("()=>{const ids=[...document.querySelectorAll('[id]')].map(e=>e.id);return new Set(ids).size===ids.length}")
  # A narrow screen must not pop a menu over content just because the mouse crosses it.
  page.locator('#view-training').hover();assert page.locator('#view-training-submenu').is_hidden()
- page.locator('#view-training').click();assert page.locator('#view-training-submenu').is_visible();page.keyboard.press('Escape')
+ page.locator('#view-training').click();assert page.locator('#view-training-submenu').is_hidden();page.locator('#view-training-tools').click();assert page.locator('#view-training-submenu').is_visible();page.keyboard.press('Escape')
  page.set_viewport_size({'width':1366,'height':768});select('view-pitch','Mes joueurs enregistrés')
  page.locator('#view-training').dispatch_event('pointerenter',{'pointerType':'mouse'})
  assert page.locator('#view-training-submenu').is_hidden()
