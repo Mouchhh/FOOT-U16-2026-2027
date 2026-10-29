@@ -6,7 +6,7 @@ function workspaceNavigationCanLeave(){
 document.addEventListener('DOMContentLoaded',()=>{
  const nav=document.querySelector('.app-navigation'),main=document.querySelector('main');let ready=false,restoring=false,frame=0,position=0,undoPop=false;const memory={};
  const keys={home:'view-home',terrain:'view-pitch',training:'view-training',agenda:'view-coach-agenda',report:'view-reports',club:'view-club-network'};
- const filters={training:['training-search','bible-bmf-category','training-filter','bible-phase','bible-method','bible-fit-only','training-library-search','training-session-theme-filter','training-session-objective-filter'],agenda:['coach-agenda-month','coach-agenda-week','coach-agenda-category','coach-agenda-author'],club:['club-network-author','club-network-kind','club-document-title']};
+ const filters={training:['training-search','bible-bmf-category','training-filter','bible-phase','bible-method','bible-fit-only','bible-five-only','training-library-search','training-session-theme-filter','training-session-objective-filter'],agenda:['coach-agenda-month','coach-agenda-week','coach-agenda-category','coach-agenda-author'],club:['club-network-author','club-network-kind','club-document-title']};
  const storageKey=coachStorageKey('vestiaire-navigation');
  const available=()=>!document.documentElement.classList.contains('club-private-request')||document.documentElement.classList.contains('club-authenticated');
  const visible=node=>node&&!node.hidden&&node.getClientRects().length>0;

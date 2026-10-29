@@ -1,5 +1,7 @@
 # Revue des exercices · 29 octobre 2026
 
+Complément : la [revue approfondie des cinq exercices repères](exercise-five-review.md) actualise les règles, animations et limites de ce lot.
+
 Les 65 exercices du catalogue ont une fiche éditoriale propre. La fiche séance BMF fournie par le coach sert de grille d’analyse (apprentissage, but, consignes, organisation et accompagnement), sans reproduction de sa mise en page ni revendication de validation FFF. Les références vidéo du coach guident la représentation : terrain dégagé, acteurs identifiables, gestes et déplacements lisibles.
 
 ## Ce qui change

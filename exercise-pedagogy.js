@@ -111,6 +111,7 @@ function bibleExerciseActivity(exercise,group){
 }
 function bibleExerciseRotation(exercise,group){
  const family=exercisePedagogy[exercise.id]?.family;
+ if(typeof bibleFiveRotation==='function'&&exerciseFiveReview[exercise.id])return bibleFiveRotation(exercise,group);
  if(exercise.id==='underlap')return 'À la pause, permuter porteur de côté, soutien en course intérieure et solution de retour. Inverser attaque et défense entre séries ; le gardien conserve son rôle.';
  if(['cutback','far-post'].includes(exercise.id))return 'À la pause, permuter centreur, arrivée proche et arrivée éloignée parmi les attaquants ; au changement de séquence, inverser attaque et défense. Le gardien conserve son rôle.';
  if(['finish','box-combine','finish-opposition','finish-rebound','defend-cross'].includes(exercise.id))return 'Replacer après chaque action terminée ; faire varier les joueurs servis et les zones de départ. Inverser attaque et défense à la pause, sans transformer un gardien en joueur de champ.';
@@ -152,4 +153,113 @@ function bibleExerciseEssentials(exercise,context,sequence,groupIndex=0){
  load.append(el('p','exercise-teaching','Accompagnement · '+teaching),el('p','',dose.guidance),el('p','exercise-correction','Si cela bloque : '+p.correction));
  const invariant=el('p','exercise-invariant');invariant.append(el('strong','','À préserver · '),document.createTextNode(p.invariant));root.append(invariant);
  return root;
+}
+
+// Lot pilote : cinq fiches relues en profondeur. Les numéros viennent du schéma,
+// les effectifs du plan ; aucune organisation sauvegardée par le coach n'est réécrite.
+const exerciseFiveReview={
+ rondo:{
+  objective:'Créer deux lignes de passe autour du défenseur avant de recevoir.',
+  observe:'Sur cinq réceptions observées, relever celles où deux soutiens sont visibles de part et d’autre de la pression ; compter aussi les pertes évitables.',
+  correction:'Arrêter avant une réception sans solution. Faire décaler un soutien de deux pas hors de l’ombre du défenseur ; rejouer avec la même opposition.',
+  rules:['Touches libres ; les bleus conservent autour des rouges. Une interception maîtrisée ou une sortie termine la série de passes, pas la séquence de travail.','Le coach remet un seul ballon à un bleu libre après la fin de l’action ; tous les autres ballons restent hors de la zone.','À la pause, remplacer les défenseurs dans l’ordre annoncé ; ne pas désigner automatiquement comme défenseur le joueur qui a perdu le ballon.'],
+  placement:'Bleus sur le pourtour, rouges à l’intérieur ; chacun peut ajuster son angle, sans entrer tous ensemble dans le carré.',
+  start:'Le bleu qui possède le ballon attend deux solutions visibles puis joue. L’opposition est active ; en découverte, annoncer un départ après son premier contrôle.',
+  reset:'Interception maîtrisée ou sortie : le compteur revient à zéro ; le coach sert un bleu disponible après arrêt du ballon précédent. Le chronomètre de la répétition continue.',
+  check:['Identifier deux solutions avant la réception.','Déplacer un soutien pendant le trajet du ballon.','Attirer puis traverser seulement si le couloir est libre.']
+ },
+ build:{
+  objective:'Sortir d’une première pression en gardant une solution de sécurité.',
+  observe:'Sur cinq départs, relever les sorties maîtrisées et les pertes dans l’axe. Observer si un soutien reste disponible quand la passe vers l’avant se ferme.',
+  correction:'Rejouer le même départ : un partenaire s’écarte du porteur et un autre se place plus haut, dans un autre couloir. Laisser le porteur choisir retour, passe ou conduite.',
+  rules:['Les bleus partent à gauche et attaquent la porte de droite. Marquer en la franchissant balle au pied sous contrôle ; pas en frappant de loin.','Si les rouges récupèrent, ils attaquent la porte de gauche avec le même ballon ; les appuis éventuels jouent avec le nouveau porteur.','Après point ou sortie, replacer puis redonner aux bleus à gauche. Les gardiens présents jouent au pied dans ce format à portes.'],
+  placement:'Un bleu bas à gauche, un soutien décalé et un relais plus haut. Les autres donnent largeur et sécurité ; les rouges protègent la sortie de droite.',
+  start:'Ballon au bleu le plus bas, même si un gardien participe au pied ailleurs. Déclencher la pression après le premier contrôle en découverte, dès la passe ensuite.',
+  reset:'Point ou sortie : tous se replacent et un seul ballon repart à gauche. À la récupération rouge, laisser jouer le contre vers la porte de gauche avant de replacer.',
+  check:['Préparer une solution courte et une solution plus haute.','Revenir au soutien si la sortie est fermée.','Conduire vers la porte uniquement si le couloir est ouvert.']
+ },
+ 'finish-opposition':{
+  objective:'Créer un angle de frappe sous opposition, avec un gardien réel.',
+  observe:'Sur cinq attaques, relever les frappes précédées d’un contrôle qui ouvre l’angle, et les remises choisies quand le défenseur ferme la frappe. Un but seul ne valide pas le choix.',
+  correction:'Rejouer le service avec le défenseur à la même place. Faire montrer au receveur l’angle fermé et la solution de remise, puis laisser le défenseur agir.',
+  rules:['Un seul ballon : le coach sert le premier porteur bleu ; les rouges défendent et le gardien protège le but à droite.','Choisir frappe, remise ou conduite selon la pression ; les partenaires proposent un autre angle sans former une file dans l’axe.','But, sortie, maîtrise du gardien ou retour rouge maîtrisé à la ligne de départ : fin de l’action. Repartir seulement quand le groupe et le gardien sont prêts.'],
+  placement:'Bleus en amont du but avec des angles de passe différents ; rouges entre eux et le but. Un gardien actif dans le but à droite ; les autres gardiens sont en rotation.',
+  start:'Le coach sert le premier porteur bleu. Les rouges sont actifs dès la première réception ; en découverte, annoncer une pression retardée au contrôle.',
+  reset:'Après une action terminée, reprendre les positions avec des receveurs différents. Un second ballon ne part jamais pendant une frappe ou un retour de joueur devant le but.',
+  check:['Orienter le premier contrôle hors de la pression.','Trouver une remise si la frappe est fermée.','Choisir sans imposer la combinaison ; suivre un ballon repoussé seulement s’il est encore en jeu.']
+ },
+ cover:{
+  objective:'Coordonner cadrage et couverture, puis échanger ces responsabilités sur une passe.',
+  observe:'À chaque changement de porteur, identifier un seul défenseur qui cadre et un partenaire derrière et à l’intérieur. Observer si la couverture peut encore intervenir quand le premier est éliminé.',
+  correction:'Figer juste avant une passe latérale. Faire nommer le nouveau cadreur et sa couverture ; replacer celle-ci en retrait vers la cible défendue puis rejouer la passe.',
+  rules:['Les bleus attaquent la porte de droite. Les rouges ralentissent le porteur : un seul cadre, un autre couvre derrière et à l’intérieur.','Sur une passe vers un nouveau porteur, le plus proche devient cadreur ; son partenaire protège l’espace laissé, sans courir lui aussi au ballon.','Après récupération, les rouges attaquent la porte de gauche. Un point exige un franchissement maîtrisé ; replacer après point ou sortie.'],
+  placement:'Bleus à gauche ; rouges entre le ballon et la porte de droite. Le premier rouge est devant le porteur, le deuxième plus bas vers sa cible et décalé vers l’intérieur.',
+  start:'Un bleu conduit pour provoquer le cadrage. Le rouge proche ralentit sans se jeter ; son partenaire se place avant de chercher l’interception.',
+  reset:'Sur passe, le jeu continue et les défenseurs changent de mission. Après sortie ou point, nouveau départ à gauche ; changer les équipes de départ à la pause.',
+  check:['Le proche cadre ; le deuxième couvre avant de chercher le ballon.','Sur passe latérale, échanger les responsabilités.','Si le cadreur est battu, la couverture ralentit sans inventer une récupération garantie.']
+ },
+ transition:{
+  objective:'À la perte, choisir une pression collective possible ou une réorganisation.',
+  observe:'À trois pertes observées, identifier le proche qui gêne le nouveau porteur et un partenaire qui ferme une passe ; vérifier qu’ils ne partent pas tous sur le ballon.',
+  correction:'Revenir une passe avant la perte. Faire nommer le joueur proche et le relais à fermer ; rejouer avec l’adversaire libre de sortir de la pression.',
+  rules:['Conservation sans but ni sens d’attaque imposé. À la perte, le jeu continue avec le même ballon ; les appuis éventuels changent immédiatement d’équipe.',
+   'Le joueur proche gêne le nouveau porteur ; les autres ferment les relais accessibles. Si la pression est dépassée, ralentir et se regrouper autour de la zone utile, sans poursuivre seul.',
+   'Un point après la série de passes annoncée. Sur sortie, ballon à l’équipe qui n’a pas touché en dernier ; aucune remise au coach à chaque interception.'],
+  placement:'Deux équipes dans le même rectangle, sans zone d’en-but. Les appuis blancs éventuels sont disponibles pour l’équipe qui possède ; aucune cible à défendre n’est ajoutée.',
+  start:'Le coach sert les bleus. Une perte réelle déclenche le changement de rôle ; le coach ne siffle pas pour imposer une récupération ni une passe réussie.',
+  reset:'À l’interception, continuer immédiatement. Sur sortie, l’équipe bénéficiaire remet un seul ballon ; retirer le précédent. À la pause, permuter les appuis éventuels.',
+  check:['Reconnaître la perte pendant que le nouveau porteur joue.','Presser ensemble seulement si les partenaires peuvent fermer les relais.','Si l’adversaire sort, ralentir et se réorganiser ; pas de but imaginaire à protéger.']
+ }
+};
+for(const [id,review]of Object.entries(exerciseFiveReview)){
+ const exercise=trainingExercises.find(e=>e.id===id);Object.assign(exercisePedagogy[id],{observe:review.observe,correction:review.correction});exercise.rules=review.rules;exercise.success=review.observe;bibleKnowledge[id].objective=review.objective;
+}
+// Le lot finition travaille une opposition avec gardien ; une porte seule n'est
+// plus acceptée silencieusement comme second atelier équivalent.
+bibleKnowledge['finish-opposition'].format.requiresKeeper=true;
+bibleKnowledge['finish-opposition'].format.minAttackers=2;
+bibleKnowledge['finish-opposition'].format.minTeamAttackers=2;
+bibleKnowledge['finish-opposition'].format.minDefenders=1;
+bibleKnowledge.transition.sequences[2].rule='Si la pression est battue, ralentir et fermer les relais accessibles avant de se regrouper ; aucune cible à défendre dans cette conservation.';
+function bibleFiveRotation(exercise,g){
+ if(!exerciseFiveReview[exercise.id])return '';
+ const t=g.teams,keeper=g.rotatingKeepers?' '+g.rotatingKeepers+' gardien(s) attend(ent) hors des trajectoires ; les permuter à la pause, après une action terminée.':'';
+ if(exercise.id==='rondo')return 'À chaque pause, '+t.red+' conservateur(s) deviennent défenseurs et les '+t.red+' défenseur(s) rejoignent le pourtour. Suivre un ordre fixe pour que chacun défende, sans permutation punitive sur une perte.';
+ const neutral=t.neutral?' Les '+t.neutral+' appui(s) échangent leur rôle avec un joueur de chaque équipe à tour de rôle aux pauses ; en jeu, ils aident le porteur des deux couleurs.':'';
+ if(exercise.id==='finish-opposition')return 'À chaque action, changer le premier joueur servi parmi les '+t.blue+' attaquants ; ils restent tous dans le dispositif. '+(t.blue===t.red?'À la pause, inverser les groupes de champ ('+t.blue+' et '+t.red+').':'À la pause, échanger un attaquant et un défenseur à tour de rôle pour conserver '+t.blue+' attaquants et '+t.red+' défenseur(s), sans inverser la supériorité.')+' Le gardien reste gardien.'+neutral+keeper;
+ return 'À la pause, inverser les équipes de départ ('+t.blue+' bleus et '+t.red+' rouges). En cours de jeu, les rôles changent dès la perte.'+neutral;
+}
+function bibleFiveActorRole(exercise,token,tokens){
+ if(!exerciseFiveReview[exercise.id])return token.role||'';
+ if(token.rotation)return 'Gardien en rotation · entrer après une action terminée';
+ if(token.keeper&&!token.fieldKeeper)return 'Gardien actif · protéger le but à droite';
+ if(token.team==='neutral')return 'Appui · jouer avec le porteur des deux couleurs';
+ const own=tokens.filter(t=>!t.rotation&&t.team===token.team&&(!t.keeper||t.fieldKeeper)),i=own.findIndex(t=>t.number===token.number);
+ const roles={rondo:{blue:['Conservateur · proposer un angle de passe'],red:['Défenseur proche · presser','Défenseur · fermer une passe intérieure']},build:{blue:['Porteur bas · démarrer la relance','Soutien décalé · offrir une sortie courte','Relais haut · préparer la progression','Partenaire · élargir ou sécuriser'],red:['Premier presseur · fermer la progression','Défenseur · couvrir la sortie']},'finish-opposition':{blue:['Premier porteur · choisir frappe ou passe','Soutien · offrir une remise','Attaquant · autre angle ou second ballon'],red:['Défenseur · fermer le porteur','Défenseur · protéger la cible et suivre un appel']},cover:{blue:['Porteur · provoquer le cadrage','Partenaire · proposer passe ou appel'],red:['Cadreur au départ · ralentir','Couverture au départ · protéger derrière','Équilibre · fermer le relais éloigné']},transition:{blue:['Premier porteur · puis réagir à la perte','Partenaire · fermer un relais à la perte'],red:['Opposant · exploiter la récupération','Partenaire · offrir une sortie après récupération']}};
+ const labels=roles[exercise.id][token.team]||['Participant'];return labels[Math.min(i,labels.length-1)]+(token.fieldKeeper?' · gardien au pied':'');
+}
+function bibleFiveScenario(exercise,g,index){
+ const r=exerciseFiveReview[exercise.id];if(!r)return null;
+ const scene=bibleAnimationScene(exercise,g),target=g.learning?.profile.passTarget||5;
+ const score=exercise.id==='rondo'?'1 point après '+target+' passes maîtrisées. À la fin d’une série, recommencer à zéro sans arrêt du chronomètre.':exercise.id==='transition'?'1 point après '+target+' passes maîtrisées. Une interception remet le compteur à zéro ; la nouvelle équipe conserve sans arrêt.':exercise.id==='finish-opposition'?'Bleus : 1 point par but. Rouges : 1 point pour revenir balle maîtrisée à la ligne de départ. Une maîtrise du gardien termine l’action.':'1 point pour franchir la porte adverse balle au pied sous contrôle. À la récupération, attaquer la porte opposée.';
+ return {...r,score,rotation:bibleFiveRotation(exercise,g),decision:r.check[Math.min(2,Math.max(0,index))],actors:scene.tokens.map(t=>({number:t.number,team:t.team,keeper:t.keeper,rotation:t.rotation,role:t.role||bibleFiveActorRole(exercise,t,scene.tokens)}))};
+}
+
+for(const id of ['build','cover'])bibleKnowledge[id].sequences[3].rule+=' Un point exige de franchir la porte balle au pied sous contrôle ; une frappe lointaine ne suffit pas.';
+function bibleFivePlacement(exercise,group,field,tokens,index=0){
+ const team=name=>tokens.filter(t=>!t.rotation&&t.team===name&&(!t.keeper||t.fieldKeeper)),blue=team('blue'),red=team('red');
+ const place=(p,x,y)=>{if(p)Object.assign(p,{x:field.fx+x*field.fw,y:field.fy+y*field.fh,long:x*group.length,wide:y*group.width});};
+ if(exercise.id==='build'){place(blue[0],.16,.45);place(blue[1],.38,.18);place(blue[2],.64,.17);place(red[0],.38,.52);place(red[1],.66,.58);}
+ if(exercise.id==='finish-opposition'){
+  place(blue[0],index===1?.76:index===2?.63:.58,.3);place(blue[1],index===2?.7:.47,index===2?.72:.7);place(blue[2],.32,.55);
+  red.forEach((p,i)=>place(p,.87+(i%2)*.04,.16+(i+1)*.68/(red.length+1)));place(red[0],.8,.4);place(red[1],.9,.69);
+ }
+}
+// Une passe traversante n'est montrée qu'après un déplacement défensif qui
+// ouvre réellement son couloir. Le ballon ne contourne jamais un défenseur.
+function bibleFiveRondoOpening(from,to,defenders,point){
+ const dx=to.x-from.x,dy=to.y-from.y,d=Math.hypot(dx,dy)||1,candidates=[];
+ for(const x of [.16,.32,.5,.68,.84])for(const y of [.16,.32,.5,.68,.84]){const p=point(x,y);p.side=((p.x-from.x)*dy-(p.y-from.y)*dx)/d;candidates.push(p);}
+ candidates.sort((a,b)=>Math.abs(b.side)-Math.abs(a.side));const sign=Math.sign(candidates[0].side)||1,side=candidates.filter(p=>p.side*sign>0),chosen=[];
+ for(const defender of defenders){const target=side.find(p=>!chosen.includes(p));chosen.push(target||side[0]);}return chosen;
 }

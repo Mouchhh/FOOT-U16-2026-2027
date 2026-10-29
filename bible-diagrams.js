@@ -138,6 +138,7 @@ function bibleDiagramActors(exercise,group,field,goalPositions=[],options={}){
  if(mechanism.type==='split'){relocate(a,length*.12,width*.5);relocate(blue[1],length*.88,width*.5);red.forEach((p,i)=>relocate(p,length*(.42+Math.floor(i/2)*.15),width*(i%2?.78:.22)));}
  if(['trap','isolate'].includes(mechanism.type)){relocate(a,length*.35,width*.16);relocate(blue[1],length*.58,width*.14);relocate(blue[2],length*.3,width*.62);relocate(red[0],length*.52,width*.32);relocate(red[1],length*.69,width*.35);}
  if(mechanism.type==='overlap'){relocate(a,length*.38,width*.32);relocate(blue[1],length*.2,width*.43);relocate(red[0],length*.57,width*.37);relocate(red[1],length*.81,width*.62);}
+ if(exercise.id==='build'){relocate(a,length*.16,width*.45);relocate(blue[1],length*.38,width*.18);relocate(blue[2],length*.64,width*.17);relocate(red[0],length*.38,width*.52);relocate(red[1],length*.66,width*.58);}
  if(mechanism.type==='progress'){relocate(a,length*.16,width*.45);relocate(blue[1],length*.58,width*.66);relocate(blue[2],length*.83,width*.28);relocate(red[0],length*.38,width*.2);relocate(red[1],length*.45,width*.84);}
  if(mechanism.type==='pivot'){relocate(a,length*.18,width*.58);relocate(neutral[0],length*.48,width*.4);relocate(blue[1],length*.73,width*.7);relocate(red[0],length*.6,width*.3);relocate(red[1],length*.45,width*.81);}
  if(mechanism.type==='reinforcements'){
@@ -160,6 +161,7 @@ function bibleDiagramActors(exercise,group,field,goalPositions=[],options={}){
  if(mechanism.type==='underlap'){relocate(a,length*.55,width*.12);relocate(blue[1],length*.35,width*.35);relocate(red[0],length*.68,width*.17);}
  if(['behind','depth'].includes(mechanism.type)){relocate(a,length*.29,width*.4);relocate(blue[1],length*.58,width*.7);relocate(red[0],length*.67,width*.55);}
  if(typeof bibleDesignedPlacement==='function')bibleDesignedPlacement(exercise,group,field,tokens,options.designIndex||0);
+ if(typeof bibleFivePlacement==='function')bibleFivePlacement(exercise,group,field,tokens,options.designIndex||0);
  // A tactical repositioning must not cover a shirt already on the installation
  // grid. Keep the main actors first, then find the nearest free starting spot.
  // This is deterministic installation spacing, never an invented game action.
@@ -176,6 +178,7 @@ function bibleDiagramActors(exercise,group,field,goalPositions=[],options={}){
   }
   Object.assign(token,best,{long:(best.x-fx)/scale,wide:(best.y-fy)/scale});placed.push(token);
  }
+ if(typeof bibleFiveActorRole==='function')tokens.forEach(t=>t.role=bibleFiveActorRole(exercise,t,tokens));
  return tokens;
 }
 function bibleDiagramPlayerRadius(group,field){return Math.max(9,Math.min(group.players<=12?20:group.players<=24?18:14,Math.min(field.fw,field.fh)/14,Math.sqrt(field.fw*field.fh/Math.max(1,group.players))/4.5));}
@@ -323,7 +326,9 @@ function bibleDiagramSVG(exercise,group,options={}){
  const returnArrow=(from,to,label)=>{const dx=to.x-from.x,dy=to.y-from.y,d=Math.hypot(dx,dy);if(d<playerRadius*3)return;const ux=dx/d,uy=dy/d,cx=(from.x+to.x)/2-uy*32,cy=(from.y+to.y)/2+ux*32;svg.append(make('path',{'class':'bible-action-pass',d:'M'+(from.x+ux*(playerRadius+4))+' '+(from.y+uy*(playerRadius+4))+'Q'+cx+' '+cy+' '+(to.x-ux*(playerRadius+8))+' '+(to.y-uy*(playerRadius+8)),fill:'none',stroke:'#fff','stroke-width':2.2,'stroke-dasharray':'none','marker-end':'url(#'+markerId+')'}),make('text',{'class':'bible-action-label',x:cx,y:cy,'text-anchor':'middle',fill:'#fff','font-size':10,'paint-order':'stroke',stroke:'#176247','stroke-width':3},label));};
  // Une à trois actions de principe, rattachées au mécanisme football travaillé.
  let ballOwner=blue[0]||neutral[0]||red[0]||keepers[0],ballPoint=ballOwner?ballFeet(ballOwner):px(length*.5,width*.5);
- if(exercise.id==='video-coordination-shot'&&blue.length>=3){const mirrored=(options.designIndex||0)===1,yy=v=>mirrored?1-v:v;clearArrow(a,blue[1],true,'1 · passe');clearArrow(a,px(length*.54,width*yy(.16)),false,'2 · haies');clearArrow(px(length*.54,width*yy(.17)),blue[2],true,'3 · diagonale');ballPoint=ballFeet(a);}
+ if(exercise.id==='build'&&a&&blue[1]){clearArrow(a,blue[1],true,'1 · soutien');if(blue[2])clearArrow(blue[1],blue[2],true,'2 · relais');ballPoint=ballFeet(a);}
+ else if(exercise.id==='finish-opposition'&&a&&blue[1]){clearArrow(a,blue[1],true,'Choisir la remise si le tir est fermé');ballPoint=ballFeet(a);}
+ else if(exercise.id==='video-coordination-shot'&&blue.length>=3){const mirrored=(options.designIndex||0)===1,yy=v=>mirrored?1-v:v;clearArrow(a,blue[1],true,'1 · passe');clearArrow(a,px(length*.54,width*yy(.16)),false,'2 · haies');clearArrow(px(length*.54,width*yy(.17)),blue[2],true,'3 · diagonale');ballPoint=ballFeet(a);}
  else if(exercise.id==='video-bounce-2v2'&&blue.length>=3){clearArrow(a,blue[1],true,'1');clearArrow(blue[1],blue[2],true,'2 · appui');ballPoint=ballFeet(a);}
  else if(mechanism.type==='third'&&a&&relay&&third){clearArrow(a,relay,true,'1');returnArrow(relay,a,'2');clearArrow(a,third,true,'3');ballPoint=ballFeet(a);}
  else if(['back','turn'].includes(mechanism.type)&&(blue[1]||neutral[0])){const receiver=blue[1]||neutral[0];clearArrow(a,receiver,true,'1');returnArrow(receiver,a,'2 · soutien');ballPoint=ballFeet(a);}
@@ -333,9 +338,9 @@ function bibleDiagramSVG(exercise,group,options={}){
  else if(mechanism.type==='isolate'&&blue[1]){clearArrow(a,blue[1],true,'servir large');clearArrow(a,px(length*.45,width*.32),false,'soutenir');ballPoint=ballFeet(a);}
  else if(mechanism.type==='support'&&blue.length>1){const receive=px(length*.62,width*.24);clearArrow(blue[1],receive,false,'1');clearArrow(a,receive,true,'2');ballPoint=ballFeet(a);}
  else if(mechanism.type==='switch'&&blue.length>1){const far=blue[blue.length-1];if(blue.length>2){clearArrow(a,blue[1],true,'1');clearArrow(blue[1],far,true,'2');}else clearArrow(a,far,true);ballPoint=ballFeet(a);}
- else if(mechanism.type==='cover'&&red.length){clearArrow(red[0],px(length*.43,width*.29),false,'Presser');if(red[1])clearArrow(red[1],px(length*.6,width*.43),false,'Couvrir');if(exercise.id==='press-cover-three'&&red[2])clearArrow(red[2],px(length*.68,width*.73),false,'Équilibrer');ballPoint=ballFeet(a);}
+ else if(mechanism.type==='cover'&&red.length){clearArrow(red[0],px(length*.43,width*.29),false,exercise.id==='cover'?'':'Presser');if(red[1])clearArrow(red[1],px(length*.6,width*.43),false,exercise.id==='cover'?'':'Couvrir');if(exercise.id==='cover'){const label=(text,long,wide)=>{const p=px(length*long,width*wide);svg.append(make('text',{class:'bible-action-label',x:p.x,y:p.y,'text-anchor':'middle',fill:'#fff','font-size':10,'paint-order':'stroke',stroke:'#176247','stroke-width':3},text));};label('Cadrer',.55,.2);if(red[1])label('Couvrir',.7,.47);}if(exercise.id==='press-cover-three'&&red[2])clearArrow(red[2],px(length*.68,width*.73),false,'Équilibrer');ballPoint=ballFeet(a);}
  else if(mechanism.type==='block'&&red.length){red.slice(0,3).forEach((t,i)=>clearArrow(t,px(t.long-length*.07,Math.max(width*.09,t.wide-width*.18)),false,i===0?'Coulisser':''));ballPoint=ballFeet(a);}
- else if(mechanism.type==='loss'&&red.length&&blue.length){const recovered=red[0];clearArrow(a,px(length*.43,width*.44),false,'Presser');if(blue[1])clearArrow(blue[1],px(length*.63,width*.64),false,'Fermer');ballPoint=ballFeet(a);}
+ else if(mechanism.type==='loss'&&red.length&&blue.length){const recovered=red[0];if(exercise.id==='transition'&&blue[1]){clearArrow(a,blue[1],true,'Passe exposée');const hit={x:(a.x+blue[1].x)/2,y:(a.y+blue[1].y)/2};clearArrow(recovered,hit,false,'Intercepter');}else{clearArrow(a,px(length*.43,width*.44),false,'Presser');if(blue[1])clearArrow(blue[1],px(length*.63,width*.64),false,'Fermer');}ballPoint=ballFeet(a);}
  else if(mechanism.type==='regain'&&blue.length>1){clearArrow(a,blue[1],true,'1');if(blue[2])clearArrow(blue[2],px(length*.82,width*.73),false,'2');ballPoint=ballFeet(a);}
  else if(mechanism.type==='balance'&&blue.length>1){clearArrow(blue[1],px(length*.41,width*.44),false,'Équilibrer');if(blue[2])clearArrow(blue[2],px(length*.39,width*.62),false);ballPoint=ballFeet(a);}
  else if(mechanism.type==='retreat'&&blue.length){clearArrow(a,px(length*.29,width*.35),false,'Ralentir');if(blue[1])clearArrow(blue[1],px(length*.19,width*.58),false,'Couvrir');if(red[0])ballPoint=ballFeet(red[0]);}
@@ -376,6 +381,7 @@ function bibleDiagramSVG(exercise,group,options={}){
   if(t.rotation)player.append(make('circle',{cx:0,cy:0,r:r*1.35,fill:'none',stroke:'#687f9d','stroke-width':1,'stroke-dasharray':'3 3'}));svg.append(player);placement(t.keeper&&!t.fieldKeeper?'keeper':t.team==='red'?'red':'blue',t.x,t.y,{color,label:t.rotation?(t.keeper?'G':'')+t.number+' rotation':t.keeper?'G'+t.number:String(t.number)});
  });
  if(mechanism.type==='combine'){ballOwner=a;ballPoint=ballFeet(a);}
+ if(['build','finish-opposition'].includes(exercise.id)){ballOwner=a;ballPoint=ballFeet(a);}
  if(exercise.id==='rondo-expand'){ballOwner=red[0];ballPoint=ballFeet(ballOwner);}
  if(exercise.id==='possession-quadrants'&&neutral[0]){ballOwner=neutral[0];ballPoint=ballFeet(ballOwner);}
  if(options.designIndex>0||['rondo-expand','possession-quadrants'].includes(exercise.id))svg.querySelectorAll('.bible-action-pass,.bible-action-move,.bible-action-label').forEach(n=>n.remove());

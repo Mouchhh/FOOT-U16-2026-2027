@@ -15,7 +15,7 @@ function bibleVariantDemonstration(design,h){
   play(a,near,'1 · Conserver sur le pourtour',[rondoSupport(a),...red.slice(0,2).map((p,i)=>move(p,point(i?.56:.5,i?.61:.29)))]);
   if(code==='recycle'){play(near,a,'2 · Revenir sans forcer le centre',[rondoSupport(near)]);if(other&&other!==near)play(a,other,'3 · Trouver l’autre soutien extérieur',[rondoSupport(a),...red.slice(0,1).map(p=>move(p,point(.68,.31)))]);}
   else{const opposite=perimeter.filter(p=>p!==near&&p!==a).sort((p,q)=>Math.hypot(current(q).x-current(near).x,current(q).y-current(near).y)-Math.hypot(current(p).x-current(near).x,current(p).y-current(near).y))[0];
-   if(opposite){add('2 · Repérer la fenêtre entre les défenseurs','Les défenseurs se déplacent côté ballon : la ligne opposée est maintenant accessible. Si elle reste fermée, conserver autour.',1.6,red.slice(0,2).map((p,i)=>move(p,point(.66,i?.78:.24))));play(near,opposite,'3 · Franchir quand la fenêtre est ouverte',[rondoSupport(near)]);}}
+   if(opposite){add('2 · Repérer la fenêtre entre les défenseurs','Les défenseurs se déplacent côté ballon : la ligne opposée est maintenant accessible. Si elle reste fermée, conserver autour.',1.6,(h.exerciseId==='rondo'&&typeof bibleFiveRondoOpening==='function'?bibleFiveRondoOpening(current(near),current(opposite),red,point).map((target,i)=>move(red[i],target)):red.slice(0,2).map((p,i)=>move(p,point(.66,i?.78:.24)))));play(near,opposite,'3 · Franchir quand la fenêtre est ouverte',[rondoSupport(near)]);}}
   return true;
  }
  if(code.startsWith('quadrant-')){
@@ -110,7 +110,7 @@ function bibleVariantDemonstration(design,h){
    const defending=holder.team==='red'?blue:red,direction=holder.team==='red'?-1:1;
    carry(holder,point(.5+direction*.1,.4),'Ralentir le porteur',detail,2,defending.map((p,i)=>move(p,point(.5+direction*(.2+.06*(i%2)),.2+(i+1)*.6/(defending.length+1)))));
    add('Revenir à des hauteurs différentes','Un joueur intervient ; les autres protègent les passes et la profondeur. Tous ne viennent pas sur le ballon.',2,defending.map((p,i)=>advance(p,direction*.025,i%2?-.025:.025)));
-  }else{const safe=players.filter(p=>p!==holder&&!p.rotation&&!p.keeper&&(p.team===holder.team||p.team==='neutral')).sort((p,q)=>p.x-q.x).at(holder.team==='red'?-1:0);if(safe)play(holder,safe,'Sortir de la pression avec une sécurité');}
+  }else{const safe=players.filter(p=>p!==holder&&!p.rotation&&(!p.keeper||p.fieldKeeper)&&(p.team===holder.team||p.team==='neutral')).sort((p,q)=>p.x-q.x).at(holder.team==='red'?-1:0);if(safe){if(h.exerciseId==='transition')add('Ouvrir une sécurité décalée','Le partenaire revient derrière et à côté du ballon ; un gardien qui participe au pied peut aussi offrir ce soutien.',1.6,[move(safe,at(.12,.78))]);play(holder,safe,'Sortir de la pression avec une sécurité');}}
   return true;
  }
  if(code.startsWith('corner-')||code.startsWith('second-ball')){

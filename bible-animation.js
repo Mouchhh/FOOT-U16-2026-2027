@@ -18,6 +18,7 @@ function bibleAnimationScene(exercise,group,options={}){
  if(exercise.id==='rondo-expand')owner=red[0];
  if(exercise.id==='video-coordination-shot')owner=blue[0];
  if(exercise.id==='possession-quadrants')owner=active.find(p=>p.team==='neutral')||owner;
+ if(['build','finish-opposition'].includes(exercise.id))owner=blue[0]||owner;
  if(owner)ball=bibleDiagramBallSpot(owner,field,radius);
  if(template==='circuit'&&tokens[0])ball=bibleDiagramBallSpot(tokens[0],field,radius);
  if(mechanism.type==='throw')ball={x:field.fx+field.fw*.32,y:field.fy};
@@ -96,6 +97,24 @@ function bibleAnimationPlan(exercise,group,options={}){
  if(template==='circuit'&&!['warm','cool'].includes(exercise.id)&&typeof bibleCircuitAnimationPlan==='function')return bibleCircuitAnimationPlan(exercise,group,scene,options);
  const design=options.designIndex!==undefined&&typeof bibleExerciseDesign==='function'?bibleExerciseDesign(exercise,options.designIndex):null;
  if(typeof coachVideoDemonstration==='function'&&coachVideoDemonstration(exercise,{blue,red,keepers,players,point,move,current,pass,carry,add,intercept,end:(title,caption,seconds,moves=[])=>{gamePhase='end';add(title,caption,seconds,moves);},finish:(p,target,title,caption)=>{possession(p);gamePhase='shot';add(title,caption,1.6,[],target);Object.assign(steps.at(-1),{action:'shot',from:p.number});}},options))return result();
+ if(exercise.id==='build'&&a&&b){
+  const relay=neutrals[0]||b,high=blue.find(p=>p!==a&&p!==relay)||b,code=design?.demo||'base';
+  add('Observer la sortie à droite','Le porteur bas a une solution courte et une solution plus haute ; les adversaires peuvent fermer l’une des deux.',1);
+  let carrier=high,side=.18;
+  if(code==='bypass'){
+   add('1 · Lire le soutien marqué','Le premier rouge ferme le relais court : la solution haute reste accessible dans un autre couloir.',1.4,[move(nearRed,point(.38,.34)),move(high,point(.64,.12))]);
+   pass(a,high,'2 · Contourner la première pression','Le porteur ne force pas le soutien court marqué ; il trouve le partenaire haut disponible.',1.8,[move(high,point(.75,.15)),move(red[1],point(.67,.58))]);
+  }else{
+   pass(a,relay,'1 · Ouvrir le soutien décalé','Une solution courte sort de l’ombre du presseur ; le porteur garde un partenaire plus haut.',1.6,[move(relay,point(.38,.18)),move(high,point(.65,.15)),move(nearRed,point(.36,.5)),move(red[1],point(.66,.54))]);
+   if(code==='recycle'){
+    pass(relay,a,'2 · Revenir à la sécurité','La sortie haute est fermée côté ballon ; le soutien bas reste disponible pour ressortir ailleurs.',1.7,[move(a,point(.2,.7)),move(high,point(.65,.82)),move(nearRed,point(.46,.28)),move(red[1],point(.69,.27))]);
+    pass(a,high,'3 · Ressortir du côté libéré','Le relais haut reçoit dans un autre couloir, pendant que les adversaires sont encore attirés côté opposé.',1.8,[move(high,point(.76,.82))]);side=.82;
+   }else if(relay!==high)pass(relay,high,'2 · Trouver le relais haut','Le relais s’oriente pour voir la porte. Si cette ligne est fermée, revenir au soutien plutôt que forcer la passe.',1.8,[move(high,point(.75,.18)),move(a,point(.43,.7)),move(red[1],point(.68,.59))]);
+  }
+  carry(carrier,point(.85,side<.5?.34:.66),'Lire la porte disponible','La défense ferme ici l’axe ; le porteur utilise l’espace ouvert. Si la porte se ferme, conserver plutôt que forcer.',1.6,[move(nearRed,point(.69,.5))]);
+  carry(carrier,point(.985,.5),'Franchir sous contrôle','Le point vient d’une conduite maîtrisée à travers la porte ; aucune frappe de loin. Replacer après la fin de cette action.',1.6);
+  add('Relire la décision','Cette sortie est un exemple possible, pas un circuit de passes imposé.',1);return result();
+ }
  if(design&&typeof bibleVariantDemonstration==='function'&&bibleVariantDemonstration(design,{exerciseId:exercise.id,group,players:active,blue,red,neutrals,keepers,point,current,move,advance,add,pass,carry,feet,intercept,loose,control,rondoSupport,owner:()=>ballOwner,goalPoint,
   shot:(p,title,moves=[])=>{gamePhase='shot';add(title,design.rule,1.5,moves,goalPoint());Object.assign(steps.at(-1),{action:'shot',from:p.number});},
   recover:(p,title,caption,moves=[])=>{const from=ballOwner;add(title,caption,1.8,moves,()=>feet(p));Object.assign(steps.at(-1),{action:'recovery',from,to:p.number});ballOwner=p.number;possessionTeam=p.team;gamePhase='transition';}
@@ -209,7 +228,7 @@ function bibleAnimationPlan(exercise,group,options={}){
  }else if(mechanism.type==='cover'&&a&&red.length){
   carry(a,point(.37,.29),'1 · Provoquer la sortie','Le porteur avance ; le défenseur proche se prépare à ralentir.',1.5);
   add('2 · Presser et couvrir','Le premier défenseur ferme le porteur ; le deuxième protège l’espace derrière lui.',2,[move(red[0],point(.46,.29)),move(red[1],point(.61,.43)),move(red[2],point(.7,.69))]);
-  if(b)pass(a,b,'3 · Réagir à la passe','La pression et la couverture se réorganisent à la nouvelle position du ballon.',1.8,[move(b,point(.62,.12),{start:.08}),advance(red[0],.02,.1),advance(red[1],-.025,.07)]);
+  if(b)pass(a,b,'3 · Échanger cadrage et couverture','Sur cette passe, le deuxième rouge devient cadreur ; le premier recule vers la cible et couvre à l’intérieur.',1.8,[move(b,point(.62,.12),{start:.08}),move(red[1],point(.71,.18)),move(red[0],point(.8,.37)),move(red[2],point(.85,.69))]);
  }else if(mechanism.type==='block'&&a&&red.length){
   const receiver=blue.slice().sort((p,q)=>q.y-p.y)[0];
   if(receiver!==a)pass(a,receiver,'1 · Déplacer le ballon','La passe vers le côté déclenche le déplacement collectif.');
@@ -293,8 +312,9 @@ function bibleAnimationPlan(exercise,group,options={}){
   pass(a,receiver,retreat?'2 · Trouver le retrait':mechanism.type==='farpost'?'2 · Trouver le second poteau':'2 · Attaquer le centre',retreat?'Le ballon revient derrière la première ligne défensive.':'La passe est synchronisée avec l’arrivée du receveur.',2,[move(receiver,target,{start:.12}),mechanism.type==='defendcross'?advance(red[0],.025,.02):null],{loft:mechanism.type==='farpost'?2.8:0});
   gamePhase='shot';add('3 · Finir ou défendre la surface',mechanism.type==='defendcross'?'Le défenseur accompagne et le gardien ajuste sa position.':'Le receveur termine ; les partenaires suivent une éventuelle remise en jeu.',1.5,[advance(keepers.find(k=>k.team==='red'),0,.025)],goalPoint());Object.assign(steps.at(-1),{action:'shot',from:receiver.number});
  }else if(['finish','keeper'].includes(template)&&a){
-  const shooter=blue.slice().sort((p,q)=>q.x-p.x)[0]||a;
-  const feeder=blue.find(p=>p!==shooter);if(feeder){pass(shooter,feeder,'1 · Préparer l’appui','Le futur finisseur donne à un partenaire et prépare sa course.',1);pass(feeder,shooter,'2 · Servir le finisseur','La passe rejoint le joueur qui se rend disponible face à la cible.',1,[advance(shooter,.035,-.025)]);}
+  const shooter=exercise.id==='finish-opposition'?a:blue.slice().sort((p,q)=>q.x-p.x)[0]||a;
+  if(exercise.id==='finish-opposition')add('Lire avant de frapper','Dans cet exemple, le défenseur laisse un angle de conduite puis de frappe. Si cet angle se ferme, utiliser le soutien plutôt que reproduire le tir.',1.2);
+  const feeder=exercise.id==='finish-opposition'?null:blue.find(p=>p!==shooter);if(feeder){pass(shooter,feeder,'1 · Préparer l’appui','Le futur finisseur donne à un partenaire et prépare sa course.',1);pass(feeder,shooter,'2 · Servir le finisseur','La passe rejoint le joueur qui se rend disponible face à la cible.',1,[advance(shooter,.035,-.025)]);}
   carry(shooter,point(Math.min(.83,(shooter.x-field.fx)/field.fw+.08),(shooter.y-field.fy)/field.fh),'3 · Préparer la finition','Le porteur prépare son dernier contact ; le défenseur et le gardien se placent.',1.8,[advance(nearRed,-.025,.025)]);
   gamePhase='shot';add('4 · Frapper vers la cible','Le tireur choisit sa zone ; le gardien se prépare puis accompagne la trajectoire.',1.3,[advance(keepers.find(k=>k.team!=='blue'),0,.035)],goalPoint());Object.assign(steps.at(-1),{action:'shot',from:shooter.number});
   add('5 · Suivre le ballon','Les joueurs restent disponibles pour un ballon repoussé ; reprendre au départ pour une nouvelle action.',1.2,[advance(b,.04,.015)]);
@@ -326,7 +346,7 @@ function bibleAnimationPlan(exercise,group,options={}){
   for(let i=0;i<Math.min(6,perimeter.length+2);i++){
    const next=perimeter[(perimeter.indexOf(carrier)+1)%perimeter.length];if(next===carrier)continue;
    const at=current(carrier),pressers=red.slice().sort((p,q)=>Math.hypot(current(p).x-at.x,current(p).y-at.y)-Math.hypot(current(q).x-at.x,current(q).y-at.y));
-   pass(carrier,next,(i+1)+' · Jouer hors de la pression','Le ballon circule sur le pourtour ; le défenseur proche presse pendant que son partenaire protège la passe intérieure.',.9,[rondoSupport(carrier),move(pressers[0],{x:at.x+(field.fx+field.fw/2-at.x)*.55,y:at.y+(field.fy+field.fh/2-at.y)*.55}),pressers[1]?move(pressers[1],point(.5+(i%2?.07:-.07),.5)):null]);carrier=next;
+   pass(carrier,next,(i+1)+' · Jouer hors de la pression','Le ballon circule sur le pourtour ; le défenseur proche presse pendant que son partenaire protège la passe intérieure.',.9,[rondoSupport(carrier),...(exercise.id==='rondo'?pressers.map((defender,j)=>move(defender,j===0?{x:at.x+(field.fx+field.fw/2-at.x)*(blue.length<=3?.94:.72),y:at.y+(field.fy+field.fh/2-at.y)*(blue.length<=3?.94:.72)}:point(.5+(blue.length<=3?.015:.04)*Math.cos(j*2*Math.PI/pressers.length),.5+(blue.length<=3?.015:.04)*Math.sin(j*2*Math.PI/pressers.length)))):[move(pressers[0],{x:at.x+(field.fx+field.fw/2-at.x)*.55,y:at.y+(field.fy+field.fh/2-at.y)*.55}),pressers[1]?move(pressers[1],point(.5+(i%2?.07:-.07),.5)):null])]);carrier=next;
   }
  }else if(exercise.id==='freegame'&&a&&b){
   const pressers=red.slice().sort((p,q)=>Math.hypot(current(p).x-current(a).x,current(p).y-current(a).y)-Math.hypot(current(q).x-current(a).x,current(q).y-current(a).y));
