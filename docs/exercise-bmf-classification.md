@@ -1,32 +1,55 @@
 # Classement des exercices par intentions de jeu
 
-La fiche BMF fournie par le coach sert de repère de classement. Les catégories
-ne désignent pas un diplôme attribué aux exercices.
+Le menu utilise les quatre grands axes de l’image fournie par le coach, plus
+« Ludique ». Il ne présente plus les groupes Avec/Sans ballon ni leurs anciennes
+sous-catégories. Aucun filtre par zone n’a été ajouté : seuls les grands axes sont
+proposés, conformément à la demande.
 
-| Moment | Intention principale | Exercices |
+| Intention affichée | Clé | Exercices |
 |---|---|---:|
-| On a le ballon | Conserver / Progresser | 26 |
-| On a le ballon | Déséquilibrer / Finir | 20 |
-| On n’a pas le ballon | S’opposer à la progression | 9 |
-| On n’a pas le ballon | S’opposer pour protéger son but | 7 |
-| Compléments | Activation, bilan & réinvestissement | 3 |
+| Mon équipe possède le ballon | ball | 40 |
+| Mon équipe perd le ballon | loss | 4 |
+| Mon équipe récupère le ballon | win | 6 |
+| Mon équipe ne possède pas le ballon | off | 12 |
+| Ludique | ludic | 3 |
 
-Chaque exercice a une intention dominante, déterminée par son apprentissage,
-plutôt que par la seule présence d’un ballon ou d’un but. Le thème précis reste
-conservé : un corner offensif et un corner défensif restent tous deux des CPA,
-mais appartiennent à deux intentions différentes. De même, le jeu au pied du
-gardien se classe dans la progression et le travail de sortie face au porteur
-dans la protection du but.
+Les 65 exercices sont conservés et classés une seule fois. Les thèmes, consignes,
+schémas, adaptations et variantes restent inchangés. Les situations de perte
+(transition, contre-pressing, équilibre à la perte, repli) et de récupération
+(contre-attaque, première passe, sécurisation, relance du gardien, renforts) ont
+leur propre axe. Les CPA conservent leur thème spécifique sous la possession
+ou la non-possession selon leur objectif. « Ludique » remplace le libellé
+Activation, bilan & réinvestissement, sans supprimer les trois fiches.
 
-Dans la Bible, les filtres « Intention de jeu » et « Thème de séance » se
-combinent ; la liste des thèmes dépend de l’intention sélectionnée. Les anciens
-filtres de moments du jeu restent dans « Affiner la recherche ».
+Les deux sélecteurs — intention principale de la séance et filtre de la Bible —
+sont des listes plates avec les mêmes cinq choix. Les raccourcis dans la recherche
+avancée emploient également ces axes. Changer d’axe efface l’ancien filtre caché
+par moment du jeu et le thème précédent pour éviter une intersection invisible.
+Le filtre par thème, la recherche, l’impression et les autres fonctions restent
+accessibles.
 
-Dans « Mon intention », le coach peut enregistrer l’intention principale de
-la séance. Elle complète les thèmes précis, sans supprimer les choix existants,
-et apparaît sur la fiche imprimée. Le champ facultatif `bmfCategory` conserve
-la compatibilité des anciennes séances et des documents partagés.
+## Compatibilité
 
-Le test `tests/exercise-classification-browser.py` vérifie la couverture unique
-des 65 exercices, les filtres combinés, leur réinitialisation, la sauvegarde et
-le rechargement de l’intention, l’impression et les écrans de 320 à 1366 pixels.
+Les clés historiques sont toujours valides dans les séances et documents partagés :
+
+- progress et finish s’affichent comme ball ;
+- oppose et protect s’affichent comme off ;
+- complementary s’affiche comme ludic.
+
+L’affichage et les anciens filtres de navigation traduisent ces clés ; les
+bibliothèques enregistrées ne sont pas réécrites en masse. Lors d’une nouvelle
+modification de la séance, le formulaire enregistre la clé du nouvel axe choisi.
+Les anciennes et les nouvelles clés sont acceptées par trainingValid.
+
+## Vérification
+
+`tests/exercise-classification-browser.py` couvre les cinq choix sans optgroup,
+la couverture unique des 65 exercices, les transitions, les filtres combinés,
+les raccourcis, la sauvegarde et le rechargement, une ancienne séance, l’ancien
+filtre « finish » restauré par Retour, l’impression et les écrans 320/390/1366.
+`tests/training-sections-browser.py` et `tests/training-learning.js` passent.
+
+Le test historique `tests/workspace-navigation-browser.py` utilise encore
+`#view-training-tools`, un ancien menu retiré avant cette modification : il
+échoue sur ce sélecteur. Le retour de navigation des filtres est vérifié avec
+l’interface actuelle dans le test de classement ci-dessus.
