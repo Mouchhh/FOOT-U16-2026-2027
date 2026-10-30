@@ -54,6 +54,7 @@ with sync_playwright() as p:
   assert page.evaluate('trainingValid(currentTraining)')
   page.reload();page.wait_for_function("typeof workspaceNavigation==='object'")
   menu('view-coach-agenda','Mon calendrier et mes séances');page.locator('#coach-agenda-all').click()
+  if not page.locator('#agenda-calendar-filters').evaluate('e=>e.open'):page.locator('#agenda-calendar-filters>summary').click()
   page.locator('#coach-agenda-week').fill('2026-10-20');page.locator('#coach-agenda-week').blur()
   card=page.locator('.coach-agenda-card[data-session-id="'+original['id']+'"]');card.get_by_role('button',name='Ouvrir la séance',exact=True).click()
   assert page.locator('#training-title').input_value()==original['title']
@@ -100,6 +101,7 @@ with sync_playwright() as p:
   assert page.evaluate('currentTraining.id')==next_id
   assert page.evaluate('currentTraining.blocks.some(b=>b.matchSource?.success===currentReport.plan.success)')
   menu('view-coach-agenda','Mon calendrier et mes séances');page.locator('#coach-agenda-all').click()
+  if not page.locator('#agenda-calendar-filters').evaluate('e=>e.open'):page.locator('#agenda-calendar-filters>summary').click()
   page.locator('#coach-agenda-week').fill('2026-10-27');page.locator('#coach-agenda-week').blur()
   assert page.locator('.coach-agenda-card').count()==1
   assert page.locator('.coach-agenda-card').get_attribute('data-session-id')==next_id
