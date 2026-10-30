@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded',()=>{
  const trigger=el('button','workspace-save-trigger');trigger.id='workspace-save-open';trigger.type='button';trigger.setAttribute('aria-haspopup','dialog');
  let frame=0,dialog=null,fields=null;const pending=new Set();
- const changes=new Set(['team','category','date','time','duration','players','keepers','age','level','context','bmf-category','coaching-load','space-size','space-width','space-length'].map(k=>'training-'+k));
+ const changes=new Set(['team','category','date','time','duration','players','keepers','age','level','context','bmf-category','bmf-objective','coaching-load','space-size','space-width','space-length'].map(k=>'training-'+k));
  const equal=(a,b)=>{const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().filter(k=>k!=='updatedAt').map(k=>[k,canonical(v[k])])):v;return JSON.stringify(canonical(a))===JSON.stringify(canonical(b));};
  function current(){
   const body=document.body;
@@ -15,13 +15,13 @@ document.addEventListener('DOMContentLoaded',()=>{
  function status(spec){
   if(spec.kind==='training'&&pending.size)return {state:'editing',label:'Saisie en cours',detail:'Votre champ est encore en cours de saisie. Terminez-le puis enregistrez la séance.'};
   if(spec.kind==='training'){
-   const candidate=structuredClone(currentTraining),map={team:'team',category:'category',date:'date',time:'time',duration:'duration',players:'players',keepers:'keepers',age:'age',level:'level',context:'context','bmf-category':'bmfCategory','coaching-load':'coachingLoad','space-size':'space',notes:'notes'};
+   const candidate=structuredClone(currentTraining),map={team:'team',category:'category',date:'date',time:'time',duration:'duration',players:'players',keepers:'keepers',age:'age',level:'level',context:'context','bmf-category':'bmfCategory','bmf-objective':'bmfObjective','coaching-load':'coachingLoad','space-size':'space',notes:'notes'};
    let invalid=false;
    for(const [id,key]of Object.entries(map)){const input=$('training-'+id);if(!input.validity.valid)invalid=true;candidate[key]=['duration','players','keepers','age'].includes(key)?Number(input.value):input.value;}
    if(candidate.space==='custom')for(const [id,key]of [['training-space-width','spaceWidth'],['training-space-length','spaceLength']])candidate[key]=Number($(id).value);
    if(invalid||!trainingValid(candidate))return {state:'error',label:'Saisie à vérifier',detail:'Certains réglages de la séance sont incomplets ou invalides. Votre version enregistrée ne contient pas ces changements. Corrigez les champs signalés avant d’enregistrer.'};
    // The normal change handler can reject a write and leave the previous model intact.
-   if(Object.entries(map).some(([id,key])=>String(candidate[key])!==String(currentTraining[key]??(key==='coachingLoad'?'normal':'')))||candidate.space==='custom'&&['spaceWidth','spaceLength'].some(key=>candidate[key]!==currentTraining[key]))return {state:'editing',label:'Saisie à enregistrer',detail:'Les champs affichés diffèrent de la version conservée. Terminez la saisie puis enregistrez la séance et vérifiez le message obtenu.'};
+   if(Object.entries(map).some(([id,key])=>key==='bmfCategory'?bmfCanonicalCategory(candidate[key])!==bmfCanonicalCategory(currentTraining[key]):String(candidate[key])!==String(currentTraining[key]??(key==='coachingLoad'?'normal':'')))||candidate.space==='custom'&&['spaceWidth','spaceLength'].some(key=>candidate[key]!==currentTraining[key]))return {state:'editing',label:'Saisie à enregistrer',detail:'Les champs affichés diffèrent de la version conservée. Terminez la saisie puis enregistrez la séance et vérifiez le message obtenu.'};
   }
   if(!spec.valid(spec.value))return {state:'error',label:'Saisie à vérifier',detail:'Certains champs sont incomplets ou invalides. Corrigez-les avant d’enregistrer.'};
   try{

@@ -40,7 +40,7 @@ function bibleExerciseDetail(exercise,session=currentTraining,options={}){
  const plan=biblePlan(exercise,session,variant),timeline=bibleEffectiveTimeline(exercise,duration,session,variant);
  const root=el('div','training-detail bible-detail');root.dataset.exercise=exercise.id;
  root.append(el('p','training-goal',exercise.goal));
- if(typeof bmfExerciseCategory==='function')root.append(el('p','exercise-classification',bmfCategoryLabel(bmfExerciseCategory(exercise))+' · '+exercise.theme));
+ if(typeof bmfExerciseCategory==='function')root.append(el('p','exercise-classification',[bmfCategoryLabel(bmfExerciseCategory(exercise)),bmfObjectiveLabel(bmfExerciseObjective(exercise))].filter(Boolean).join(' · ')));
  const summary=el('div','bible-facts');
  summary.append(el('span','',session.players+' joueurs · '+session.keepers+' G'),el('span','',plan.groups.length+' atelier'+(plan.groups.length>1?'s':'')),el('span','',duration+' min · '+timeline.sequences.length+' séquence'+(timeline.sequences.length>1?'s':'')));
  root.append(summary);
@@ -116,7 +116,7 @@ function ensureBibleCatalogue(){
  const phase=el('select');phase.id='bible-phase';phase.setAttribute('aria-label','Moment du jeu');phase.tabIndex=-1;phase.setAttribute('aria-hidden','true');phase.append(new Option('Tous les moments du jeu',''));
  for(const [value,label]of Object.entries(biblePhases))phase.append(new Option(label,value));
  const category=el('select');category.id='bible-bmf-category';category.setAttribute('aria-label','Catégorie de travail');bmfCategorySelect(category,'Toutes les catégories');category.value=bmfCanonicalCategory(currentTraining.bmfCategory||'');
- const categoryLabel=el('label','bible-bmf-filter','Intention de jeu');categoryLabel.append(category);const themeLabel=el('label','bible-bmf-filter','Thème de séance');theme.setAttribute('aria-label','Thème de séance');themeLabel.append(theme);
+ const categoryLabel=el('label','bible-bmf-filter','Intention de jeu');categoryLabel.append(category);const themeLabel=el('label','bible-bmf-filter','Sous-partie');themeLabel.id='bible-objective-filter-label';theme.setAttribute('aria-label','Sous-partie');bmfSubcategorySelect(theme,category.value,currentTraining.bmfObjective||'');themeLabel.append(theme);
  const filters=el('div','bible-main-filters');filters.append(phase,categoryLabel,themeLabel);search.after(filters);
  search.placeholder='Ex. possession, relance, troisième homme…';
  const extras=el('details','bible-search-options');extras.append(el('summary','','Affiner la recherche'));
@@ -126,17 +126,16 @@ function ensureBibleCatalogue(){
  const status=el('p','bible-results');status.id='bible-results';status.setAttribute('role','status');extras.after(status);
  const context=el('p','bible-group-context');context.id='bible-group-context';aside.querySelector('h2').after(context);
  const reset=el('button','bible-reset','Effacer les filtres');reset.id='bible-reset';reset.type='button';reset.onclick=()=>{search.value='';theme.value='';phase.value='';category.value='';method.value='';fit.checked=false;reviewed.checked=false;extras.open=false;bibleCataloguePage=0;renderBibleCatalogue();};status.after(reset);
- category.addEventListener('change',()=>{theme.value='';phase.value='';});
+ category.addEventListener('change',()=>{theme.value='';phase.value='';});theme.addEventListener('change',()=>{if(bmfSubcategories[theme.value])category.value=bmfSubcategories[theme.value].axis;phase.value='';bibleCataloguePage=0;renderTrainingCatalogue();});
  for(const input of [category,phase,method,fit])input.addEventListener('change',()=>{bibleCataloguePage=0;renderTrainingCatalogue();});
 }
 function renderBibleCatalogue(){
  ensureBibleCatalogue();
  const categoryKey=$('bible-bmf-category').value,themeFilter=$('training-filter'),selectedTheme=themeFilter.value;
- const allowedThemes=[...new Set(trainingExercises.filter(e=>!categoryKey||bmfExerciseCategory(e)===categoryKey).map(e=>e.theme))].sort((a,b)=>a.localeCompare(b,'fr'));
- themeFilter.replaceChildren(new Option('Tous les thèmes de séance',''),...allowedThemes.map(t=>new Option(t,t)));themeFilter.value=allowedThemes.includes(selectedTheme)?selectedTheme:'';
+ bmfSubcategorySelect(themeFilter,categoryKey,selectedTheme);$('bible-objective-filter-label').hidden=categoryKey==='ludic';
  const query=$('training-search').value.trim(),theme=$('training-filter').value,phase=$('bible-phase').value,method=$('bible-method').value,fit=$('bible-fit-only').checked,category=$('bible-bmf-category').value,reviewed=$('bible-five-only').checked;
  const signature=JSON.stringify([query,theme,phase,method,fit,category,reviewed,currentTraining.players,currentTraining.keepers,currentTraining.space,currentTraining.spaceWidth,currentTraining.spaceLength,currentTraining.level,currentTraining.age,currentTraining.category]);if(signature!==bibleCatalogueSignature){bibleCataloguePage=0;bibleCatalogueSignature=signature;}
- const all=trainingExercises.filter(e=>bibleKnowledge[e.id]&&(!reviewed||Boolean(exerciseFiveReview[e.id]))&&(!category||bmfExerciseCategory(e)===category)&&(!theme||e.theme===theme)&&(!phase||bibleKnowledge[e.id].phase===phase)&&(!method||e.method===method)&&bibleSearchMatches(e,query));
+ const all=trainingExercises.filter(e=>bibleKnowledge[e.id]&&(!reviewed||Boolean(exerciseFiveReview[e.id]))&&(!category||bmfExerciseCategory(e)===category)&&(!theme||bmfExerciseObjective(e)===theme)&&(!phase||bibleKnowledge[e.id].phase===phase)&&(!method||e.method===method)&&bibleSearchMatches(e,query));
  const plans=new Map(),getPlan=e=>{if(!plans.has(e.id)){const v=biblePreviewState(e).variant,contexts=Array.from({length:v.sequences},(_,i)=>bibleSequenceContext(e,currentTraining,v,i)),first=contexts[0].plan||biblePlan(e,currentTraining,{organisation:'single'});plans.set(e.id,{...first,fits:contexts.every(c=>c.valid&&c.fits)});}return plans.get(e.id);};
  const matches=fit?all.filter(e=>getPlan(e).fits):all,pageSize=innerWidth>=1500?4:innerWidth>=1100?3:innerWidth>=650?2:1;
  bibleCataloguePage=Math.min(bibleCataloguePage,Math.max(0,Math.ceil(matches.length/pageSize)-1));
@@ -149,7 +148,7 @@ function renderBibleCatalogue(){
  for(const exercise of visible){
   const k=bibleKnowledge[exercise.id],plan=getPlan(exercise),card=el('article','training-catalogue-card bible-card');card.dataset.exercise=exercise.id;
   const picture=el('button','bible-card-picture');picture.type='button';picture.setAttribute('aria-label','Voir le schéma : '+exercise.title);picture.onclick=()=>openBibleSheet(exercise);const previewGroup=plan.groups[0];if(previewGroup){const svg=exercise.id==='wall-pass'&&typeof createReferenceCombinationSVG==='function'&&previewGroup.players>=3&&previewGroup.players<=8&&previewGroup.width>=20&&previewGroup.length>=28?createReferenceCombinationSVG(createReferenceCombination({players:previewGroup.players,width:previewGroup.width,length:previewGroup.length})):bibleDiagramSVG(exercise,previewGroup,{designIndex:0});const f=bibleDiagramField(previewGroup);if(!svg.classList.contains('reference-combination-svg'))svg.setAttribute('viewBox',[f.fx-12,f.fy-12,f.fw+24,f.fh+24].join(' '));svg.setAttribute('aria-hidden','true');svg.removeAttribute('aria-labelledby');svg.setAttribute('focusable','false');picture.append(svg);}picture.append(el('span','bible-card-picture-label','Voir le schéma'));card.append(picture);
-  card.append(el('p','exercise-classification',bmfCategoryLabel(bmfExerciseCategory(exercise))),el('span','eyebrow',exercise.theme),el('h3','',exercise.title),el('p','bible-card-goal',exercise.goal));
+  card.append(el('p','exercise-classification',[bmfCategoryLabel(bmfExerciseCategory(exercise)),bmfObjectiveLabel(bmfExerciseObjective(exercise))].filter(Boolean).join(' · ')),el('span','eyebrow',exercise.theme),el('h3','',exercise.title),el('p','bible-card-goal',exercise.goal));
   const first=plan.groups[0];card.append(el('p','bible-card-format',(plan.groups.length===1?'Terrain unique':plan.groups.length+' ateliers')+' · '+first.width+' × '+first.length+' m'+(plan.groups.length>1?' par atelier':'')));
   if(!plan.fits)card.append(el('span','bible-fit-warning','Espace ou organisation à revoir'));
   const details=el('details','bible-card-preview');details.append(el('summary','','Consulter les détails ici'));

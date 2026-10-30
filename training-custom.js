@@ -26,7 +26,7 @@ function openCustomTrainingExercise(block=null){
 }
 function renderManualTrainingMode(){
  const manual=currentTraining.creationMode==='manual';$('training-manual').classList.toggle('active',manual);$('training-manual').setAttribute('aria-pressed',String(manual));$('training-assisted').classList.toggle('active',!manual);$('training-assisted').setAttribute('aria-pressed',String(!manual));document.body.classList.toggle('training-manual-mode',manual);
- $('training-themes-help').textContent=manual?'Choisissez jusqu’à trois thèmes pour votre séance. Vous construisez librement tout le contenu du déroulé.':'Choisissez jusqu’à trois thèmes prioritaires. Le générateur construit une proposition : activation, ateliers, réinvestissement et retour au calme, à valider par le coach.';
+ $('training-themes-help').textContent=manual?'Choisissez une intention de jeu et sa sous-partie. Vous construisez librement tout le contenu du déroulé.':'Choisissez une intention de jeu et sa sous-partie. Le générateur construit une proposition à valider par le coach.';
  const left=currentTraining.duration-trainingTotal();$('training-remaining').textContent=left>0?left+' min à répartir':left===0?'Durée prévue atteinte':Math.abs(left)+' min au-delà de la durée prévue';
 }
 document.addEventListener('DOMContentLoaded',()=>{
