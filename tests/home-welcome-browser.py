@@ -16,8 +16,8 @@ with sync_playwright() as p:
  for w,h in [(320,740),(390,844),(844,390),(1366,768)]:
   page.set_viewport_size({'width':w,'height':h});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(w,h)
   if page.locator('#home-backdrop').is_visible():
-   photo=page.locator('#home-backdrop').bounding_box();hero=page.locator('.home-hero').bounding_box();assert abs(photo['height']-hero['height'])<2 and abs(photo['y']-hero['y'])<2
+   photo=page.locator('#home-backdrop').bounding_box();assert abs(photo['height']-h)<2 and abs(photo['width']-w)<2 and abs(photo['y'])<2
  page.locator('#view-training').click();assert page.locator('.home-hero').is_hidden();page.locator('#view-home').click();assert page.locator('#home-greeting').inner_text()=='Bonjour Hugo.'
  page.evaluate("document.body.classList.add('club-private-active');document.getElementById('coach-profile').hidden=false;document.getElementById('club-account-bar').hidden=false");assert page.locator('#coach-profile').is_hidden();assert page.locator('#club-account-bar').is_hidden()
  assert not errors,errors;b.close()
-print('PASS greeting per active/account coach, explicit local save time in Paris, draft exclusion, unavailable storage, retained profile controls and responsive bounded hero.')
+print('PASS greeting per active/account coach, explicit local save time in Paris, draft exclusion, unavailable storage, retained profile controls and responsive full-page photos.')

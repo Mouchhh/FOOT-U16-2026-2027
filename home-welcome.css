@@ -7,8 +7,10 @@
  body.home-mode #club-home{height:auto;min-height:0}
  body.home-mode #home-page-0{overflow:visible;padding-right:0}
  body.home-mode .home-hero{position:relative;isolation:isolate;overflow:hidden;border-radius:18px;background:#2855a2;padding:32px;min-height:300px;margin:16px 0 18px;gap:24px;align-items:center}
- body.home-mode .home-hero>#home-backdrop{position:absolute;inset:0;z-index:-1;display:block;pointer-events:none}
- body.home-mode .home-hero>#home-backdrop::after{background:linear-gradient(90deg,#102e58e8 0%,#193c66b8 55%,#193c6638 100%)}
+ body.home-mode>#home-backdrop:not([hidden]){position:fixed;inset:0;z-index:0;display:block;pointer-events:none}
+ body.home-mode>#home-backdrop::after{background:linear-gradient(90deg,#102e58c9 0%,#193c668f 55%,#193c6670 100%)}
+ body.home-mode.home-has-slides .home-hero{background:linear-gradient(90deg,#102e5870,#193c6620);border:1px solid #ffffff38}
+ body.home-mode.home-has-slides>main,body.home-mode.home-has-slides>header{position:relative;z-index:1}
  body.home-mode .home-welcome-copy{position:relative;z-index:1;min-width:0;max-width:850px}
  body.home-mode .home-welcome-copy>.eyebrow{color:#dce9ff;font-size:10px;letter-spacing:1.6px}
  body.home-mode .home-hero #home-date{font-size:12px;color:#e2ecfb;margin:7px 0}

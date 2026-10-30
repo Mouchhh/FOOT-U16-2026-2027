@@ -1,7 +1,7 @@
 # Accueil personnel et épuré
 
 Le tableau de bord conserve ses trois cartes : prochaine séance, prochain match,
-travail à reprendre. Le fond photographique est limité au bandeau d’accueil,
+travail à reprendre. Les photos occupent tout le fond de l’accueil,
 avec ses commandes de défilement, pause et respect du mouvement réduit. Le
 reste de la page retrouve des surfaces blanches et bleues.
 
@@ -29,7 +29,7 @@ l’ouverture de l’accueil. Le compteur de joueurs reprend les fiches de l’e
 `tests/home-welcome-browser.py` vérifie les noms local/compte, l’exclusion des
 brouillons, la date réelle d’enregistrement en heure de Paris même dans un
 navigateur américain, le stockage indisponible, l’accès aux contrôles de profil,
-les photos limitées au bandeau et l’absence de débordement à 320, 390, 844 et
+les photos couvrant la fenêtre et l’absence de débordement à 320, 390, 844 et
 1 366 pixels. La suite du tableau de bord et la navigation par tâches passent.
 Le test du diaporama commence désormais explicitement hors accueil avant de
 vérifier sa visibilité, puisque l’accueil est la page d’entrée du site.

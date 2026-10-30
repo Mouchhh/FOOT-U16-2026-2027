@@ -8,7 +8,7 @@ function homeLastSavedLabel(){
  }catch{return 'Dernier enregistrement indisponible : vérifiez le stockage de cet appareil.';}
 }
 document.addEventListener('DOMContentLoaded',()=>{
- const hero=document.querySelector('.home-hero'),copy=hero.firstElementChild;copy.classList.add('home-welcome-copy');hero.prepend($('home-backdrop'));hero.append($('home-slideshow-controls'));
+ const hero=document.querySelector('.home-hero'),copy=hero.firstElementChild;copy.classList.add('home-welcome-copy');hero.append($('home-slideshow-controls'));
  const subtitle=copy.querySelector('p:not(#home-date)');subtitle.textContent='Préparez votre semaine : séances, match, causerie et bilan.';subtitle.classList.add('home-welcome-intro');copy.querySelector('.eyebrow').textContent='LE VESTIAIRE · STADE MAYENNAIS';
  const latest=el('p','home-last-saved');latest.id='home-last-saved';latest.setAttribute('role','status');$('home-greeting').after(latest);
  const players=el('span');players.append(el('strong','','0'),document.createTextNode(' joueurs'));players.firstChild.id='home-player-count';hero.querySelector('.home-stats').append(players);
