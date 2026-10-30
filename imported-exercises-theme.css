@@ -1,0 +1,98 @@
+/* 1. Club identity. This stylesheet changes presentation only.
+   Exercise content, SVG geometry, role colors and animation scripts are untouched. */
+:root {
+  --club-navy: #142d50;
+  --club-blue: #2855a2;
+  --ink: #203958;
+  --muted: #536a83;
+  --line: #dce5ef;
+  --bg: #f2f5f9;
+  --card: #fff;
+  --blue: var(--club-blue);
+  --blue-2: #204581;
+  --blue-soft: #eaf0f9;
+  --navy: var(--club-navy);
+  --text: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --display: var(--text);
+  --shadow: 0 3px 18px rgb(20 45 80 / 7%);
+}
+body { color: var(--ink); font-family: var(--text); }
+button, input, select { font-family: inherit; }
+:focus-visible { outline: 3px solid #8daee3; outline-offset: 3px; }
+
+/* 2. The original theme / game / variant hierarchy. */
+.b-home { width: min(900px, 100%); gap: 18px; padding: 20px 16px 32px; }
+.b-head { gap: 12px; padding: 2px 0 6px; }
+.b-head h1 { font-size: clamp(25px, 3vw, 32px); letter-spacing: -.6px; text-transform: none; }
+.b-theme, .f-card { --theme: var(--club-blue) !important; --band: var(--club-navy) !important; }
+.b-theme { border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+.b-theme h2 { padding: 13px 18px; font-size: 16px; letter-spacing: 0; text-transform: none; }
+.b-game { padding: 16px 18px; }
+.b-game h3 { font-size: 13px; letter-spacing: .4px; margin-bottom: 10px; }
+.b-list { gap: 8px; }
+.b-list a { min-height: 48px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-left: 3px solid var(--club-blue); border-radius: 10px; background: #f6f8fc; }
+.b-list a:hover { background: var(--blue-soft); }
+.b-list b { font-size: 14px; }
+.b-list span { line-height: 1.5; }
+
+/* 3. Sheet: keep the original board next to the coaching panel on computers. */
+.f-card { width: min(1180px, 100%); height: min(820px, calc(100dvh - 32px)); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+.f-top { padding: 12px 18px; }
+.f-top b { font-size: clamp(16px, 2vw, 21px); line-height: 1.25; letter-spacing: -.2px; text-transform: none; }
+.f-top small { font-size: 11px; letter-spacing: .7px; }
+.f-num { font-size: 15px; letter-spacing: .5px; }
+.f-card .xs { padding: 16px 18px; gap: 12px; }
+.f-title { font-size: clamp(21px, 2.3vw, 28px); letter-spacing: -.5px; line-height: 1.2; text-transform: none; }
+.f-obj { font-size: 15px; letter-spacing: 0; text-transform: none; line-height: 1.4; }
+.f-info { gap: 7px; }
+.f-chip { background: var(--blue-soft); color: var(--club-navy); }
+.f-card .xs-main { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px; }
+.xs-board > .board { border-color: var(--line); border-radius: 12px; }
+.xs-tabs { gap: 8px; }
+.xs-tab { min-height: 44px; text-transform: none; letter-spacing: 0; font-size: 14px; }
+.xs-panel { line-height: 1.6; padding-top: 14px; }
+.f-rules li { margin-bottom: 9px; }
+.f-expect, .warn { background: var(--blue-soft); color: var(--club-navy); }
+.f-adapt { min-height: 40px; padding: 7px 13px; border-radius: 9px; font-size: 13px; text-transform: none; letter-spacing: 0; }
+.f-sim { padding: 12px; gap: 12px; }
+.f-sim .sim-field input, .f-sim .sim-field select { min-height: 40px !important; }
+.view-bar { gap: 8px; background: #f6f8fc; }
+.view-play { min-width: 40px; min-height: 40px; }
+.xs-src { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.45; }
+.f-card .xs-foot { align-items: flex-start; gap: 12px; }
+
+/* 4. Phones and narrow tablets: a readable board, then all the instructions.
+   Scrolling belongs to the document instead of a small text panel. */
+@media (max-width: 820px) {
+  body { padding: 0; height: auto; min-height: 100dvh; display: block; }
+  .b-home { padding: 16px 12px 24px; gap: 14px; }
+  .b-theme h2 { padding: 12px; font-size: 15px; }
+  .b-game { padding: 12px; }
+  .b-list a { flex-direction: column; align-items: flex-start; padding: 11px; gap: 5px; }
+  .f-card { width: 100%; height: auto; min-height: 100dvh; overflow: visible; border: 0; border-radius: 0; }
+  .f-top { padding: 12px; }
+  .f-top small { white-space: normal; }
+  .f-card .f-top b { font-size: 17px; }
+  .f-card .xs { padding: 14px 12px; gap: 12px; }
+  .f-title { font-size: 23px; }
+  .f-obj { font-size: 14px; }
+  .f-card .xs-main { display: flex; flex-direction: column; gap: 16px; }
+  .xs-board > .board { flex: none; }
+  .xs-board .board-stage { flex: none; height: clamp(280px, 85vw, 490px); }
+  .xs-right, .xs-panel { overflow: visible; }
+  .xs-panel { flex: none; font-size: 14px; }
+  .xs-tab { min-height: 44px; }
+  .view-bar { flex-wrap: wrap; padding: 8px; }
+  .view-caption { white-space: normal; font-size: 12px; }
+  .f-card .xs-foot { flex-direction: column; gap: 8px; }
+  .xs-src { font-size: 11px; }
+  .f-sim .sim-field { flex: 1 1 110px; }
+  .f-sim .sim-field input, .f-sim .sim-field select { width: 100% !important; }
+}
+
+/* 5. Preserve readable, complete content for printing. */
+@media print {
+  body { display: block; height: auto; padding: 0; background: #fff; }
+  .f-card { height: auto; overflow: visible; box-shadow: none; }
+  .xs-panel { overflow: visible; }
+}
