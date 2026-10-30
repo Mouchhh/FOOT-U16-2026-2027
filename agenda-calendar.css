@@ -21,3 +21,5 @@
  #coach-agenda .reports-heading>.report-actions{margin-left:auto;gap:8px}#coach-agenda .reports-heading>.report-actions button{min-height:44px;font-size:12px;border-radius:9px}
  @media(max-width:700px){.agenda-filter-options .coach-agenda-filters{grid-template-columns:minmax(0,1fr)}.agenda-calendar-heading>label{max-width:none;width:100%}.agenda-calendar-heading input{font-size:16px}#coach-agenda .reports-heading>.report-actions{margin-left:0;display:flex;flex-wrap:wrap;width:100%}}
 }
+/* The agenda opens directly on its calendar; paste import stays in the heading. */
+#agenda-fff-panel,#agenda-calendar-filters{display:none!important}
