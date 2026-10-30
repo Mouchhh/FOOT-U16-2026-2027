@@ -56,3 +56,15 @@ Le test de navigation contrôle désormais les sept entrées, l’ouverture dire
 de l’effectif sans écriture, son état accessible, la validation d’un champ vide
 et l’affichage à 320, 390, 844 et 1 366 pixels. Les suites de gestion des joueurs,
 de parcours hebdomadaire et d’ateliers simultanés passent également.
+
+La palette des nouveaux repères de déplacement et des accents du menu utilise
+maintenant le blanc à la place des tons orangés. Les avertissements conservent
+leur texte sur fond blanc. Les couleurs personnelles des maillots et le matériel
+football ne sont pas réécrits.
+
+L’ouverture de **Votre effectif** réinitialise la recherche, le filtre de poste
+et le défilement pour montrer la liste complète. Si le répertoire est vide, les
+joueurs de la composition sont affichés comme tels avec **Créer sa fiche** :
+l’ouverture seule n’enregistre rien, et les noms génériques restent à compléter.
+La suite de gestion des joueurs vérifie ce premier affichage, la création de fiche
+et le retour à la liste malgré un filtre précédemment vide.

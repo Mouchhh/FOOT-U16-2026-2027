@@ -413,7 +413,7 @@ function bibleDiagramSVG(exercise,group,options={}){
  if(typeof bibleCoachScenario==='function'){
   const coachX=fx+fw*.5,coachY=fy+fh+24;svg.append(make('circle',{'data-feature':'coach',cx:coachX,cy:coachY,r:10,fill:'#173c58',stroke:'#c4d8e7','stroke-width':1.5}),make('text',{x:coachX,y:coachY+4,'text-anchor':'middle',fill:'#fff','font-size':11,'font-weight':700},'C'));
   const owner=template==='circuit'?ballActors[0]:firstOwner,player=owner?svg.querySelector('.bible-player[data-number="'+owner.number+'"]'):null;
-  if(player)player.prepend(make('circle',{'class':'bible-start-ring',cx:0,cy:0,r:playerRadius+5,fill:'none',stroke:'#ffe298','stroke-width':2,'stroke-dasharray':'4 3'}));
+  if(player)player.prepend(make('circle',{'class':'bible-start-ring',cx:0,cy:0,r:playerRadius+5,fill:'none',stroke:'#ffffff','stroke-width':2,'stroke-dasharray':'4 3'}));
   svg.append(make('text',{'class':'bible-installation-note',x:440,y:fy+fh+65,'text-anchor':'middle',fill:'#355278','font-size':10},'C : coach et réserve hors terrain · départ : '+(owner?'n° '+owner.number:'au signal du coach')));
  }
  const keyY=590,legendLayer=make('g',{'class':'bible-installation-legend'});svg.append(legendLayer);
