@@ -6,7 +6,7 @@ function trainingSessionStages(session){
  return stages;
 }
 function trainingStageBlockData(block,session){
- if(block.exerciseId==='custom')return {players:block.workshopPlayers??session.players,keepers:block.workshopKeepers??session.keepers,material:{},width:block.custom.width,length:block.custom.length,custom:true};
+ if(block.exerciseId==='custom'){const count=block.custom.adaptation?.groups.length||1,cols=Math.ceil(Math.sqrt(count)),rows=Math.ceil(count/cols);return {players:block.workshopPlayers??session.players,keepers:block.workshopKeepers??session.keepers,material:{},width:block.custom.width*cols,length:block.custom.length*rows,custom:true};}
  const e=trainingExerciseForBlock(block),v=bibleInitialVariant(e,session,block.bibleVariant,true),contexts=Array.from({length:v.sequences},(_,i)=>bibleSequenceContext(e,session,v,i)),valid=contexts.filter(c=>c.valid),material={};
  for(const c of valid)for(const [k,n]of Object.entries(c.plan.totalMaterial))material[k]=Math.max(material[k]||0,n);
  return {players:Math.max(0,...valid.map(c=>c.activePlayers)),keepers:Math.max(0,...valid.map(c=>c.activeKeepers)),field:Math.max(0,...valid.map(c=>c.activePlayers-c.activeKeepers)),material,width:Math.max(0,...valid.map(c=>c.plan.footprint.width)),length:Math.max(0,...valid.map(c=>c.plan.footprint.length)),valid:valid.length===contexts.length};

@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    add('task-match-tactics','Tactique',tactical,simple||index!==1&&kind==='plan');
    add('task-match-causerie','Causerie',talk,index===1&&!simple);
   }else if(parent==='view-training'){
-   add('task-training-prepare','Préparer ma séance',prepare,trainingPanel==='prepare');add('task-training-bible','Bible des exercices',()=>trainingWizard.openCatalogue(),trainingPanel==='bible');add('task-training-library','Mes séances',()=>$('training-library-tab').click(),trainingPanel==='library');add('task-training-create','Créer un exercice',()=>{prepare();trainingWizard.go(3);openCustomTrainingExercise();},false);
+   add('task-training-library','Séances',()=>trainingWizard.openLibrary(),trainingPanel!=='bible');add('task-training-bible','Exercices',()=>trainingWizard.openCatalogue(),trainingPanel==='bible');
   }else if(parent==='view-home'){
    add('task-home-dashboard','Tableau de bord',()=>workspaceFlows.home.go(0),workspaceFlows.home.index()===0);add('task-home-coaches','Éducateurs',()=>workspaceFlows.home.go(1),workspaceFlows.home.index()===1);
   }else if(parent==='view-coach-agenda'){

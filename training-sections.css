@@ -1,0 +1,14 @@
+.training-exercises-page{min-width:0;width:100%;padding:0 0 28px}
+.training-exercises-page>.training-catalogue{display:block;position:static;width:100%;max-width:none;max-height:none;overflow:visible;margin:0;box-sizing:border-box}
+.training-exercises-open .training-progress,.training-exercises-open .training-step-footer{display:none!important}
+.training-exercises-open .training-step,.training-library-open .training-step{display:none!important}
+.training-library-page .training-step-heading{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.training-library-page .training-step-heading p{flex-basis:100%}
+.training-library-page #training-create-session{margin-left:auto}
+.exercise-reuse-dialog{max-width:760px;width:calc(100% - 32px);box-sizing:border-box;max-height:90dvh;overflow:auto}
+.exercise-reuse-dialog textarea{width:100%;box-sizing:border-box}
+.exercise-reuse-shared{display:flex;flex-wrap:wrap;gap:10px}.exercise-reuse-shared h3{flex-basis:100%}
+@media(min-width:1000px){body.training-mode:has(.training-exercises-open),body.training-mode:has(.training-library-open){overflow:auto}body.training-mode:has(.training-exercises-open) #training-space,body.training-mode:has(.training-library-open) #training-space{height:auto;overflow:visible}}
+.training-exercises-open .reports-heading .report-actions,.training-library-open .reports-heading .report-actions{display:none!important}
+.training-exercises-open #training-status,.training-library-open #training-status{display:none!important}
+.training-exercises-open #training-catalogue-close{display:none}
