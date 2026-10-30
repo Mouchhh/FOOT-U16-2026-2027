@@ -62,7 +62,7 @@ with sync_playwright() as p:
   assert page.evaluate('saves.some(s=>s.state.documentId===getCompositionBoard().documentId)')
   menu('view-reports','Le match');page.locator('#report-new').click()
   quick=page.locator('#report-quick-panel');quick.get_by_label('Buts marqués',exact=True).fill('2');quick.get_by_label('Buts encaissés',exact=True).fill('1')
-  quick.get_by_label('La priorité à travailler',exact=True).fill('Réduire l’intervalle entre pression et couverture')
+  quick.locator('.report-essential-followup > summary').click();quick.get_by_label('La priorité à travailler',exact=True).fill('Réduire l’intervalle entre pression et couverture')
   quick.get_by_label('Comment observer les progrès ?',exact=True).fill('Le second défenseur protège l’axe sur trois actions observées.')
   page.locator('#report-save').click();report=page.evaluate('structuredClone(currentReport)')
   assert report['preparation']['plan']['opponent']=='Adversaire parcours'

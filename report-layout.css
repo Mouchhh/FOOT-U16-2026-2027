@@ -1,0 +1,43 @@
+@media screen{
+ body.reports-mode .task-section-tabs{display:none!important}
+ .task-navigation.reports-mode #after-match>#report-tabs{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:5px;border:0;border-radius:12px;background:#e2eaf4;margin:0 0 18px;overflow:visible}
+ #after-match #report-tabs>button{min-width:0;min-height:48px;background:transparent;border:1px solid transparent;border-radius:9px!important;color:#526b88;font-size:14px;font-weight:650;padding:10px 8px;white-space:normal}
+ #after-match #report-tabs>button.active{background:#fff;border-color:#cedceb;color:#2855a2;box-shadow:0 2px 5px #18345510}
+ #after-match>.document-title-field{display:none}
+ #after-match .reports-heading h1{font-size:29px;letter-spacing:-.8px;color:#17385d;margin:6px 0}
+ #after-match .reports-heading>div>p{display:none}
+ .report-header-library{display:flex;align-items:center;gap:7px;font-size:12px;color:#365374;margin:0;min-width:0}
+ .report-header-library select{width:190px;max-width:100%;min-height:44px;margin:0;background:#fff;border-color:#cbd8e7;font-size:13px}
+ #report-library-drawer{margin-bottom:12px;padding:8px 12px}#report-library-drawer>summary{font-size:11px}
+ .report-match-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+ #report-content .report-match-columns>.report-panel{margin:0;padding:22px;border:1px solid #dce5ef;background:#fff;border-radius:15px}
+ .report-match-columns h2{font-size:19px;margin-bottom:18px;color:#17385d}
+ .report-scoreboard{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);align-items:center;gap:10px;padding:22px 16px;background:#2855a2;color:#fff;border-radius:12px}
+ .report-score-side{text-align:center;min-width:0}.report-score-side>strong{display:block;font-size:14px;font-weight:650;overflow-wrap:anywhere;margin-bottom:12px}
+ .report-score-side .report-field{margin:0}.report-score-side .report-field>span{display:block;font-size:11px;color:#fff;margin-bottom:6px}
+ .task-navigation #report-content .report-scoreboard input{width:84px;max-width:100%;height:70px;min-height:70px;border:1px solid #bacde8;background:#fff;color:#204a8c;text-align:center;font-size:30px;font-weight:750;margin-inline:auto;border-radius:10px}
+ .report-score-separator{font-size:25px;text-align:center;font-weight:700}
+ #report-quick-result{text-align:center;margin:16px 0;padding:8px;background:#eef4fc;color:#2855a2;border-radius:8px;font-weight:650}
+ .report-essential-followup{margin:18px 0;border:1px solid #dce5ef;border-radius:11px;background:#fff;padding:12px 16px}.report-essential-followup>summary{cursor:pointer;font-size:13px;color:#365374;font-weight:650;min-height:30px}.report-essential-followup .report-grid{margin-top:12px}
+ .report-analysis-switch{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.report-analysis-switch button{min-height:44px}.report-analysis-switch button[aria-pressed=true]{background:#2855a2;color:#fff;border-color:#2855a2}
+ @media(max-width:1000px){.report-match-columns{gap:14px}.report-header-library select{width:160px}}
+ @media(max-width:700px){
+  #after-match .reports-heading h1{font-size:25px}
+  #after-match .reports-heading .report-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}.report-header-library{grid-column:1/-1;justify-content:space-between}.report-header-library select{width:70%;font-size:16px}
+  .task-navigation.reports-mode #after-match>#report-tabs{gap:3px;margin-bottom:14px}#after-match #report-tabs>button{font-size:11px;padding:8px 2px;min-height:48px;line-height:1.35}
+  .report-match-columns{grid-template-columns:minmax(0,1fr)}#report-content .report-match-columns>.report-panel{padding:16px}
+  .report-match-columns .report-grid{grid-template-columns:minmax(0,1fr)}.report-scoreboard{padding:18px 10px;gap:6px}.report-score-side>strong{font-size:13px}
+ }
+}
+@media screen{
+ body.reports-mode{overflow:auto}
+ body.reports-mode #after-match{height:auto;min-height:0}
+ body.reports-mode #report-content{overflow:visible;flex:initial}
+ body.reports-mode #after-match>.flow-footer{position:sticky;bottom:0;background:#f3f6faf5;z-index:4}
+ body.reports-mode #task-section-navigation{justify-content:flex-end}
+ body.reports-mode #task-section-navigation>button{margin-inline:0!important}
+}
+@media screen{
+ #after-match #report-quick-result{display:block;width:100%;text-align:center;font-size:14px}
+ #after-match .reports-heading .eyebrow{color:#2855a2}
+}

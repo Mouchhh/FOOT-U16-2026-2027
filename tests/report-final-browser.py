@@ -12,7 +12,7 @@ with sync_playwright() as p:
  assert 'Victoire' in page.locator('#report-quick-result').inner_text()
  quick.get_by_label('Buts encaissés',exact=True).fill('-1');assert 'vérifier' in page.locator('#report-quick-result').inner_text()
  quick.get_by_label('Buts encaissés',exact=True).fill('1')
- quick.get_by_label('La priorité à travailler',exact=True).fill('Protéger l’axe à la perte')
+ quick.locator('.report-essential-followup > summary').click();quick.get_by_label('La priorité à travailler',exact=True).fill('Protéger l’axe à la perte')
  quick.get_by_label('Comment observer les progrès ?',exact=True).fill('Le premier défenseur ralentit pendant le repli des partenaires')
  quick.get_by_role('button',name='Renseigner tous les détails du match',exact=True).click()
  assert page.locator('#report-content').get_by_label('Adversaire',exact=True).input_value()=='Laval'

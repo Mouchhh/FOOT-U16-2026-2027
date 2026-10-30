@@ -3,7 +3,7 @@ from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1366,'height':900});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  page.goto('http://127.0.0.1:3016/?mode=local');page.evaluate("document.querySelector('#view-reports').click();reportTab='general';renderReportContent()")
- quick=page.locator('#report-quick-panel');quick.get_by_label('Adversaire',exact=True).fill('Équipe visiteuse');quick.get_by_label('La priorité à travailler',exact=True).fill('Sortir de la pression par le côté libre')
+ quick=page.locator('#report-quick-panel');quick.get_by_label('Adversaire',exact=True).fill('Équipe visiteuse');quick.locator('.report-essential-followup > summary').click();quick.get_by_label('La priorité à travailler',exact=True).fill('Sortir de la pression par le côté libre')
  quick.get_by_role('button',name='Renseigner tous les détails du match',exact=True).click();assert page.locator('#report-content').get_by_label('Adversaire',exact=True).input_value()=='Équipe visiteuse'
  assert page.evaluate('currentReport.plan.priority')=='Sortir de la pression par le côté libre'
  page.locator('#report-quick-panel').get_by_role('button',name='Revenir au bilan essentiel',exact=True).click();quick.get_by_role('button',name='Choisir les exercices pour la prochaine séance',exact=True).click();assert page.locator('#report-training-dialog').is_visible();page.locator('#report-training-dialog').get_by_role('button',name='Fermer',exact=True).click()

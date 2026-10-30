@@ -1,0 +1,6 @@
+// Reuse the existing report library and data; only the workspace is reorganized.
+document.addEventListener('DOMContentLoaded',()=>{
+ const root=$('after-match'),heading=root.querySelector('.reports-heading'),actions=heading.querySelector('.report-actions'),library=$('report-library-select').closest('label');library.classList.add('report-header-library');library.firstChild.textContent='Mes bilans';actions.prepend(library);root.querySelector('.eyebrow').textContent='APRÈS-MATCH';root.querySelector('.reports-heading h1').textContent='Bilan du match';$('report-new').textContent='Nouveau bilan';$('report-save').textContent='Enregistrer';
+ const render=renderReportContent;renderReportContent=function(){render();if(['sport','human'].includes(reportTab)){const tabs=el('div','report-analysis-switch');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','Volets de l’analyse');for(const [id,label]of [['sport','Jeu & suivi sportif'],['human','Collectif & suivi humain']]){const button=el('button','export',label);button.type='button';button.setAttribute('aria-pressed',String(reportTab===id));button.onclick=()=>{reportTab=id;renderReportTabs();renderReportContent();};tabs.append(button);}$('report-content').prepend(tabs);}};
+ renderReportTabs();renderReportContent();
+});
