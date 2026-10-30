@@ -12,3 +12,8 @@
 .training-exercises-open .reports-heading .report-actions,.training-library-open .reports-heading .report-actions{display:none!important}
 .training-exercises-open #training-status,.training-library-open #training-status{display:none!important}
 .training-exercises-open #training-catalogue-close{display:none}
+
+/* Display the supplied HTML as a full page, without the former Bible card grid. */
+.supplied-exercises-catalogue>#training-catalogue{display:block!important;padding:0!important;width:100%;max-width:none!important}
+.supplied-exercises-catalogue>.bible-main-filters,.supplied-exercises-catalogue>.bible-search-options,.supplied-exercises-catalogue>#training-search,.supplied-exercises-catalogue>#bible-results,.supplied-exercises-catalogue>#bible-reset,.supplied-exercises-catalogue>#bible-group-context,.supplied-exercises-catalogue>h2,.supplied-exercises-catalogue>#bible-intro{display:none!important}
+.supplied-exercises-catalogue{padding:12px!important}
