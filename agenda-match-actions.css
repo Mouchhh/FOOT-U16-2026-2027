@@ -1,0 +1,3 @@
+.agenda-match-remove{min-height:44px;color:#244e94;flex:none}
+@media print{.agenda-match-remove,#agenda-matches-restore{display:none!important}}
+#agenda-matches-restore[hidden]{display:none!important}
