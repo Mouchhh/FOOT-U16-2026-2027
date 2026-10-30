@@ -258,3 +258,6 @@
 .training-diagram-screen [data-reader="clean"]{background:#f8fafc}
 .training-diagram-screen [data-reader-zone]{font-weight:600;paint-order:stroke;stroke:#2d6948;stroke-width:2px}
 @media print{.bible-scene-metrics{display:none!important}}
+
+/* Movement meaning remains readable without relying on colour. */
+.bible-animation-key{display:flex;flex-wrap:wrap;gap:7px 14px;font-size:12px!important;line-height:1.4!important;color:#304f70!important}.bible-animation-key>span{display:inline-flex;align-items:center;gap:6px}.bible-animation-key svg{width:40px;height:22px;flex:none;background:#174c37;border-radius:4px}.bible-action-reading{padding:10px 12px;background:#eaf2fd;border-left:3px solid #3765a7;font-size:14px!important;line-height:1.5!important;color:#193f6b!important;overflow-wrap:anywhere}.bible-action-reading[data-action=recovery]{border-color:#ad4354}.bible-action-reading[data-action=carry]{border-color:#9d741e}
