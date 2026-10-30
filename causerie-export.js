@@ -177,19 +177,25 @@
   function stopConnectionPoll(){if(connectionPoll){clearInterval(connectionPoll);connectionPoll=null;}}
   function lock(on){busy=on;for(const button of [download,close,connect,refreshConnection,disconnect,upload])button.disabled=on;include.disabled=on;}
   function reserveWindow(){
-   const popup=window.open('about:blank','vestiaire-canva-'+crypto.randomUUID());
+   let popup;
+   try{popup=window.open('about:blank','_blank');}catch{return null;}
    if(popup){popup.opener=null;popup.document.title='Votre causerie dans Canva';popup.document.body.textContent='Préparation de votre causerie… Cette fenêtre ouvrira votre présentation Canva.';}
    return popup;
   }
   async function startAuthorization(popup=null,afterConnection=null){
    if(busy)return;stopConnectionPoll();
    const version=viewVersion;
-   popup=popup||reserveWindow();if(!popup){status.textContent='Autorisez l’ouverture de la fenêtre Canva, puis réessayez.';return;}
+   popup=popup||reserveWindow();
+   const sameTab=!popup;
    try{
     const credential=clubToken(),form=el('form'),input=el('input'),returnURL=el('input');
-    form.method='POST';form.action=gateway+'/oauth/start';form.target=popup.name;input.type='hidden';input.name='credential';input.value=credential;
-    returnURL.type='hidden';returnURL.name='return_url';returnURL.value=new URL('canva-return.html',location.href).href;form.append(input,returnURL);document.body.append(form);
+    form.method='POST';form.action=gateway+'/oauth/start';form.target='_self';input.type='hidden';input.name='credential';input.value=credential;
+    returnURL.type='hidden';returnURL.name='return_url';returnURL.value=new URL('canva-return.html',location.href).href;form.append(input,returnURL);
+    // Submit inside the reserved window: Safari can lose named targets after opener is cleared.
+    // If pop-ups are blocked, a top-level POST still starts OAuth without exposing the token in a URL.
+    (popup?popup.document.body:document.body).append(form);
     try{form.submit();}finally{form.remove();}
+    if(sameTab){status.textContent='Ouverture de Canva dans cet onglet…';return;}
     status.textContent='Autorisez Canva dans la nouvelle fenêtre, puis revenez ici.';
     let attempts=0,running=false;
     connectionPoll=setInterval(async()=>{
@@ -201,7 +207,7 @@
      }}
      catch(error){stopConnectionPoll();status.textContent=error.message;}finally{running=false;}
     },2500);
-   }catch(error){popup.close();status.textContent=error.message;}
+   }catch(error){if(popup&&!popup.closed)popup.close();status.textContent=error.message;}
   }
   connect.onclick=()=>startAuthorization();
   refreshConnection.onclick=()=>checkConnection(true).catch(error=>{status.textContent=error.message;});
