@@ -1,7 +1,7 @@
 # Effectif en cartes
 
-L’onglet **Votre effectif** ouvre la page **Mes joueurs**. Un bandeau photographique du club accueille le titre. Le bouton **Nouveau
-joueur** est placé dans cet en-tête, puis viennent les filtres Tous, Gardien,
+L’onglet **Votre effectif** ouvre la page **Mes joueurs**. Le bouton **Nouveau
+joueur** est placé dans l’en-tête, puis viennent les filtres Tous, Gardien,
 Défenseur, Milieu et Attaquant avec leurs compteurs. Les compteurs portent sur
 l’effectif enregistré, indépendamment de la recherche. Une rubrique Poste à
 préciser permet de retrouver les fiches sans poste standard sans les modifier.

@@ -54,3 +54,8 @@
  .home-local-coach-controls label{min-width:200px;flex:1;font-size:13px;color:#365374}.home-local-coach-controls button,.home-account-actions button{min-height:44px}
  body.club-private-active .home-local-coach-controls,body:not(.club-private-active) .home-account-actions{display:none!important}
 }
+
+@media screen{
+ body.home-mode.home-has-slides>header{background:transparent;border-bottom:0}
+ body.home-mode.home-has-slides .brand,body.home-mode.home-has-slides .brand small{color:#fff;text-shadow:0 1px 4px #102e5880}
+}
