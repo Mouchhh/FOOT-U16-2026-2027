@@ -40,7 +40,7 @@ function agendaFFFPrepare(fixture){
 }
 function agendaFFFEvents(){const data=agendaFFFRead();return data.fixtures.filter(f=>f.status!=='cancelled'&&agendaCalendarMatches(f.date,data.category,activeCoach.name)).map(f=>({id:'fff:'+f.key,kind:'match',label:'Match FFF',date:f.date,time:f.time,title:f.title,category:data.category,fff:f,open:()=>agendaFFFPrepare(f)}));}
 document.addEventListener('DOMContentLoaded',()=>{
- const panel=el('details','agenda-fff-panel');panel.id='agenda-fff-panel';panel.append(el('summary','','Calendrier FFF · mon équipe et import des matchs'));
+ const panel=el('details','agenda-fff-panel');panel.id='agenda-fff-panel';panel.append(el('summary','','Importer d’autres rencontres'));
  const intro=el('p','hint','Ouvrez la saison de votre équipe FFF. Si un export calendrier est proposé, importez son fichier ICS ici ; sinon utilisez le modèle CSV. Pas de connexion au compte FFF ni de synchronisation automatique à ce stade.');
  const fields=el('div','training-form');function field(label,id){const wrap=el('label','report-field',label),input=el('input');input.id=id;wrap.append(input);fields.append(wrap);return input;}
  const url=field('Lien FFF de mon équipe','agenda-fff-url');url.type='url';url.maxLength=1000;const category=field('Catégorie de cette équipe','agenda-fff-category');category.maxLength=30;

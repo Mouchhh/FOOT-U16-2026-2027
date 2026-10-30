@@ -34,11 +34,11 @@ with sync_playwright() as p:
  upload(moved);page.locator('#agenda-fff-confirm').click();assert page.evaluate('agendaFFFRead().fixtures[0].date')=='2026-11-14'
  upload(ICS);page.locator('#agenda-fff-confirm').click();assert page.evaluate('agendaFFFRead().fixtures[0].date')=='2026-11-14'
  page.reload();page.wait_for_function("typeof agendaFFFParse==='function'");assert page.evaluate('agendaFFFRead().fixtures.length')==1
- page.locator('#view-coach-agenda').click();page.evaluate('workspaceFlows.agenda.go(1)');page.locator('#coach-agenda-month').fill('2026-11');page.locator('#coach-agenda-month').dispatch_event('change');assert page.locator('[data-date="2026-11-14"] .agenda-calendar-event').count()==1
- previous=page.evaluate('JSON.stringify(getCompositionBoard())');page.once('dialog',lambda d:d.accept());page.locator('[data-date="2026-11-14"] .agenda-calendar-event').click()
+ page.locator('#view-coach-agenda').click();page.evaluate('workspaceFlows.agenda.go(1)');page.locator('#coach-agenda-month').fill('2026-11');page.locator('#coach-agenda-month').dispatch_event('change');assert page.locator('[data-date="2026-11-14"] .agenda-calendar-event[aria-label*="SMFC - Laval"]').count()==1
+ previous=page.evaluate('JSON.stringify(getCompositionBoard())');page.once('dialog',lambda d:d.accept());page.locator('[data-date="2026-11-14"] .agenda-calendar-event[aria-label*="SMFC - Laval"]').click()
  assert page.evaluate('getCompositionBoard().matchPreparation.date')=='2026-11-14';assert page.evaluate('getCompositionBoard().category')=='U17'
  assert page.evaluate("workspaceRecoveryEntries().composition.payload.matchPreparation?.date||''")!= '2026-11-14'
- page.locator('#view-coach-agenda').click();page.evaluate('workspaceFlows.agenda.go(1)');assert page.locator('[data-date="2026-11-14"] .agenda-calendar-event').count()==1
+ page.locator('#view-coach-agenda').click();page.evaluate('workspaceFlows.agenda.go(1)');assert page.locator('[data-date="2026-11-14"] .agenda-calendar-event[aria-label*="SMFC - Laval"]').count()==1
  page.locator('#agenda-fff-panel>summary').click();cancelled=moved.replace('END:VEVENT','STATUS:CANCELLED\nEND:VEVENT').replace('SEQUENCE:2','SEQUENCE:3');upload(cancelled);page.locator('#agenda-fff-confirm').click();assert page.evaluate('agendaFFFEvents().length')==0
  assert page.evaluate("agendaCalendarEvents().some(e=>e.title.startsWith('ANNULÉ'))")
  before=page.evaluate("coachStorageGet('vestiaire-fff-calendar')");upload(moved.replace('SEQUENCE:2','SEQUENCE:4'))

@@ -1,6 +1,6 @@
 # Calendrier FFF dans l'agenda
 
-Le lien de saison fourni pour le Stade Mayennais U17 est proposé dans le panneau « Calendrier FFF » :
+Le lien de saison fourni pour le Stade Mayennais U17 est proposé dans le panneau secondaire « Importer d’autres rencontres » :
 https://epreuves.fff.fr/competition/club/548126-st-mayennais-f-c/equipe/2026_25254_U17_7/saison
 
 Chaque coach enregistre le lien de son équipe et sa catégorie dans son stockage isolé (`vestiaire-fff-calendar`). Aucun mot de passe FFF, jeton FFF, scraping ou synchronisation automatique n'est utilisé. Le lien ouvre la page officielle. Le proxy de l'environnement de développement renvoie CONNECT 403 pour epreuves.fff.fr : l'existence d'un bouton d'export ICS sur la page fournie n'a pas pu être vérifiée. Ne pas annoncer un abonnement FFF opérationnel.

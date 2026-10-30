@@ -6,16 +6,16 @@ Neuf rencontres, du 19 septembre au 5 décembre 2026, dont cinq scores. La journ
 
 ## Utilisation
 
-Dans Agenda / Calendrier, « Les rencontres de mon équipe » propose le calendrier commun. Le choix est conservé par coach sur cet appareil (`vestiaire-club-calendar-team`). Aucun coach n'est affecté arbitrairement à une équipe. Chaque coach choisit l'équipe une fois sur cet appareil ; il retrouve ensuite directement les rencontres, sans fichier à importer. Sur un autre appareil, choisir à nouveau l'équipe ; cette préférence n'est pas synchronisée par un nouveau service cloud.
+Dans Agenda / Calendrier, les neuf rencontres s’affichent directement sans sélection préalable et sans bloc « Les rencontres de mon équipe ». L’ancienne préférence locale `vestiaire-club-calendar-team`, y compris un choix vide, ne masque plus ces matchs. Aucun import ou enregistrement local n’est nécessaire pour les consulter sur un autre appareil. Les filtres habituels de l’agenda restent disponibles.
 
-Les données communes font partie du site, pas des imports locaux FFF. Une correction publiée dans ce fichier s'appliquera à tous les coachs ayant choisi ce calendrier lorsqu'ils chargent la nouvelle version du site. Ce mécanisme n'est pas une synchronisation automatique des résultats/reports depuis la FFF.
+Les données communes font partie du site, pas des imports locaux FFF. Une correction publiée dans ce fichier s’appliquera lorsque les coachs chargent la nouvelle version du site. Ce mécanisme n’est pas une synchronisation automatique des résultats/reports depuis la FFF.
 
 La clé est fondée sur l'équipe, la saison et la journée : un changement de date ne crée pas une nouvelle rencontre. La préparation utilise les fonctions existantes avec récupération du brouillon, les joueurs actuels après confirmation, le nom exact de l'équipe, l'adversaire, la catégorie et le contexte du match. Une préparation déjà créée est réutilisée. Les préparations liées ne doublonnent pas la rencontre commune à la même date. Les fiches gardent le score et l'horaire connu après création d'une préparation.
 
-Domicile/extérieur est déduit de l'ordre des équipes fourni ; aucun stade précis n'a été inventé. Désactiver son calendrier ne supprime pas les compositions ou causeries personnelles. Les résultats restent des informations de calendrier, ils ne créent pas automatiquement des bilans sportifs.
+Domicile/extérieur est déduit de l'ordre des équipes fourni ; aucun stade précis n'a été inventé. Les résultats restent des informations de calendrier, ils ne créent pas automatiquement des bilans sportifs.
 
 ## Vérification
 
-`python tests/agenda-club-fixtures-browser.py` vérifie les neuf dates/heures, les cinq scores exacts, l'ordre domicile/extérieur, la journée 1 d'octobre, le choix explicite, la création et la récupération, l'absence de doublon, un changement commun de date conservant la clé et la préparation, la désinscription, le rechargement, un second utilisateur/appareil et le téléphone.
+`python tests/agenda-club-fixtures-browser.py` vérifie les neuf dates/heures, les cinq scores exacts, l'ordre domicile/extérieur, la journée 1 d'octobre, l’affichage sans choix préalable, la création et la récupération, l'absence de doublon, un changement commun de date conservant la clé et la préparation, l’indépendance vis-à-vis des anciennes préférences, le rechargement, un second utilisateur/appareil et le téléphone.
 
 Les tests FFF et de l'agenda existant passent également : `tests/agenda-fff-browser.py`, `tests/agenda-calendar-browser.py`.
