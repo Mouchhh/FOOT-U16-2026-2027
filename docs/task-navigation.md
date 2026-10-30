@@ -34,3 +34,25 @@ Vérifications : navigation directe, trois rubriques Match, tableaux indépendan
 causerie persistante après rechargement, Canva avec service simulé, historique,
 protection des champs, menus clavier, conservation des IDs, et affichage entre
 320 × 800 et 1366 × 900, avec contrôle d’un écran paysage court de 844 × 390.
+
+## Identité visuelle et accès à l’effectif · 30 octobre 2026
+
+La navigation conserve Accueil, Match, Séances, Agenda, Bilans et Club, avec
+**Votre effectif** en accès direct. Ce bouton ouvre le répertoire existant du
+coach (photos, numéros, postes), sans créer de deuxième stockage ni changer la
+composition ouverte. Le nom de l’espace est repris dans le titre de la fenêtre.
+Il respecte la validation des champs de séance avant ouverture et les commandes
+au clavier du menu. La page sous la fenêtre reste la destination courante.
+
+`workspace-identity.css` harmonise le bandeau, les onglets, les boutons principaux,
+les champs et les cartes en conservant le logo, le nom et le bleu/blanc/rouge du
+club. Sur téléphone : deux rangées de navigation, boutons d’au moins 44 pixels,
+champs de 16 pixels et actions qui passent à la ligne. Les styles sont limités à
+l’écran ; les terrains, leurs coordonnées et les documents imprimés gardent leurs
+règles existantes. L’assistant reste dans la barre d’outils, sans bouton flottant
+recouvrant les formulaires.
+
+Le test de navigation contrôle désormais les sept entrées, l’ouverture directe
+de l’effectif sans écriture, son état accessible, la validation d’un champ vide
+et l’affichage à 320, 390, 844 et 1 366 pixels. Les suites de gestion des joueurs,
+de parcours hebdomadaire et d’ateliers simultanés passent également.
