@@ -5,7 +5,7 @@ function trainingReplaceBlock(id){
  const label=el('label','report-field','Exercice compatible'),select=el('select'),preview=el('div','report-panel'),status=el('p','hint'),apply=el('button','primary','Confirmer le remplacement');apply.type='button';select.setAttribute('aria-label','Exercice compatible');label.append(select);dialog.append(label,preview,status,apply);
  const signature=JSON.stringify([currentTraining.players,currentTraining.keepers,currentTraining.category,currentTraining.age,currentTraining.level,currentTraining.context,currentTraining.space,currentTraining.spaceWidth,currentTraining.spaceLength,currentTraining.coachingLoad,original]);
  const targetSession=trainingSessionForBlock(original,currentTraining);
- const choices=trainingExercises.filter(e=>e.id!==original.exerciseId).map(e=>{
+ const choices=trainingAvailableExercises().filter(e=>e.id!==original.exerciseId).map(e=>{
   let v=bibleInitialVariant(e,targetSession);let contexts=Array.from({length:v.sequences},(_,i)=>bibleSequenceContext(e,targetSession,v,i));
   if(!contexts.every(c=>c.valid&&c.fits)){v=bibleInitialVariant(e,targetSession,null,true);contexts=Array.from({length:v.sequences},(_,i)=>bibleSequenceContext(e,targetSession,v,i));}
   if(original.parallelId){v.autoProfile=false;v.sequenceSettings=Array.from({length:4},()=>({players:targetSession.players,keepers:targetSession.keepers}));}

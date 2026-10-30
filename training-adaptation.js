@@ -264,7 +264,7 @@ function bibleAdaptationAlternatives(exercise,session={}){
  return choices;
 }
 function bibleCompatibleExercises(exercise,session={},limit=3){
- return trainingExercises.filter(e=>e.id!==exercise.id&&e.theme===exercise.theme).map(e=>({exercise:e,plan:biblePlan(e,session,{organisation:'auto'})})).filter(item=>item.plan.fits).slice(0,limit);
+ return trainingAvailableExercises().filter(e=>e.id!==exercise.id&&e.theme===exercise.theme).map(e=>({exercise:e,plan:biblePlan(e,session,{organisation:'auto'})})).filter(item=>item.plan.fits).slice(0,limit);
 }
 // Une séquence peut employer une partie du groupe sans inventer des partenaires ni
 // transformer les gardiens écartés en joueurs de champ. Les dimensions ci-dessous
