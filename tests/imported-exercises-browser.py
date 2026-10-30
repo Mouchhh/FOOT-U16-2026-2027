@@ -1,8 +1,8 @@
 from pathlib import Path
 from hashlib import sha256
 from playwright.sync_api import sync_playwright
-# Only a stylesheet link may differ: exercise data and functional scripts stay byte-identical.
-original=Path('imported-exercises-view.html').read_text().replace('<link rel="stylesheet" href="imported-exercises-theme.css?v=moments-147">\n','')
+# Only presentation asset links may differ: data and functional scripts stay byte-identical.
+original=Path('imported-exercises-view.html').read_text().replace('<script src="imported-exercises-classification.js?v=folders-148"></script>\n','').replace('<link rel="stylesheet" href="imported-exercises-theme.css?v=folders-148">\n','')
 assert sha256(original.encode()).hexdigest()=="84e007bb3da94fe7114e5297dfc38bd2938de8575198c9cc24d89fc6fde23fcb"
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
@@ -12,6 +12,18 @@ with sync_playwright() as p:
  page.locator('#view-training').click();page.locator('#task-training-bible').click()
  frame=page.frame_locator('#supplied-exercises-frame');frame.locator('.b-list a').first.wait_for()
  assert frame.locator('.b-list a').count()==7
+ assert frame.locator('.b-theme').count()==5
+ assert frame.locator('.b-objective').count()==13
+ expected={
+  'banide-appuis':('possede','Zone 1 · Construire le jeu'),
+  'banide-joker':('possede','Zone 3 / Box · Finition'),
+  'banide-base':('perd','Zone 1 / Box · Défendre le but'),
+  'banide-contre':('recupere','Zone 1 · Jouer vers l’avant'),
+  'banide-proteger':('nepossede','Zone 1 / Box · Défendre bas'),
+  'banide-pressing':('nepossede','Zone 3 · Défendre haut'),
+  'banide-ludique':('ludique','Version simple')}
+ for exercise,(moment,objective) in expected.items():
+  assert frame.locator(f'[data-moment="{moment}"] [data-objective="{objective}"] [data-exercise-id="{exercise}"]').count()==1
  native=next(f for f in page.frames if 'imported-exercises-view.html' in f.url)
  native.evaluate("""()=>{const colors={ludique:'rgb(242, 201, 76)',possede:'rgb(40, 85, 162)',perd:'rgb(180, 83, 9)',recupere:'rgb(36, 115, 66)',nepossede:'rgb(185, 38, 53)'};for(const [moment,color] of Object.entries(colors)){const e=EXOS.find(e=>e.moment===moment)||{...EXOS[0],moment};const card=renderFiche(e);document.body.append(card);if(getComputedStyle(card.querySelector('.f-top')).backgroundColor!==color)throw Error('Incorrect color: '+moment);card.remove();}}""")
  assert page.locator('.training-catalogue-card').count()==0

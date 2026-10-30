@@ -117,3 +117,15 @@ button, input, select { font-family: inherit; }
   .f-card { height: auto; overflow: visible; box-shadow: none; }
   .xs-panel { overflow: visible; }
 }
+
+/* 6. Theme folders and the agreed zone objectives. */
+.b-objective { border-top: 1px solid var(--line); padding: 0 16px; }
+.b-objective > summary { min-height: 50px; padding: 12px 0; cursor: pointer; color: var(--theme); font-weight: 650; line-height: 1.5; }
+.b-objective > summary > span:first-child { margin-left: 4px; }
+.b-objective-count { float: right; margin-left: 10px; padding: 0 9px; border-radius: 99px; background: var(--blue-soft); color: var(--club-navy); font-size: 12px; line-height: 24px; }
+.b-objective > .b-list { padding-bottom: 16px; }
+.b-empty { padding: 4px 0 0; color: var(--muted); font-size: 13px; }
+@media (max-width: 480px) {
+  .b-objective { padding-inline: 12px; }
+  .b-objective > summary { font-size: 14px; }
+}

@@ -2,7 +2,7 @@
 const suppliedExerciseIds=['banide-proteger','banide-joker','banide-ludique','banide-pressing','banide-appuis','banide-base','banide-contre'];
 renderBibleCatalogue=function(){
  ensureBibleCatalogue();const root=$('training-catalogue');root.parentElement.classList.add('supplied-exercises-catalogue');if(root.querySelector('#supplied-exercises-frame'))return;
- bibleDisposeDiagrams(root);root.replaceChildren();const frame=document.createElement('iframe');frame.id='supplied-exercises-frame';frame.title='Exercices fournis · classement et fiches animées';frame.src='imported-exercises-view.html?v=moments-147';frame.style.cssText='display:block;width:100%;height:max(680px,calc(100dvh - 170px));border:0;border-radius:14px;background:#f2f5f9';root.append(frame);
+ bibleDisposeDiagrams(root);root.replaceChildren();const frame=document.createElement('iframe');frame.id='supplied-exercises-frame';frame.title='Exercices fournis · classement et fiches animées';frame.src='imported-exercises-view.html?v=folders-148';frame.style.cssText='display:block;width:100%;height:max(680px,calc(100dvh - 170px));border:0;border-radius:14px;background:#f2f5f9';root.append(frame);
 };
 // Existing saved copies remain readable; revisiting their source opens the supplied sheet.
 const reuseBeforeImportedExercises=trainingReuseExercise;
