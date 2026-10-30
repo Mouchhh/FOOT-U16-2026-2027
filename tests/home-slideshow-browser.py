@@ -8,6 +8,7 @@ def configure(context,slides):
  context.route('**/assets/photos/*',lambda r:r.fulfill(status=404) if r.request.url.endswith('missing.jpg') else r.fulfill(content_type='image/jpeg',body=photo))
 with sync_playwright() as p:
  browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);context=browser.new_context(viewport={'width':1440,'height':1000});configure(context,[{'src':'assets/photos/one.jpg'},{'src':'assets/photos/two.jpg'},{'src':'assets/photos/missing.jpg'},{'src':'https://invalid.test/photo.jpg'}]);page=context.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.clock.install();page.goto('http://127.0.0.1:3016/?mode=local');page.evaluate('homeSlidesReady')
+ page.locator('#view-pitch').evaluate("e=>e.click()")
  assert page.locator('#home-backdrop img').count()==2;assert not page.locator('#home-backdrop').is_visible()
  page.locator('#view-home').evaluate("e=>e.click()");page.wait_for_function('homeSlideTimer!==null');assert page.locator('#home-backdrop').is_visible();assert page.locator('#home-slideshow-controls').is_visible();assert page.locator('#home-backdrop img.active').count()==1
  page.clock.fast_forward(6100);assert page.evaluate('homeSlideIndex')==1

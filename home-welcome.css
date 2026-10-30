@@ -1,0 +1,44 @@
+@media screen{
+ body.home-mode{background:#f3f6fa;overflow:auto}
+ body.home-mode>header,body.home-mode.home-has-slides>header{height:60px;background:#fff;border-bottom:1px solid #dce5ef;padding:8px 3%}
+ body.home-mode.home-has-slides .brand,body.home-mode.home-has-slides .brand small{color:#17385d;text-shadow:none}
+ body.home-mode .brand{font-size:14px}.home-mode .brand .club-logo{width:36px;height:36px}
+ body.home-mode #club-profile{display:none!important}
+ body.home-mode #club-home{height:auto;min-height:0}
+ body.home-mode #home-page-0{overflow:visible;padding-right:0}
+ body.home-mode .home-hero{position:relative;isolation:isolate;overflow:hidden;border-radius:18px;background:#2855a2;padding:32px;min-height:300px;margin:16px 0 18px;gap:24px;align-items:center}
+ body.home-mode .home-hero>#home-backdrop{position:absolute;inset:0;z-index:-1;display:block;pointer-events:none}
+ body.home-mode .home-hero>#home-backdrop::after{background:linear-gradient(90deg,#102e58e8 0%,#193c66b8 55%,#193c6638 100%)}
+ body.home-mode .home-welcome-copy{position:relative;z-index:1;min-width:0;max-width:850px}
+ body.home-mode .home-welcome-copy>.eyebrow{color:#dce9ff;font-size:10px;letter-spacing:1.6px}
+ body.home-mode .home-hero #home-date{font-size:12px;color:#e2ecfb;margin:7px 0}
+ body.home-mode .home-hero h1{font-size:38px;line-height:1.2;letter-spacing:-1px;color:#fff;white-space:normal;overflow:visible;display:block;margin:10px 0 6px;overflow-wrap:anywhere}
+ body.home-mode .home-hero #home-last-saved{display:block!important;color:#e1eafa;font-size:12px;line-height:1.6;margin:0 0 14px}
+ body.home-mode .home-hero .home-welcome-intro{display:block!important;color:#fff;font-size:15px;line-height:1.6;max-width:60ch;margin:0}
+ body.home-mode .home-stats{gap:24px;margin-top:22px;flex-wrap:wrap}
+ body.home-mode .home-stats strong{font-size:25px;color:#fff}.home-mode .home-stats span{font-size:11px;color:#e1eafa}
+ body.home-mode .home-crest{position:relative;z-index:1;width:100px;height:100px;box-shadow:none;align-self:flex-start}
+ body.home-mode #home-slideshow-controls{position:absolute;right:20px;bottom:15px;z-index:2;display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:0;max-width:45%}
+ body.home-mode #home-slideshow-controls button{min-height:36px;background:#ffffffed;color:#2855a2;border:1px solid #cbd8e7;padding:7px 9px;border-radius:8px;font-size:10px}
+ body.home-mode #home-slide-position{color:#fff;font-size:10px}
+ body.home-mode .home-layout{display:block}
+ body.home-mode #home-work-quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:0 0 16px}
+ body.home-mode #home-work-quick .home-dashboard-card{padding:22px;background:#fff;border:1px solid #dce5ef;border-top:3px solid #2855a2;border-radius:14px;gap:12px;box-shadow:0 3px 12px #17345506}
+ body.home-mode #home-work-quick .home-dashboard-card h3{font-size:16px;color:#17385d}
+ body.home-mode #home-work-quick .home-dashboard-card p{font-size:14px;line-height:1.6!important;color:#526a85;display:block;-webkit-line-clamp:unset;min-height:40px}
+ body.home-mode #home-work-quick .home-dashboard-card button{min-height:44px;font-size:13px;padding:10px 14px;border-radius:9px;border-color:#2855a2;color:#2855a2}
+ .home-profile-settings{margin-top:16px;border-top:1px solid #dce5ef;padding-top:14px}.home-profile-settings>summary{cursor:pointer;font-size:13px;color:#365374}.home-profile-settings #coach-profile{display:flex!important;background:#fff;margin-top:14px}.home-profile-settings #club-account-bar:not([hidden]){display:flex!important}
+ @media(max-width:700px){
+  body.home-mode>header{height:auto;min-height:58px}.home-mode .brand span:not(.club-monogram){font-size:11px}
+  body.home-mode .home-hero{padding:20px;min-height:0;display:block;margin-top:12px}
+  body.home-mode .home-hero h1{font-size:29px;-webkit-line-clamp:unset;max-width:100%}
+  body.home-mode .home-crest{position:absolute;right:16px;top:18px;width:48px;height:48px;opacity:.85}
+  body.home-mode .home-welcome-copy>.eyebrow,body.home-mode .home-hero #home-date{max-width:calc(100% - 60px)}
+  body.home-mode .home-stats{gap:16px;margin-top:18px}.home-mode .home-stats strong{font-size:22px}
+  body.home-mode #home-slideshow-controls{position:relative;inset:auto;max-width:100%;margin-top:18px}
+  body.home-mode #home-work-quick{grid-template-columns:minmax(0,1fr);gap:12px}
+  body.home-mode #home-work-quick .home-dashboard-card{padding:18px}
+ }
+}
+@media screen{body.club-private-active .home-profile-settings #coach-profile{display:none!important}}
+@media screen{body.home-mode #club-home>.flow-footer{display:none!important}}
