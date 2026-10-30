@@ -40,9 +40,9 @@ protection des champs, menus clavier, conservation des IDs, et affichage entre
 La navigation conserve Accueil, Match, Séances, Agenda, Bilans et Club, avec
 **Votre effectif** en accès direct. Ce bouton ouvre le répertoire existant du
 coach (photos, numéros, postes), sans créer de deuxième stockage ni changer la
-composition ouverte. Le nom de l’espace est repris dans le titre de la fenêtre.
+composition ouverte. Le répertoire occupe une page complète, avec le menu principal accessible.
 Il respecte la validation des champs de séance avant ouverture et les commandes
-au clavier du menu. La page sous la fenêtre reste la destination courante.
+au clavier du menu. L’onglet actif et le titre de page indiquent « Votre effectif ». Les boutons précédent/suivant du navigateur et le rechargement conservent cette destination.
 
 `workspace-identity.css` harmonise le bandeau, les onglets, les boutons principaux,
 les champs et les cartes en conservant le logo, le nom et le bleu/blanc/rouge du
@@ -68,3 +68,11 @@ joueurs de la composition sont affichés comme tels avec **Créer sa fiche** :
 l’ouverture seule n’enregistre rien, et les noms génériques restent à compléter.
 La suite de gestion des joueurs vérifie ce premier affichage, la création de fiche
 et le retour à la liste malgré un filtre précédemment vide.
+
+**Votre effectif** est maintenant une section du site, et non une fenêtre posée
+sur le travail en cours. Les mêmes contrôles et le même stockage sont réutilisés.
+Les fenêtres de modification d’une fiche et de choix d’une place dans la
+composition restent réservées à ces actions ponctuelles. Après utilisation d’un
+joueur, le site rejoint l’espace Match. `tests/squad-page-browser.py` vérifie la
+page sans fenêtre modale, la séance conservée, précédent/suivant, rechargement et
+les formats 320, 390 et 1 280 pixels.

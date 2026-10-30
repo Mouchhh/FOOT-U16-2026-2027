@@ -7,9 +7,9 @@ with sync_playwright() as p:
  page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("document.body.classList.contains('task-navigation')")
  assert page.locator('#home-page-0').is_visible()
  assert page.locator('#workspace-navigation>button').all_text_contents()==['Accueil','Match','Séances','Agenda','Bilans','Votre effectif','Club']
- saved=page.evaluate('JSON.stringify(saves)');page.locator('#workspace-squad-entry').click();assert page.locator('#coach-squad-dialog').is_visible();assert page.locator('#coach-squad-title').inner_text()=='Votre effectif';assert page.locator('#workspace-squad-entry').get_attribute('aria-expanded')=='true'
- page.locator('#coach-squad-dialog').get_by_role('button',name='Fermer mes joueurs',exact=True).click();assert page.evaluate('JSON.stringify(saves)')==saved
- page.wait_for_function("document.querySelector('#workspace-squad-entry').getAttribute('aria-expanded')==='false'")
+ saved=page.evaluate('JSON.stringify(saves)');page.locator('#workspace-squad-entry').click();assert page.locator('#coach-squad-dialog').is_visible();assert page.locator('#coach-squad-title').inner_text()=='Votre effectif';assert page.locator('#coach-squad-dialog').evaluate("e=>e.tagName==='SECTION'&&!e.closest('dialog')");assert page.locator('#club-home').is_hidden()
+ page.locator('#coach-squad-dialog').get_by_role('button',name='Ouvrir l’espace Match',exact=True).click();assert page.evaluate('JSON.stringify(saves)')==saved
+ page.wait_for_function("!document.body.classList.contains('squad-mode')")
  page.locator('#view-pitch').click();assert page.locator('#terrain-page-0').is_visible();assert not page.locator('.workspace-submenu:not([hidden])').count()
  page.locator('#task-match-causerie').click();page.locator('#match-plan-context').fill('Terrain humide, garder des appuis.');assert page.locator('#personal-canva').is_visible()
  page.locator('#task-match-composition').click();composition=page.evaluate('JSON.stringify(getCompositionBoard().players)')
@@ -30,7 +30,7 @@ with sync_playwright() as p:
   page.locator('#view-pitch-tools').click();box=page.locator('#view-pitch-submenu').bounding_box();assert box and box['x']>=0 and box['x']+box['width']<=w+1 and box['y']>=0 and box['y']+box['height']<=h+1,(w,h,box);page.keyboard.press('Escape')
   if w in [390,1366]:page.screenshot(path=f'/tmp/task-navigation-{w}.png')
   page.locator('#workspace-squad-entry').click();d=page.locator('#coach-squad-dialog');assert d.is_visible();box=d.bounding_box();assert box and box['x']>=0 and box['x']+box['width']<=w+1
-  d.get_by_role('button',name='Fermer mes joueurs',exact=True).click()
+  d.get_by_role('button',name='Ouvrir l’espace Match',exact=True).click()
  ids=re.findall(r'\bid="([^"]+)"',Path('index.html').read_text());assert page.evaluate('(ids)=>ids.every(id=>document.getElementById(id))',ids)
  assert page.evaluate('(()=>{const ids=[...document.querySelectorAll("[id]")].map(e=>e.id);return ids.length===new Set(ids).size})()')
  assert not errors,errors

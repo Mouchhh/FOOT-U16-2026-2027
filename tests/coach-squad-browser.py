@@ -17,7 +17,7 @@ with sync_playwright() as p:
  editor.get_by_label('Photo du joueur',exact=True).set_input_files({'name':'alex.png','mimeType':'image/png','buffer':base64.b64decode(image)})
  page.wait_for_function("document.querySelector('#coach-squad-editor .squad-photo-preview').src.startsWith('data:image/jpeg')")
  editor.get_by_role('button',name='Enregistrer le joueur',exact=True).click();assert d.get_by_text('Alex Martin',exact=True).is_visible()
- d.get_by_label('Rechercher dans mes joueurs',exact=True).fill('Absent de la liste');d.get_by_role('button',name='Fermer mes joueurs',exact=True).click();page.locator('#workspace-squad-entry').click();assert d.get_by_label('Rechercher dans mes joueurs',exact=True).input_value()=='';assert d.get_by_text('Alex Martin',exact=True).is_visible()
+ d.get_by_label('Rechercher dans mes joueurs',exact=True).fill('Absent de la liste');d.get_by_role('button',name='Ouvrir l’espace Match',exact=True).click();page.locator('#workspace-squad-entry').click();assert d.get_by_label('Rechercher dans mes joueurs',exact=True).input_value()=='';assert d.get_by_text('Alex Martin',exact=True).is_visible()
  saved=page.evaluate('squadDocument()');assert saved['squadDirectory']['players'][0]['photo'].startswith('data:image/jpeg');assert saved['players']==[]
  assert page.locator('#saved .saved-entry').count()==0
  before=page.evaluate('structuredClone(getCompositionBoard().players[0])')
