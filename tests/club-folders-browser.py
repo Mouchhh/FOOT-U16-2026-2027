@@ -10,11 +10,11 @@ with sync_playwright() as p:
  assert page.locator('.club-network-card').count()==0;assert 'Choisissez l’éducateur' in page.locator('#club-network-list').inner_text()
  assert page.get_by_label('Choisir un dossier',exact=True).is_disabled()
  page.get_by_label('Choisir l’éducateur',exact=True).select_option(B)
- grid=page.locator('#club-document-folder-grid');assert grid.is_visible();assert grid.locator('button').count()==8;assert '1 document' in grid.locator('[data-folder=causeries]').inner_text();assert '1 document' in grid.locator('[data-folder=build]').inner_text();assert page.locator('.club-network-card').count()==0
+ grid=page.locator('#club-document-folder-grid');assert grid.is_visible();assert grid.locator('button').count()==7;assert '1 document' in grid.locator('[data-folder=causeries]').inner_text();assert '1 document' in grid.locator('[data-folder=explanation]').inner_text();assert page.locator('.club-network-card').count()==0
  page.screenshot(path='/tmp/club-folders-desktop.png')
  grid.locator('[data-folder=causeries]').click();assert page.locator('.club-network-card').count()==1;assert 'Causerie avant match' in page.locator('.club-network-card').inner_text()
  page.get_by_label('Trouver un document',exact=True).fill('inexistant');assert page.locator('.club-network-card').count()==0
- page.get_by_role('button',name='Dossiers de Coach B',exact=True).click();grid.locator('[data-folder=build]').click();assert page.get_by_label('Trouver un document',exact=True).input_value()=='';assert 'Sortie de balle' in page.locator('.club-network-card').inner_text()
+ page.get_by_role('button',name='Dossiers de Coach B',exact=True).click();grid.locator('[data-folder=explanation]').click();assert page.get_by_label('Trouver un document',exact=True).input_value()=='';assert 'Sortie de balle' in page.locator('.club-network-card').inner_text()
  before=page.evaluate('JSON.stringify(currentTraining)');page.get_by_role('button',name='Dossiers de Coach B',exact=True).click();grid.locator('[data-folder=training]').click();page.locator('.club-network-card').get_by_role('button',name='Consulter',exact=True).click();page.wait_for_selector('#club-network-preview',state='visible');assert page.evaluate('JSON.stringify(currentTraining)')==before;page.locator('#club-network-preview-close').click()
  page.get_by_label('Choisir l’éducateur',exact=True).select_option(A);assert grid.is_visible();assert '27 documents' in grid.locator('[data-folder=report]').inner_text();grid.locator('[data-folder=report]').click();assert page.locator('.club-network-card').count()==12
  page.locator('#club-network-more').click();assert page.locator('.club-network-card').count()==24;page.locator('#club-network-more').click();assert page.locator('.club-network-card').count()==27;assert page.locator('#club-network-more').is_hidden()
@@ -26,9 +26,13 @@ with sync_playwright() as p:
   page.set_viewport_size({'width':w,'height':h});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'),(w,h)
   if w==390:page.screenshot(path='/tmp/club-folders-mobile.png')
  # Manual override updates only a draft until the existing Save action.
- page.locator('#view-pitch').click();page.locator('#task-match-causerie').click();page.locator('#terrain-next').click();page.get_by_label('Dossier dans les documents partagés',exact=True).select_option('build');assert page.evaluate('getCompositionBoard().clubFolder')=='build'
- page.locator('#save').click();wait_sync(page);source=page.evaluate('getCompositionBoard().documentId');published=next(r for r in rows if r['owner_id']==A and r['source_id']==source);assert published['title'].startswith('Sortie de balle · ') and published['payload']['clubFolder']=='build'
- page.reload();page.wait_for_function("typeof clubFolderForSource==='function'");assert page.evaluate('getCompositionBoard().clubFolder')=='build'
+ page.locator('#view-pitch').click();page.locator('#task-match-causerie').click();page.locator('#terrain-next').click();page.locator('.club-save-folder-options > summary').click();page.get_by_label('Dossier dans les documents partagés',exact=True).select_option('explanation');assert page.evaluate('getCompositionBoard().clubFolder')=='explanation'
+ page.locator('#save').click();wait_sync(page);source=page.evaluate('getCompositionBoard().documentId');published=next(r for r in rows if r['owner_id']==A and r['source_id']==source);assert published['title'].startswith('Animation · ') and published['payload']['clubFolder']=='explanation'
+ # A named built-in build-up animation classifies itself even with an unrelated title.
+ page.locator('#task-match-tactics').click();page.get_by_role('button',name='Pions & animations',exact=True).click();page.evaluate("loadSimple('build')");page.locator('#terrain-next').click();page.locator('#terrain-next').click();page.locator('#simple-sequence-name').fill('Une situation à montrer');page.locator('#simple-sequence-save').click();wait_sync(page)
+ sequence=page.evaluate('simpleState.sequenceId');animation=next(r for r in rows if r['owner_id']==A and r['source_id']==sequence);assert animation['title'].startswith('Explication · ');assert animation['payload']['pionExplanation']['state']['scenario']=='build';assert page.evaluate('r=>clubFolderForRow(r)',animation)=='explanation'
+ assert page.evaluate("(()=>{const board=structuredClone(getCompositionBoard());delete board.clubFolder;board.matchPreparation=newMatchPreparation();board.matchPreparation.context='Terrain humide';return clubFolderForSource('composition',board)==='causeries'})()")
+ page.reload();page.wait_for_function("typeof clubFolderForSource==='function'");assert page.evaluate('getCompositionBoard().clubFolder')=='explanation'
  page.evaluate('clubNetworkClear()');assert page.locator('.club-network-card').count()==0;assert page.locator('#club-document-folder-grid button').count()==0
  assert not errors,errors;browser.close()
-print('PASS educator-first folders, exact counts, distinct causerie/build-up, 12-item paging, search reset, read-only preview, draft classification, legacy documents, logout and responsive layout (mock API).')
+print('PASS educator-first folders, exact counts, distinct causeries/animations, 12-item paging, search reset, read-only preview, draft classification, legacy documents, logout and responsive layout (mock API).')

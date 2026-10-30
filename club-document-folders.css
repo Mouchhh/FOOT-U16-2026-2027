@@ -7,3 +7,6 @@
  @media(max-width:700px){.club-folder-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.club-folder-card{padding:15px;min-height:140px}.club-folder-card strong{font-size:16px}#club-network-list{grid-template-columns:minmax(0,1fr)}#club-network-dialog .club-network-filters{grid-template-columns:minmax(0,1fr)}#club-network-dialog .club-network-filters select{font-size:16px}.club-folder-path{gap:6px}}
 }
 @media print{.club-folder-grid,.club-folder-path,.club-save-folder{display:none!important}}
+
+@media screen{.club-save-folder-options{margin-bottom:18px;border:1px solid #dce5ef;border-radius:10px;padding:12px;background:#fff}.club-save-folder-options>summary{cursor:pointer;font-size:13px;color:#365374;font-weight:650;min-height:24px}.club-save-folder-options .club-save-folder{margin:14px 0 0}}
+@media print{.club-save-folder-options{display:none!important}}

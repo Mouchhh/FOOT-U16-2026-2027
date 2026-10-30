@@ -1,27 +1,27 @@
 // Virtual folders use existing authorized metadata and versioned documents, not a second library.
-const clubDocumentFolders={training:{label:'Séances',hint:'Préparations et exercices de séance'},report:{label:'Bilans',hint:'Rapports et suivis après-match'},causeries:{label:'Causeries',hint:'Messages et plan de jeu du match'},build:{label:'Sorties de balle',hint:'Relance et construction depuis le gardien'},composition:{label:'Compositions',hint:'Équipes, systèmes et placements'},tactics:{label:'Tactique',hint:'Plans de jeu et situations tactiques'},explanation:{label:'Animations',hint:'Explications avec pions et flèches'},squad:{label:'Effectifs',hint:'Répertoires de joueurs'}};
-const clubCompositionFolders=['composition','causeries','build','tactics'];
+const clubDocumentFolders={training:{label:'Séances',hint:'Préparations et exercices de séance'},report:{label:'Bilans',hint:'Rapports et suivis après-match'},causeries:{label:'Causeries',hint:'Messages et plan de jeu du match'},composition:{label:'Compositions',hint:'Équipes, systèmes et placements'},tactics:{label:'Tactique',hint:'Plans de jeu et situations tactiques'},explanation:{label:'Animations',hint:'Situations de jeu, sorties de balle, pions et flèches'},squad:{label:'Effectifs',hint:'Répertoires de joueurs'}};
+const clubCompositionFolders=['composition','causeries','explanation','tactics'];
 const clubFolderNormal=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr');
 function clubFolderForSource(kind,payload){
  if(kind==='training'||kind==='report')return kind;
- if(payload.squadDirectory)return 'squad';if(payload.pionExplanation)return 'explanation';
+ if(payload.squadDirectory)return 'squad';if(payload.pionExplanation)return 'explanation';if(payload.clubFolder==='build')return 'explanation';
  if(clubCompositionFolders.includes(payload.clubFolder))return payload.clubFolder;
- const title=clubFolderNormal(payload.title);if(/sorties? de balle/.test(title))return 'build';if(/^causerie\b/.test(title))return 'causeries';
+ const title=clubFolderNormal(payload.title);if(/sorties? de balle|ressortir le ballon/.test(title))return 'explanation';if(/^causerie\b/.test(title))return 'causeries';
  if(payload.boardKind==='plan')return 'tactics';const p=payload.matchPreparation;
- if(p&&(['defensive','offensive','specific'].some(k=>p[k]?.trim())||p.objectives?.some(v=>v.trim())))return 'causeries';
+ if(p&&(['context','opponent','defensive','offensive','specific'].some(k=>p[k]?.trim())||p.objectives?.some(v=>v.trim())))return 'causeries';
  return 'composition';
 }
 function clubFolderForRow(row){
  if(row.kind==='training'||row.kind==='report')return row.kind;
- const title=String(row.title||'');if(title.startsWith('Effectif · '))return 'squad';if(title.startsWith('Explication · '))return 'explanation';
- if(title.startsWith('Composition · '))return 'composition';if(title.startsWith('Causerie · '))return 'causeries';if(title.startsWith('Sortie de balle · '))return 'build';
- if(/sorties? de balle/.test(clubFolderNormal(title)))return 'build';if(/^causerie\b/.test(clubFolderNormal(title)))return 'causeries';if(title.startsWith('Plan de jeu · '))return 'tactics';return 'composition';
+ const title=String(row.title||'');if(title.startsWith('Effectif · '))return 'squad';if(title.startsWith('Explication · ')||title.startsWith('Animation · '))return 'explanation';
+ if(title.startsWith('Composition · '))return 'composition';if(title.startsWith('Causerie · '))return 'causeries';if(title.startsWith('Sortie de balle · '))return 'explanation';
+ if(/sorties? de balle|ressortir le ballon/.test(clubFolderNormal(title)))return 'explanation';if(/^causerie\b/.test(clubFolderNormal(title)))return 'causeries';if(title.startsWith('Plan de jeu · '))return 'tactics';return 'composition';
 }
 const clubFolderOriginalSource=clubNetworkSource;
-clubNetworkSource=function(kind,payload){const source=clubFolderOriginalSource(kind,payload);if(!source||kind!=='composition'||payload.squadDirectory||payload.pionExplanation)return source;
- const prefix={composition:'Composition',causeries:'Causerie',build:'Sortie de balle',tactics:'Plan de jeu'}[clubFolderForSource(kind,payload)],name=source.title.replace(/^(?:(?:Composition|Causerie|Sortie de balle|Plan de jeu) · )+/,'');source.title=(prefix+' · '+name).slice(0,150);return source;};
+clubNetworkSource=function(kind,payload){const source=clubFolderOriginalSource(kind,payload);if(!source||kind!=='composition'||payload.squadDirectory)return source;if(payload.pionExplanation)return source;
+ const prefix={composition:'Composition',causeries:'Causerie',explanation:'Animation',tactics:'Plan de jeu'}[clubFolderForSource(kind,payload)],name=source.title.replace(/^(?:(?:Composition|Causerie|Sortie de balle|Animation|Plan de jeu) · )+/,'');source.title=(prefix+' · '+name).slice(0,150);return source;};
 const clubFolderOriginalKind=clubNetworkKindMatches;
-clubNetworkKindMatches=function(row,kind){return kind?.startsWith('folder:')?clubFolderForRow(row)===kind.slice(7):clubFolderOriginalKind(row,kind);};
+clubNetworkKindMatches=function(row,kind){return kind?.startsWith('folder:')?clubFolderForRow(row)===(kind.slice(7)==='build'?'explanation':kind.slice(7)):clubFolderOriginalKind(row,kind);};
 function clubFoldersCanSearch(){return !!$('club-network-author')?.value&&!!$('club-network-kind')?.value;}
 function clubFoldersVisibleRows(rows){return clubFoldersCanSearch()?rows:[];}
 document.addEventListener('DOMContentLoaded',()=>{
@@ -46,9 +46,9 @@ document.addEventListener('DOMContentLoaded',()=>{
  kind.addEventListener('change',()=>{if(kind.value!==selectedKind){selectedKind=kind.value;$('club-document-title').value='';clubDocumentReset();}clubNetworkPageSize=12;clubNetworkRenderRows();});$('club-network-more').onclick=()=>{clubNetworkPageSize+=12;clubNetworkRenderRows();};
  const baseClear=clubNetworkClear;clubNetworkClear=function(){key='';selectedAuthor='';selectedKind='';kind.value='';grid.replaceChildren();path.replaceChildren();count.textContent='';baseClear();};
  // Selection edits only the open draft. The normal Save action retains version/conflict protection.
- const folderLabel=el('label','report-field club-save-folder','Dossier dans les documents partagés'),folderSelect=el('select');folderSelect.id='club-save-folder';folderSelect.setAttribute('aria-label','Dossier dans les documents partagés');folderSelect.append(new Option('Classement automatique',''));for(const id of clubCompositionFolders)folderSelect.append(new Option(clubDocumentFolders[id].label,id));folderLabel.append(folderSelect);$('terrain-page-2').prepend(folderLabel);
+ const folderLabel=el('label','report-field club-save-folder','Dossier dans les documents partagés'),folderSelect=el('select');folderSelect.id='club-save-folder';folderSelect.setAttribute('aria-label','Dossier dans les documents partagés');folderSelect.append(new Option('Classement automatique',''));for(const id of clubCompositionFolders)folderSelect.append(new Option(clubDocumentFolders[id].label,id));folderLabel.append(folderSelect);const folderDetails=el('details','club-save-folder-options'),folderSummary=el('summary');folderDetails.append(folderSummary,folderLabel);$('terrain-page-2').prepend(folderDetails);
  function target(){return terrainBoardKind==='plan'?getGamePlanBoard():getCompositionBoard();}
- function renderFolder(){const board=target();folderLabel.hidden=document.body.classList.contains('simple-mode');folderSelect.value=board?.clubFolder||'';folderSelect.options[0].textContent='Automatique · '+(board?clubDocumentFolders[clubFolderForSource('composition',board)]?.label:'Compositions');}
+ function renderFolder(){const board=target();folderDetails.hidden=document.body.classList.contains('simple-mode');folderSummary.textContent=(board?.clubFolder?'Dossier : ':'Classement automatique : ')+(board?clubDocumentFolders[clubFolderForSource('composition',board)]?.label:'Compositions');folderSelect.value=board?.clubFolder||'';folderSelect.options[0].textContent='Automatique · '+(board?clubDocumentFolders[clubFolderForSource('composition',board)]?.label:'Compositions');}
  folderSelect.onchange=()=>{const board=target();if(!board)return;const had=Object.hasOwn(board,'clubFolder'),previous=board.clubFolder;if(folderSelect.value)board.clubFolder=folderSelect.value;else delete board.clubFolder;if(!persistTerrainWorkspace()){if(had)board.clubFolder=previous;else delete board.clubFolder;notify('Classement non conservé. Votre réglage précédent est maintenu.');}renderFolder();};
  document.addEventListener('click',renderFolder);new MutationObserver(renderFolder).observe(document.body,{attributes:true,attributeFilter:['class']});const heading=()=>{$('club-network-heading').textContent=['Les éducateurs du club','Documents partagés','Mon compte'][workspaceFlows.club.index()];};new MutationObserver(heading).observe(workspaceFlows.club.root,{attributes:true,attributeFilter:['data-step']});heading();renderFolder();clubNetworkRenderRows();
 });
