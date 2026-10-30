@@ -1,0 +1,13 @@
+/* Original Bible cards and semantic game-moment colors. */
+.supplied-exercise-card{--moment-color:#142d50;border-top:4px solid var(--moment-color)}
+.supplied-exercise-card[data-moment="possede"]{--moment-color:#2855a2}
+.supplied-exercise-card[data-moment="perd"]{--moment-color:#b45309}
+.supplied-exercise-card[data-moment="recupere"]{--moment-color:#247342}
+.supplied-exercise-card[data-moment="nepossede"]{--moment-color:#b92635}
+.supplied-exercise-card[data-moment="ludique"]{--moment-color:#f2c94c}
+.supplied-exercise-card .exercise-classification{color:#142d50;border-left:3px solid var(--moment-color);padding-left:8px}
+.supplied-exercise-card .bible-card-picture>svg{width:100%;height:100%;max-height:260px;pointer-events:none}
+.supplied-original-sheet{min-width:0;width:100%}
+.supplied-exercise-card .bible-card-preview[open]{grid-column:1/-1}
+
+.training-exercises-page #training-catalogue .supplied-exercise-card>.bible-card-picture{height:180px;padding:8px}
