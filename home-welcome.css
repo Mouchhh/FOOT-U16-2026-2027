@@ -42,3 +42,7 @@
 }
 @media screen{body.club-private-active .home-profile-settings #coach-profile{display:none!important}}
 @media screen{body.home-mode #club-home>.flow-footer{display:none!important}}
+/* Never expose the old account/profile banners above a workspace, even before JS moves them. */
+@media screen{
+ body main>#club-account-bar,body main>#coach-profile{display:none!important}
+}
