@@ -76,3 +76,9 @@ composition restent réservées à ces actions ponctuelles. Après utilisation d
 joueur, le site rejoint l’espace Match. `tests/squad-page-browser.py` vérifie la
 page sans fenêtre modale, la séance conservée, précédent/suivant, rechargement et
 les formats 320, 390 et 1 280 pixels.
+
+Le bouton **Autres outils** est retiré de la barre à la demande du coach. La
+navigation principale et les onglets conduisent directement aux espaces ; les
+actions Enregistrer, imprimer/exporter et régler le contexte restent dans leurs
+pages. Les parcours de navigation et de semaine complète ont été adaptés pour
+utiliser ces accès visibles plutôt que le menu retiré.

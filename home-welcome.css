@@ -27,7 +27,7 @@
  body.home-mode #home-work-quick .home-dashboard-card h3{font-size:16px;color:#17385d}
  body.home-mode #home-work-quick .home-dashboard-card p{font-size:14px;line-height:1.6!important;color:#526a85;display:block;-webkit-line-clamp:unset;min-height:40px}
  body.home-mode #home-work-quick .home-dashboard-card button{min-height:44px;font-size:13px;padding:10px 14px;border-radius:9px;border-color:#2855a2;color:#2855a2}
- .home-profile-settings{margin-top:16px;border-top:1px solid #dce5ef;padding-top:14px}.home-profile-settings>summary{cursor:pointer;font-size:13px;color:#365374}.home-profile-settings #coach-profile{display:flex!important;background:#fff;margin-top:14px}.home-profile-settings #club-account-bar:not([hidden]){display:flex!important}
+ .home-profile-settings{margin-top:16px;border-top:1px solid #dce5ef;padding-top:14px}.home-profile-settings>summary{cursor:pointer;font-size:13px;color:#365374}
  @media(max-width:700px){
   body.home-mode>header{height:auto;min-height:58px}.home-mode .brand span:not(.club-monogram){font-size:11px}
   body.home-mode .home-hero{padding:20px;min-height:0;display:block;margin-top:12px}
@@ -45,4 +45,10 @@
 /* Never expose the old account/profile banners above a workspace, even before JS moves them. */
 @media screen{
  body main>#club-account-bar,body main>#coach-profile{display:none!important}
+}
+
+@media screen{
+ .home-local-coach-controls,.home-account-actions{display:flex;flex-wrap:wrap;align-items:end;gap:10px;padding-top:14px}
+ .home-local-coach-controls label{min-width:200px;flex:1;font-size:13px;color:#365374}.home-local-coach-controls button,.home-account-actions button{min-height:44px}
+ body.club-private-active .home-local-coach-controls,body:not(.club-private-active) .home-account-actions{display:none!important}
 }

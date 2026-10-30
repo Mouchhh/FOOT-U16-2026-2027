@@ -12,7 +12,12 @@ with sync_playwright() as p:
   ctx.add_init_script("if(!localStorage.getItem('vestiaire-coach-profiles')){localStorage.setItem('vestiaire-coach-profiles',JSON.stringify([{id:'journey-coach',name:'Coach parcours'}]));localStorage.setItem('vestiaire-active-coach','journey-coach');}")
   page.goto(URL);page.wait_for_function("typeof workspaceNavigation==='object'")
   def menu(parent,name):
-   page.locator('#'+parent).click();page.locator('#'+parent+'-tools').click();page.locator('#'+parent+'-submenu').get_by_role('menuitem',name=name,exact=True).click()
+   page.locator('#'+parent).click()
+   if parent=='view-training':
+    page.locator('#task-training-prepare').click();page.locator('#training-step-link-0').click()
+   elif parent=='view-coach-agenda':page.locator('#task-agenda-calendar').click()
+   elif parent=='view-pitch':page.locator('#task-match-causerie').click()
+   elif parent=='view-reports':page.locator('#report-tabs [data-report-tab='+('plan' if name=='Plan d’action' else 'general')+']').click()
   def add_exercise(eid,query):
    page.locator('#training-catalogue-toggle').click();page.locator('#training-search').fill(page.evaluate('id=>trainingExercises.find(e=>e.id===id).title',eid))
    before=page.evaluate('currentTraining.blocks.length')

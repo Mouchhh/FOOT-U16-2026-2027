@@ -33,3 +33,10 @@ les photos limitées au bandeau et l’absence de débordement à 320, 390, 844 
 1 366 pixels. La suite du tableau de bord et la navigation par tâches passent.
 Le test du diaporama commence désormais explicitement hors accueil avant de
 vérifier sa visibilité, puisque l’accueil est la page d’entrée du site.
+
+Les deux anciens conteneurs de compte et de profil sont maintenant masqués dès
+le HTML et maintenus masqués après initialisation. Seuls leurs vrais contrôles
+(sélection locale autorisée, édition du profil, accès club et déconnexion) sont
+déplacés dans les réglages facultatifs. Le test force l’état connecté et une
+réactivation des conteneurs pour vérifier qu’ils restent invisibles. Les liens
+de connexion de la page d’entrée utilisent également la nouvelle version.

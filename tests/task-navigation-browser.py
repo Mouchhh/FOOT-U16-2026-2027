@@ -22,12 +22,12 @@ with sync_playwright() as p:
  page.locator('#view-coach-agenda').click();assert page.locator('#agenda-page-1').is_visible();page.wait_for_timeout(100);page.go_back();page.wait_for_function("document.body.classList.contains('training-mode')");assert page.locator('#training-filter').input_value()=='Finition';assert page.locator('#bible-bmf-category').input_value()=='finish'
  page.locator('#task-training-prepare').click();page.locator('#training-step-link-2').click();page.locator('#training-players').fill('');page.locator('#workspace-squad-entry').click();assert not page.locator('#coach-squad-dialog').is_visible();page.locator('#view-reports').click();assert page.locator('#training-step-2').is_visible();assert page.locator('#after-match').is_hidden()
  page.locator('#training-players').fill('14');page.locator('#training-players').blur();page.locator('#view-reports').click();assert page.locator('#after-match').is_visible();page.locator('#report-tabs [data-report-tab=plan]').click();assert page.evaluate('reportTab')=='plan'
- page.locator('#view-pitch').click();page.locator('#view-pitch-tools').click();page.locator('#view-pitch-submenu').get_by_role('menuitem',name='Enregistrer, ouvrir & exporter',exact=True).click();assert page.locator('#terrain-page-2').is_visible()
- page.locator('#view-pitch-tools').focus();page.keyboard.press('ArrowDown');assert page.locator('#view-pitch-submenu').is_visible();page.keyboard.press('Escape');assert page.locator('#view-pitch-tools').evaluate('e=>e===document.activeElement');assert page.locator('#workspace-navigation').is_visible()
+ page.locator('#view-pitch').click();page.locator('#task-match-causerie').click();page.locator('#terrain-next').click();assert page.locator('#terrain-page-2').is_visible()
+ page.locator('#view-pitch').focus();page.keyboard.press('ArrowRight');assert page.locator('#view-training').evaluate('e=>e===document.activeElement');assert not page.locator('.workspace-tools-trigger').count()
  page.locator('#view-home').click();assert page.locator('#home-page-0').is_visible();page.locator('#club-assistant-open').click();assert page.locator('#club-assistant').is_visible();page.locator('#crakito-close').click()
  for w,h in [(320,800),(390,844),(844,390),(1366,768)]:
   page.set_viewport_size({'width':w,'height':h});page.locator('#view-pitch').click();page.locator('#task-match-causerie').click();assert page.locator('#match-plan-form').is_visible();assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(w,h)
-  page.locator('#view-pitch-tools').click();box=page.locator('#view-pitch-submenu').bounding_box();assert box and box['x']>=0 and box['x']+box['width']<=w+1 and box['y']>=0 and box['y']+box['height']<=h+1,(w,h,box);page.keyboard.press('Escape')
+  assert not page.locator('.workspace-tools-trigger').count()
   if w in [390,1366]:page.screenshot(path=f'/tmp/task-navigation-{w}.png')
   page.locator('#workspace-squad-entry').click();d=page.locator('#coach-squad-dialog');assert d.is_visible();box=d.bounding_box();assert box and box['x']>=0 and box['x']+box['width']<=w+1
   d.get_by_role('button',name='Ouvrir l’espace Match',exact=True).click()

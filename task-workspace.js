@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    for(const [i,label]of ['Éducateurs','Documents partagés','Mon compte'].entries())add('task-club-'+i,label,()=>{if(clubNetworkBound())workspaceFlows.club.go(i);},workspaceFlows.club.index()===i);
   }
   const tabs=el('div','task-section-tabs');for(const item of items){const button=el('button','task-section-tab',item.label);button.id=item.id;button.type='button';button.setAttribute('aria-pressed',String(item.selected));button.onclick=()=>go(parent,item.action);tabs.append(button);}strip.append(tabs);
-  const tools=workspaceMenus.button(parent);if(tools)strip.append(tools);strip.append(assistant);
+  strip.append(assistant);
   if(parent==='view-pitch'&&simple||index!==1&&kind==='plan'){const modes=el('div','task-tactical-modes');modes.setAttribute('role','group');modes.setAttribute('aria-label','Outils tactiques');for(const [id,label,on]of [['mode-focus','Placement tactique',!simple],['mode-simple','Pions & animations',simple]]){const button=el('button','',label);button.type='button';button.setAttribute('aria-pressed',String(on));button.onclick=()=>go(parent,()=>{$(id).click();terrain.go(0);});modes.append(button);}strip.append(modes);}
   if(parent==='view-pitch')$('match-plan-dialog-title').textContent=kind==='plan'?'Causerie · vue tactique':'Ma causerie';
   if(focusId&&$(focusId))$(focusId).focus({preventScroll:true});
