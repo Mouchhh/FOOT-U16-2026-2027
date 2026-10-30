@@ -1,0 +1,7 @@
+.agenda-fff-panel{border:1px solid #cfdaeb;border-radius:12px;background:#fff;padding:16px;margin:0 0 16px;color:#19365d}
+.agenda-fff-panel>summary{cursor:pointer;font-weight:700;color:#2855a2}.agenda-fff-panel .report-actions{flex-wrap:wrap;margin-top:12px}
+.agenda-fff-panel a.export{display:inline-flex;align-items:center;text-decoration:none;border:1px solid #cfdaeb;border-radius:9px;padding:10px 14px;color:#2855a2;font-size:14px}
+.agenda-fff-panel input[type=file]{display:block;max-width:100%;font-size:13px;margin-top:6px}.agenda-fff-panel label.export{padding:8px;border:1px solid #cfdaeb;border-radius:9px}
+.agenda-fff-preview{margin-top:12px}.agenda-fff-rows{max-height:360px;overflow:auto;margin:12px 0;border:1px solid #dae3ef;border-radius:8px}.agenda-fff-row{display:flex;align-items:start;gap:10px;padding:12px;border-bottom:1px solid #e5ebf4}.agenda-fff-row input{flex:none;width:20px;height:20px}.agenda-fff-row span{overflow-wrap:anywhere}
+@media(max-width:600px){.agenda-fff-panel{padding:12px}.agenda-fff-panel .training-form{display:block}.agenda-fff-panel input{max-width:100%;box-sizing:border-box}}
+@media print{.agenda-fff-panel{display:none!important}}
