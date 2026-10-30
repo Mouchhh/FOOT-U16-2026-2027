@@ -12,4 +12,4 @@ Validation : `python tests/imported-exercises-browser.py` vérifie l’empreinte
 
 Code de classement demandé : possession en bleu (#2855a2), perte en orange (#b45309), récupération en vert (#247342), sans ballon en rouge (#b92635). Le CSS identifie les moments par leur palette native ; les scripts du fichier restent inchangés. Les textes des moments restent visibles en complément de la couleur.
 
-« Ludique » utilise le violet (#7041a6), distinct des quatre moments de jeu.
+« Ludique » utilise le jaune (#f2c94c), avec des intitulés bleu foncé (#142d50) et des accents ocre (#856400) pour la lisibilité.

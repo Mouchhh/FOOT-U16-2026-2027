@@ -29,7 +29,7 @@ button, input, select { font-family: inherit; }
 .b-theme, .f-card {
   --exercise-color: var(--club-navy);
   --theme: var(--exercise-color) !important;
-  --band: var(--exercise-color) !important;
+  --band: var(--exercise-band, var(--exercise-color)) !important;
 }
 /* Possession: blue. */
 :is(.b-theme, .f-card)[style*="--theme: #4f8a10"] { --exercise-color: #2855a2; }
@@ -37,8 +37,13 @@ button, input, select { font-family: inherit; }
 :is(.b-theme, .f-card)[style*="--theme: #c2410c"] { --exercise-color: #b45309; }
 /* Ball recovered: green. */
 :is(.b-theme, .f-card)[style*="--theme: #3f8a1a"] { --exercise-color: #247342; }
-/* Ludique: violet, distinct from the four game moments. */
-:is(.b-theme, .f-card)[style*="--theme: #214fa0"] { --exercise-color: #7041a6; }
+/* Ludique: yellow with dark club lettering for readable contrast. */
+:is(.b-theme, .f-card)[style*="--theme: #214fa0"] {
+  --exercise-color: #856400;
+  --exercise-band: #f2c94c;
+  --exercise-heading-ink: #142d50;
+}
+.b-theme h2, .f-top { color: var(--exercise-heading-ink, #fff); }
 /* Out of possession: red. */
 :is(.b-theme, .f-card)[style*="--theme: #c4001a"] { --exercise-color: #b92635; }
 .b-theme { border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
