@@ -7,7 +7,7 @@ with sync_playwright() as p:
  page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("document.body.classList.contains('task-navigation')")
  assert page.locator('#home-page-0').is_visible()
  assert page.locator('#workspace-navigation>button').all_text_contents()==['Accueil','Match','Séances','Agenda','Bilans','Votre effectif','Club']
- saved=page.evaluate('JSON.stringify(saves)');page.locator('#workspace-squad-entry').click();assert page.locator('#coach-squad-dialog').is_visible();assert page.locator('#coach-squad-title').inner_text()=='Votre effectif';assert page.locator('#coach-squad-dialog').evaluate("e=>e.tagName==='SECTION'&&!e.closest('dialog')");assert page.locator('#club-home').is_hidden()
+ saved=page.evaluate('JSON.stringify(saves)');page.locator('#workspace-squad-entry').click();assert page.locator('#coach-squad-dialog').is_visible();assert page.locator('#coach-squad-title').inner_text()=='Mes joueurs';assert page.locator('#coach-squad-dialog').evaluate("e=>e.tagName==='SECTION'&&!e.closest('dialog')");assert page.locator('#club-home').is_hidden()
  page.locator('#coach-squad-dialog').get_by_role('button',name='Ouvrir l’espace Match',exact=True).click();assert page.evaluate('JSON.stringify(saves)')==saved
  page.wait_for_function("!document.body.classList.contains('squad-mode')")
  page.locator('#view-pitch').click();assert page.locator('#terrain-page-0').is_visible();assert not page.locator('.workspace-submenu:not([hidden])').count()

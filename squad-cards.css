@@ -1,0 +1,22 @@
+@media screen{
+ body.squad-mode .squad-page{max-width:none;background:transparent;border:0;border-radius:0;padding:0;margin:24px 0 32px}
+ .squad-category{font-size:12px;letter-spacing:1.5px;color:#2855a2;font-weight:700;margin:0 0 12px}
+ .squad-page>.section-heading{margin-bottom:20px;align-items:center;gap:14px}.squad-page>.section-heading h2{font-size:30px;letter-spacing:-.6px}.squad-page>.section-heading>.primary{min-height:48px;padding:12px 20px;font-size:14px;border-radius:11px}
+ .squad-page>.hint{display:none}
+ .squad-position-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}.squad-position-filters button{min-height:44px;padding:10px 17px;border:1px solid #d7e1ef;border-radius:999px;background:#fff;color:#45617e;font-size:14px;font-weight:650}.squad-position-filters button[aria-pressed=true]{background:#2855a2;border-color:#2855a2;color:#fff}
+ .squad-page .squad-tools{grid-template-columns:minmax(180px,420px) auto auto;justify-content:start;gap:10px;margin:0 0 22px}.squad-page .squad-tools select[hidden]{display:none!important}.squad-page .squad-tools>button{font-size:12px}
+ .squad-page .squad-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:20px;align-items:start}
+ .squad-page .squad-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;min-height:300px;padding:28px 20px 20px;background:#fff;border:1px solid #dce5ef;border-radius:16px;box-shadow:0 4px 15px #18345507;text-align:center}
+ .squad-page .squad-card>.roster-avatar{width:94px;height:94px;border-radius:50%;display:grid;place-items:center;background:#2855a2;color:#fff;font-size:32px;font-weight:700;overflow:hidden;flex:none}.squad-card>.roster-avatar img{width:100%;height:100%;object-fit:cover}
+ .squad-card-number{position:absolute;top:18px;right:16px;font-size:12px;color:#2855a2;font-weight:700}
+ .squad-page .squad-card .squad-player-info{flex:initial;width:100%;min-width:0}.squad-page .squad-card .squad-player-info strong{font-size:19px;line-height:1.4}.squad-page .squad-card .squad-player-info small{font-size:13px;line-height:1.5;margin-top:7px}
+ .squad-page .squad-card .squad-row-actions{justify-content:center;width:100%;padding:0;margin-top:auto;gap:7px}.squad-page .squad-card button{min-height:40px;font-size:12px;border-radius:9px}
+ .squad-page .squad-card .squad-remove{background:#fff;border:1px solid #dce5ef;color:#536b87;padding:8px}
+ .squad-source-heading,.squad-list>.squad-composition-note,.squad-list>.hint{grid-column:1/-1;margin:0}.squad-list>.squad-composition-note{background:#fff}
+ @media(max-width:700px){
+  body.squad-mode .squad-page{margin-top:18px}.squad-page>.section-heading{align-items:flex-start;flex-wrap:wrap}.squad-page>.section-heading h2{font-size:26px}.squad-page>.section-heading>.primary{font-size:13px;padding:10px 14px;min-height:44px}
+  .squad-position-filters{gap:6px}.squad-position-filters button{font-size:12px;padding:9px 12px}
+  .squad-page .squad-tools{grid-template-columns:minmax(0,1fr);width:100%;justify-content:stretch}.squad-page .squad-tools input{font-size:16px}
+  .squad-page .squad-list{gap:14px}.squad-page .squad-card{min-height:280px}
+ }
+}
