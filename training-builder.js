@@ -4,9 +4,11 @@ function trainingReplaceBlock(id){
  const dialog=el('dialog','completion-dialog');dialog.id='training-replace-dialog';const head=el('div','section-heading'),close=el('button','export','Annuler');close.type='button';close.onclick=()=>dialog.close();head.append(el('h2','','Remplacer cet exercice'),close);dialog.append(head,el('p','hint','La place, la durée, l’installation et vos notes sont conservées. Relisez le lien avec votre objectif ; le remplacement ne change pas vos priorités.'));
  const label=el('label','report-field','Exercice compatible'),select=el('select'),preview=el('div','report-panel'),status=el('p','hint'),apply=el('button','primary','Confirmer le remplacement');apply.type='button';select.setAttribute('aria-label','Exercice compatible');label.append(select);dialog.append(label,preview,status,apply);
  const signature=JSON.stringify([currentTraining.players,currentTraining.keepers,currentTraining.category,currentTraining.age,currentTraining.level,currentTraining.context,currentTraining.space,currentTraining.spaceWidth,currentTraining.spaceLength,currentTraining.coachingLoad,original]);
+ const targetSession=trainingSessionForBlock(original,currentTraining);
  const choices=trainingExercises.filter(e=>e.id!==original.exerciseId).map(e=>{
-  let v=bibleInitialVariant(e,currentTraining);let contexts=Array.from({length:v.sequences},(_,i)=>bibleSequenceContext(e,currentTraining,v,i));
-  if(!contexts.every(c=>c.valid&&c.fits)){v=bibleInitialVariant(e,currentTraining,null,true);contexts=Array.from({length:v.sequences},(_,i)=>bibleSequenceContext(e,currentTraining,v,i));}
+  let v=bibleInitialVariant(e,targetSession);let contexts=Array.from({length:v.sequences},(_,i)=>bibleSequenceContext(e,targetSession,v,i));
+  if(!contexts.every(c=>c.valid&&c.fits)){v=bibleInitialVariant(e,targetSession,null,true);contexts=Array.from({length:v.sequences},(_,i)=>bibleSequenceContext(e,targetSession,v,i));}
+  if(original.parallelId){v.autoProfile=false;v.sequenceSettings=Array.from({length:4},()=>({players:targetSession.players,keepers:targetSession.keepers}));}
   const candidate={...original,exerciseId:e.id,bibleVariant:v};delete candidate.custom;delete candidate.recoveryMinutes;
   return {e,candidate,contexts};
  }).filter(c=>c.contexts.every(x=>x.valid&&x.fits)&&trainingMinimumMinutes(c.candidate)<=original.duration).sort((a,b)=>Number(currentTraining.themes.includes(b.e.theme))-Number(currentTraining.themes.includes(a.e.theme)));

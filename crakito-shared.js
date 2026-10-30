@@ -2,7 +2,7 @@
 function crakitoDocumentSummary(row){
  const p=row.payload,lines=[];
  if(row.kind==='training'){
-  lines.push([p.category,p.date,p.time].filter(Boolean).join(' · '),p.players+' joueurs · '+p.duration+' min prévues · déroulé '+p.blocks.reduce((n,b)=>n+trainingBlockMinutes(b),0)+' min, installation comprise · '+trainingSpaceLabels[p.space]);
+  lines.push([p.category,p.date,p.time].filter(Boolean).join(' · '),p.players+' joueurs · '+p.duration+' min prévues · déroulé '+(trainingSessionStages(p).at(-1)?.end||0)+' min, installation comprise · '+trainingSpaceLabels[p.space]);
   if(p.notes.trim())lines.push('Objectif / contexte : '+p.notes);
   p.blocks.slice(0,8).forEach((b,i)=>{const ex=trainingExerciseForBlock(b);lines.push((i+1)+'. '+ex.title+' · '+b.duration+' min');if(b.custom?.instructions)lines.push('Consignes : '+b.custom.instructions);if(b.notes)lines.push('Adaptations : '+b.notes);});
  }else if(row.kind==='report'){
