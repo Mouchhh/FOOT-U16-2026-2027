@@ -5,6 +5,7 @@ with sync_playwright() as p:
  page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function('!!window.squadWorkspace')
  page.evaluate("squadSave([{id:'a',name:'Guillaume',number:8,position:'Milieu',photo:'',foot:'Droit'},{id:'b',name:'Alex',number:1,position:'Gardien',photo:''},{id:'c',name:'Noé',number:4,position:'Défenseur',photo:''},{id:'d',name:'Sam',number:7,position:'Latéral',photo:''}])")
  page.locator('#workspace-squad-entry').click();cards=page.locator('.squad-page .squad-card');filters=page.get_by_role('group',name='Joueurs par poste',exact=True)
+ assert page.locator('.squad-banner').is_visible();assert page.locator('.squad-banner').evaluate("e=>getComputedStyle(e).backgroundImage.includes('celebration-jeunes.jpg')")
  assert cards.count()==4;assert filters.get_by_role('button',name='Tous · 4',exact=True).get_attribute('aria-pressed')=='true';assert filters.get_by_role('button',name='Poste à préciser · 1',exact=True).is_visible()
  guillaume=cards.filter(has=page.get_by_text('Guillaume',exact=True));assert guillaume.locator('.roster-avatar').inner_text()=='G';assert 'Milieu · pied droit' in guillaume.inner_text()
  filters.get_by_role('button',name='Milieu · 1',exact=True).click();assert cards.count()==1;assert 'Guillaume' in cards.inner_text()
