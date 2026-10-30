@@ -1,0 +1,4 @@
+.agenda-paste-dialog{width:min(900px,calc(100% - 24px));max-height:92dvh;box-sizing:border-box;overflow:auto;color:#19365d;border:1px solid #cdd9eb;border-radius:14px;padding:20px;background:#fff}
+.agenda-paste-dialog textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:180px;font:inherit;font-size:14px;line-height:1.5;padding:12px;border:1px solid #ccd9ee;border-radius:9px}
+.agenda-paste-dialog .report-field{display:grid;gap:8px;margin:14px 0}.agenda-paste-dialog select{max-width:100%;min-height:44px}
+@media(max-width:600px){.agenda-paste-dialog{padding:12px}.agenda-paste-dialog h2{font-size:20px}.agenda-paste-dialog .agenda-fff-row{padding:9px}}
