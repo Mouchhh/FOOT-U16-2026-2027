@@ -2,7 +2,7 @@ from pathlib import Path
 from hashlib import sha256
 from playwright.sync_api import sync_playwright
 # Only a stylesheet link may differ: exercise data and functional scripts stay byte-identical.
-original=Path('imported-exercises-view.html').read_text().replace('<link rel="stylesheet" href="imported-exercises-theme.css?v=theme-144">\n','')
+original=Path('imported-exercises-view.html').read_text().replace('<link rel="stylesheet" href="imported-exercises-theme.css?v=moments-145">\n','')
 assert sha256(original.encode()).hexdigest()=="84e007bb3da94fe7114e5297dfc38bd2938de8575198c9cc24d89fc6fde23fcb"
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
@@ -12,6 +12,8 @@ with sync_playwright() as p:
  page.locator('#view-training').click();page.locator('#task-training-bible').click()
  frame=page.frame_locator('#supplied-exercises-frame');frame.locator('.b-list a').first.wait_for()
  assert frame.locator('.b-list a').count()==7
+ native=next(f for f in page.frames if 'imported-exercises-view.html' in f.url)
+ native.evaluate("""()=>{const colors={possede:'rgb(40, 85, 162)',perd:'rgb(180, 83, 9)',recupere:'rgb(36, 115, 66)',nepossede:'rgb(185, 38, 53)'};for(const [moment,color] of Object.entries(colors)){const e=EXOS.find(e=>e.moment===moment)||{...EXOS[0],moment};const card=renderFiche(e);document.body.append(card);if(getComputedStyle(card.querySelector('.f-top')).backgroundColor!==color)throw Error('Incorrect color: '+moment);card.remove();}}""")
  assert page.locator('.training-catalogue-card').count()==0
  frame.locator('.b-list a').first.click();assert frame.locator('.f-card').is_visible()
  assert frame.locator('.xs-board svg').count()>0

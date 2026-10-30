@@ -9,3 +9,5 @@ L’onglet Exercices affiche ce document dans un iframe. Le rangement et les sep
 Le fichier n’est pas modifié pour y ajouter des boutons de création de séance : il propose ses commandes d’origine. Les copies précédemment enregistrées dans les séances restent lisibles. Les propositions automatiques des anciens exercices restent retirées.
 
 Validation : `python tests/imported-exercises-browser.py` vérifie l’empreinte du fichier, les sept liens, la fiche, la lecture de l’animation, Coaching, Adapter, le retour au rangement et l’absence de débordement à 390 et 320 pixels.
+
+Code de classement demandé : possession en bleu (#2855a2), perte en orange (#b45309), récupération en vert (#247342), sans ballon en rouge (#b92635). Le CSS identifie les moments par leur palette native ; les scripts du fichier restent inchangés. Les textes des moments restent visibles en complément de la couleur.

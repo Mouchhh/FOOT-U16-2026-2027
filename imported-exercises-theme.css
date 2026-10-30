@@ -24,7 +24,21 @@ button, input, select { font-family: inherit; }
 .b-home { width: min(900px, 100%); gap: 18px; padding: 20px 16px 32px; }
 .b-head { gap: 12px; padding: 2px 0 6px; }
 .b-head h1 { font-size: clamp(25px, 3vw, 32px); letter-spacing: -.6px; text-transform: none; }
-.b-theme, .f-card { --theme: var(--club-blue) !important; --band: var(--club-navy) !important; }
+/* Semantic classification colors; the source's original palette identifies each
+   moment without modifying its content or functional rendering scripts. */
+.b-theme, .f-card {
+  --exercise-color: var(--club-navy);
+  --theme: var(--exercise-color) !important;
+  --band: var(--exercise-color) !important;
+}
+/* Possession: blue. */
+:is(.b-theme, .f-card)[style*="--theme: #4f8a10"] { --exercise-color: #2855a2; }
+/* Ball lost: orange. */
+:is(.b-theme, .f-card)[style*="--theme: #c2410c"] { --exercise-color: #b45309; }
+/* Ball recovered: green. */
+:is(.b-theme, .f-card)[style*="--theme: #3f8a1a"] { --exercise-color: #247342; }
+/* Out of possession: red. */
+:is(.b-theme, .f-card)[style*="--theme: #c4001a"] { --exercise-color: #b92635; }
 .b-theme { border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
 .b-theme h2 { padding: 13px 18px; font-size: 16px; letter-spacing: 0; text-transform: none; }
 .b-game { padding: 16px 18px; }
