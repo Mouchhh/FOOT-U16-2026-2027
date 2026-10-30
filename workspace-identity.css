@@ -2,7 +2,7 @@
 @media screen {
  :root{--club-navy:#142d50;--club-blue:#2855a2;--club-red:#c83948;--workspace-ink:#203958;--workspace-muted:#536a83;--workspace-line:#dce5ef}
  body:not(.home-mode){background:#f3f6fa}
- body:not(.home-mode)>header{border-top:3px solid var(--club-red);border-bottom:1px solid #dce5ef;background:#fff;padding-block:10px}
+ body:not(.home-mode)>header{border-top:0;border-bottom:1px solid #dce5ef;background:#fff;padding-block:10px}
  body:not(.home-mode) .brand{color:var(--club-navy)}
  body:not(.home-mode) .brand small{color:#546e90;letter-spacing:1.5px}
  .task-navigation #workspace-navigation{background:var(--club-navy);border:1px solid #142d50;border-radius:14px;padding:7px 7px 0;gap:5px;margin-block:10px 12px}
