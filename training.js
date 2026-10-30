@@ -107,7 +107,7 @@ function renderTrainingCatalogue(){
 for(const theme of [...new Set(trainingExercises.map(e=>e.theme))]){const option=el('option','',theme);option.value=theme;$('training-filter').append(option);}
 $('training-search').oninput=renderTrainingCatalogue;$('training-filter').onchange=renderTrainingCatalogue;
 function generateTraining(){
- if(!trainingAvailableExercises().length)return notify('La bibliothèque est vide. Créez un exercice ou reprenez un exercice des éducateurs.');
+ if(!trainingAvailableExercises().length)return notify('Choisissez les nouvelles fiches dans Exercices, puis « Voir et ajouter à ma séance ». Les anciennes propositions automatiques ont été retirées.');
  if(!applyTrainingForm())return notify('Vérifiez les réglages du groupe.');if(currentTraining.blocks.length&&!confirm('Remplacer le déroulé actuel par une proposition adaptée ?'))return;
  const proposal=localCoachPlan(currentTraining);
  currentTraining.blocks=proposal.blocks.map(b=>({id:crypto.randomUUID(),...b}));
