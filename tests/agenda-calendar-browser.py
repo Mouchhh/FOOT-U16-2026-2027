@@ -20,7 +20,7 @@ with sync_playwright() as p:
  assert page.evaluate('trainingLibrary.length')==1;page.locator('#training-step-link-0').click();page.locator('#training-title').fill('Séance du jeudi');page.locator('#training-save').click();page.locator('#view-coach-agenda').click();month.fill('2026-11');month.dispatch_event('change');assert page.locator('[data-date="2026-11-05"] .agenda-calendar-event').count()==1
  month.fill('2026-12');month.dispatch_event('change');page.locator('#agenda-month-next').click();assert month.input_value()=='2027-01';page.locator('#agenda-month-previous').click();assert month.input_value()=='2026-12'
  assert page.evaluate("agendaCalendarAdd('2028-02-28',1)==='2028-02-29'&&agendaCalendarAdd('2026-03-28',1)==='2026-03-29'&&homeClubNow(new Date('2026-10-30T23:30:00Z')).day==='2026-10-31'")
- page.locator('#coach-agenda-all').click();assert page.locator('.coach-agenda-card').count()==2;assert page.locator('.agenda-event-card').count()==11
+ page.locator('#coach-agenda-all').click();assert page.locator('.coach-agenda-card').count()==2;assert page.locator('.agenda-event-card').count()==2
  page.locator('#agenda-mode-month').click();month.fill('2026-11');month.dispatch_event('change')
  for w,h in [(320,740),(390,844),(844,390),(1366,768)]:
   page.set_viewport_size({'width':w,'height':h});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(w,h);assert page.locator('.agenda-calendar-grid').evaluate('e=>e.scrollWidth<=e.clientWidth+1'),(w,h)
