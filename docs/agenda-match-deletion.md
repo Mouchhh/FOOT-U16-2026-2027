@@ -11,3 +11,11 @@ Stockage : `vestiaire-agenda-removed-matches` (clé historique conservée) et `v
 La causerie reprend la bonne rencontre et sa préparation existante. Le bilan reprend date, heure, adversaire, catégorie, compétition et score lorsqu’ils sont connus. Un bilan déjà lié est rouvert. Une préparation étrangère au match n’est pas copiée dans un nouveau bilan. Créer une séance ouvre un brouillon vierge daté ; elle apparaît au calendrier après enregistrement. Le remplacement des brouillons passe par le mécanisme de récupération existant.
 
 Validation : `python tests/agenda-match-actions-browser.py` couvre l’ouverture sans suppression, modification et rechargement, causerie, réutilisation d’un bilan, nouvelle séance et journée vide, séances enregistrées, menu mobile, suppression et rétablissement, échec de stockage et séparation des coachs. Les tests du calendrier et du collage des rencontres vérifient les parcours existants.
+
+## Déplacer par glissement
+
+Les événements du calendrier mensuel sont déplaçables à la souris : maintenir le clic puis déposer sur un autre jour. Sur écran tactile, maintenir environ 350 ms, puis glisser et relâcher sur une date. Un tap rapide conserve l’ouverture habituelle. Le jour cible est mis en évidence ; Échap, un geste annulé ou un dépôt hors calendrier ne déplace rien. Le menu Modifier reste disponible comme alternative au geste.
+
+Le déplacement réutilise les métadonnées locales ci-dessus : titre, horaire, lieu et clé stable sont conservés, seule la date change. Le calendrier sélectionne la nouvelle journée et change de mois si le dépôt concerne une case du mois voisin. Les documents d’origine ne sont pas déplacés. L’échec du stockage conserve la date précédente. Le geste est limité aux événements et au profil de l’agenda où il a démarré.
+
+`python tests/agenda-drag-browser.py` vérifie le glisser-déposer natif, les gestes tactiles via Chrome DevTools, les dépôts sans effet, le rechargement, le mois voisin, la conservation des métadonnées et l’échec de stockage.
