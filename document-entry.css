@@ -1,0 +1,87 @@
+/* Explicit entry decisions, using the club's blue/white controls. */
+.document-entry-dialog {
+  width: min(760px, calc(100% - 24px));
+  max-height: 90dvh;
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid #dce5ef;
+  border-radius: 16px;
+  color: #203958;
+  background: #fff;
+}
+.document-entry-dialog::backdrop {
+  background: #142d5070;
+  backdrop-filter: blur(3px);
+}
+.document-entry-context {
+  color: #536a83;
+  line-height: 1.6;
+  margin: 12px 0 20px;
+  overflow-wrap: anywhere;
+}
+.document-entry-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+.document-entry-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  text-align: left;
+  padding: 22px;
+  min-height: 160px;
+  white-space: normal;
+  line-height: 1.5;
+}
+.document-entry-choice strong {
+  font-size: 18px;
+  line-height: 1.4;
+}
+.document-entry-choice span {
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.95;
+}
+.document-entry-choice:focus-visible {
+  outline: 3px solid #8daee3;
+  outline-offset: 3px;
+}
+.document-version-row {
+  padding: 16px 0;
+  border-top: 1px solid #dce5ef;
+  margin-top: 16px;
+}
+#document-versions-causerie {
+  margin-top: 14px;
+}
+#document-versions-causerie[hidden],
+#document-versions-report[hidden] {
+  display: none !important;
+}
+@media (max-width: 600px) {
+  .document-entry-dialog {
+    padding: 18px;
+  }
+  .document-entry-choices {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .document-entry-choice {
+    min-height: 130px;
+    padding: 18px;
+  }
+  .document-entry-dialog .section-heading {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+@media print {
+  .document-entry-dialog,
+  #document-versions-causerie,
+  #document-versions-report {
+    display: none !important;
+  }
+}
