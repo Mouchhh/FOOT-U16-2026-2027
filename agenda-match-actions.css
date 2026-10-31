@@ -1,3 +1,9 @@
-.agenda-match-remove{min-height:44px;color:#244e94;flex:none}
-@media print{.agenda-match-remove,#agenda-matches-restore{display:none!important}}
+.agenda-event-actions{min-height:44px;color:#244e94;flex:none}
+.agenda-context-menu{position:fixed;z-index:10000;width:min(300px,calc(100vw - 16px));max-height:calc(100dvh - 16px);overflow:auto;padding:7px;border:1px solid #dce5ef;border-radius:12px;background:#fff;box-shadow:0 12px 36px #142d5030;color:#203958}
+.agenda-context-title{margin:3px 8px 7px;font-size:12px;font-weight:650;line-height:1.5;overflow-wrap:anywhere}
+.agenda-context-menu>button{display:block;width:100%;min-height:44px;text-align:left;border:0;border-radius:7px;background:#fff;color:#203958;padding:10px;font:inherit;cursor:pointer}
+.agenda-context-menu>button:hover,.agenda-context-menu>button:focus-visible{background:#eaf0f9;color:#2855a2;outline:2px solid #9db7df;outline-offset:-2px}
+#agenda-event-edit{width:min(620px,calc(100% - 24px));max-height:90dvh;overflow:auto}
+#agenda-event-edit .training-form{display:grid;grid-template-columns:1fr;gap:14px}
+@media print{.agenda-event-actions,#agenda-matches-restore,.agenda-context-menu{display:none!important}}
 #agenda-matches-restore[hidden]{display:none!important}
