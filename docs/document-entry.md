@@ -65,3 +65,7 @@ Avant remplacement, les versions utiles de l’existant et du brouillon courant 
 `python tests/document-entry-browser.py` : entrée vide, reprise, création indépendante, contexte, rechargement, étapes internes, archives et restauration, quota à l’archivage et à l’écriture du brouillon, choix périmé, mobile.
 
 `python tests/agenda-match-actions-browser.py` : les raccourcis d’agenda utilisent la transition et rouvrent le bilan lié après choix explicite.
+
+## Arrivée dans Match
+
+L’entrée principale Match, les ouvertures génériques de préparation depuis l’accueil ou l’agenda, et le rechargement après une causerie commencent sur **Composition**. Les joueurs, placements et textes existants sont conservés. Le choix de reprise/création de causerie est présenté seulement lorsque l’éducateur choisit Causerie. Le raccourci explicite « Préparer la causerie » de l’agenda reste dirigé vers cette rédaction. Le comportement de Bilans est conservé.

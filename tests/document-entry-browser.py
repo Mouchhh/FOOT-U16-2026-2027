@@ -22,9 +22,15 @@ with sync_playwright() as p:
  page.locator('#view-pitch').click();page.locator('#task-match-causerie').click();assert not d.count();assert page.locator('#task-causerie').is_visible()
  page.evaluate("()=>{state.matchPreparation.defensive='Bloc compact à conserver';state.matchPreparation.objectives[0]='Se parler';persist();renderMatchPreparation()}")
  board_id=page.evaluate('getCompositionBoard().documentId||"draft"');page.locator('#task-match-composition').click();page.locator('#task-match-causerie').click();assert d.is_visible();d.locator('#document-entry-resume').click();assert page.evaluate('getCompositionBoard().matchPreparation.defensive')=='Bloc compact à conserver'
+ # Generic Match entry always starts at Composition and preserves the preparation.
+ before_match=page.evaluate('JSON.stringify(getCompositionBoard())')
+ page.locator('#view-home').click();page.locator('#view-pitch').click();assert page.evaluate('workspaceFlows.terrain.index()')==0;assert not d.count();assert page.evaluate('JSON.stringify(getCompositionBoard())')==before_match
+ page.locator('#task-match-causerie').click();d.locator('#document-entry-resume').click()
+ page.wait_for_function("history.state?.clubNavigation?.page?.view==='terrain' && history.state.clubNavigation.page.index===1")
+ page.reload();page.wait_for_function('!!window.documentEntry');assert page.evaluate('workspaceFlows.terrain.index()')==0;assert not d.count();assert page.evaluate('getCompositionBoard().matchPreparation.defensive')=='Bloc compact à conserver'
  # Match → Bilans uses the match context, not an unrelated report left open earlier.
  page.locator('#view-reports').click();assert not d.count();assert page.evaluate('currentReport.info.opponent')=='Adversaire B';assert page.evaluate('currentReport.analysis.topAttack')==''
- page.locator('#view-pitch').click();assert d.is_visible();d.locator('#document-entry-resume').click();assert page.evaluate('getCompositionBoard().matchPreparation.defensive')=='Bloc compact à conserver'
+ page.locator('#view-pitch').click();assert not d.count();assert page.evaluate('workspaceFlows.terrain.index()')==0;page.locator('#task-match-causerie').click();assert d.is_visible();d.locator('#document-entry-resume').click();assert page.evaluate('getCompositionBoard().matchPreparation.defensive')=='Bloc compact à conserver'
  page.locator('#task-match-composition').click();page.locator('#task-match-causerie').click();d.locator('#document-entry-create').click();assert page.evaluate('getCompositionBoard().matchPreparation.defensive')=='';assert page.evaluate('getCompositionBoard().matchPreparation.objectives[0]')=='';assert page.evaluate('getCompositionBoard().matchPreparation.opponent')=='Adversaire B';assert page.evaluate('getCompositionBoard().matchPreparation.date')=='2026-11-14'
  assert page.evaluate("documentEntryArchives().some(r=>r.kind==='causerie'&&r.payload.matchPreparation.defensive==='Bloc compact à conserver')")
  # New creation is blocked if the previous version cannot be archived.

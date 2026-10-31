@@ -11,7 +11,7 @@ function homeUpcomingMatch(now=homeClubNow()){
  for(const entry of candidates){const b=entry.board;if(!valid(b)||b.squadDirectory||b.boardKind==='plan')continue;if(b.documentId&&documents.has(b.documentId))continue;if(b.documentId)documents.add(b.documentId);const p=b.matchPreparation;if(!p?.date||p.date<now.day)continue;const key=JSON.stringify([p.date,b.team,b.category,b.squad,p.match.trim(),p.opponent.trim()]);if(fixtures.has(key))continue;fixtures.add(key);matches.push({...entry,date:p.date,title:p.match.trim()||p.opponent.trim().split('\n')[0]||b.title||b.team});}
  return matches.sort((a,b)=>a.date.localeCompare(b.date)||a.title.localeCompare(b.title))[0]||null;
 }
-function homeOpenTerrain(board=null){if(board&&board!==getCompositionBoard()&&!workspaceReplaceDraft('composition',board))return;workspaceNavigation.run('view-pitch',()=>{if(activateTerrainBoard('composition'))workspaceFlows.terrain.go(1);});}
+function homeOpenTerrain(board=null){if(board&&board!==getCompositionBoard()&&!workspaceReplaceDraft('composition',board))return;workspaceNavigation.run('view-pitch',()=>{if(activateTerrainBoard('composition'))workspaceFlows.terrain.go(0);});}
 function homeOpenSavedTraining(session){const before=currentTraining;loadTraining(session);if(currentTraining!==before&&currentTraining.id===session.id)workspaceNavigation.run('view-training',()=>trainingWizard.go(3));}
 function homeWorkingCopies(){
  const work=[],t=currentTraining,r=currentReport,b=getCompositionBoard(),plan=getGamePlanBoard();

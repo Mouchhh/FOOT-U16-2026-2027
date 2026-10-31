@@ -767,18 +767,6 @@ document.addEventListener("DOMContentLoaded", () => {
       : $("task-causerie")
     ).append(button);
   }
-  const enterTask = taskWorkspace.enter;
-  taskWorkspace.enter = function (parent) {
-    if (
-      parent === "view-pitch" &&
-      workspaceFlows.terrain.index() === 1 &&
-      terrainBoardKind === "composition" &&
-      !document.body.classList.contains("simple-mode") &&
-      !bypass
-    )
-      return request("causerie", () => enterTask(parent), { force: true });
-    return enterTask(parent);
-  };
   new MutationObserver(() => {
     if (!inside("causerie")) accepted.causerie = null;
     if (!inside("report")) accepted.report = null;
@@ -800,7 +788,7 @@ document.addEventListener("DOMContentLoaded", () => {
     refresh: refreshHistory,
   };
   refreshHistory();
-  function checkRestoredEntry() {
+  function checkRestoredEntry(initial = false) {
     if (pending || (accountCoachBinding && !clubNetworkBound())) return;
     if (inside("report") && accepted.report !== key("report", currentReport))
       request("report", () => {
@@ -810,12 +798,18 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (
       inside("causerie") &&
       accepted.causerie !== key("causerie", getCompositionBoard())
-    )
-      request("causerie", () => renderMatchPreparation());
+    ) {
+      if (initial)
+        perform(() => {
+          activateTerrainBoard("composition");
+          terrainGo(0);
+        });
+      else request("causerie", () => renderMatchPreparation());
+    }
   }
   document.addEventListener("club-session-ready", () =>
-    queueMicrotask(checkRestoredEntry),
+    queueMicrotask(() => checkRestoredEntry(true)),
   );
   window.addEventListener("popstate", () => queueMicrotask(checkRestoredEntry));
-  checkRestoredEntry();
+  checkRestoredEntry(true);
 });

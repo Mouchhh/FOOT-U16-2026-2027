@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(focusId&&$(focusId))$(focusId).focus({preventScroll:true});
  }
  function schedule(){cancelAnimationFrame(frame);frame=requestAnimationFrame(refresh);}
- window.taskWorkspace={enter(parent){workspaceMenus.close();if(parent==='view-home')workspaceFlows.home.go(0);else if(parent==='view-pitch'&&terrain.index()===2)terrain.go(0);else if(parent==='view-coach-agenda')workspaceFlows.agenda.go(1);else if(parent==='view-club-network'&&clubNetworkBound())workspaceFlows.club.go(1);schedule();},settings(){go('view-pitch',()=>{if(!activateTerrainBoard('composition'))return;terrain.go(1);settingsDrawer.open=true;settingsDrawer.scrollIntoView({block:'start'});});}};
+ window.taskWorkspace={enter(parent){workspaceMenus.close();if(parent==='view-home')workspaceFlows.home.go(0);else if(parent==='view-pitch'){if(activateTerrainBoard('composition'))terrain.go(0);}else if(parent==='view-coach-agenda')workspaceFlows.agenda.go(1);else if(parent==='view-club-network'&&clubNetworkBound())workspaceFlows.club.go(1);schedule();},settings(){go('view-pitch',()=>{if(!activateTerrainBoard('composition'))return;terrain.go(1);settingsDrawer.open=true;settingsDrawer.scrollIntoView({block:'start'});});}};
  new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']});
  for(const flow of Object.values(workspaceFlows))new MutationObserver(schedule).observe(flow.root,{attributes:true,attributeFilter:['data-step']});
  new MutationObserver(schedule).observe($('training-space'),{subtree:true,attributes:true,attributeFilter:['hidden']});
