@@ -1,0 +1,146 @@
+/* Keep the original Vestiaire heading and its original fields/buttons in place. */
+body.composition-slot-editing #terrain-roster-drawer {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  align-self: start;
+}
+body.composition-slot-editing
+  #terrain-roster-drawer
+  :is(.roster-heading, #roster, .sidebar-note, #coach-squad-open) {
+  display: none !important;
+}
+body.composition-slot-editing #terrain-roster-drawer > .hint,
+body.composition-slot-editing #terrain-roster-toggle {
+  display: none !important;
+}
+body.composition-slot-editing .roster-folded #terrain-roster-drawer {
+  display: block !important;
+}
+@media (min-width: 850px) {
+  body.composition-slot-editing .workspace.roster-folded {
+    grid-template-columns: 250px minmax(0, 1fr);
+  }
+}
+.composition-player-picker {
+  width: min(720px, calc(100% - 24px));
+  max-height: 90dvh;
+  overflow: auto;
+  padding: 22px;
+  border: 1px solid #dce5ef;
+  border-radius: 16px;
+  background: #fff;
+  color: #203958;
+}
+.composition-player-picker::backdrop {
+  background: #142d5070;
+  backdrop-filter: blur(3px);
+}
+.composition-player-picker > .section-heading {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.composition-picker-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  background: #e4ebf4;
+  border-radius: 10px;
+  margin: 18px 0;
+}
+.composition-picker-tabs > button {
+  flex: 1;
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #536a83;
+  font:
+    600 14px system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+.composition-picker-tabs > button[aria-selected="true"] {
+  background: #fff;
+  color: #2855a2;
+  box-shadow: 0 1px 5px #142d5015;
+}
+.composition-picker-panel[hidden] {
+  display: none !important;
+}
+.composition-picker-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  max-height: 45dvh;
+  overflow: auto;
+}
+.composition-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid #dce5ef;
+}
+.composition-picker-row > div {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.composition-picker-row > .roster-avatar {
+  width: 48px;
+  height: 48px;
+  flex: none;
+}
+.composition-picker-row button {
+  min-height: 44px;
+}
+.composition-picker-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.composition-picker-form > .report-field:nth-of-type(n + 3),
+.composition-picker-form > .hint,
+.composition-picker-form > button,
+.composition-picker-form > img {
+  grid-column: 1/-1;
+}
+.composition-picker-photo {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.composition-picker-status {
+  line-height: 1.5;
+  color: #2855a2;
+  margin-top: 14px;
+}
+@media (max-width: 480px) {
+  .composition-player-picker {
+    padding: 16px;
+  }
+  .composition-picker-form {
+    grid-template-columns: 1fr;
+  }
+  .composition-picker-row {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .composition-picker-row button {
+    margin-left: auto;
+  }
+  .composition-picker-tabs > button {
+    font-size: 13px;
+    padding: 9px;
+  }
+  .composition-player-picker input {
+    min-height: 44px;
+  }
+}
+@media print {
+  .composition-player-picker {
+    display: none !important;
+  }
+}
