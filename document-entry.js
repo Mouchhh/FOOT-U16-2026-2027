@@ -33,13 +33,23 @@ function documentEntrySameContext(a, b) {
 }
 function documentEntryMeaningful(kind, payload) {
   if (kind === "causerie") {
-    const p = payload.matchPreparation;
+    // Legacy storage kind retained: the decision now concerns the whole Match preparation.
     return (
-      !!p &&
-      (["context", "defensive", "offensive", "specific"].some((k) =>
-        p[k]?.trim(),
+      !!payload.documentId ||
+      !!payload.title?.trim() ||
+      !!payload.notes.trim() ||
+      payload.arrows.length > 0 ||
+      payload.formation !== "4-3-3" ||
+      payload.players.length !== 11 ||
+      payload.players.some(
+        (p, i) =>
+          p.name !== "Joueur " + (i + 1) ||
+          p.photo ||
+          p.role === "sub" ||
+          p.x !== layouts["4-3-3"][i]?.[0] ||
+          p.y !== layouts["4-3-3"][i]?.[1],
       ) ||
-        p.objectives.some((v) => v.trim()))
+      matchPreparationFilled(payload.matchPreparation)
     );
   }
   const r = payload,
@@ -128,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const inside = (kind) =>
     kind === "report"
       ? document.body.classList.contains("reports-mode")
-      : workspaceFlows.terrain.index() === 1 &&
+      : terrainBoardKind === "composition" &&
         ![
           "home-mode",
           "training-mode",
@@ -230,6 +240,9 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       next.coach = activeCoach.name;
       next.notes = "";
+      next.title = "";
+      next.arrows = [];
+      delete next.opponents;
       delete next.clubApproval;
       delete next.clubValidation;
       const old = next.matchPreparation || newMatchPreparation(),
@@ -302,6 +315,13 @@ document.addEventListener("DOMContentLoaded", () => {
       renderReportTabs();
       renderReportContent();
     }
+    if (kind === "causerie")
+      perform(() =>
+        navigation("view-pitch", () => {
+          activateTerrainBoard("composition");
+          terrainGo(0);
+        }),
+      );
     accepted[kind] = key(kind, current(kind));
     state.kind = kind;
     state.context = documentEntryContext(kind, current(kind));
@@ -391,6 +411,13 @@ document.addEventListener("DOMContentLoaded", () => {
       openEditor(kind, continuation, true);
       return true;
     }
+    if (kind === "causerie")
+      perform(() =>
+        navigation("view-pitch", () => {
+          activateTerrainBoard("composition");
+          terrainGo(0);
+        }),
+      );
     const owner = activeCoach.id,
       generation = clubNetworkGeneration,
       initial = documentEntrySignature(current(kind));
@@ -400,12 +427,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const head = el("div", "section-heading"),
       cancel = el("button", "export", "Retour");
     cancel.type = "button";
-    cancel.onclick = () => dialog.close();
+    cancel.onclick = () => {
+      dialog.close();
+      if (kind === "causerie")
+        perform(() =>
+          navigation("view-home", () => taskWorkspace.enter("view-home")),
+        );
+    };
+    dialog.addEventListener("cancel", (event) => {
+      if (kind === "causerie") {
+        event.preventDefault();
+        cancel.onclick();
+      }
+    });
     head.append(
       el(
         "h2",
         "",
-        kind === "report" ? "Un bilan existe déjà" : "Une causerie existe déjà",
+        kind === "report"
+          ? "Un bilan existe déjà"
+          : "Une préparation de match existe déjà",
       ),
       cancel,
     );
@@ -461,14 +502,14 @@ document.addEventListener("DOMContentLoaded", () => {
       el(
         "strong",
         "",
-        kind === "report"
-          ? "Créer un nouveau bilan"
-          : "Créer une nouvelle causerie",
+        kind === "report" ? "Créer un nouveau bilan" : "Créer un nouveau match",
       ),
       el(
         "span",
         "",
-        "Repartir avec un texte vierge. L’ancien travail sera conservé dans les versions précédentes.",
+        kind === "report"
+          ? "Repartir avec un texte vierge. L’ancien travail sera conservé dans les versions précédentes."
+          : "Nouvelle préparation avec votre effectif. L’ancien match est conservé dans les versions précédentes.",
       ),
     );
     actions.append(resume, create);
@@ -610,7 +651,7 @@ document.addEventListener("DOMContentLoaded", () => {
           else
             navigation("view-pitch", () => {
               activateTerrainBoard("composition");
-              terrainGo(1);
+              terrainGo(0);
               renderMatchPreparation();
             });
         });
@@ -636,17 +677,15 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   const terrainGo = workspaceFlows.terrain.go;
   workspaceFlows.terrain.go = function (index) {
-    if (index !== 1) {
-      accepted.causerie = null;
-      return terrainGo(index);
-    }
     if (
+      index !== 0 ||
       bypass ||
       document.body.classList.contains("simple-mode") ||
       terrainBoardKind !== "composition"
     )
       return terrainGo(index);
-    return request("causerie", () => terrainGo(index));
+    terrainGo(0);
+    return request("causerie", () => terrainGo(0));
   };
   // Direct navigation buttons use the same transition before the old form can appear.
   document.addEventListener(
@@ -672,6 +711,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const calendarEvents = agendaCalendarEvents;
   agendaCalendarEvents = function () {
     return calendarEvents().map((event) => {
+      if (event.kind === "match")
+        return {
+          ...event,
+          open: () => {
+            const board = agendaEventBoard(event),
+              fixture = event.fff;
+            if (!fixture && !board)
+              return notify(
+                "Cette préparation n’est plus disponible. Actualisez l’agenda.",
+              );
+            const context = fixture
+              ? {
+                  id: board?.documentId || "agenda",
+                  key: fixture.key,
+                  date: event.date,
+                  opponent: fixture.opponent || "",
+                  team: fixture.team || "",
+                  category: event.category || "",
+                }
+              : {
+                  ...documentEntryContext("causerie", board),
+                  date: event.date,
+                };
+            return request(
+              "causerie",
+              () => {
+                if (fixture) agendaFFFPrepare(fixture);
+                else homeOpenTerrain();
+              },
+              { context, force: true, managesContext: true },
+            );
+          },
+        };
       if (event.kind !== "report") return event;
       return {
         ...event,
@@ -764,7 +836,7 @@ document.addEventListener("DOMContentLoaded", () => {
     button.onclick = () => showHistory(kind);
     (kind === "report"
       ? $("after-match").querySelector(".reports-heading .report-actions")
-      : $("task-causerie")
+      : $("terrain-page-0")
     ).append(button);
   }
   new MutationObserver(() => {
@@ -799,12 +871,11 @@ document.addEventListener("DOMContentLoaded", () => {
       inside("causerie") &&
       accepted.causerie !== key("causerie", getCompositionBoard())
     ) {
-      if (initial)
-        perform(() => {
-          activateTerrainBoard("composition");
-          terrainGo(0);
-        });
-      else request("causerie", () => renderMatchPreparation());
+      perform(() => {
+        activateTerrainBoard("composition");
+        terrainGo(0);
+      });
+      request("causerie", () => terrainGo(0));
     }
   }
   document.addEventListener("club-session-ready", () =>

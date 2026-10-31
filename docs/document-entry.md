@@ -1,6 +1,6 @@
-# Entrée explicite dans Causerie et Bilans
+# Entrée explicite dans Composition et Bilans
 
-L’entrée affiche un choix uniquement si un document existe dans le contexte concerné : **Reprendre / Modifier** ou **Créer une nouvelle causerie / un nouveau bilan**. Le match, la date et la catégorie sont affichés. Un formulaire vide s’ouvre directement. Le retour et l’annulation ne remplacent aucun document.
+L’entrée dans Composition ou Bilans affiche un choix uniquement si un document existe dans le contexte concerné : **Reprendre / Modifier** ou **Créer un nouveau match / un nouveau bilan**. Le match, la date et la catégorie sont affichés. Un formulaire vide s’ouvre directement. Le retour et l’annulation ne remplacent aucun document.
 
 ## Fichiers
 
@@ -34,7 +34,7 @@ Le sélecteur est masqué si une seule version est disponible. La fenêtre nativ
 // error : message dans le choix, ancien document préservé
 ```
 
-`documentEntry.getState()` expose une copie de cet état. La décision acceptée vaut pour le document et la visite courants : changer d’étape dans un bilan ne redemande pas ce choix. Une nouvelle arrivée dans la rubrique le redemande. La restauration après rechargement et les retours d’historique sont également contrôlés.
+`documentEntry.getState()` expose une copie de cet état. La décision acceptée vaut pour le document et la visite courants : changer d’étape dans un bilan ou passer de Composition à Causerie ne redemande pas ce choix. Une nouvelle arrivée dans la rubrique le redemande. La restauration après rechargement et les retours d’historique sont également contrôlés.
 
 ```js
 // Pour un nouvel accès à la rubrique, depuis un autre composant :
@@ -42,9 +42,9 @@ documentEntry.request('report', () => {
   workspaceNavigation.run('view-reports');
 });
 
-// L’ouverture de la causerie passe par la même politique.
+// Le type historique "causerie" concerne désormais l’entrée dans Composition.
 documentEntry.request('causerie', () => {
-  workspaceNavigation.run('view-pitch', () => workspaceFlows.terrain.go(1));
+  workspaceNavigation.run('view-pitch', () => workspaceFlows.terrain.go(0));
 });
 ```
 
@@ -54,7 +54,7 @@ La recherche consulte le brouillon, les documents enregistrés du coach et ses v
 
 ## Création et conservation
 
-Créer attribue un nouvel identifiant. Les repères de la rencontre et la composition sont conservés ; la rédaction, les objectifs de causerie ou les analyses, notes, scores et plan d’action du bilan sont remis à zéro. Une éventuelle préparation associée au bilan conserve ses objectifs de départ mais réinitialise leurs constats et observations. Les documents enregistrés et partagés ne sont pas supprimés ni écrasés.
+Créer attribue un nouvel identifiant. Pour un nouveau match, les repères de la rencontre et l’effectif sont conservés ; le titre, les notes, les flèches, l’adversaire dessiné et la rédaction de causerie sont remis à zéro. Pour un nouveau bilan, les analyses, notes, scores et le plan d’action sont remis à zéro. Une éventuelle préparation associée au bilan conserve ses objectifs de départ mais réinitialise leurs constats et observations. Les documents enregistrés et partagés ne sont pas supprimés ni écrasés.
 
 Avant remplacement, les versions utiles de l’existant et du brouillon courant sont conservées dans `vestiaire-document-versions` via le stockage du coach. Le remplacement passe ensuite par `workspaceReplaceDraft`, qui préserve également la récupération habituelle. Si l’archive ou l’écriture du nouveau brouillon échoue, le document courant reste ouvert. Les copies identiques ne sont pas dupliquées.
 
@@ -66,6 +66,10 @@ Avant remplacement, les versions utiles de l’existant et du brouillon courant 
 
 `python tests/agenda-match-actions-browser.py` : les raccourcis d’agenda utilisent la transition et rouvrent le bilan lié après choix explicite.
 
-## Arrivée dans Match
+## Choix dans Composition
 
-L’entrée principale Match, les ouvertures génériques de préparation depuis l’accueil ou l’agenda, et le rechargement après une causerie commencent sur **Composition**. Les joueurs, placements et textes existants sont conservés. Le choix de reprise/création de causerie est présenté seulement lorsque l’éducateur choisit Causerie. Le raccourci explicite « Préparer la causerie » de l’agenda reste dirigé vers cette rédaction. Le comportement de Bilans est conservé.
+Le choix **Reprendre / Modifier** ou **Créer un nouveau match** est placé dans **Composition**, dès l’entrée dans Match, et pas dans Causerie. Il détecte aussi une composition travaillée sans causerie (joueurs nommés, placements ou système modifiés, notes, dessin ou document enregistré). Reprendre conserve exactement la préparation et ouvre Composition ; créer archive le précédent match puis ouvre Composition pour recommencer la préparation avec son effectif.
+
+Le passage vers Causerie ne présente plus de second choix au cours de cette visite. Les versions précédentes des matchs sont accessibles depuis Composition. Retour ou Échap sur le choix Match ramènent à l’accueil sans remplacer de données. Le comportement de Bilans est conservé.
+
+Le nom technique `causerie` dans le contrôleur et les archives est conservé pour la compatibilité des versions déjà enregistrées : il représente la préparation entière de match, depuis Composition.
