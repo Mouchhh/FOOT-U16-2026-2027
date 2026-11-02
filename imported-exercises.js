@@ -1,4 +1,4 @@
-// Existing Bible layout, containing the coach’s supplied Banide and Toro exercises.
+// Existing Bible layout, containing the coach’s supplied Banide, Toro and Opposition exercises.
 const suppliedExerciseIds=suppliedExerciseEngine.exercises.map(e=>e.id);
 const suppliedMomentAxes={possede:'ball',perd:'loss',recupere:'win',nepossede:'off',ludique:'ludic'};
 function suppliedObjective(e){return Object.keys(bmfSubcategories).find(k=>bmfSubcategories[k].axis===suppliedMomentAxes[e.moment]&&bmfSubcategories[k].label===e.sub)||'';}

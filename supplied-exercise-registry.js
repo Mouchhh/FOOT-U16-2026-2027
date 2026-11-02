@@ -2,9 +2,10 @@
 (() => {
   const banide = window.suppliedExerciseEngine;
   const toro = window.suppliedToroExerciseEngine;
+  const opposition = window.suppliedOppositionExerciseEngine;
   const owners = new Map();
   const modelOwners = new WeakMap();
-  const engines = [banide, toro];
+  const engines = [banide, toro, opposition];
   for (const engine of engines)
     for (const exercise of engine.exercises) {
       if (owners.has(exercise.id))
@@ -31,6 +32,11 @@
     seriesOf: (exercise, duration, band) =>
       owner(exercise).seriesOf(exercise, duration, band),
     presentationFor(exercise) {
+      if (owner(exercise) === opposition)
+        return {
+          stylesheet: "supplied-opposition-base.css?v=opposition-163",
+          source: "Exos foot - Opposition.html",
+        };
       return owner(exercise) === toro
         ? {
             stylesheet: "supplied-toro-base.css?v=toro-160",

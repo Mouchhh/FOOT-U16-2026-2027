@@ -20,9 +20,9 @@ with sync_playwright() as p:
  assert page.locator('.supplied-exercise-card').count()==3
  assert page.locator('#training-search').is_visible()
  assert page.locator('#bible-bmf-category').is_visible()
- assert page.evaluate('suppliedExerciseEngine.exercises.length')==18
+ assert page.evaluate('suppliedExerciseEngine.exercises.length')==28
  assert page.evaluate('trainingAvailableExercises().length')==0
- for axis,count in [('ball',9),('loss',2),('win',2),('off',3),('ludic',2)]:
+ for axis,count in [('ball',11),('loss',5),('win',4),('off',5),('ludic',3)]:
   page.locator('#bible-bmf-category').select_option(axis)
   assert page.locator('.supplied-exercise-card').count()==min(3,count)
   assert page.locator('#bible-results').inner_text()==str(count)+' exercice(s) trouvé(s)'
@@ -50,7 +50,7 @@ with sync_playwright() as p:
  page.locator('#bible-more').click();assert page.locator('.supplied-exercise-card').count()==3
  while page.locator('#bible-more').is_enabled():
   page.locator('#bible-more').click()
- assert page.locator('.supplied-exercise-card').count()==3
+ assert page.locator('.supplied-exercise-card').count()==1
  for width in [390,320]:
   page.set_viewport_size({'width':width,'height':844})
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')

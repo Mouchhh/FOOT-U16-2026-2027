@@ -18,7 +18,7 @@ with sync_playwright() as p:
     page.goto('http://127.0.0.1:3016/?mode=local')
     page.wait_for_function('window.suppliedToroExerciseEngine && typeof suppliedExerciseIds!=="undefined"')
     assert page.evaluate('suppliedToroExerciseEngine.exercises.length')==11
-    assert page.evaluate('suppliedExerciseEngine.exercises.length')==18
+    assert page.evaluate('suppliedExerciseEngine.exercises.length')==28
     # All supplied data (including functions), and every adapted model, match the source engine.
     assert page.evaluate("""()=>suppliedToroExerciseEngine.exercises.every(e=>{
       const integrated=suppliedExerciseEngine.exercises.find(x=>x.id===e.id);
