@@ -354,7 +354,11 @@ function coachTeamSwitch(id) {
     return false;
   }
 }
-function coachTeamAddDialog(edit = false) {
+function coachTeamAddDialog(edit = false, targetTeam = activeCoachTeam) {
+  const editedTeam = edit
+    ? coachTeams.find((t) => t.id === targetTeam.id)
+    : activeCoachTeam;
+  if (!editedTeam) return;
   const dialog = el("dialog", "coach-team-dialog");
   dialog.setAttribute("aria-labelledby", "coach-team-title");
   const form = el("form"),
@@ -379,16 +383,13 @@ function coachTeamAddDialog(edit = false) {
   const label = field("Nom affiché (ex. Seniors A)", 60),
     category = field("Catégorie (ex. Seniors, U15)", 30),
     team = field("Nom de l’équipe", 50);
-  team.value = edit
-    ? activeCoachTeam.team || "Stade Mayennais"
-    : "Stade Mayennais";
+  team.value = edit ? editedTeam.team || "Stade Mayennais" : "Stade Mayennais";
   if (edit) {
     label.value =
-      activeCoachTeam.id === "unassigned" &&
-      activeCoachTeam.label === "À classer"
+      editedTeam.id === "unassigned" && editedTeam.label === "À classer"
         ? ""
-        : activeCoachTeam.label;
-    category.value = activeCoachTeam.category;
+        : editedTeam.label;
+    category.value = editedTeam.category;
   }
   const hint = el(
       "p",
@@ -408,7 +409,7 @@ function coachTeamAddDialog(edit = false) {
     e.preventDefault();
     if (!form.reportValidity()) return;
     const entry = {
-      id: edit ? activeCoachTeam.id : "team-" + crypto.randomUUID(),
+      id: edit ? editedTeam.id : "team-" + crypto.randomUUID(),
       label: label.value.trim(),
       category: category.value.trim(),
       team: team.value.trim(),
@@ -452,6 +453,7 @@ function coachTeamAddDialog(edit = false) {
         JSON.stringify([...merged.values()]),
       );
       coachTeams = [...merged.values()];
+      dialog.dataset.saved = "true";
       dialog.close();
       if (edit) {
         coachTeamRememberView(entry.id);
@@ -476,6 +478,7 @@ function coachTeamAddDialog(edit = false) {
   document.body.append(dialog);
   dialog.showModal();
   label.focus();
+  return dialog;
 }
 document.addEventListener("DOMContentLoaded", () => {
   const wrap = el("label", "coach-team-picker"),

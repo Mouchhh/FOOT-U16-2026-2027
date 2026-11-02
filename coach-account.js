@@ -218,7 +218,7 @@ function coachAccountCheckReminders(date = new Date()) {
     coachAccountReminderBusy = false;
   }
 }
-function coachAccountOpen() {
+function coachAccountOpen(initialTab = "profile") {
   if ($("coach-account-dialog")?.open || document.querySelector("dialog[open]"))
     return;
   const owner = activeCoach.id,
@@ -227,7 +227,7 @@ function coachAccountOpen() {
   dialog.id = "coach-account-dialog";
   dialog.setAttribute("aria-labelledby", "coach-account-title");
   const heading = el("div", "account-heading"),
-    title = el("h2", "", "Mon compte"),
+    title = el("h2", "", "Paramètres"),
     close = el("button", "export", "Fermer");
   title.id = "coach-account-title";
   close.type = "button";
@@ -247,14 +247,14 @@ function coachAccountOpen() {
       tab.setAttribute("aria-selected", String(key === id));
       tab.tabIndex = key === id ? 0 : -1;
     }
+    dialog.scrollTop = 0;
     if (focus) panels.get(id).tab.focus({ preventScroll: true });
   }
   for (const [id, label] of [
-    ["profile", "Profil"],
-    ["preferences", "Préférences"],
-    ["security", "Sécurité"],
-    ["notifications", "Rappels et agenda"],
-    ["support", "Aide et déconnexion"],
+    ["profile", "Mon profil & sécurité"],
+    ["club", "Détails du club"],
+    ["teams", "Catégories & équipes"],
+    ["preferences", "Préférences & déconnexion"],
   ]) {
     const tab = el("button", "", label);
     tab.type = "button";
@@ -292,7 +292,24 @@ function coachAccountOpen() {
     );
   };
   function section(id, description) {
-    const panel = panels.get(id).panel;
+    let panel;
+    if (id === "security") {
+      panel = el("section", "account-subsection");
+      panel.id = "account-panel-security";
+      panel.append(el("h3", "", "Mot de passe et identifiants"));
+      panels.get("profile").panel.append(panel);
+    } else if (id === "notifications" || id === "support") {
+      panel = el("details", "account-extra");
+      panel.id = "account-panel-" + id;
+      panel.append(
+        el(
+          "summary",
+          "",
+          id === "notifications" ? "Rappels et agenda" : "Signaler un problème",
+        ),
+      );
+      panels.get("preferences").panel.append(panel);
+    } else panel = panels.get(id).panel;
     panel.append(el("p", "account-description", description));
     return panel;
   }
@@ -444,6 +461,71 @@ function coachAccountOpen() {
       pf.status.textContent = clubNetworkMessage(error);
     }
   };
+  const club = section(
+    "club",
+    "Votre fiche club est conservée sur cet appareil pour votre compte. Elle est commune à vos équipes et ne modifie pas les documents existants ni la charte du site.",
+  );
+  coachAccountRenderClub({ panel: club, formIn, field, submit, dirty, owner });
+  const teams = section(
+    "teams",
+    "Renseignez librement les équipes et catégories que vous encadrez. Chaque équipe conserve son effectif, ses bilans, son agenda et ses séances.",
+  );
+  const teamList = el("div", "account-team-list");
+  function leaveForTeam(action) {
+    if (!mayClose()) return;
+    dialog.addEventListener("close", () => action(), { once: true });
+    dialog.close();
+  }
+  function editTeam(edit, team = activeCoachTeam) {
+    leaveForTeam(() => {
+      const editor = coachTeamAddDialog(edit, team);
+      editor.addEventListener(
+        "close",
+        () => {
+          if (!editor.dataset.saved)
+            setTimeout(() => coachAccountOpen("teams"), 0);
+        },
+        { once: true },
+      );
+    });
+  }
+  for (const team of coachTeams) {
+    const card = el("article", "account-team-card"),
+      copy = el("div"),
+      actions = el("div", "account-team-actions"),
+      active = team.id === activeCoachTeam.id;
+    copy.append(
+      el("h3", "", team.label),
+      el(
+        "p",
+        "hint",
+        [team.category, team.team].filter(Boolean).join(" · ") ||
+          "Équipe à configurer",
+      ),
+    );
+    if (active) copy.append(el("span", "account-team-active", "Équipe active"));
+    const edit = el("button", "export", "Modifier");
+    edit.type = "button";
+    edit.setAttribute("aria-label", "Modifier " + team.label);
+    edit.onclick = () => editTeam(true, team);
+    actions.append(edit);
+    if (!active) {
+      const open = el("button", "primary", "Sélectionner");
+      open.type = "button";
+      open.setAttribute("aria-label", "Sélectionner " + team.label);
+      open.onclick = () =>
+        leaveForTeam(() => {
+          if (!coachTeamSwitch(team.id)) coachAccountOpen("teams");
+        });
+      actions.append(open);
+    }
+    card.append(copy, actions);
+    teamList.append(card);
+  }
+  const addTeam = el("button", "primary", "+ Ajouter une équipe");
+  addTeam.type = "button";
+  addTeam.onclick = () => editTeam(false);
+  teams.append(teamList, addTeam);
   const preferences = section(
     "preferences",
     "Choisissez votre page au démarrage et le confort d’affichage. Un retour arrière ou un rechargement conserve toujours le travail et la page en cours.",
@@ -741,7 +823,9 @@ function coachAccountOpen() {
       "Ne transmettez aucun mot de passe ni données personnelles de joueurs.",
     ),
     bug,
-    el("hr"),
+  );
+  preferences.append(
+    el("h3", "account-logout-heading", "Déconnexion"),
     logout,
     logoutStatus,
   );
@@ -766,7 +850,7 @@ function coachAccountOpen() {
   );
   dialog.append(heading, tabs, content);
   document.body.append(dialog);
-  activate("profile");
+  activate(panels.has(initialTab) ? initialTab : "profile");
   dialog.showModal();
 }
 document.addEventListener("DOMContentLoaded", () => {
@@ -779,7 +863,7 @@ document.addEventListener("DOMContentLoaded", () => {
   open.title = "Mon compte";
   open.innerHTML =
     '<svg viewBox="0 0 24 24" aria-hidden="true" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 3-1 3-3 1-2 4 2 2v4l4 3 3-1 3 1 4-3v-4l2-2-2-4-3-1-1-3z"/><circle cx="12" cy="12" r="3"/></svg><span>Mon compte</span>';
-  open.onclick = coachAccountOpen;
+  open.onclick = () => coachAccountOpen();
   document.querySelector(".header-actions").append(open);
   coachAccountApply();
   window.addEventListener("storage", (event) => {
