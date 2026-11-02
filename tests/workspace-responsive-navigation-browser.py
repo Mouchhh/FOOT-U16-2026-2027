@@ -8,18 +8,18 @@ with sync_playwright() as p:
         page.goto('http://127.0.0.1:3016/?mode=local')
         page.wait_for_function('document.body.classList.contains("responsive-navigation")')
         nav=page.locator('#workspace-navigation')
-        assert nav.locator(':scope>button').count()==7
+        assert nav.locator(':scope>button').count()==8
         assert page.locator('#task-section-navigation').evaluate('e=>e.parentElement.tagName')=='MAIN'
         assert page.locator('#workspace-menu-toggle').is_hidden()
-        assert nav.locator('svg[aria-hidden=true]').count()==7
+        assert nav.locator('svg[aria-hidden=true]').count()==8
         expected='bottom' if touch or width<1100 else 'left'
         assert nav.get_attribute('data-dock')==expected
-        for selector,view in [('#view-training','training'),('#view-coach-agenda','agenda'),('#view-reports','report'),('#workspace-squad-entry','squad'),('#view-pitch','terrain'),('#view-home','home')]:
+        for selector,view in [('#view-training','training'),('#view-coach-agenda','agenda'),('#view-reports','report'),('#workspace-squad-entry','squad'),('#view-pitch','terrain'),('#view-resources','resources'),('#view-home','home')]:
             revision=page.evaluate('workspaceFraming.getState().revision')
             page.locator(selector).click()
             page.wait_for_function('(a)=>{let s=workspaceFraming.getState();return s.revision>a.r&&s.view===a.v}',arg={'r':revision,'v':view})
             page.wait_for_function("workspaceFraming.getState().phase==='idle'")
-            if view!='squad':
+            if view not in ['squad','resources']:
                 assert page.locator('#task-section-navigation').is_visible()
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+2')
             assert nav.evaluate("n=>{let r=n.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight+1}")
@@ -30,7 +30,7 @@ with sync_playwright() as p:
                 assert page.locator('main').bounding_box()['x']>=nav.bounding_box()['x']+nav.bounding_box()['width']
             else:
                 assert nav.evaluate('n=>Math.abs(n.getBoundingClientRect().bottom-innerHeight)<1')
-                assert page.evaluate('parseFloat(getComputedStyle(document.body).paddingBottom)>=78')
+                assert page.evaluate("parseFloat(getComputedStyle(document.body).paddingBottom)>=document.getElementById('workspace-navigation').getBoundingClientRect().height")
         page.locator('#view-home').focus();page.keyboard.press('ArrowDown' if expected=='left' else 'ArrowRight')
         assert page.locator('#view-pitch').evaluate('e=>document.activeElement===e')
         page.keyboard.press('Escape');assert nav.is_visible()

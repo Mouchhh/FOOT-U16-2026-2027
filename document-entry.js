@@ -140,6 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ? document.body.classList.contains("reports-mode")
       : terrainBoardKind === "composition" &&
         ![
+          "resources-mode",
           "home-mode",
           "training-mode",
           "reports-mode",
@@ -349,6 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
         getCompositionBoard(),
       ),
       fromMatch = ![
+        "resources-mode",
         "home-mode",
         "training-mode",
         "reports-mode",

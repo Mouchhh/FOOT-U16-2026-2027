@@ -98,7 +98,9 @@
     padding-bottom: var(--navigation-bottom-space) !important;
   }
   html {
-    scroll-padding-bottom: calc(94px + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom: calc(
+      var(--navigation-bottom-clearance, 82px) + 12px
+    );
   }
   body.task-navigation.responsive-navigation #workspace-navigation {
     top: auto;
@@ -107,7 +109,7 @@
     right: 0;
     width: 100%;
     display: grid !important;
-    grid-template-columns: repeat(7, minmax(0, 1fr));
+    grid-template-columns: repeat(8, minmax(0, 1fr));
     gap: 2px;
     padding: 6px max(4px, env(safe-area-inset-right, 0px))
       calc(6px + env(safe-area-inset-bottom, 0px))
@@ -155,10 +157,11 @@
 html.club-private-request:not(.club-authenticated) body #workspace-navigation {
   display: none !important;
 }
-@media screen and (max-width: 359px) {
+@media screen and (max-width: 379px) {
   body.task-navigation.responsive-navigation #workspace-navigation {
-    gap: 0;
-    padding-inline: 1px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2px;
+    padding-inline: 4px;
   }
 }
 @media screen {
@@ -166,5 +169,11 @@ html.club-private-request:not(.club-authenticated) body #workspace-navigation {
     body.responsive-navigation {
     padding-left: 0;
     padding-bottom: 0 !important;
+  }
+}
+
+@media screen and (min-width: 380px) and (max-width: 650px) {
+  body.task-navigation.responsive-navigation #workspace-navigation > button {
+    font-size: 9px !important;
   }
 }

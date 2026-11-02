@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     terrainBoardKind === "composition" &&
     workspaceFlows.terrain.index() === 0 &&
     ![
+      "resources-mode",
       "home-mode",
       "training-mode",
       "reports-mode",

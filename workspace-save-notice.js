@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const body=document.body;
   if(body.classList.contains('training-mode'))return {kind:'training',name:'Séance',value:currentTraining,key:'vestiaire-training-draft',library:'vestiaire-training-library',id:currentTraining.id,valid:trainingValid,save:'training-save'};
   if(body.classList.contains('reports-mode'))return {kind:'report',name:'Bilan',value:currentReport,key:'vestiaire-report-draft',library:'vestiaire-reports',id:currentReport.id,valid:reportValid,save:'report-save'};
-  if(['home-mode','coach-agenda-mode','club-network-mode','simple-mode'].some(c=>body.classList.contains(c)))return null;
+  if(['resources-mode','home-mode','coach-agenda-mode','club-network-mode','simple-mode'].some(c=>body.classList.contains(c)))return null;
   const value=terrainBoardKind==='plan'?getGamePlanBoard():getCompositionBoard();
   return {kind:terrainBoardKind,name:terrainBoardKind==='plan'?'Tactique':'Composition',value,key:terrainBoardKind==='plan'?'vestiaire-gameplan-draft':'vestiaire-draft',library:'vestiaire-saves',id:value?.documentId,valid,save:'save'};
  }

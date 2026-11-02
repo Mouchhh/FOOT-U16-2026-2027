@@ -3,7 +3,7 @@ const navigationMotionPreference=matchMedia('(prefers-reduced-motion: reduce)');
 let navigationMotionFrame=0,navigationEntryAnimation=null;
 function stopNavigationMotion(){cancelAnimationFrame(navigationMotionFrame);navigationMotionFrame=0;navigationEntryAnimation?.cancel();navigationEntryAnimation=null;}
 function navigationContent(){
- for(const [mode,id] of [['home-mode','club-home'],['training-mode','training-space'],['reports-mode','after-match'],['coach-agenda-mode','coach-agenda'],['club-network-mode','club-network-dialog']])if(document.body.classList.contains(mode))return $(id);
+ for(const [mode,id] of [['resources-mode','coach-resources'],['home-mode','club-home'],['training-mode','training-space'],['reports-mode','after-match'],['coach-agenda-mode','coach-agenda'],['club-network-mode','club-network-dialog']])if(document.body.classList.contains(mode))return $(id);
  return document.body.classList.contains('simple-mode')?$('simple-board'):document.querySelector('.workspace');
 }
 function animateNavigation(kind){

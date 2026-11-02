@@ -26,6 +26,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function current() {
     const body = document.body,
       flow = workspaceFlows;
+    if (body.classList.contains("resources-mode"))
+      return {
+        view: "resources",
+        root: $("coach-resources"),
+        panel: $("coach-resources"),
+        key: "resources",
+      };
     if (body.classList.contains("squad-mode"))
       return {
         view: "squad",
@@ -283,6 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
     else renderReportContent = wrapped;
   }
   const mainIds = new Set([
+    "view-resources",
     "view-home",
     "view-pitch",
     "view-training",

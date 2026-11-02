@@ -1,6 +1,6 @@
 // Navigation par tâches : réutilise les mêmes documents, contrôles et sauvegardes.
 document.addEventListener('DOMContentLoaded',()=>{
- const nav=document.querySelector('.app-navigation'),labels={'view-home':'Accueil','view-pitch':'Match','view-training':'Séances','view-coach-agenda':'Agenda','view-reports':'Bilans','view-club-network':'Club','workspace-squad-entry':'Votre effectif'};
+ const nav=document.querySelector('.app-navigation'),labels={'view-resources':'Ressources','view-home':'Accueil','view-pitch':'Match','view-training':'Séances','view-coach-agenda':'Agenda','view-reports':'Bilans','view-club-network':'Club','workspace-squad-entry':'Votre effectif'};
  const before=[...document.querySelectorAll('[id]')].map(e=>e.id);
  for(const [id,label]of Object.entries(labels))if($(id))$(id).textContent=label;
  for(const section of homeSections){section.title=labels[section.button];}
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  const prepare=()=>{$('training-prepare-tab').click();trainingWizard.go(trainingWizard.step());};
  const report=key=>{reportTab=key;renderReportTabs();renderReportContent();};
  let last='',frame=0;
- const section=()=>document.body.classList.contains('squad-mode')?'workspace-squad-entry':document.body.classList.contains('home-mode')?'view-home':document.body.classList.contains('training-mode')?'view-training':document.body.classList.contains('reports-mode')?'view-reports':document.body.classList.contains('coach-agenda-mode')?'view-coach-agenda':document.body.classList.contains('club-network-mode')?'view-club-network':'view-pitch';
+ const section=()=>document.body.classList.contains('resources-mode')?'view-resources':document.body.classList.contains('squad-mode')?'workspace-squad-entry':document.body.classList.contains('home-mode')?'view-home':document.body.classList.contains('training-mode')?'view-training':document.body.classList.contains('reports-mode')?'view-reports':document.body.classList.contains('coach-agenda-mode')?'view-coach-agenda':document.body.classList.contains('club-network-mode')?'view-club-network':'view-pitch';
  function refresh(){
   frame=0;const parent=section(),simple=document.body.classList.contains('simple-mode'),kind=terrainBoardKind,index=terrain.index(),trainingPanel=!$('training-library-page').hidden?'library':!$('training-catalogue-drawer').hidden?'bible':'prepare';
   const counter=document.querySelector('#terrain-flow>.flow-footer>span');if(counter)counter.textContent=index===2?'Enregistrer / exporter':index===1&&!simple?'Causerie':simple?'Tactique · animation':kind==='plan'?'Tactique':'Composition';

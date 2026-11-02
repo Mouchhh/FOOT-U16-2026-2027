@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // A body-level dock avoids the transformed/clipped workspace stacking contexts.
   main.before(nav);
   const paths = {
+    "view-resources":
+      '<path d="M3 5h7l2 2h9v13H3z"/><path d="M7 11h10M7 15h7"/>',
     "view-home": '<path d="m3 10 9-7 9 7v10H6V10"/><path d="M9 20v-7h6v7"/>',
     "view-pitch":
       '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 5v14"/><circle cx="12" cy="12" r="3"/>',
@@ -47,8 +49,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const desktop = matchMedia(
     "(min-width:1100px) and (hover:hover) and (pointer:fine)",
   );
+  function updateSpace() {
+    const space = desktop.matches
+      ? 0
+      : Math.ceil(nav.getBoundingClientRect().height);
+    document.body.style.setProperty("--navigation-bottom-space", space + "px");
+    document.documentElement.style.setProperty(
+      "--navigation-bottom-clearance",
+      space + "px",
+    );
+  }
+  new ResizeObserver(updateSpace).observe(nav);
   function updateDock() {
     nav.dataset.dock = desktop.matches ? "left" : "bottom";
+    updateSpace();
     window.dispatchEvent(new Event("resize"));
   }
   // Vertical arrow navigation complements the existing horizontal keyboard controls.
