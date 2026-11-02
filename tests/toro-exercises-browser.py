@@ -18,7 +18,7 @@ with sync_playwright() as p:
     page.goto('http://127.0.0.1:3016/?mode=local')
     page.wait_for_function('window.suppliedToroExerciseEngine && typeof suppliedExerciseIds!=="undefined"')
     assert page.evaluate('suppliedToroExerciseEngine.exercises.length')==11
-    assert page.evaluate('suppliedExerciseEngine.exercises.length')==28
+    assert page.evaluate('suppliedExerciseEngine.exercises.length')==84
     # All supplied data (including functions), and every adapted model, match the source engine.
     assert page.evaluate("""()=>suppliedToroExerciseEngine.exercises.every(e=>{
       const integrated=suppliedExerciseEngine.exercises.find(x=>x.id===e.id);
@@ -32,7 +32,7 @@ with sync_playwright() as p:
     })""")
     page.locator('#view-training').click();page.locator('#task-training-bible').click()
     page.locator('#training-search').fill('Toro')
-    assert page.locator('#bible-results').inner_text()=='11 exercice(s) trouvé(s)' # Search by family also finds Double 3 contre 1.
+    assert page.locator('#bible-results').inner_text()==str(page.evaluate("suppliedCatalogueExercises({query:'Toro'}).length"))+' exercice(s) trouvé(s)' # Search by family also finds Double 3 contre 1.
     palette={'possede':'rgb(40, 85, 162)','perd':'rgb(180, 83, 9)','recupere':'rgb(36, 115, 66)','nepossede':'rgb(185, 38, 53)','ludique':'rgb(242, 201, 76)'}
     for e in page.evaluate('suppliedToroExerciseEngine.exercises.map(e=>({id:e.id,title:e.title,moment:e.moment}))'):
         page.evaluate('(id)=>openSuppliedSheet(suppliedExerciseEngine.exercises.find(e=>e.id===id))',e['id'])

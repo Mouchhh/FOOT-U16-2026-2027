@@ -129,3 +129,5 @@ button, input, select { font-family: inherit; }
   .b-objective { padding-inline: 12px; }
   .b-objective > summary { font-size: 14px; }
 }
+/* New warm-up/physical source moments use the existing club blue, not new hues. */
+:is(.b-theme,.f-card)[style*="--theme: #0e8a7e"],:is(.b-theme,.f-card)[style*="--theme: #6b3fa0"]{--exercise-color:#2855a2}

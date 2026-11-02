@@ -8,7 +8,7 @@ function trainingSessionIndex(session){
  const indexedBlocks=allBlocks.some(b=>!['warm','cool','freegame'].includes(b.exerciseId))?allBlocks.filter(b=>!['warm','cool','freegame'].includes(b.exerciseId)):allBlocks;
  for(const block of indexedBlocks){let axis='',objective='';
   if(block.exerciseId==='custom'){
-   const imported=typeof suppliedExerciseEngine!=='undefined'?suppliedExerciseEngine.exercises.find(e=>e.id===block.custom?.importedExerciseId):null;
+   const imported=typeof suppliedExerciseEngine!=='undefined'?suppliedExerciseEngine.getExercise(block.custom?.importedExerciseId,block.custom?.importedExerciseView||0):null;
    if(imported){axis=suppliedMomentAxes[imported.moment];objective=suppliedObjective(imported);}
   }else{const exercise=trainingExercises.find(e=>e.id===block.exerciseId);if(exercise){axis=bmfExerciseCategory(exercise);objective=bmfExerciseObjective(exercise);}}
   if(!declared&&axis)axes.add(axis);

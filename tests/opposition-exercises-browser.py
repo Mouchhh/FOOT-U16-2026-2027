@@ -18,7 +18,7 @@ with sync_playwright() as p:
     page.goto('http://127.0.0.1:3016/?mode=local')
     page.wait_for_function('window.suppliedOppositionExerciseEngine && typeof suppliedExerciseIds!=="undefined"')
     assert page.evaluate('suppliedOppositionExerciseEngine.exercises.length')==10
-    assert page.evaluate('suppliedExerciseEngine.exercises.length')==28
+    assert page.evaluate('suppliedExerciseEngine.exercises.length')==84
     # All supplied data (including functions), and every adapted model, match the source engine.
     assert page.evaluate("""()=>suppliedOppositionExerciseEngine.exercises.every(e=>{
       const integrated=suppliedExerciseEngine.exercises.find(x=>x.id===e.id);
@@ -32,7 +32,7 @@ with sync_playwright() as p:
     })""")
     page.locator('#view-training').click();page.locator('#task-training-bible').click()
     page.locator('#training-search').fill('Opposition')
-    assert page.locator('#bible-results').inner_text()=='10 exercice(s) trouvé(s)'
+    assert page.locator('#bible-results').inner_text()==str(page.evaluate("suppliedCatalogueExercises({query:'Opposition'}).length"))+' exercice(s) trouvé(s)'
     palette={'possede':'rgb(40, 85, 162)','perd':'rgb(180, 83, 9)','recupere':'rgb(36, 115, 66)','nepossede':'rgb(185, 38, 53)','ludique':'rgb(242, 201, 76)'}
     for e in page.evaluate('suppliedOppositionExerciseEngine.exercises.map(e=>({id:e.id,title:e.title,moment:e.moment}))'):
         page.evaluate('(id)=>openSuppliedSheet(suppliedExerciseEngine.exercises.find(e=>e.id===id))',e['id'])

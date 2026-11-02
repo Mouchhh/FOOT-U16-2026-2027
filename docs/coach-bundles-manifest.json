@@ -1,0 +1,98 @@
+[
+  {
+    "key": "coach",
+    "global": "suppliedCoachExerciseEngine",
+    "source": "Exos foot - Séances du coach.html",
+    "sha256": "952d62625096c0a3019e210fafd3dc0dd27e7b5240b65421e9054a4cffd0e0e0",
+    "ids": [
+      "jeu-portes",
+      "jeu-carres",
+      "jeu-3c3-6",
+      "jeu-joueur-milieu",
+      "jeu-but-1t",
+      "jeu-preparer-attaque",
+      "jeu-quilles",
+      "jeu-score-exact",
+      "sit-4c2-2c1",
+      "sit-8c7",
+      "sit-8c7-fixer",
+      "sortie-8c5",
+      "sortie-9c9",
+      "toro-geant",
+      "toro-20-20"
+    ]
+  },
+  {
+    "key": "circuit",
+    "global": "suppliedCircuitExerciseEngine",
+    "source": "Exos foot - Circuit.html",
+    "sha256": "0a5184c72ef8b28fdc4c5dbb597cff967a62815caeb226f9c4631b23912781ac",
+    "ids": [
+      "circ-carre",
+      "circ-losange",
+      "circ-y",
+      "circ-triangle",
+      "circ-3e-homme",
+      "circ-renversements",
+      "circ-navette",
+      "circ-etoile",
+      "circ-relais",
+      "circ-carre-club",
+      "circ-remises-3"
+    ]
+  },
+  {
+    "key": "games",
+    "global": "suppliedGamesExerciseEngine",
+    "source": "Exos foot - Jeux et défis.html",
+    "sha256": "03e396b08df9b94d5d29a4865a0572a4d0d66c5b90d8d2e982e2b3f5d50a8516",
+    "ids": [
+      "defi-jour-nuit",
+      "defi-relais",
+      "defi-beret",
+      "defi-eperviers",
+      "defi-morpion",
+      "defi-footgolf",
+      "defi-barre",
+      "defi-camp-propre"
+    ]
+  },
+  {
+    "key": "physical",
+    "global": "suppliedPhysicalExerciseEngine",
+    "source": "Exos foot - Physique.html",
+    "sha256": "242eff5276236fc1160e411306d51834cdc1da17b031668c7a5d2f9927f01eaa",
+    "ids": [
+      "phy-15-15",
+      "phy-30-30",
+      "phy-reaction",
+      "phy-rsa",
+      "phy-5-10-5",
+      "phy-1c1",
+      "phy-2c2",
+      "phy-sprint-frappe",
+      "phy-fifa-11",
+      "phy-circuit-prevention"
+    ]
+  },
+  {
+    "key": "finishing",
+    "global": "suppliedFinishingExerciseEngine",
+    "source": "Exos foot - Finition.html",
+    "sha256": "566a7133c8b8d515b1dbdf41985694e96422c4fe62785362e85684fccae6aaa0",
+    "ids": [
+      "fin-course-2c1",
+      "fin-vagues",
+      "fin-une-deux",
+      "fin-3e-homme",
+      "fin-centres",
+      "fin-1c1-gb",
+      "fin-controle-frappe",
+      "fin-roi-surface",
+      "fin-corner-off",
+      "fin-coup-franc",
+      "fin-corner-def",
+      "fin-carrousel"
+    ]
+  }
+]
