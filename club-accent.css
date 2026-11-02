@@ -1,0 +1,91 @@
+/* Tertiary accent only: primary actions, pitches and semantic exercise colors stay blue/white or retain their own meanings. */
+@media screen {
+  :root {
+    --club-accent: var(--club-logo-red, #e41f28);
+    --club-red: var(--club-accent);
+  }
+
+  /* A narrow active marker, never a red navigation background. */
+  body.task-navigation.responsive-navigation
+    #workspace-navigation
+    > button[aria-current="page"] {
+    box-shadow: inset 3px 0 0 var(--club-accent) !important;
+  }
+  body.task-navigation .task-section-tab[aria-pressed="true"],
+  #after-match #report-tabs > button.active,
+  .squad-position-filters button[aria-pressed="true"] {
+    box-shadow:
+      inset 0 -2px 0 var(--club-accent),
+      0 2px 5px #18345510 !important;
+  }
+
+  /* Selected secondary creation/configuration actions use red outlines. */
+  body.task-navigation
+    :is(
+      #training-create-session,
+      #training-custom-add,
+      #report-new,
+      #agenda-week-template-open,
+      #composition-copy
+    ) {
+    background: #fff !important;
+    color: var(--club-accent) !important;
+    border: 1px solid var(--club-accent) !important;
+  }
+  body.task-navigation
+    :is(
+      #training-create-session,
+      #training-custom-add,
+      #report-new,
+      #agenda-week-template-open,
+      #composition-copy
+    ):hover:not(:disabled) {
+    background: var(--club-accent) !important;
+    color: #fff !important;
+  }
+  body.task-navigation
+    :is(
+      #training-create-session,
+      #training-custom-add,
+      #report-new,
+      #agenda-week-template-open,
+      #composition-copy
+    ):focus-visible {
+    outline: 3px solid var(--club-accent);
+    outline-offset: 2px;
+  }
+
+  /* One important dashboard card is accented; its neighboring cards stay blue. */
+  body.home-mode #home-work-quick .home-dashboard-card:nth-child(2) {
+    border-top-color: var(--club-accent);
+  }
+  body:not(.home-mode) .reports-heading .eyebrow,
+  .resources-heading > .eyebrow {
+    color: var(--club-accent);
+  }
+  .resource-card-content .resource-meta {
+    display: inline-flex;
+    width: fit-content;
+    padding: 3px 8px;
+    border: 1px solid var(--club-accent);
+    border-radius: 6px;
+    color: var(--club-accent) !important;
+    background: #fff;
+    font-weight: 650;
+  }
+  .agenda-calendar-day.selected {
+    box-shadow: inset 0 0 0 2px var(--club-accent);
+  }
+  .resources-empty {
+    border-left: 3px solid var(--club-accent);
+  }
+
+  /* Bottom navigation keeps its existing geometry and blue selected state. */
+  @media (max-width: 1099px), (hover: none), (pointer: coarse) {
+    body.task-navigation.responsive-navigation
+      #workspace-navigation
+      > button[aria-current="page"] {
+      box-shadow: inset 0 -3px 0 var(--club-accent) !important;
+    }
+  }
+}
