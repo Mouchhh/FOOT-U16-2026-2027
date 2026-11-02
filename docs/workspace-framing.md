@@ -47,3 +47,11 @@ Structure après initialisation :
 ```
 
 Vérification : `python tests/workspace-responsive-navigation-browser.py` couvre ordinateur, portable, tablette tactile et téléphone, les destinations, les icônes, le clavier, les dimensions tactiles et l'absence de débordement horizontal. L'ancien point d'entrée `tests/workspace-sticky-browser.py` délègue à ces vérifications, le menu supérieur étant remplacé.
+
+### Alignement intégré du menu et des pages
+
+La feuille `workspace-sticky.css` réserve désormais une colonne de 176 px via le padding gauche du `body` sur ordinateur. La sidebar s'ancre aux bords gauche, haut et bas, sans marge extérieure, rayon ni ombre flottante. L'en-tête et `main` partagent une largeur maximale de 1600 px, des marges automatiques et le même padding horizontal (`clamp(14px, 2vw, 32px)`). Ils restent ainsi centrés dans **l'espace disponible à droite du menu**, quelle que soit la largeur du moniteur. Les modules n'ont plus à compenser chacun la largeur du menu par des marges différentes.
+
+Sur téléphone/tablette, aucun espace latéral n'est réservé ; la barre inférieure s'aligne bord à bord, avec une séparation discrète et la réserve de hauteur existante. Les espacements de sécurité iOS restent conservés. Le portail de connexion annule les réserves lorsqu'il masque les espaces privés.
+
+`tests/workspace-navigation-alignment-browser.py` vérifie l'alignement de l'en-tête et du contenu, la symétrie des marges, le centrage dans la colonne disponible et l'absence de chevauchement/débordement sur cinq formats allant du téléphone au moniteur de 2560 px, dans six modules.
