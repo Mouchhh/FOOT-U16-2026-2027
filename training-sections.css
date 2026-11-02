@@ -17,3 +17,9 @@
 .supplied-exercises-catalogue>#training-catalogue{display:block!important;padding:0!important;width:100%;max-width:none!important}
 .supplied-exercises-catalogue>.bible-main-filters,.supplied-exercises-catalogue>.bible-search-options,.supplied-exercises-catalogue>#training-search,.supplied-exercises-catalogue>#bible-results,.supplied-exercises-catalogue>#bible-reset,.supplied-exercises-catalogue>#bible-group-context,.supplied-exercises-catalogue>h2,.supplied-exercises-catalogue>#bible-intro{display:none!important}
 .supplied-exercises-catalogue{padding:12px!important}
+/* Saved sessions share the exercise library's intention colors. */
+.training-session-tags [data-intention]{border-left:3px solid #2855a2}
+.training-session-tags [data-intention="loss"]{border-left-color:#b45309}
+.training-session-tags [data-intention="win"]{border-left-color:#247342}
+.training-session-tags [data-intention="off"]{border-left-color:#b92635}
+.training-session-tags [data-intention="ludic"]{border-left-color:#f2c94c}

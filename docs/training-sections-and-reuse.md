@@ -21,3 +21,11 @@ Les textes libres ne deviennent pas des consignes comprises et réécrites autom
 - `python tests/training-sections-browser.py` : navigation, création, copie indépendante, refus avant validation, deux groupes avec gardiens, aperçu partagé, rechargement, disponibilité après nouvelle séance, téléphone et absence d'erreurs JavaScript.
 - `python tests/training-exercise-library-browser.py` : schéma réel, animation, sauvegarde, réutilisation, modifications indépendantes, refus de perte, quota, mobile.
 - `python tests/training-stages-field-browser.py` : ateliers simultanés, temps, matériel, joueurs/gardiens/espace, fiche terrain et impression.
+
+## Filtres de Mes séances
+
+Les anciens contrôles « Thème de travail » et « Objectif recherché » deviennent « Intention de jeu » et « Sous-partie ». Ils partagent `bmfCategories`, `bmfSubcategories` et `bmfSubcategorySelect` avec les exercices : cinq intentions et douze sous-parties. Ludique n’a pas de sous-partie ; son filtre secondaire est masqué. Choisir une intention réinitialise la sous-partie ; choisir une sous-partie depuis la liste complète sélectionne son intention.
+
+Les déclarations `bmfCategory` / `bmfObjective` de la séance sont prioritaires. En leur absence, le classement peut lire les exercices connus, y compris les copies importées Banide. Les simples blocs d’activation et de retour au calme ne modifient pas le classement d’une séance qui contient un travail principal. Les anciens thèmes non ambigus restent lisibles ; les séances sans indication suffisante restent disponibles dans « Intention de jeu à préciser ». L’index et les filtres ne réécrivent aucun document enregistré.
+
+Validation : `python tests/session-intentions-browser.py` vérifie les libellés communs, les cinq intentions, les douze sous-parties, les filtres dépendants, les données anciennes/importées, l’absence de modification des séances et le mobile.
