@@ -1,0 +1,98 @@
+/* Existing semantic red for personal deletion; no public catalogue delete action. */
+.personal-exercise-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 10px 12px;
+  margin: 8px;
+  border: 1px solid #b92635;
+  border-radius: 9px;
+  background: #fff;
+  color: #b92635;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.personal-exercise-delete:hover {
+  background: #fff1f2;
+}
+.personal-exercise-delete:focus-visible {
+  outline: 3px solid #b92635;
+  outline-offset: 2px;
+}
+/* Reserve a band ABOVE the actual native dialog; its content tree stays intact. */
+@media screen {
+  dialog[open].external-close-panel {
+    position: fixed !important;
+    inset-block: 64px 12px !important;
+    margin-block: auto !important;
+    max-height: calc(100dvh - 88px) !important;
+    transform: none !important;
+    animation: external-modal-fade 0.16s ease-out !important;
+  }
+  .external-close-panel .external-modal-close {
+    position: fixed !important;
+    z-index: 1000;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px;
+    min-height: 44px;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1px solid #cbd8e7 !important;
+    border-radius: 50% !important;
+    background: #fff !important;
+    color: #2855a2 !important;
+    font:
+      0/1 system-ui,
+      sans-serif !important;
+    box-shadow: 0 3px 12px #142d5029;
+    cursor: pointer;
+  }
+  .external-modal-close::before {
+    content: "×";
+    font:
+      28px/1 system-ui,
+      sans-serif;
+    pointer-events: none;
+  }
+  .external-modal-close:hover {
+    background: #eaf0f9 !important;
+  }
+  .external-modal-close:focus-visible {
+    outline: 3px solid #2855a2;
+    outline-offset: 2px;
+  }
+  @keyframes external-modal-fade {
+    from {
+      opacity: 0.6;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    dialog[open].external-close-panel {
+      animation: none !important;
+    }
+  }
+}
+@media print {
+  .external-modal-close,
+  .personal-exercise-delete {
+    display: none !important;
+  }
+}
+@media screen {
+  .external-close-panel .external-modal-close[hidden] {
+    display: none !important;
+  }
+  .external-modal-close > * {
+    display: none !important;
+  }
+}
