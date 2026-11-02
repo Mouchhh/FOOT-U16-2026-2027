@@ -55,7 +55,7 @@
 }
 
 @media screen{
- body.squad-mode main> :not(#workspace-navigation):not(#club-profile):not(#coach-squad-dialog){display:none!important}
+ body.squad-mode main> :not(#task-section-navigation):not(#workspace-navigation):not(#club-profile):not(#coach-squad-dialog){display:none!important}
  body.squad-mode #workspace-navigation,body.squad-mode #club-profile{display:flex!important}
  body.squad-mode #coach-squad-dialog:not([hidden]){display:block!important}
  body.squad-mode header #save{display:none!important}

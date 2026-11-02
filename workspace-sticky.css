@@ -1,15 +1,144 @@
-/* Keep the existing menu in flow: no placeholder, cloning or fixed-height jump. */
-body.task-navigation #workspace-navigation {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--club-navy, #142d50);
-  box-shadow: 0 5px 16px #142d501f;
-  isolation: isolate;
+/* One existing navigation, docked without cloning any controls or handlers. */
+@media screen {
+  body.responsive-navigation {
+    --navigation-bottom-space: 0px;
+  }
+  body.task-navigation.responsive-navigation #workspace-navigation {
+    position: fixed;
+    z-index: 100;
+    box-sizing: border-box;
+    margin: 0;
+    background: var(--club-navy, #142d50);
+    border: 1px solid #345278;
+    box-shadow: 0 6px 24px #142d5029;
+    isolation: isolate;
+  }
+  body.responsive-navigation #workspace-navigation > button {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    margin: 0;
+    border-radius: 10px;
+  }
+  .navigation-icon {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    pointer-events: none;
+  }
+  .navigation-label {
+    min-width: 0;
+  }
+  body.responsive-navigation #workspace-navigation > button:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: -3px;
+  }
+  body.responsive-navigation #task-section-navigation {
+    margin-top: 0;
+  }
+}
+/* A mouse-driven laptop gets the same spacious dock as a desktop. */
+@media screen and (min-width: 1100px) and (hover: hover) and (pointer: fine) {
+  body.responsive-navigation > main,
+  body.responsive-navigation > header {
+    margin-left: 184px;
+    margin-right: 20px;
+    width: auto;
+    max-width: none;
+  }
+  body.task-navigation.responsive-navigation #workspace-navigation {
+    top: 16px;
+    bottom: auto;
+    left: 16px;
+    width: 152px;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
+    display: flex !important;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    padding: 8px;
+    gap: 6px;
+    border-radius: 18px;
+    scrollbar-width: thin;
+  }
+  body.task-navigation.responsive-navigation #workspace-navigation > button {
+    width: 100%;
+    justify-content: flex-start;
+    min-height: 54px;
+    padding: 10px 9px !important;
+    font-size: 13px !important;
+    text-align: left;
+    white-space: normal;
+  }
+}
+/* Tablets (including large touch tablets) and phones keep all seven destinations. */
+@media screen and (max-width: 1099px),
+  screen and (hover: none),
+  screen and (pointer: coarse) {
+  body.responsive-navigation {
+    --navigation-bottom-space: calc(82px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: var(--navigation-bottom-space) !important;
+  }
+  html {
+    scroll-padding-bottom: calc(94px + env(safe-area-inset-bottom, 0px));
+  }
+  body.task-navigation.responsive-navigation #workspace-navigation {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 2px;
+    padding: 6px max(4px, env(safe-area-inset-right, 0px))
+      calc(6px + env(safe-area-inset-bottom, 0px))
+      max(4px, env(safe-area-inset-left, 0px));
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 20px #142d5029;
+  }
+  body.task-navigation.responsive-navigation #workspace-navigation > button {
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    min-height: 64px;
+    padding: 6px 1px !important;
+    font-size: 10px !important;
+    line-height: 1.15;
+    text-align: center;
+    white-space: normal;
+  }
+  body.responsive-navigation .flow-footer {
+    bottom: var(--navigation-bottom-space);
+  }
 }
 @media print {
-  body.task-navigation #workspace-navigation {
-    position: static;
-    box-shadow: none;
+  body.responsive-navigation #workspace-navigation {
+    display: none !important;
+  }
+}
+/* Existing desktop-height editors also run on large touch tablets. */
+@media screen and (min-width: 1000px) and (min-height: 650px) {
+  body.responsive-navigation .flow-root:not([hidden]),
+  body.responsive-navigation.reports-mode #after-match {
+    height: calc(
+      100dvh - var(--flow-top, 180px) - 8px - var(--navigation-bottom-space)
+    );
+  }
+  body.responsive-navigation.training-mode #training-space {
+    height: calc(
+      100dvh - var(--training-top, 160px) - 6px - var(--navigation-bottom-space)
+    );
+  }
+}
+/* Preserve the private-club login gate after moving the dock outside main. */
+html.club-private-request:not(.club-authenticated) body #workspace-navigation {
+  display: none !important;
+}
+@media screen and (max-width: 359px) {
+  body.task-navigation.responsive-navigation #workspace-navigation {
+    gap: 0;
+    padding-inline: 1px;
   }
 }

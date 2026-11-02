@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const node of document.querySelectorAll(
       "body>header,#workspace-navigation",
     )) {
-      if (!visible(node)) continue;
+      if (!visible(node) || node.dataset.dock) continue;
       const style = getComputedStyle(node),
         top = parseFloat(style.top),
         rect = node.getBoundingClientRect();

@@ -23,10 +23,27 @@ Diagnostic : `workspaceFraming.current()` donne le module actif ; `workspaceFram
 
 Vérification navigateur : `python tests/workspace-framing-browser.py` avec le serveur local sur le port 3016. Tests complémentaires : `tests/document-entry-browser.py`, `tests/composition-player-picker-browser.py`, `tests/training-sections-browser.py`, `tests/agenda-calendar-browser.py`.
 
-## Menu principal persistant
+## Navigation responsive persistante
 
-`workspace-sticky.css` place le menu existant `#workspace-navigation` en `position: sticky; top: 0; z-index: 100`. Il conserve sa place et ses dimensions dans la page, sa couleur bleu marine et son organisation responsive. Aucun menu n'est dupliqué. Les sous-menus flottants existants restent au-dessus (z-index 600), ainsi que les fenêtres modales natives. L'en-tête de marque défile normalement pour laisser davantage de place au contenu sur téléphone.
+`workspace-sticky.css` et `workspace-responsive-navigation.js` remplacent le menu collant supérieur par un seul menu détaché : barre latérale gauche à partir de 1100 px avec souris, barre inférieure sur téléphone et tablette tactile (y compris grand écran). Les sept boutons existants et leurs gestionnaires sont conservés. Des icônes SVG décoratives complètent les libellés accessibles.
 
-La mesure de cadrage réserve désormais la hauteur finale du menu collant **avant même qu'il atteigne le haut de l'écran**. Ainsi, un clic depuis le début de page ne masque pas le titre du module sous la navigation. L'impression rétablit `position: static`.
+Le menu est déplacé directement sous `body` pour échapper aux transformations et empilements des espaces de travail. Les sous-onglets restent dans `main`, au-dessus du contenu. Sur ordinateur, des marges réservent la largeur de la barre ; sur mobile, le bas de page, les panneaux et les pieds de formulaire réservent sa hauteur avec la zone de sécurité iOS. Le bouton historique « Masquer le menu » est retiré de l'affichage ; Échap ne masque plus la navigation persistante.
 
-Vérification : `python tests/workspace-sticky-browser.py` couvre les tailles 1440×900, 1366×768 et 390×844, la persistance après défilement, la superposition, le recadrage sous le menu, les dimensions stables et l'impression.
+Le cadrage ignore ce menu latéral ou inférieur dans son décalage supérieur. Les sous-menus existants restent au-dessus du dock (z-index 600), ainsi que les modales natives. La porte de connexion du club continue de masquer la navigation avant authentification. L'impression masque le dock.
+
+Structure après initialisation :
+
+```html
+<body>
+  <header>…</header>
+  <nav id="workspace-navigation" class="app-navigation" aria-label="Espace de travail" data-dock="left">
+    <!-- Les sept boutons d'origine, avec SVG décoratif et libellé -->
+  </nav>
+  <main>
+    <div id="task-section-navigation">…</div>
+    <!-- Module actif -->
+  </main>
+</body>
+```
+
+Vérification : `python tests/workspace-responsive-navigation-browser.py` couvre ordinateur, portable, tablette tactile et téléphone, les destinations, les icônes, le clavier, les dimensions tactiles et l'absence de débordement horizontal. L'ancien point d'entrée `tests/workspace-sticky-browser.py` délègue à ces vérifications, le menu supérieur étant remplacé.
