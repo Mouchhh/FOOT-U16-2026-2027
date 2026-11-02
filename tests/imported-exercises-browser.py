@@ -20,11 +20,12 @@ with sync_playwright() as p:
  assert page.locator('.supplied-exercise-card').count()==3
  assert page.locator('#training-search').is_visible()
  assert page.locator('#bible-bmf-category').is_visible()
- assert page.evaluate('suppliedExerciseEngine.exercises.length')==7
+ assert page.evaluate('suppliedExerciseEngine.exercises.length')==18
  assert page.evaluate('trainingAvailableExercises().length')==0
- for axis,count in [('ball',2),('loss',1),('win',1),('off',2),('ludic',1)]:
+ for axis,count in [('ball',9),('loss',2),('win',2),('off',3),('ludic',2)]:
   page.locator('#bible-bmf-category').select_option(axis)
-  assert page.locator('.supplied-exercise-card').count()==count
+  assert page.locator('.supplied-exercise-card').count()==min(3,count)
+  assert page.locator('#bible-results').inner_text()==str(count)+' exercice(s) trouvé(s)'
  page.locator('#bible-bmf-category').select_option('ball');page.locator('#training-filter').select_option('ball-build')
  assert page.locator('[data-exercise="banide-appuis"]').count()==1
  page.locator('[data-exercise="banide-appuis"] .bible-card-picture').click()
@@ -47,7 +48,9 @@ with sync_playwright() as p:
  page.locator('#training-search').fill('contre-attaque');assert page.locator('[data-exercise="banide-contre"]').count()==1
  page.locator('#training-search').fill('');assert page.locator('.supplied-exercise-card').count()==3
  page.locator('#bible-more').click();assert page.locator('.supplied-exercise-card').count()==3
- page.locator('#bible-more').click();assert page.locator('.supplied-exercise-card').count()==1
+ while page.locator('#bible-more').is_enabled():
+  page.locator('#bible-more').click()
+ assert page.locator('.supplied-exercise-card').count()==3
  for width in [390,320]:
   page.set_viewport_size({'width':width,'height':844})
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')

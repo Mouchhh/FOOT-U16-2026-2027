@@ -11,3 +11,5 @@
 .supplied-exercise-card .bible-card-preview[open]{grid-column:1/-1}
 
 .training-exercises-page #training-catalogue .supplied-exercise-card>.bible-card-picture{height:180px;padding:8px}
+/* Keep the agreed moment band above the generic catalogue card border. */
+.training-exercises-page #training-catalogue .supplied-exercise-card{border-top:4px solid var(--moment-color)}

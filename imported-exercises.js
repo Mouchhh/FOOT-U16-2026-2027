@@ -1,11 +1,11 @@
-// Existing Bible layout, containing only exercises from the supplied file.
+// Existing Bible layout, containing the coach’s supplied Banide and Toro exercises.
 const suppliedExerciseIds=suppliedExerciseEngine.exercises.map(e=>e.id);
 const suppliedMomentAxes={possede:'ball',perd:'loss',recupere:'win',nepossede:'off',ludique:'ludic'};
 function suppliedObjective(e){return Object.keys(bmfSubcategories).find(k=>bmfSubcategories[k].axis===suppliedMomentAxes[e.moment]&&bmfSubcategories[k].label===e.sub)||'';}
 function suppliedSessionContext(){const space=bibleAvailable(currentTraining);return {players:currentTraining.players,keepers:currentTraining.keepers,category:currentTraining.category,level:({discovery:'decouverte',developing:'dev',advanced:'confirme'})[currentTraining.level]||'dev',moment:'libre',space:[space.width,space.length]};}
 function suppliedSheet(e){
  const host=el('div','supplied-original-sheet'),shadow=host.attachShadow({mode:'open'});
- for(const href of ['supplied-exercise-base.css?v=cards-149','imported-exercises-theme.css?v=folders-148']){const link=document.createElement('link');link.rel='stylesheet';link.href=href;shadow.append(link);}
+ for(const href of [suppliedExerciseEngine.presentationFor(e).stylesheet,'imported-exercises-theme.css?v=folders-148']){const link=document.createElement('link');link.rel='stylesheet';link.href=href;shadow.append(link);}
  const style=document.createElement('style');style.textContent=':host{display:block;min-width:0;--club-navy:#142d50;--club-blue:#2855a2;--navy:#142d50;--blue:#2855a2;--blue-2:#204581;--blue-soft:#eaf0f9;--line:#dce5ef;--bg:#f2f5f9;--card:#fff;--ink:#203958;--muted:#536a83;--text:system-ui,sans-serif;--display:system-ui,sans-serif;font:15px/1.55 system-ui,sans-serif;color:#203958}.f-card{width:100%;height:750px;max-height:none}@media(max-width:820px){.f-card{height:auto;min-height:0}}';shadow.append(style,suppliedExerciseEngine.renderFiche(e));return host;
 }
 function openSuppliedSheet(e){
@@ -19,7 +19,7 @@ function addSuppliedExercise(e){
  if(plan.warn.length&&!confirm(plan.warn.join('\n')+'\n\nAjouter cet exercice pour l’ajuster dans la séance ?'))return;
  const model=suppliedExerciseEngine.buildExerciseModel(plan),groups=plan.groups.map(g=>({players:g.n,keepers:g.k}));
  if(groups.some(g=>g.keepers>g.players-2))return notify('Gardez au moins deux joueurs de champ par groupe avant ajout.');
- const custom={importedExerciseId:e.id,title:e.title,goal:e.goal,organisation:groups.map((g,i)=>'Groupe '+(i+1)+' : '+g.players+' joueurs dont '+g.keepers+' gardien(s)').join('\n')+'\n'+plan.orgText,instructions:[...e.rules,'Coaching :',...e.coach,'Posture : '+e.posture,'Attendus :',...e.expect,'Plus simple : '+e.easier,'Plus difficile : '+e.harder,...(e.series?['Séries de référence : travail '+e.series[0]+' s · récupération '+e.series[1]+' s']:[]),'Séries pour le groupe : '+suppliedExerciseEngine.seriesOf(e,e.duration,plan.band).text,'Source : '+(e.src?.label||'Fichier du coach')].join('\n'),material:suppliedExerciseEngine.materialOf(plan,model),success:e.success,kind:'game',width:Math.min(68,plan.size[0]),length:Math.min(105,plan.size[1]),board:suppliedBoardSnapshot(model),adaptation:{version:1,players:currentTraining.players,keepers:currentTraining.keepers,source:'Exos foot.html · '+e.title,rotations:e.rules.join('\n'),groups}};
+ const custom={importedExerciseId:e.id,title:e.title,goal:e.goal,organisation:groups.map((g,i)=>'Groupe '+(i+1)+' : '+g.players+' joueurs dont '+g.keepers+' gardien(s)').join('\n')+'\n'+plan.orgText,instructions:[...e.rules,'Coaching :',...e.coach,'Posture : '+e.posture,'Attendus :',...e.expect,'Plus simple : '+e.easier,'Plus difficile : '+e.harder,...(e.series?['Séries de référence : travail '+e.series[0]+' s · récupération '+e.series[1]+' s']:[]),'Séries pour le groupe : '+suppliedExerciseEngine.seriesOf(e,e.duration,plan.band).text,'Source : '+(e.src?.label||'Fichier du coach')].join('\n'),material:suppliedExerciseEngine.materialOf(plan,model),success:e.success,kind:'game',width:Math.min(68,plan.size[0]),length:Math.min(105,plan.size[1]),board:suppliedBoardSnapshot(model),adaptation:{version:1,players:currentTraining.players,keepers:currentTraining.keepers,source:suppliedExerciseEngine.presentationFor(e).source+' · '+e.title,rotations:e.rules.join('\n'),groups}};
  if(!trainingCustomValid(custom))return notify('Cette adaptation ne peut pas être enregistrée. Vérifiez les paramètres.');
  return trainingCommitBlocks(blocks=>blocks.push({id:crypto.randomUUID(),exerciseId:'custom',custom,duration:e.duration,notes:''}));
 }
@@ -27,12 +27,12 @@ renderBibleCatalogue=function(){
  ensureBibleCatalogue();const root=$('training-catalogue');root.parentElement.classList.remove('supplied-exercises-catalogue');
  const axis=$('bible-bmf-category').value;bmfSubcategorySelect($('training-filter'),axis,$('training-filter').value);$('bible-objective-filter-label').hidden=axis==='ludic';
  const objective=$('training-filter').value,query=$('training-search').value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
- // Legacy controls requiring the retired exercise engine do not describe these seven fiches.
+ // Legacy controls requiring the retired exercise engine do not describe these supplied fiches.
  for(const id of ['bible-five-only','bible-fit-only','bible-method','bible-phase']){const node=$(id);if(node){const label=node.closest('label');if(label)label.hidden=true;else node.hidden=true;}}
- const exercises=suppliedExerciseEngine.exercises.filter(e=>(!axis||suppliedMomentAxes[e.moment]===axis)&&(!objective||suppliedObjective(e)===objective)&&(!query||[e.title,e.goal,e.sub,...e.rules].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(query)));
+ const exercises=suppliedExerciseEngine.exercises.filter(e=>(!axis||suppliedMomentAxes[e.moment]===axis)&&(!objective||suppliedObjective(e)===objective)&&(!query||[e.title,e.game,e.name,e.obj,e.goal,e.sub,...e.rules].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(query)));
  const signature=JSON.stringify([query,axis,objective]);if(signature!==bibleCatalogueSignature){bibleCataloguePage=0;bibleCatalogueSignature=signature;}
  const size=innerWidth>=1500?4:innerWidth>=1100?3:innerWidth>=650?2:1,total=Math.max(1,Math.ceil(exercises.length/size));bibleCataloguePage=Math.min(bibleCataloguePage,total-1);
- bibleDisposeDiagrams(root);root.replaceChildren();$('bible-intro').textContent='7 fiches · schémas et animations';$('bible-results').textContent=exercises.length+' exercice(s) trouvé(s)';$('bible-group-context').textContent=currentTraining.players+' joueurs · '+currentTraining.keepers+' gardien(s) · '+currentTraining.category;$('bible-reset').hidden=!query&&!axis&&!objective;
+ bibleDisposeDiagrams(root);root.replaceChildren();$('bible-intro').textContent=suppliedExerciseEngine.exercises.length+' fiches · schémas et animations';$('bible-results').textContent=exercises.length+' exercice(s) trouvé(s)';$('bible-group-context').textContent=currentTraining.players+' joueurs · '+currentTraining.keepers+' gardien(s) · '+currentTraining.category;$('bible-reset').hidden=!query&&!axis&&!objective;
  $('bible-phase-shortcuts').querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.category===axis)));
  for(const e of exercises.slice(bibleCataloguePage*size,(bibleCataloguePage+1)*size)){
   const card=el('article','training-catalogue-card bible-card supplied-exercise-card');card.dataset.exercise=e.id;card.dataset.moment=e.moment;
