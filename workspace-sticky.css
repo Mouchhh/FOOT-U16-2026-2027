@@ -1,0 +1,15 @@
+/* Keep the existing menu in flow: no placeholder, cloning or fixed-height jump. */
+body.task-navigation #workspace-navigation {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--club-navy, #142d50);
+  box-shadow: 0 5px 16px #142d501f;
+  isolation: isolate;
+}
+@media print {
+  body.task-navigation #workspace-navigation {
+    position: static;
+    box-shadow: none;
+  }
+}

@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
         (getCompositionBoard().documentId || "draft"),
     };
   }
-  // Only actual top-fixed/stuck UI counts toward the offset; never count a footer.
+  // Reserve the final pinned height, including before a sticky menu reaches the top.
   function measureOffset() {
     let offset = 12;
     for (const node of document.querySelectorAll(
@@ -105,10 +105,13 @@ document.addEventListener("DOMContentLoaded", () => {
         (style.position === "fixed" || style.position === "sticky") &&
         Number.isFinite(top) &&
         top < innerHeight / 2 &&
-        rect.top <= top + 2 &&
-        rect.bottom > 0
+        (style.position === "sticky" || rect.top <= top + 2) &&
+        (style.position === "sticky" || rect.bottom > 0)
       )
-        offset = Math.max(offset, rect.bottom + 12);
+        offset = Math.max(
+          offset,
+          (style.position === "sticky" ? top + rect.height : rect.bottom) + 12,
+        );
     }
     document.documentElement.style.setProperty(
       "--workspace-framing-offset",

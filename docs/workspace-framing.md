@@ -22,3 +22,11 @@ Les boutons précédent/suivant du navigateur conservent la destination et les f
 Diagnostic : `workspaceFraming.current()` donne le module actif ; `workspaceFraming.getState()` renvoie la phase, la cible, le décalage, la position demandée et la révision. `workspaceFraming.cancel()` interrompt une demande.
 
 Vérification navigateur : `python tests/workspace-framing-browser.py` avec le serveur local sur le port 3016. Tests complémentaires : `tests/document-entry-browser.py`, `tests/composition-player-picker-browser.py`, `tests/training-sections-browser.py`, `tests/agenda-calendar-browser.py`.
+
+## Menu principal persistant
+
+`workspace-sticky.css` place le menu existant `#workspace-navigation` en `position: sticky; top: 0; z-index: 100`. Il conserve sa place et ses dimensions dans la page, sa couleur bleu marine et son organisation responsive. Aucun menu n'est dupliqué. Les sous-menus flottants existants restent au-dessus (z-index 600), ainsi que les fenêtres modales natives. L'en-tête de marque défile normalement pour laisser davantage de place au contenu sur téléphone.
+
+La mesure de cadrage réserve désormais la hauteur finale du menu collant **avant même qu'il atteigne le haut de l'écran**. Ainsi, un clic depuis le début de page ne masque pas le titre du module sous la navigation. L'impression rétablit `position: static`.
+
+Vérification : `python tests/workspace-sticky-browser.py` couvre les tailles 1440×900, 1366×768 et 390×844, la persistance après défilement, la superposition, le recadrage sous le menu, les dimensions stables et l'impression.
