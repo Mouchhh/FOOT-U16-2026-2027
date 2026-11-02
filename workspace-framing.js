@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
     state.view = active.view;
     state.targetId = target.id || active.root.id;
     state.expectedY = top;
-    state.behavior = reduced.matches ? "instant" : "smooth";
+    state.behavior = reduced.matches || document.body.classList.contains("coach-reduced-motion") ? "instant" : "smooth";
     state.phase = "scrolling";
     state.revision++;
     window.scrollTo({ top, left: 0, behavior: state.behavior });

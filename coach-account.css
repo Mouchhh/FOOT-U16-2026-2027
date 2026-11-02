@@ -1,0 +1,259 @@
+@media screen {
+  .coach-account-open {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid #cbd8e7;
+    border-radius: 10px;
+    color: #2855a2;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .coach-account-open:hover {
+    border-color: var(--club-logo-red);
+    color: var(--club-logo-red);
+  }
+  .coach-account-dialog {
+    box-sizing: border-box;
+    width: min(920px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+    background: #fff;
+    color: #203958;
+    border: 1px solid #cbd8e7;
+    border-radius: 16px;
+    padding: 22px;
+    overflow: auto;
+  }
+  .account-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .account-heading h2 {
+    font-size: 26px;
+    color: #142d50;
+  }
+  .account-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 20px 0;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #dce5ef;
+  }
+  .account-tabs button {
+    min-height: 44px;
+    padding: 9px 12px;
+    border: 1px solid #dce5ef;
+    border-radius: 9px;
+    background: #fff;
+    color: #2855a2;
+    font-size: 13px;
+  }
+  .account-tabs button[aria-selected="true"] {
+    background: #eaf0f9;
+    box-shadow: inset 0 -2px var(--club-logo-red);
+    font-weight: 650;
+  }
+  .account-tabs button:focus-visible {
+    outline: 3px solid #2855a2;
+    outline-offset: 2px;
+  }
+  .account-panel[hidden] {
+    display: none !important;
+  }
+  .account-panel {
+    min-width: 0;
+  }
+  .account-description {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #536a83;
+    margin-bottom: 18px;
+  }
+  .account-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    min-width: 0;
+  }
+  .account-form input,
+  .account-form select {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 10px;
+    border: 1px solid #cbd8e7;
+    border-radius: 8px;
+    background: #fff;
+    color: #203958;
+    font: inherit;
+  }
+  .account-form button,
+  .account-form .account-check,
+  .account-photo {
+    grid-column: 1/-1;
+  }
+  .account-form > button {
+    min-height: 44px;
+    justify-self: start;
+  }
+  .account-photo {
+    display: flex;
+    justify-content: flex-start;
+  }
+  .account-photo img,
+  .account-initial {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #2855a2;
+    color: #fff;
+  }
+  .account-initial {
+    display: grid;
+    place-items: center;
+    font-size: 32px;
+    font-weight: 700;
+  }
+  .account-photo [hidden] {
+    display: none;
+  }
+  .account-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .account-form .account-check input {
+    width: 20px;
+    height: 20px;
+    min-height: 20px;
+    flex-shrink: 0;
+  }
+  .account-status {
+    font-size: 14px;
+    color: #2855a2;
+    line-height: 1.5;
+    margin-top: 16px;
+  }
+  .account-panel textarea {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd8e7;
+    border-radius: 10px;
+    font: inherit;
+    resize: vertical;
+  }
+  .account-bug {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 12px 0;
+    padding: 10px 14px;
+    border: 1px solid #2855a2;
+    border-radius: 9px;
+    background: #fff;
+    color: #2855a2;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .account-logout {
+    min-height: 44px;
+    margin-top: 20px;
+    padding: 11px 16px;
+    border: 1px solid var(--club-logo-red);
+    border-radius: 9px;
+    background: #fff;
+    color: var(--club-logo-red);
+    font-weight: 650;
+  }
+  .account-logout:hover {
+    background: var(--club-logo-red);
+    color: #fff;
+  }
+  body.coach-compact
+    :is(.resource-card-content, .home-dashboard-card, .squad-card) {
+    padding: 14px !important;
+  }
+  body.coach-reduced-motion *,
+  body.coach-reduced-motion *::before,
+  body.coach-reduced-motion *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  @media (max-width: 650px) {
+    .coach-account-dialog {
+      padding: 16px;
+    }
+    .account-form {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .account-form input,
+    .account-form select,
+    .account-panel textarea {
+      font-size: 16px;
+    }
+    .account-tabs {
+      gap: 5px;
+    }
+    .account-tabs button {
+      font-size: 12px;
+      padding: 8px 10px;
+    }
+    .coach-account-open span {
+      display: none;
+    }
+    .coach-account-open {
+      padding: 8px;
+    }
+    .account-heading h2 {
+      font-size: 23px;
+    }
+  }
+}
+@media screen {
+  body.coach-reduced-motion dialog.external-close-panel {
+    animation: none !important;
+  }
+}
+@media screen {
+  body.task-navigation.responsive-navigation > header {
+    height: auto;
+    min-height: 52px;
+    row-gap: 8px;
+    padding-block: 4px;
+  }
+  body.responsive-navigation > header .header-actions {
+    justify-content: flex-end;
+  }
+}
+
+@media screen {
+  body.task-navigation.responsive-navigation.home-mode > header {
+    min-height: 60px;
+    padding-block: 8px;
+  }
+}
+@media screen {
+  .account-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff;
+    padding-top: 8px;
+  }
+}

@@ -1,9 +1,12 @@
+// Reminder queries ignore display filters without changing the coach's selected view.
+let agendaCalendarUnfilteredDepth=0;
+function agendaCalendarAllEvents(){agendaCalendarUnfilteredDepth++;try{return agendaCalendarEvents();}finally{agendaCalendarUnfilteredDepth--;}}
 // Calendar dates represent the club's local appointments; date arithmetic uses UTC, not browser DST.
 function agendaCalendarToday(){return homeClubNow().day;}
 function agendaCalendarAdd(day,n){const date=new Date(day+'T12:00:00Z');date.setUTCDate(date.getUTCDate()+n);return date.toISOString().slice(0,10);}
 function agendaCalendarMonth(month,n){const [year,m]=month.split('-').map(Number);return new Date(Date.UTC(year,m-1+n,1,12)).toISOString().slice(0,7);}
 function agendaCalendarDateLabel(day){return new Intl.DateTimeFormat('fr-FR',{timeZone:'UTC',weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(new Date(day+'T12:00:00Z'));}
-function agendaCalendarMatches(date,category,author){const week=$('coach-agenda-week').value,c=$('coach-agenda-category').value,a=$('coach-agenda-author').value;return (!week||date>=trainingWeekStart(week)&&date<=agendaCalendarAdd(trainingWeekStart(week),6))&&(!c||c===category)&&(!a||a===author);}
+function agendaCalendarMatches(date,category,author){if(agendaCalendarUnfilteredDepth>0)return true;const week=$('coach-agenda-week').value,c=$('coach-agenda-category').value,a=$('coach-agenda-author').value;return (!week||date>=trainingWeekStart(week)&&date<=agendaCalendarAdd(trainingWeekStart(week),6))&&(!c||c===category)&&(!a||a===author);}
 function agendaCalendarEvents(){
  const events=[];
  for(const session of trainingLibrary.filter(trainingValid))if(agendaCalendarMatches(session.date,session.category,session.coach||activeCoach.name))events.push({id:'training:'+session.id,kind:'training',label:'Séance',date:session.date,time:session.time,title:session.title||session.team,category:session.category,session,open:()=>{const before=currentTraining;loadTraining(session);if(currentTraining!==before&&currentTraining.id===session.id)workspaceNavigation.run('view-training',()=>trainingWizard.go(3));}});

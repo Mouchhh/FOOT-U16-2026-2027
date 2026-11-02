@@ -9,7 +9,7 @@ function navigationContent(){
 function animateNavigation(kind){
  stopNavigationMotion();
  if(window.workspaceFraming)workspaceFraming.request({scope:kind==='main'?'main':kind==='tools'?'tools':'sub'});else if(kind==='main')window.scrollTo({top:0,behavior:navigationMotionPreference.matches?'instant':'smooth'});
- if(navigationMotionPreference.matches)return;
+ if(navigationMotionPreference.matches||document.body.classList.contains('coach-reduced-motion'))return;
  navigationMotionFrame=requestAnimationFrame(()=>{
   navigationMotionFrame=0;let target;
   if(kind==='report')target=$('report-content');
