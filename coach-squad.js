@@ -1,13 +1,14 @@
+function coachTeamSquadId(){return activeCoachTeam.id==='unassigned'?'effectif-'+activeCoach.id:'effectif-'+activeCoachTeam.id+'-'+activeCoach.id;}
 // The directory is a typed composition-library document, so existing authenticated
 // versioning, offline queue and owner isolation apply without a new database table.
 function squadDirectoryValid(value){return value&&value.version===1&&Array.isArray(value.players)&&value.players.length<=100&&value.players.every(p=>p&&typeof p.id==='string'&&p.id.length>0&&p.id.length<=100&&typeof p.name==='string'&&p.name.trim().length>0&&p.name.length<=25&&Number.isInteger(p.number)&&p.number>=1&&p.number<=99&&typeof p.photo==='string'&&p.photo.length<=100000&&(!p.photo||/^data:image\/(jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(p.photo))&&typeof p.position==='string'&&p.position.length<=30&&(p.foot===undefined||['','Droit','Gauche','Les deux'].includes(p.foot)))&&new Set(value.players.map(p=>p.id)).size===value.players.length&&value.players.reduce((sum,p)=>sum+p.photo.length,0)<=4000000;}
 const squadPreviousValid=valid;
 valid=function(value){return squadPreviousValid(value)&&(value.squadDirectory===undefined||squadDirectoryValid(value.squadDirectory));};
-function squadDocument(){return saves.find(s=>s.state.documentId==='effectif-'+activeCoach.id&&squadDirectoryValid(s.state.squadDirectory))?.state;}
+function squadDocument(){return saves.find(s=>s.state.documentId===coachTeamSquadId()&&squadDirectoryValid(s.state.squadDirectory))?.state||saves.find(s=>squadDirectoryValid(s.state?.squadDirectory))?.state;}
 function squadPlayers(){return squadDocument()?.squadDirectory.players||[];}
 function squadSave(players){
  const directory={version:1,players};if(!squadDirectoryValid(directory))return notify('Vérifiez le nom, le numéro et la photo des joueurs.'),false;
- const source=squadDocument()||getCompositionBoard(),snapshot={...structuredClone(source),documentId:'effectif-'+activeCoach.id,title:('Effectif · '+activeCoach.name).slice(0,100),boardKind:'composition',notes:'',arrows:[],players:[],squadDirectory:structuredClone(directory)};delete snapshot.sourceCompositionId;delete snapshot.opponents;
+ const source=squadDocument()||getCompositionBoard(),snapshot={...structuredClone(source),documentId:squadDocument()?.documentId||coachTeamSquadId(),title:('Effectif · '+activeCoachTeam.label).slice(0,100),boardKind:'composition',notes:'',arrows:[],players:[],squadDirectory:structuredClone(directory)};delete snapshot.sourceCompositionId;delete snapshot.opponents;
  const next=[{date:new Date().toISOString(),state:snapshot},...saves.filter(s=>s.state.documentId!==snapshot.documentId)];
  if(!valid(snapshot))return notify('L’effectif ne peut pas être enregistré : vérifiez votre profil équipe.'),false;
  try{coachStorageSet('vestiaire-saves',JSON.stringify(next));saves=next;renderSaves();return true;}catch{return notify('Stockage indisponible : vos joueurs précédemment enregistrés sont conservés.'),false;}

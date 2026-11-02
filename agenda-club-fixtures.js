@@ -1,5 +1,5 @@
 // Assigned fixtures appear directly in their educator’s agenda. No category-only or global fallback.
-function agendaClubSchedules(){const name=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toLocaleLowerCase('fr');return clubFixtureSchedules.filter(schedule=>schedule.ownerCoachName&&name(schedule.ownerCoachName)===name(activeCoach.name));}
+function agendaClubSchedules(){const name=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toLocaleLowerCase('fr');return clubFixtureSchedules.filter(schedule=>schedule.ownerCoachName&&name(schedule.ownerCoachName)===name(activeCoach.name)&&coachTeamOwns(schedule));}
 function agendaClubSchedule(){return agendaClubSchedules()[0]||null;}
 function agendaClubFixtures(schedule=null){
  return (schedule?[schedule]:agendaClubSchedules()).flatMap(s=>s.fixtures.map(f=>{const home=f.home===s.team;return {...f,scheduleId:s.id,sourceInfo:s.source+' · '+s.season,key:'club:'+s.id+':'+(f.id||'j'+f.round),title:f.home+' / '+f.away,opponent:home?f.away:f.home,team:s.team,category:s.category,competition:(f.competition||s.competition)+' · '+(f.roundLabel||'Journée '+f.round),location:home?'À domicile · stade à préciser':'À l’extérieur · stade à préciser',status:f.status||'confirmed'};}));

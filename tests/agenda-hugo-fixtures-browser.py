@@ -2,12 +2,16 @@ from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);ctx=b.new_context(viewport={'width':1366,'height':900});ctx.add_init_script("localStorage.setItem('vestiaire-coach-profiles',JSON.stringify([{id:'legacy',name:'Hugo Mottais'}]))");page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("typeof agendaClubFixtures==='function' && window.trainingWizard")
  fixtures=page.evaluate('agendaClubFixtures(agendaClubSchedule())');assert len(fixtures)==23
- assert page.evaluate('agendaClubSchedules().length')==2
- assert page.evaluate('agendaClubFixtureEvents().length')==31
+ assert page.evaluate('agendaClubSchedules().length')==1
+ assert page.evaluate('agendaClubFixtureEvents().length')==23
+ senior_id=page.evaluate('activeCoachTeam.id');youth_id=page.evaluate("coachTeamCategoryId('U15')")
+ page.locator('#coach-team-select').select_option(youth_id);page.wait_for_function('(id)=>activeCoachTeam.id===id && typeof agendaClubFixtures==="function"',arg=youth_id)
  u15=page.evaluate("agendaClubFixtures().filter(f=>f.category==='U15')");assert len(u15)==8
  assert [(f['date'],f['time']) for f in u15]==[('2026-09-19','15:30'),('2026-09-26','11:00'),('2026-10-03','16:00'),('2026-10-10','15:00'),('2026-10-17','16:30'),('2026-11-07','14:30'),('2026-11-14','11:00'),('2026-11-28','11:00')]
  assert [f.get('score') for f in u15[:5]]==[{'home':0,'away':2},{'home':8,'away':0},{'home':1,'away':1},{'home':3,'away':1},{'home':1,'away':2}]
- assert len({f['key'] for f in page.evaluate('agendaClubFixtures()')})==31
+ assert len({f['key'] for f in page.evaluate('agendaClubFixtures()')})==8
+ assert page.evaluate('agendaClubFixtureEvents().length')==8
+ page.locator('#coach-team-select').select_option(senior_id);page.wait_for_function('(id)=>activeCoachTeam.id===id && typeof agendaClubFixtures==="function"',arg=senior_id)
  assert page.evaluate('agendaClubSchedule().ownerCoachName')=='Hugo Mottais'
  assert all(f['team']=='MAYENNE STADE FC 3' for f in fixtures)
  assert len({f['key'] for f in fixtures})==23
@@ -19,11 +23,11 @@ with sync_playwright() as p:
  assert fixtures[10]['round']==1 and fixtures[10]['key']!=cup['key']
  assert not page.evaluate("agendaClubFixtureEvents().some(e=>e.id.includes('fc-2-u17'))")
  page.locator('#view-coach-agenda').click();page.evaluate('workspaceFlows.agenda.go(1)');month=page.locator('#coach-agenda-month');month.fill('2026-09');month.dispatch_event('change');page.locator('[data-agenda-day="2026-09-25"]').click();details=page.locator('#agenda-day-details');assert 'TAB 5–3' in details.inner_text();assert 'Tirs au but : AMBRIERES CIGNE F. 2 5–3 MAYENNE STADE FC 3' in details.inner_text()
- month.fill('2026-11');month.dispatch_event('change');assert page.locator('[data-date="2026-11-07"] .agenda-calendar-event').count()==1;
- page.locator('#agenda-calendar-filters>summary').click();page.locator('#coach-agenda-category').select_option('Seniors');assert page.locator('[data-date="2026-11-07"] .agenda-calendar-event').count()==0;page.locator('#coach-agenda-category').select_option('');assert page.locator('[data-date="2026-11-01"] .agenda-calendar-event').count()==1
+ month.fill('2026-11');month.dispatch_event('change');assert page.locator('[data-date="2026-11-07"] .agenda-calendar-event').count()==0;
+ page.evaluate("document.getElementById('coach-agenda-category').value='Seniors';renderCoachAgenda()");assert page.locator('[data-date="2026-11-07"] .agenda-calendar-event').count()==0;page.evaluate("document.getElementById('coach-agenda-category').value='';renderCoachAgenda()");assert page.locator('[data-date="2026-11-01"] .agenda-calendar-event').count()==1
  page.once('dialog',lambda d:d.accept());page.locator('[data-date="2026-11-01"] .agenda-calendar-event').click();assert page.evaluate('getCompositionBoard().team')=='MAYENNE STADE FC 3';assert page.evaluate('getCompositionBoard().coach')=='Hugo Mottais';assert page.evaluate('getCompositionBoard().matchPreparation.opponent')=='LANDIVY PONTMAIN FC'
  page.locator('#view-coach-agenda').click();page.evaluate('workspaceFlows.agenda.go(1)');assert page.locator('[data-date="2026-11-01"] .agenda-calendar-event').count()==1
- page.reload();page.wait_for_function("typeof agendaClubFixtures==='function'");assert page.evaluate('agendaClubFixtureEvents().length')==31
+ page.reload();page.wait_for_function("typeof agendaClubFixtures==='function'");assert page.evaluate('agendaClubFixtureEvents().length')==23
  page.locator('#view-coach-agenda').click();page.evaluate('workspaceFlows.agenda.go(1)');page.set_viewport_size({'width':390,'height':844});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+2');page.screenshot(path='/tmp/agenda-hugo-mobile.png',full_page=True)
  # Enzo retains only the original U17 calendar. An unassigned educator receives neither calendar.
  enzo=b.new_context();enzo.add_init_script("localStorage.setItem('vestiaire-coach-profiles',JSON.stringify([{id:'legacy',name:'Enzo Mouchet'}]))");p2=enzo.new_page();p2.goto('http://127.0.0.1:3016/?mode=local');p2.wait_for_function("typeof agendaClubFixtures==='function'");assert p2.evaluate('agendaClubFixtureEvents().length')==9;assert p2.evaluate('agendaClubSchedule().team')=='MAYENNE STADE FC 2'

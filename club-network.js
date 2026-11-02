@@ -80,7 +80,7 @@ function clubNetworkSource(kind,payload){
  const id=kind==='composition'?payload.documentId:payload.id;
  if(!id||!clubNetworkPayloadValid(kind,payload))return null;
  const fallback=kind==='training'?payload.date+' · '+payload.team:kind==='report'?(payload.info.date||'Match')+' · '+payload.info.team+' / '+payload.info.opponent:payload.team+' · '+payload.formation;
- return {kind,id,title:((kind==='composition'&&payload.pionExplanation?'Explication · ':'')+(kind==='composition'&&payload.boardKind==='plan'&&!payload.title?.startsWith('Plan de jeu · ')?'Plan de jeu · ':'')+(payload.title?.trim()||fallback||clubNetworkKinds[kind])).slice(0,150),payload:structuredClone(payload)};
+ return {kind,id,title:((kind==='composition'&&payload.pionExplanation?'Explication · ':'')+(kind==='composition'&&payload.boardKind==='plan'&&!payload.title?.startsWith('Plan de jeu · ')?'Plan de jeu · ':'')+(payload.title?.trim()||fallback||clubNetworkKinds[kind])).slice(0,150),payload:coachTeamStamp(structuredClone(payload))};
 }
 function clubNetworkComposition(payload){
  if(payload.pionExplanation)return simpleExplanationPreview(payload);
@@ -125,6 +125,7 @@ function clubNetworkLibrary(kind){return kind==='training'?trainingLibrary:kind=
 function clubNetworkLibraryKey(kind){return kind==='training'?'vestiaire-training-library':kind==='report'?'vestiaire-reports':'vestiaire-saves';}
 const clubNetworkOriginalStorageSet=coachStorageSet;
 function clubNetworkSetLibrary(kind,list){
+ list=list.filter(coachTeamOwns);
  const next=kind==='composition'?list.map(state=>({date:new Date().toISOString(),state})):list;
  clubNetworkOriginalStorageSet(clubNetworkLibraryKey(kind),JSON.stringify(next));clubSaveLocalErrors.delete(clubNetworkLibraryKey(kind));clubSaveLocalConflicts.delete(clubNetworkLibraryKey(kind));
  if(kind==='training'){trainingLibrary=next;renderTrainingLibrary();}else if(kind==='report'){reportLibrary=next;renderReportLibrary();}else{saves=next;renderSaves();renderSimpleLibrary();if(typeof squadLibraryChanged==='function')squadLibraryChanged();}
@@ -134,12 +135,12 @@ function clubNetworkPendingPrefix(){return coachStorageKey('vestiaire-cloud-pend
 function clubNetworkPendingKey(kind,id){return clubNetworkPendingPrefix()+kind+':'+id;}
 function clubNetworkPendingJobs(){
  const jobs=[];for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key.startsWith(clubNetworkPendingPrefix()))continue;try{const job=JSON.parse(localStorage.getItem(key));if(job&&Object.hasOwn(clubNetworkKinds,job.kind)&&typeof job.id==='string'&&['save','delete'].includes(job.op)&&typeof job.stamp==='string')jobs.push(job);}catch{}}
- return jobs;
+ return jobs.filter(job=>{if(job.teamId)return job.teamId===activeCoachTeam.id;try{const key=clubNetworkLibraryKey(job.kind),rows=JSON.parse(localStorage.getItem(coachTeamBaseKey(key))||'[]'),payload=rows.map(row=>job.kind==='composition'?row.state:row).find(row=>clubNetworkPayloadId(job.kind,row)===job.id);return payload?coachTeamOwns(payload):activeCoachTeam.id==='unassigned';}catch{return false;}});
 }
 function clubNetworkPending(kind,id){try{return JSON.parse(localStorage.getItem(clubNetworkPendingKey(kind,id))||'null');}catch{return null;}}
 function clubNetworkMarkPending(kind,id,op,initialExpected=null,stamp=crypto.randomUUID()){
  const previous=clubNetworkPending(kind,id),expected=previous?.expected||initialExpected||clubNetworkKnownVersion(kind,id);
- localStorage.setItem(clubNetworkPendingKey(kind,id),JSON.stringify({kind,id,op,expected,stamp,conflict:false}));
+ localStorage.setItem(clubNetworkPendingKey(kind,id),JSON.stringify({kind,id,op,expected,stamp,teamId:activeCoachTeam.id,conflict:false}));
  clubSaveStatus('pending',navigator.onLine?'Enregistré sur cet appareil ; envoi au club en cours.':'Hors connexion : enregistrement conservé sur cet appareil, en attente de partage.');
 }
 // A write-ahead record survives a reload between library storage and outbox storage.
@@ -160,7 +161,7 @@ function clubNetworkRepairSaves(skipKey=''){
   }catch(error){clubSaveLocalErrors.add('queue:'+key);if(['QuotaExceededError','SecurityError'].includes(error.name))throw clubNetworkError('Stockage du partage indisponible',0,'local_queue_storage');if(!error.code)throw clubNetworkError('Journal à récupérer',0,'local_save_interrupted');throw error;}
  }
 }
-function clubNetworkRecoveryArchivePrefix(){return 'vestiaire-private-recovery:'+clubNetworkBase+':'+activeCoach.id+':';}
+function clubNetworkRecoveryArchivePrefix(){return 'vestiaire-private-recovery:'+clubNetworkBase+':'+activeCoach.id+':team:'+activeCoachTeam.id+':';}
 function clubNetworkRecoveryArchives(){
  const prefix=clubNetworkRecoveryArchivePrefix(),archives=[];
  for(let i=0;i<localStorage.length;i++){const archiveKey=localStorage.key(i);if(!archiveKey?.startsWith(prefix))continue;
@@ -194,9 +195,13 @@ function clubNetworkRecoveryCandidates(){
  const candidates=[],seen=new Set(),collect=(kind,record,at='')=>{try{
   if(!record||!Array.isArray(record.jobs))return;const list=JSON.parse(record.value).map(x=>kind==='composition'?x?.state:x);
   for(const job of record.jobs.filter(j=>j?.op==='save')){const payload=list.find(p=>clubNetworkPayloadId(kind,p)===job.id),signature=kind+':'+JSON.stringify(payload);
-   if(clubNetworkPayloadValid(kind,payload)&&!payload.squadDirectory&&!seen.has(signature)){seen.add(signature);candidates.push({kind,payload,at});}}
+   if(clubNetworkPayloadValid(kind,payload)&&coachTeamOwns(payload)&&!payload.squadDirectory&&!seen.has(signature)){seen.add(signature);candidates.push({kind,payload,at});}}
  }catch{}};
  for(const kind of Object.keys(clubNetworkKinds)){try{collect(kind,JSON.parse(localStorage.getItem(clubNetworkSaveJournalKey(clubNetworkLibraryKey(kind)))||'null'));}catch{}}
+ // Older unscoped journals/archives remain read-only; offer only this team's payloads.
+ for(const kind of Object.keys(clubNetworkKinds)){try{collect(kind,JSON.parse(localStorage.getItem(coachTeamBaseKey('vestiaire-save-journal:'+clubNetworkLibraryKey(kind)))||'null'));}catch{}}
+ const legacyPrefix='vestiaire-private-recovery:'+clubNetworkBase+':'+activeCoach.id+':';
+ for(let n=0;n<localStorage.length;n++){const key=localStorage.key(n);if(!key?.startsWith(legacyPrefix)||key.startsWith(legacyPrefix+'team:'))continue;try{const entry=JSON.parse(localStorage.getItem(key));if(Object.hasOwn(clubNetworkKinds,entry.kind))collect(entry.kind,JSON.parse(entry.raw),entry.at);}catch{}}
  for(const entry of clubNetworkRecoveryArchives())collect(entry.kind,entry.record,entry.at);
  return candidates;
 }
@@ -287,8 +292,11 @@ async function clubNetworkSync(){
     if(clubNetworkPending(metadata.kind,metadata.source_id))continue;
     const known=clubNetworkKnownVersion(metadata.kind,metadata.source_id),exists=clubNetworkLibrary(metadata.kind).some(p=>clubNetworkPayloadId(metadata.kind,p)===metadata.source_id);
     const cached=clubNetworkCachedVersions.get(metadata.kind+':'+metadata.source_id);
+    if(cached?.teamId&&cached.teamId!==activeCoachTeam.id&&cached.id===metadata.id&&cached.revision===metadata.revision)continue;
     if(exists&&((known.id===metadata.id&&known.revision===metadata.revision)||(cached?.id===metadata.id&&cached?.revision===metadata.revision)))continue;
     const rows=await clubNetworkRequest('/rest/v1/club_documents?select=*&id=eq.'+encodeURIComponent(metadata.id)+'&limit=1'),row=rows?.[0];if(!row||!clubNetworkPayloadValid(row.kind,row.payload)||clubNetworkPayloadId(row.kind,row.payload)!==row.source_id)continue;
+    const team=coachTeamDescriptor(row.payload);coachTeamDiscover(team,true);
+    if(!coachTeamOwns(row.payload)){clubNetworkCachedVersions.set(row.kind+':'+row.source_id,{id:row.id,revision:row.revision,teamId:team.id});continue;}
     const list=clubNetworkLibrary(row.kind),opened=row.kind==='training'?currentTraining:row.kind==='report'?currentReport:state;
     // Une mise à jour distante ne touche jamais le brouillon ouvert, ni sa version de départ.
     const isOpen=row.kind==='composition'&&typeof terrainHasDraftId==='function'?(row.payload.pionExplanation?simpleState.sequenceId===row.source_id:terrainHasDraftId(row.source_id)):clubNetworkPayloadId(row.kind,opened)===row.source_id;
@@ -344,6 +352,7 @@ function clubNetworkRequestPrivate(){
 async function clubNetworkOpen(metadata,previewOnly=false){
  const rows=await clubNetworkRequest('/rest/v1/club_documents?select=*&id=eq.'+encodeURIComponent(metadata.id)+'&limit=1'),row=rows?.[0];if(!row||!clubNetworkPayloadValid(row.kind,row.payload)||clubNetworkPayloadId(row.kind,row.payload)!==row.source_id)throw clubNetworkError('Document incompatible',400);
  clubNetworkPreview=row;
+ if(row.owner_id===clubNetworkSession.user.id&&!coachTeamOwns(row.payload)&&!previewOnly){coachTeamDiscover(coachTeamDescriptor(row.payload),true);notify('Ce document appartient à « '+coachTeamDescriptor(row.payload).label+' ». Sélectionnez cette équipe en haut pour le modifier.');return;}
  if(row.payload.squadDirectory&&row.owner_id===clubNetworkSession.user.id&&!previewOnly){const pending=clubNetworkPending(row.kind,row.source_id);if(pending){squadResolveRemote(row);return;}clubNetworkSetLibrary(row.kind,[structuredClone(row.payload),...clubNetworkLibrary(row.kind).filter(p=>p.documentId!==row.source_id)]);clubNetworkRememberVersion(row.kind,row.source_id,row.revision,row.id);openCoachSquad();return;}
  if(row.owner_id===clubNetworkSession.user.id&&!previewOnly){clubNetworkImport(true);return;}
  let content;if(row.kind==='training'){const original=currentTraining;try{currentTraining=structuredClone(row.payload);content=trainingDocument();}finally{currentTraining=original;}}
@@ -353,8 +362,10 @@ async function clubNetworkOpen(metadata,previewOnly=false){
 }
 function clubNetworkImport(openOwn=false,forceCopy=false){
  const row=clubNetworkPreview;if(!row||!clubNetworkBound())return;if(row.payload.squadDirectory)return notify('Cet effectif est consultable ici. Gérez vos joueurs depuis « Mes joueurs enregistrés ».');
+ if(row.owner_id===clubNetworkSession.user.id&&!forceCopy&&!coachTeamOwns(row.payload))return notify('Sélectionnez l’équipe de ce document avant de l’ouvrir.');
  if(row.payload.pionExplanation)return simpleExplanationImport(row,forceCopy);
  const kind=row.kind,own=row.owner_id===clubNetworkSession.user.id&&!forceCopy,payload=structuredClone(row.payload),opened=kind==='training'?currentTraining:kind==='report'?currentReport:(typeof getTerrainDraftFor==='function'?getTerrainDraftFor(row.payload):state);
+ if(own&&!coachTeamOwns(payload))return notify('Sélectionnez l’équipe de ce document avant de l’ouvrir.');
  if(own){
   if(!confirm('Ouvrir cette version enregistrée ? Le brouillon courant sera conservé sur cet appareil dans une copie si nécessaire.'))return;
   if(document.body.classList.contains('training-mode')&&!applyTrainingForm())return;
@@ -369,7 +380,7 @@ function clubNetworkImport(openOwn=false,forceCopy=false){
   else{state=payload;render();persist();$('view-pitch').click();}
  }else{
   if(!confirm('Créer une copie indépendante dans votre espace ? L’original du collègue sera conservé.'))return;
-  delete payload.clubReference;delete payload.clubApproval;delete payload.clubValidation;
+  delete payload.clubReference;delete payload.clubApproval;delete payload.clubValidation;payload.teamContext={...activeCoachTeam};
   if(kind==='training')delete payload.attendance;
   if(kind==='composition')payload.documentId=crypto.randomUUID();else payload.id=crypto.randomUUID();payload.title=('Copie · '+(payload.title||row.title)).slice(0,100);if(kind==='training')payload.coach=activeCoach.name;if(kind==='report')payload.info.coach=activeCoach.name;
   clubNetworkSetLibrary(kind,[payload,...clubNetworkLibrary(kind)]);clubNetworkMarkPending(kind,clubNetworkPayloadId(kind,payload),'save');clubNetworkQueueSync();notify('Copie ajoutée dans votre bibliothèque ; partage en attente de confirmation.');
@@ -423,7 +434,7 @@ $('club-network-import-local').onclick=()=>clubNetworkRun(async()=>{
  if(!confirm('Importer les documents du profil local sélectionné dans votre compte et les partager au club ? Ne continuez que pour vos propres documents. Les originaux locaux seront conservés.'))return;
  let count=0;for(const kind of Object.keys(clubNetworkKinds)){
   const list=[...clubNetworkLibrary(kind)];for(const profile of coachProfiles.filter(p=>p.id===$('club-network-legacy-profile').value)){let raw;try{raw=JSON.parse(localStorage.getItem(coachStorageKey(clubNetworkLibraryKey(kind),profile.id))||'[]');}catch{continue;}if(!Array.isArray(raw))continue;
-   for(const entry of raw){const payload=structuredClone(kind==='composition'?entry.state:entry);if(!clubNetworkPayloadValid(kind,payload))continue;if(kind==='composition'){payload.documentId=crypto.randomUUID();if(payload.pionExplanation){payload.pionExplanation.id=payload.documentId;payload.pionExplanation.state.sequenceId=payload.documentId;}}else payload.id=crypto.randomUUID();list.push(payload);clubNetworkMarkPending(kind,clubNetworkPayloadId(kind,payload),'save');count++;}
+   for(const entry of raw){const payload=structuredClone(kind==='composition'?entry.state:entry);if(!clubNetworkPayloadValid(kind,payload))continue;delete payload.teamContext;if(kind==='composition'){payload.documentId=crypto.randomUUID();if(payload.pionExplanation){payload.pionExplanation.id=payload.documentId;payload.pionExplanation.state.sequenceId=payload.documentId;}}else payload.id=crypto.randomUUID();list.push(payload);clubNetworkMarkPending(kind,clubNetworkPayloadId(kind,payload),'save');count++;}
   }clubNetworkSetLibrary(kind,list);
  }clubNetworkStatus(count+' document(s) importé(s).');await clubNetworkQueueSync();
 });
@@ -432,6 +443,7 @@ coachStorageSet=function(key,value){
  const kind=key==='vestiaire-training-library'?'training':key==='vestiaire-reports'?'report':key==='vestiaire-saves'?'composition':null;
  let staged=false;
  try{
+  if(kind)value=coachTeamEncodeLibrary(key,value);
   if(kind&&clubNetworkBound()){
    clubNetworkRepairSaves(key);
    let existing=localStorage.getItem(clubNetworkSaveJournalKey(key));

@@ -93,7 +93,8 @@ function documentEntryPayloadValid(kind, payload) {
         payload.boardKind !== "plan";
 }
 function documentEntrySignature(payload) {
-  return JSON.stringify({ ...payload, updatedAt: "" });
+  const {teamContext, ...content}=payload;
+  return JSON.stringify({ ...content, updatedAt: "" });
 }
 function documentEntryArchives() {
   try {

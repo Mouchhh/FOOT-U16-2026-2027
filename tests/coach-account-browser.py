@@ -27,7 +27,7 @@ with sync_playwright() as p:
     # Saving failures must not apply a different preference.
     page.locator('#coach-account-open').click();d=page.locator('#coach-account-dialog');d.get_by_role('tab',name='Préférences',exact=True).click();d.locator('#account-start-page').select_option('resources')
     page.evaluate("()=>{window.accountRealSet=coachStorageSet;coachStorageSet=(k,v)=>{if(k===coachAccountKey)throw new DOMException('quota','QuotaExceededError');return accountRealSet(k,v)}}")
-    d.get_by_role('button',name='Enregistrer mes préférences',exact=True).click();assert page.evaluate('coachAccountDefaultPage()')=='agenda';page.evaluate('coachStorageSet=accountRealSet')
+    d.get_by_role('button',name='Enregistrer mes préférences',exact=True).click();assert page.evaluate('coachAccountDefaultPage()')=='agenda';page.evaluate('()=>{coachStorageSet=accountRealSet}')
     d.get_by_role('button',name='Fermer',exact=True).click();d.wait_for(state='detached')
     # Exercise the actual security workflow with a stubbed auth transport; never contact a live account.
     page.evaluate("""()=>{window.realAccountBound=clubNetworkBound;window.realAccountRequest=clubNetworkRequest;window.realAccountStore=clubNetworkStoreSession;window.realAccountSession=clubNetworkSession;clubNetworkBound=()=>true;clubNetworkSession={user:{id:'account-test',email:'login@example.test'}};window.authCalls=[];clubNetworkStoreSession=s=>clubNetworkSession=s;clubNetworkRequest=async(path,options)=>{authCalls.push({path,options});if(path.includes('token'))return {user:{id:'account-test',email:'login@example.test'},access_token:'test-token'};return {id:'account-test'}}}""")

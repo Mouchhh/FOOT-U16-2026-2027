@@ -13,7 +13,7 @@ function simpleCommitLibrary(list){
  const next=[...saves.filter(s=>!s.state?.pionExplanation),...list.map(entry=>{
   const previous=saves.find(s=>s.state?.pionExplanation&&s.state.documentId===entry.id);
   if(previous&&JSON.stringify(previous.state.pionExplanation)===JSON.stringify(entry))return previous;
-  return {date:entry.updatedAt,state:{team:'Explications · pions',category:previous?.state.category||state.category||'',formation:'4-3-3',color:'#2855a2',notes:'',players:[],arrows:[],documentId:entry.id,title:entry.title,pionExplanation:structuredClone(entry)}};
+  return {date:entry.updatedAt,state:{teamContext:{...activeCoachTeam},team:'Explications · pions',category:previous?.state.category||state.category||'',formation:'4-3-3',color:'#2855a2',notes:'',players:[],arrows:[],documentId:entry.id,title:entry.title,pionExplanation:structuredClone(entry)}};
  })];
  // One canonical write uses the existing durable journal, conflict checks and outbox.
  coachStorageSet('vestiaire-saves',JSON.stringify(next));saves=next;simpleLegacyLibrary=[];

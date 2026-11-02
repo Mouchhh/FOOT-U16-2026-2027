@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  const trigger=el('button','workspace-save-trigger');trigger.id='workspace-save-open';trigger.type='button';trigger.setAttribute('aria-haspopup','dialog');
  let frame=0,dialog=null,fields=null;const pending=new Set();
  const changes=new Set(['team','category','date','time','duration','players','keepers','age','level','context','bmf-category','bmf-objective','coaching-load','space-size','space-width','space-length'].map(k=>'training-'+k));
- const equal=(a,b)=>{const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().filter(k=>k!=='updatedAt').map(k=>[k,canonical(v[k])])):v;return JSON.stringify(canonical(a))===JSON.stringify(canonical(b));};
+ const equal=(a,b)=>{const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().filter(k=>k!=='updatedAt'&&k!=='teamContext').map(k=>[k,canonical(v[k])])):v;return JSON.stringify(canonical(a))===JSON.stringify(canonical(b));};
  function current(){
   const body=document.body;
   if(body.classList.contains('training-mode'))return {kind:'training',name:'Séance',value:currentTraining,key:'vestiaire-training-draft',library:'vestiaire-training-library',id:currentTraining.id,valid:trainingValid,save:'training-save'};
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(!spec.valid(spec.value))return {state:'error',label:'Saisie à vérifier',detail:'Certains champs sont incomplets ou invalides. Corrigez-les avant d’enregistrer.'};
   try{
    // Read without changing the library's concurrent-write baseline.
-   const draft=JSON.parse(localStorage.getItem(coachStorageKey(spec.key))||'null'),library=JSON.parse(localStorage.getItem(coachStorageKey(spec.library))||'[]');
+   const draft=JSON.parse(coachStorageGet(spec.key)||'null'),library=JSON.parse(coachTeamReadLibrary(spec.library)||'[]');
    if(!Array.isArray(library))throw Error('invalid library');
    const saved=library.find(row=>spec.library==='vestiaire-saves'?row.state?.documentId===spec.id:row.id===spec.id),value=spec.library==='vestiaire-saves'?saved?.state:saved;
    if(spec.id&&value&&equal(value,spec.value))return {state:'saved',label:'Enregistré ici',detail:'Cette version se trouve dans vos documents enregistrés sur cet appareil. Le partage au club a son propre état.'};

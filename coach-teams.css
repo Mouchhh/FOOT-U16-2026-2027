@@ -1,0 +1,117 @@
+@media screen {
+  .coach-team-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    max-width: 240px;
+    color: #203958;
+    font-size: 11px;
+  }
+  .coach-team-picker > span {
+    font-weight: 650;
+  }
+  .coach-team-picker select {
+    box-sizing: border-box;
+    min-height: 44px;
+    max-width: 100%;
+    width: 220px;
+    padding: 8px 28px 8px 12px;
+    border: 1px solid #cbd8e7;
+    border-left: 3px solid var(--club-logo-red);
+    border-radius: 9px;
+    background: #fff;
+    color: #2855a2;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 650;
+    text-overflow: ellipsis;
+  }
+  .coach-team-picker select:focus-visible {
+    outline: 3px solid #2855a2;
+    outline-offset: 2px;
+  }
+  .coach-team-dialog {
+    box-sizing: border-box;
+    width: min(540px, calc(100vw - 24px));
+    padding: 22px;
+    border: 1px solid #cbd8e7;
+    border-radius: 16px;
+    background: #fff;
+    color: #203958;
+  }
+  .coach-team-dialog form {
+    display: grid;
+    gap: 16px;
+  }
+  .coach-team-dialog input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 10px;
+    border: 1px solid #cbd8e7;
+    border-radius: 8px;
+    color: #203958;
+    background: #fff;
+    font: inherit;
+  }
+  @media (max-width: 650px) {
+    .coach-team-picker {
+      max-width: min(200px, 52vw);
+    }
+    .coach-team-picker select {
+      width: 100%;
+      font-size: 16px;
+    }
+    .coach-team-dialog {
+      padding: 16px;
+    }
+    .coach-team-dialog input {
+      font-size: 16px;
+    }
+  }
+}
+/* Keep the team switch reachable while the workspace scrolls. Framing measures this header. */
+@media screen {
+  body.task-navigation.responsive-navigation > header,
+  body.task-navigation.responsive-navigation.home-mode.home-has-slides
+    > header {
+    position: sticky;
+    top: 0;
+    z-index: 95;
+  }
+  body.task-navigation.responsive-navigation.home-mode.home-has-slides
+    > header {
+    background: #142d50ed;
+    backdrop-filter: blur(12px);
+  }
+  body.home-mode.home-has-slides .coach-team-picker {
+    color: #fff;
+  }
+}
+@media screen and (max-width: 650px) {
+  body.task-navigation.responsive-navigation > header .header-actions {
+    width: 100%;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  body.task-navigation.responsive-navigation > header .coach-team-picker {
+    flex: 1;
+    max-width: none;
+  }
+  body.task-navigation.responsive-navigation
+    > header
+    .header-actions
+    > .primary {
+    max-width: 140px;
+    min-height: 44px;
+    white-space: normal;
+    flex-shrink: 1;
+  }
+  body.task-navigation.responsive-navigation
+    > header
+    .header-actions:has(.club-save-indicator:not([hidden])) {
+    flex-wrap: wrap;
+  }
+}
