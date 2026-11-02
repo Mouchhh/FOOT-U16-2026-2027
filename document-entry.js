@@ -713,6 +713,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const calendarEvents = agendaCalendarEvents;
   agendaCalendarEvents = function () {
     return calendarEvents().map((event) => {
+      if (event.recurring) return event;
       if (event.kind === "match")
         return {
           ...event,
@@ -804,6 +805,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   const agendaTalk = agendaEventCauserie;
   agendaEventCauserie = function (event, date) {
+    if (event?.recurring) return agendaEventCauserie(null, event.date);
     const board = event && agendaEventBoard(event),
       f = event?.fff;
     const context = {
