@@ -1,0 +1,31 @@
+/* Navigation targets share the measured clearance of the actual fixed header. */
+:root {
+  --workspace-framing-offset: 12px;
+}
+html {
+  scroll-padding-block-start: var(--workspace-framing-offset);
+}
+:is(
+  #club-home,
+  #training-space,
+  #after-match,
+  #coach-agenda,
+  #coach-squad-dialog,
+  #club-network-dialog,
+  .flow-page,
+  .training-step,
+  #training-library-page,
+  .training-exercises-page,
+  #report-tabs,
+  .tactic-tool-panel
+) {
+  scroll-margin-block-start: var(--workspace-framing-offset);
+}
+@media (prefers-reduced-motion: reduce) {
+  html,
+  .flow-page,
+  .training-step,
+  #report-content {
+    scroll-behavior: auto !important;
+  }
+}

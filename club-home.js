@@ -12,7 +12,7 @@ function showClubHome(){
  setTrainingView(false);setReportView(false);setCoachAgenda(false);clubNetworkShowView(false);stopAnimation();
  document.body.classList.add('home-mode');$('club-home').hidden=false;$('view-home').classList.add('active');$('view-home').setAttribute('aria-pressed','true');
  for(const section of homeSections){$(section.button).classList.remove('active');$(section.button).setAttribute('aria-pressed','false');}
- renderClubHomeStats();clubNetworkRenderPresence();window.scrollTo({top:0,behavior:'smooth'});
+ renderClubHomeStats();clubNetworkRenderPresence();if(window.workspaceFraming)workspaceFraming.request({scope:'main'});else window.scrollTo({top:0,behavior:'smooth'});
 }
 function renderClubHomeStats(){
  $('home-greeting').textContent='Bonjour '+(clubNetworkMember?.display_name||activeCoach.name)+'.';

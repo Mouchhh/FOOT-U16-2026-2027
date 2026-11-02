@@ -8,7 +8,7 @@ function navigationContent(){
 }
 function animateNavigation(kind){
  stopNavigationMotion();
- if(kind==='main')window.scrollTo({top:0,behavior:navigationMotionPreference.matches?'instant':'smooth'});
+ if(window.workspaceFraming)workspaceFraming.request({scope:kind==='main'?'main':kind==='tools'?'tools':'sub'});else if(kind==='main')window.scrollTo({top:0,behavior:navigationMotionPreference.matches?'instant':'smooth'});
  if(navigationMotionPreference.matches)return;
  navigationMotionFrame=requestAnimationFrame(()=>{
   navigationMotionFrame=0;let target;
