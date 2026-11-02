@@ -1,3 +1,7 @@
+/* Dominant red in the site header logo assets/club-logo.jpg: RGB(228,31,40). */
+:root {
+  --club-logo-red: #e41f28;
+}
 /* Existing semantic red for personal deletion; no public catalogue delete action. */
 .personal-exercise-delete {
   display: inline-flex;
@@ -47,7 +51,7 @@
     border: 1px solid #cbd8e7 !important;
     border-radius: 50% !important;
     background: #fff !important;
-    color: #2855a2 !important;
+    color: var(--club-logo-red) !important;
     font:
       0/1 system-ui,
       sans-serif !important;
@@ -62,10 +66,11 @@
     pointer-events: none;
   }
   .external-modal-close:hover {
-    background: #eaf0f9 !important;
+    background: #fff !important;
+    border-color: var(--club-logo-red) !important;
   }
   .external-modal-close:focus-visible {
-    outline: 3px solid #2855a2;
+    outline: 3px solid var(--club-logo-red);
     outline-offset: 2px;
   }
   @keyframes external-modal-fade {
@@ -93,6 +98,12 @@
     display: none !important;
   }
   .external-modal-close > * {
+    display: none !important;
+  }
+}
+
+@media screen {
+  .external-close-panel .duplicate-modal-close {
     display: none !important;
   }
 }

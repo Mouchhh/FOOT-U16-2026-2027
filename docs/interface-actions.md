@@ -24,3 +24,12 @@ externalModalClose.refresh();
 ```
 
 Validation : `tests/personal-exercise-delete-browser.py` contrôle confirmation, compatibilité de stockage, suppression persistante, conservation des séances, nouvelles copies et échecs d’écriture. `tests/external-modal-close-browser.py` vérifie la position externe, la taille et l’accessibilité réelle au clic, les réouvertures et les règles de refus de fermeture, sur ordinateur et téléphones de 390/320 px. Les tests existants de séances, composition et fiches importées vérifient les usages autour de ces fenêtres.
+
+
+## Fermeture globale et rouge du logo
+
+Les croix utilisent la variable unique `--club-logo-red: #e41f28`, soit RGB(228, 31, 40). Cette valeur est relevée dans `assets/club-logo.jpg`, le logo utilisé par défaut dans l’en-tête : c’est sa teinte rouge la plus fréquente, avec 71 755 pixels de cette couleur. Les couleurs de classification des exercices et de suppression ne sont pas modifiées.
+
+La détection couvre désormais les boutons et liens de fermeture, les libellés longs comme « Fermer cette fenêtre », les entrées de formulaire et les panneaux portant `role="dialog"`, `role="alertdialog"` ou `data-closable-panel`. Une seule croix est affichée par encadré : les commandes « Fermer » supplémentaires sont masquées visuellement, en conservant leurs nœuds et leurs gestionnaires. Les actions Annuler restent disponibles lorsqu’elles ne constituent pas l’unique contrôle de fermeture. Les libellés accessibles et les règles de protection de saisie restent conservés.
+
+`tests/global-close-style-browser.py` compare la variable visuelle avec les pixels du logo, vérifie la croix extérieure rouge, les libellés longs et liens, l’absence de commandes « Fermer » en doublon et le maintien des gestionnaires d’origine sur ordinateur et mobile.

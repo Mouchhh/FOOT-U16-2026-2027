@@ -2,10 +2,23 @@
 document.addEventListener("DOMContentLoaded", () => {
   const records = new Map();
   let frame = 0;
-  const candidate = (button) =>
-    !button.hidden &&
-    (/^(fermer|close)(\b|\s)/i.test(button.getAttribute("aria-label") || "") ||
-      /^(Fermer|Annuler|×|✕|✖|Close)$/i.test(button.textContent.trim()));
+  const controls =
+    'button,a[href],[role="button"],input[type="button"],input[type="submit"]';
+  const labelOf = (control) =>
+    control.getAttribute("aria-label") ||
+    (control.tagName === "INPUT" ? control.value : control.textContent.trim());
+  const labelsOf = (control) => [
+    control.getAttribute("aria-label") || "",
+    control.tagName === "INPUT" ? control.value : control.textContent.trim(),
+  ];
+  const explicitClose = (control) =>
+    !control.hidden &&
+    labelsOf(control).some(
+      (label) =>
+        /^(fermer|close)(?:\b|\s)/i.test(label) || /^[×✕✖X]$/.test(label),
+    );
+  const cancelClose = (control) =>
+    !control.hidden && /^Annuler$/i.test(labelOf(control));
   const schedule = () => {
     if (!frame) frame = requestAnimationFrame(update);
   };
@@ -14,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     frame = 0;
     const panels = [
       ...document.querySelectorAll(
-        'dialog[open],[role="dialog"]:not([hidden]),[data-closable-panel]:not([hidden])',
+        'dialog[open],[role="dialog"]:not([hidden]),[role="alertdialog"]:not([hidden]),[data-closable-panel]:not([hidden])',
       ),
     ].filter((p) => p.getClientRects().length);
     for (const [panel] of records)
@@ -23,19 +36,37 @@ document.addEventListener("DOMContentLoaded", () => {
         records.delete(panel);
       }
     for (const panel of panels) {
-      let source = records.get(panel);
-      if (!source || !panel.contains(source)) {
-        source = [...panel.querySelectorAll("button")].find(
-          (b) =>
-            candidate(b) &&
-            b.closest('dialog,[role="dialog"],[data-closable-panel]') === panel,
-        );
-        if (!source) continue;
-        const label =
-          source.getAttribute("aria-label") ||
-          (/^[×✕✖]$/.test(source.textContent.trim())
-            ? "Fermer"
-            : source.textContent.trim());
+      const owned = [...panel.querySelectorAll(controls)].filter(
+        (control) =>
+          control.closest(
+            'dialog,[role="dialog"],[role="alertdialog"],[data-closable-panel]',
+          ) === panel,
+      );
+      const explicit = owned.filter(explicitClose);
+      const source = explicit[0] || owned.find(cancelClose);
+      const previous = records.get(panel);
+      if (previous && previous !== source) {
+        previous.classList.remove("external-modal-close");
+        previous.style.removeProperty("left");
+        previous.style.removeProperty("top");
+      }
+      for (const control of owned) {
+        const duplicate = explicit.includes(control) && control !== source;
+        if (control.classList.contains("duplicate-modal-close") !== duplicate)
+          control.classList.toggle("duplicate-modal-close", duplicate);
+      }
+      if (!source) {
+        records.delete(panel);
+        resize.unobserve(panel);
+        continue;
+      }
+      if (
+        source !== previous ||
+        !source.classList.contains("external-modal-close")
+      ) {
+        const label = /^[×✕✖X]$/.test(labelOf(source))
+          ? "Fermer"
+          : labelOf(source);
         source.setAttribute("aria-label", label);
         source.title = label;
         source.classList.add("external-modal-close");
