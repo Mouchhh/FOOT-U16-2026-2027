@@ -521,6 +521,11 @@ function agendaRecurringChange(id, scope, changes, revision) {
 }
 
 function agendaRecurringState(event) {
+  // An imported fixture is scheduled, but not yet a prepared match.
+  if (event.kind === "match" && !event.recurring) {
+    const board = agendaEventBoard(event);
+    if (!board?.documentId || !saves.some(s => s.state?.documentId === board.documentId)) return "pending";
+  }
   if (["pending", "confirmed"].includes(event.status)) return event.status;
   if (event.draft && event.kind === "match") {
     const board = agendaEventBoard(event),
