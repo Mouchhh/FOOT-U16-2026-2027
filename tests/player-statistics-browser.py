@@ -54,7 +54,7 @@ with sync_playwright() as p:
  card.locator('.player-stat-profile-link').click();dialog=page.locator('#player-stats-dialog');assert dialog.is_visible();assert dialog.locator('[data-stat=goals] strong').inner_text()=='3'
  assert 'Ratio buts / passes : 1' in dialog.inner_text();assert 'manuel' in dialog.inner_text()
  close=dialog.locator('.external-modal-close');close.wait_for();assert close.evaluate("e=>getComputedStyle(e,'::before').color")=='rgb(228, 31, 40)'
- r=dialog.bounding_box();x=close.bounding_box();assert x['y']+x['height']<=r['y']+1 or x['x']>=r['x']+r['width']-1
+ r=dialog.bounding_box();x=close.bounding_box();assert x['y']>=r['y'] and x['y']+x['height']<=r['y']+76 and x['x']>=r['x']+r['width']-80
  dialog.get_by_label('Saison du bilan joueur',exact=True).select_option('2025');assert dialog.locator('[data-stat=goals] strong').inner_text()=='50';assert dialog.locator('[data-stat=attendance] strong').inner_text()=='—'
  dialog.locator('.external-modal-close').click();page.locator('#player-stats-season').select_option('2026')
  page.locator('#view-reports').click()

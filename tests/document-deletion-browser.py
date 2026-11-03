@@ -2,7 +2,7 @@
 from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
     browser=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
-    page=browser.new_page(viewport={'width':1366,'height':900});errors=[]
+    page=browser.new_page(viewport={'width':1366,'height':900},reduced_motion='reduce');errors=[]
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function('window.documentDeletion && window.externalModalClose')
     page.locator('#view-reports').click()

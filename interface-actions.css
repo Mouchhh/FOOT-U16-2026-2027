@@ -28,7 +28,7 @@
 }
 /* Reserve a band ABOVE the actual native dialog; its content tree stays intact. */
 @media screen {
-  dialog[open].external-close-panel {
+  dialog[open].external-close-panel:not(.workspace-sheet) {
     position: fixed !important;
     inset-block: 64px 12px !important;
     margin-block: auto !important;
@@ -82,7 +82,7 @@
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    dialog[open].external-close-panel {
+    dialog[open].external-close-panel:not(.workspace-sheet) {
       animation: none !important;
     }
   }
