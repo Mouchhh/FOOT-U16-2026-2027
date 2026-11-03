@@ -59,3 +59,26 @@
  body.home-mode.home-has-slides>header{background:transparent;border-bottom:0}
  body.home-mode.home-has-slides .brand,body.home-mode.home-has-slides .brand small{color:#fff;text-shadow:0 1px 4px #102e5880}
 }
+
+/* Minimal home: retain shared DOM hooks for existing modules, hide their UI. */
+body.home-mode #home-page-0 > :not(.home-hero),
+body.home-mode #club-home > .flow-progress,
+body.home-mode #home-page-1,
+body.home-mode #task-section-navigation,
+body.home-mode .home-stats,
+body.home-mode #home-slideshow-controls {
+ display:none !important;
+}
+@media screen {
+ body.home-mode .home-hero {
+  min-height:260px;
+  margin-bottom:0;
+ }
+ body.home-mode .home-hero h1 {
+  border-left:3px solid var(--club-logo-red,#e41f28);
+  padding-left:16px;
+ }
+ @media(max-width:700px) {
+  body.home-mode .home-hero {min-height:0;}
+ }
+}

@@ -8,6 +8,12 @@ function homeLastSavedLabel(){
  }catch{return 'Dernier enregistrement indisponible : vérifiez le stockage de cet appareil.';}
 }
 document.addEventListener('DOMContentLoaded',()=>{
+ // Legacy home subpage links return to the single welcome view.
+ const homeFlow=workspaceFlows.home,homeGo=homeFlow.go;
+ homeFlow.go=()=>homeGo.call(homeFlow,0);
+ homeFlow.go();
+ // Keep the club photo as a quiet background, with no carousel widget.
+ homeSlidePaused=true;updateHomeSlideTimer();
  const hero=document.querySelector('.home-hero'),copy=hero.firstElementChild;copy.classList.add('home-welcome-copy');hero.append($('home-slideshow-controls'));
  const subtitle=copy.querySelector('p:not(#home-date)');subtitle.textContent='Préparez votre semaine : séances, match, causerie et bilan.';subtitle.classList.add('home-welcome-intro');copy.querySelector('.eyebrow').textContent='LE VESTIAIRE · STADE MAYENNAIS';
  const latest=el('p','home-last-saved');latest.id='home-last-saved';latest.setAttribute('role','status');$('home-greeting').after(latest);
