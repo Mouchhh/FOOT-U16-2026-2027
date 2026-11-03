@@ -20,7 +20,7 @@ Les catégories réellement présentes dans les documents et calendriers de cet 
 
 ## Changement d’équipe
 
-Le changement vérifie puis conserve le travail ouvert avec `flushCoachWorkspace()`. Si la sauvegarde échoue ou qu’un formulaire est invalide, l’équipe actuelle reste ouverte. Une modale ouverte bloque la bascule. Le navigateur recharge ensuite le contexte choisi et revient dans le même module ; le contexte de la page précédente reste figé jusqu’à sa fermeture pour protéger les sauvegardes différées. Le choix est propre à chaque onglet du navigateur. L’historique de navigation inclut l’équipe pour empêcher la restauration d’un écran appartenant à une autre équipe.
+Le changement vérifie puis conserve le travail ouvert avec `flushCoachWorkspace()`. Si la sauvegarde échoue ou qu’un formulaire est invalide, l’équipe actuelle reste ouverte. Une modale ouverte bloque la bascule. Le navigateur recharge ensuite le contexte choisi et revient dans le même module ; le contexte de la page précédente reste figé jusqu’à sa fermeture pour protéger les sauvegardes différées. Le choix est propre à chaque onglet du navigateur et le contexte résolu est mémorisé dès le démarrage : découvrir une autre équipe sur le serveur ne modifie pas ce choix au rechargement. L’historique de navigation inclut l’équipe pour empêcher la restauration d’un écran appartenant à une autre équipe.
 
 ## Synchronisation
 

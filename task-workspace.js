@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   }else if(parent==='view-reports'){
    for(const [id,label]of Object.entries({general:'Le match',sport:'Analyse',players:'Joueurs',plan:'Plan d’action',preview:'Synthèse'}))add('task-report-'+id,label,()=>report(id),reportTab===id||id==='sport'&&reportTab==='human');
   }else if(parent==='view-club-network'){
-   for(const [i,label]of ['Éducateurs','Documents partagés','Mon compte'].entries())add('task-club-'+i,label,()=>{if(clubNetworkBound())workspaceFlows.club.go(i);},workspaceFlows.club.index()===i);
+   for(const [i,label]of [[0,'Éducateurs'],[2,'Mon partage']])add('task-club-'+i,label,()=>{if(clubNetworkBound())workspaceFlows.club.go(i);},i===0?workspaceFlows.club.index()<=1:workspaceFlows.club.index()===i);
   }
   const tabs=el('div','task-section-tabs');for(const item of items){const button=el('button','task-section-tab',item.label);button.id=item.id;button.type='button';button.setAttribute('aria-pressed',String(item.selected));button.onclick=()=>go(parent,item.action);tabs.append(button);}strip.append(tabs);
   strip.append(assistant);
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(focusId&&$(focusId))$(focusId).focus({preventScroll:true});
  }
  function schedule(){cancelAnimationFrame(frame);frame=requestAnimationFrame(refresh);}
- window.taskWorkspace={enter(parent){workspaceMenus.close();if(parent==='view-home')workspaceFlows.home.go(0);else if(parent==='view-pitch'){if(activateTerrainBoard('composition'))terrain.go(0);}else if(parent==='view-coach-agenda')workspaceFlows.agenda.go(1);else if(parent==='view-club-network'&&clubNetworkBound())workspaceFlows.club.go(1);schedule();},settings(){go('view-pitch',()=>{if(!activateTerrainBoard('composition'))return;terrain.go(1);settingsDrawer.open=true;if(window.workspaceFraming)workspaceFraming.request({target:settingsDrawer});else settingsDrawer.scrollIntoView({block:'start'});});}};
+ window.taskWorkspace={enter(parent){workspaceMenus.close();if(parent==='view-home')workspaceFlows.home.go(0);else if(parent==='view-pitch'){if(activateTerrainBoard('composition'))terrain.go(0);}else if(parent==='view-coach-agenda')workspaceFlows.agenda.go(1);else if(parent==='view-club-network'&&clubNetworkBound())workspaceFlows.club.go(0);schedule();},settings(){go('view-pitch',()=>{if(!activateTerrainBoard('composition'))return;terrain.go(1);settingsDrawer.open=true;if(window.workspaceFraming)workspaceFraming.request({target:settingsDrawer});else settingsDrawer.scrollIntoView({block:'start'});});}};
  new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']});
  for(const flow of Object.values(workspaceFlows))new MutationObserver(schedule).observe(flow.root,{attributes:true,attributeFilter:['data-step']});
  new MutationObserver(schedule).observe($('training-space'),{subtree:true,attributes:true,attributeFilter:['hidden']});

@@ -43,17 +43,17 @@ with sync_playwright() as p:
     assert d.get_by_role('tab',name='Catégories & équipes',exact=True).get_attribute('aria-selected')=='true'
     d.get_by_role('button',name='+ Ajouter une équipe',exact=True).click();editor=page.locator('.coach-team-dialog')
     editor.get_by_label('Nom affiché (ex. Seniors A)',exact=True).fill('Équipe test');editor.get_by_label('Catégorie (ex. Seniors, U15)',exact=True).fill('U19');editor.get_by_label('Nom de l’équipe',exact=True).fill('Mon club')
-    editor.get_by_role('button',name='Créer et ouvrir cette équipe',exact=True).click();page.wait_for_function("activeCoachTeam.label==='Équipe test'");ready()
+    editor.get_by_role('button',name='Créer et ouvrir cette équipe',exact=True).click();page.wait_for_function("typeof activeCoachTeam!=='undefined' && activeCoachTeam.label==='Équipe test'");ready()
     assert page.evaluate('coachClubDetailsRead().city')=='Mayenne'
     d=account('Catégories & équipes');assert d.locator('.account-team-active').count()==1
     # Editing another team uses that team's configuration, without overwriting the active team's identity.
     d.get_by_role('button',name='Modifier À classer',exact=True).click();editor=page.locator('.coach-team-dialog')
     assert editor.get_by_label('Nom affiché (ex. Seniors A)',exact=True).input_value()==''
     editor.get_by_label('Nom affiché (ex. Seniors A)',exact=True).fill('Groupe initial');editor.get_by_label('Catégorie (ex. Seniors, U15)',exact=True).fill('Loisirs')
-    editor.get_by_role('button',name='Enregistrer mon équipe',exact=True).click();page.wait_for_function("activeCoachTeam.label==='Groupe initial'");ready()
+    editor.get_by_role('button',name='Enregistrer mon équipe',exact=True).click();page.wait_for_function("typeof activeCoachTeam!=='undefined' && activeCoachTeam.label==='Groupe initial'");ready()
     assert page.evaluate("coachTeams.find(t=>t.label==='Équipe test').category")=='U19'
     d=account('Catégories & équipes');d.get_by_role('button',name='Sélectionner Équipe test',exact=True).click()
-    page.wait_for_function("activeCoachTeam.label==='Équipe test'");ready()
+    page.wait_for_function("typeof activeCoachTeam!=='undefined' && activeCoachTeam.label==='Équipe test'");ready()
     for width in [1366,390,320]:
         page.set_viewport_size({'width':width,'height':844});d=account('Détails du club');cross=d.locator('.external-modal-close');cross.wait_for()
         assert cross.evaluate("e=>getComputedStyle(e,'::before').color")=='rgb(228, 31, 40)'

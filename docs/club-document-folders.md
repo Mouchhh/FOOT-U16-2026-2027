@@ -1,7 +1,7 @@
 # Documents partagés par éducateur et par dossier
 
-Dans **Club → Documents partagés**, choisir d’abord l’éducateur. Aucun catalogue
-de tous les coachs n’est affiché par défaut. Ses dossiers présentent leurs
+Dans **Club → Éducateurs → profil → Documents partagés**, choisir l’équipe consultée. Le sous-onglet autonome Documents partagés a été retiré du menu du club. Aucun catalogue
+de tous les coachs n’est affiché par défaut. Les dossiers de l’équipe choisie présentent leurs
 compteurs : Séances, Bilans, Causeries, Compositions, Tactique,
 Animations et Effectifs. Ouvrir un dossier affiche au maximum douze documents ;
 Afficher la suite en ajoute douze. Les fils de navigation permettent de revenir

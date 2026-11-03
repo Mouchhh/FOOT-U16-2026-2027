@@ -1,0 +1,174 @@
+@media screen {
+  body.educator-profiles-ready #club-step-link-1,
+  body.educator-profiles-ready [data-flow="club"] > .flow-footer {
+    display: none !important;
+  }
+  .educator-profile {
+    min-width: 0;
+    padding: 4px 0;
+  }
+  .educator-profile-heading {
+    display: grid;
+    gap: 16px;
+    padding: 20px;
+    border: 1px solid #dce5ef;
+    border-radius: 14px;
+    background: #fff;
+    margin-bottom: 16px;
+  }
+  .educator-profile-heading > button {
+    justify-self: start;
+    min-height: 44px;
+  }
+  .educator-profile-identity {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+  }
+  .educator-profile-identity h2 {
+    font-size: 24px;
+    margin: 0 0 6px;
+    color: #142d50;
+    overflow-wrap: anywhere;
+  }
+  .educator-profile-avatar {
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #2855a2;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 700;
+  }
+  .educator-profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+  .educator-profile select {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-height: 44px;
+    padding: 10px;
+    border: 1px solid #cbd8e7;
+    border-left: 3px solid var(--club-logo-red, #e41f28);
+    border-radius: 8px;
+    background: #fff;
+    color: #2855a2;
+    font: inherit;
+  }
+  .educator-profile-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .educator-profile-tabs button {
+    min-height: 44px;
+    padding: 12px;
+    border: 1px solid #dce5ef;
+    border-radius: 9px;
+    background: #fff;
+    color: #2855a2;
+  }
+  .educator-profile-tabs button[aria-selected="true"] {
+    background: #eaf0f9;
+    box-shadow: inset 0 -2px var(--club-logo-red, #e41f28);
+    font-weight: 650;
+  }
+  .educator-profile-tabs button:disabled {
+    opacity: 0.55;
+  }
+  .educator-profile-info {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #dce5ef;
+    border-radius: 12px;
+  }
+  .educator-team-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 0;
+    list-style: none;
+  }
+  .educator-team-list button {
+    min-height: 44px;
+  }
+  .educator-team-list button[aria-pressed="true"] {
+    border-color: var(--club-logo-red, #e41f28);
+  }
+  .educator-profile [hidden] {
+    display: none !important;
+  }
+  .educator-profile .club-network-filters label:has(#club-network-author) {
+    display: none !important;
+  }
+  #club-my-educator-profile {
+    min-height: 44px;
+    justify-self: start;
+    margin: 10px 0;
+  }
+  @media (max-width: 650px) {
+    .educator-profile-heading,
+    .educator-profile-info {
+      padding: 16px;
+    }
+    .educator-profile select {
+      font-size: 16px;
+    }
+    .educator-profile-identity h2 {
+      font-size: 21px;
+    }
+  }
+}
+@media screen {
+  .educator-profile-heading {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 0.8fr);
+  }
+  .educator-profile-heading > button:first-child {
+    grid-column: 1/-1;
+  }
+  .educator-profile-identity {
+    grid-column: 1;
+  }
+  .educator-profile-heading > label {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+  }
+  .educator-profile-heading > p {
+    grid-column: 1/-1;
+    margin: 0;
+  }
+  .educator-profile-heading > button:not(:first-child) {
+    grid-column: 1/-1;
+  }
+  .educator-profile-context {
+    padding: 8px 0;
+    margin: 0 0 8px;
+    color: #2855a2;
+    font-weight: 650;
+    overflow-wrap: anywhere;
+  }
+  .educator-profile #club-document-path > button:first-child {
+    display: none;
+  }
+  @media (max-width: 650px) {
+    .educator-profile-heading {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+    }
+    .educator-profile-heading > label,
+    .educator-profile-identity {
+      grid-column: 1;
+      grid-row: auto;
+    }
+  }
+}

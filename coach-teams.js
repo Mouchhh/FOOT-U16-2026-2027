@@ -175,6 +175,11 @@ const activeCoachTeam = Object.freeze({
     coachTeams.find((t) => t.id !== "unassigned") ||
     coachTeams[0]),
 });
+// Remember the resolved team before server discovery adds other teams to the index.
+// Reloading must never silently select a newly discovered team.
+try {
+  sessionStorage.setItem(coachTeamSelectionKey, activeCoachTeam.id);
+} catch {}
 function coachTeamOwns(payload) {
   return coachTeamDescriptor(payload).id === activeCoachTeam.id;
 }
