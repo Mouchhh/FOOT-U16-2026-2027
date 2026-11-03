@@ -143,6 +143,7 @@ function playerStatsEmpty(player) {
     matches: 0,
     sessions: 0,
     attendance: {
+      entries: [],
       present: 0,
       absent: 0,
       uncertain: 0,
@@ -255,6 +256,12 @@ function playerStatsSeasonSnapshot(
       if (!player || seen.has(player.id)) continue;
       seen.add(player.id);
       const attendance = result.get(player.id).attendance;
+      attendance.entries.push({
+        date: session.date,
+        time: session.time,
+        title: session.title || "Entraînement",
+        status: row.status,
+      });
       attendance[
         row.status === "present"
           ? "present"

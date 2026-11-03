@@ -5,6 +5,10 @@ URL='http://127.0.0.1:3016/?mode=local'
 A='00000000-0000-4000-8000-000000000001';B='00000000-0000-4000-8000-000000000002'
 def init(ctx,who):
  ctx.add_init_script("localStorage.setItem('vestiaire-coach-profiles',JSON.stringify([{id:'account-"+A+"',name:'Coach A'},{id:'account-"+B+"',name:'Coach B'}]));if(!localStorage.getItem('vestiaire-active-coach'))localStorage.setItem('vestiaire-active-coach','account-"+who+"');")
+def managed_click(root,name):
+ button=root.get_by_role('button',name=name,exact=True,include_hidden=True)
+ if not button.is_visible():button.locator('xpath=ancestor::details').locator('summary').click()
+ button.click()
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);ctx=b.new_context(viewport={'width':1440,'height':1100});init(ctx,A);page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.goto(URL);page.wait_for_function("typeof squadSave==='function'")
  page.evaluate("document.querySelector('#view-pitch').click()")
@@ -21,16 +25,18 @@ with sync_playwright() as p:
  saved=page.evaluate('squadDocument()');assert saved['squadDirectory']['players'][0]['photo'].startswith('data:image/jpeg');assert saved['players']==[]
  assert page.locator('#saved .saved-entry').count()==0
  before=page.evaluate('structuredClone(getCompositionBoard().players[0])')
- d.get_by_role('button',name='Utiliser Alex Martin',exact=True).click();page.locator('#coach-squad-picker').get_by_role('button',name='Ajouter à cette place').click()
+ managed_click(d,'Utiliser Alex Martin');page.locator('#coach-squad-picker').get_by_role('button',name='Ajouter à cette place').click()
  after=page.evaluate('getCompositionBoard().players[0]');assert after['name']=='Alex Martin' and after['id']==before['id'] and after['x']==before['x'] and after['y']==before['y'] and after['photo']
  page.reload();page.wait_for_function("typeof squadPlayers==='function'");assert page.evaluate('squadPlayers().length')==1;assert page.evaluate('getCompositionBoard().players[0].name')=='Alex Martin'
- page.locator('#document-entry-resume').click()
+ page.wait_for_function('window.documentEntry && window.taskWorkspace')
+ if page.locator('#document-entry-resume').is_visible():page.locator('#document-entry-resume').click()
+ else:assert page.evaluate("document.body.classList.contains('squad-mode')")
  # No duplicate addition; profile edits affect future selections, not old compositions.
- page.evaluate('openCoachSquad()');d.get_by_role('button',name='Utiliser Alex Martin',exact=True).click();assert not page.locator('#coach-squad-picker').is_visible()
- d.get_by_role('button',name='Modifier Alex Martin',exact=True).click();editor.get_by_label('Numéro habituel',exact=True).fill('10');editor.get_by_role('button',name='Enregistrer le joueur',exact=True).click();assert page.evaluate('getCompositionBoard().players[0].number')==8
+ page.evaluate('openCoachSquad()');managed_click(d,'Utiliser Alex Martin');assert not page.locator('#coach-squad-picker').is_visible()
+ managed_click(d,'Modifier Alex Martin');editor.get_by_label('Numéro habituel',exact=True).fill('10');editor.get_by_role('button',name='Enregistrer le joueur',exact=True).click();assert page.evaluate('getCompositionBoard().players[0].number')==8
  d.get_by_role('button',name='+ Nouveau joueur',exact=True).click();editor.get_by_label('Prénom et nom',exact=True).fill('Sam');editor.get_by_label('Numéro habituel',exact=True).fill('12');editor.get_by_role('button',name='Enregistrer le joueur',exact=True).click()
  page.evaluate("()=>{activateTerrainBoard('plan');window.oldPlan=JSON.stringify(getGamePlanBoard())}")
- d.get_by_role('button',name='Utiliser Sam',exact=True).click();picker=page.locator('#coach-squad-picker');picker.get_by_label('Place dans la composition',exact=True).select_option('__bench');picker.get_by_role('button',name='Ajouter à cette place').click()
+ managed_click(d,'Utiliser Sam');picker=page.locator('#coach-squad-picker');picker.get_by_label('Place dans la composition',exact=True).select_option('__bench');picker.get_by_role('button',name='Ajouter à cette place').click()
  assert page.evaluate("getCompositionBoard().players.some(p=>p.name==='Sam'&&p.role==='sub')")
  assert page.evaluate('JSON.stringify(getGamePlanBoard())===window.oldPlan')
  # Account-scoped persistence feeds the actual versioned publishing queue.
@@ -55,7 +61,7 @@ with sync_playwright() as p:
  other.evaluate("()=>{getCompositionBoard().players[0].name='Chris';getCompositionBoard().players[0].number=9;}")
  other.locator('#coach-squad-dialog').get_by_role('button',name='Récupérer les joueurs de la compo',exact=True).click()
  assert other.evaluate('squadPlayers().length')==3
- other.locator('#coach-squad-dialog').get_by_role('button',name='Utiliser Chris',exact=True).click()
+ managed_click(other.locator('#coach-squad-dialog'),'Utiliser Chris')
  assert not other.locator('#coach-squad-picker').is_visible()
  assert other.evaluate("valid({...squadDocument(),squadDirectory:{version:1,players:[null]}})===false")
  assert not errors,errors

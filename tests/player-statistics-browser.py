@@ -45,6 +45,8 @@ with sync_playwright() as p:
  }""")
  assert results['a']['totals']=={'minutes':160,'goals':3,'assists':3,'yellowCards':1,'redCards':1},results['a']
  assert results['a']['matches']==1 and results['a']['sessions']==1
+ assert len(results['a']['attendance']['entries'])==3
+ assert {row['date'] for row in results['a']['attendance']['entries']}=={'2026-09-01','2026-09-03','2026-09-05'}
  assert results['a']['attendance']['autoRate']==50 and results['a']['attendance']['rate']==85 and results['a']['attendance']['uncertain']==1
  assert not results['b']['known']['minutes'] and results['b']['attendance']['rate']==50
  assert results['c']['totals']['minutes']==40 and not results['c']['known']['goals'] and results['c']['attendance']['rate']==100

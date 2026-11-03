@@ -312,3 +312,127 @@
   grid-row: 2;
   font-size: 10px;
 }
+
+/* Four light indicators, generous card spacing, management kept one click away. */
+.squad-page .squad-list {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 24px;
+  align-items: stretch;
+}
+.squad-page .squad-card.has-player-stats {
+  padding: 28px 22px 18px;
+  gap: 18px;
+  border-radius: 20px;
+  box-shadow: 0 6px 24px #18345506;
+}
+.squad-page .has-player-stats > .roster-avatar {
+  width: 80px;
+  height: 80px;
+  font-size: 30px;
+}
+.squad-page .player-stat-badges {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: 100%;
+  margin-top: 4px;
+}
+.squad-page .player-stat-badges > .player-stat-metric {
+  grid-template-columns: 16px minmax(0, 1fr);
+  padding: 12px 10px;
+  gap: 6px;
+  background: #f5f8fc;
+  border-radius: 12px;
+  align-content: start;
+}
+.squad-page .player-stat-badges .player-stat-metric > strong,
+.squad-page .player-stat-pair {
+  grid-column: 1/-1;
+  grid-row: 1;
+  font-size: 20px;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.squad-page .player-stat-pair strong {
+  font-size: 20px;
+  white-space: nowrap;
+}
+.squad-page .player-stat-badges .player-stat-metric > span {
+  font-size: 10px;
+  line-height: 1.5;
+}
+.squad-page .player-stat-badges .player-stat-attendance {
+  grid-column: 1/-1;
+  margin: 0;
+}
+.squad-page .player-stat-badges .player-stat-attendance > span {
+  display: none;
+}
+.squad-page .player-stat-badges .player-stat-track {
+  height: 4px;
+  margin: 2px 0 0;
+}
+.squad-page .player-stat-badges .has-cards svg {
+  color: var(--club-logo-red, #e41f28);
+}
+.player-stat-manage {
+  width: 100%;
+  margin-top: auto;
+  border-top: 1px solid #edf1f6;
+  padding-top: 10px;
+}
+.player-stat-manage > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #526780;
+  font-size: 12px;
+  list-style: none;
+}
+.player-stat-manage > summary::after {
+  content: "⌄";
+  margin-left: 8px;
+  color: #2855a2;
+}
+.player-stat-manage[open] > summary::after {
+  content: "⌃";
+}
+.squad-page .player-stat-manage .squad-row-actions {
+  padding-top: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.player-stat-attendance-state {
+  display: block;
+  margin-top: 6px;
+  color: #2855a2;
+  font-size: 12px;
+}
+.player-stats-dialog .player-stat-detail-grid {
+  gap: 14px;
+}
+.player-stats-dialog .player-stat-history {
+  border-top: 1px solid #edf1f6;
+  padding-top: 8px;
+}
+@media (max-width: 600px) {
+  .squad-page .squad-list {
+    gap: 18px;
+  }
+  .squad-page .squad-card.has-player-stats {
+    padding: 24px 20px 14px;
+  }
+  .player-stats-dialog {
+    padding: 20px;
+    width: calc(100vw - 48px);
+  }
+  .player-stats-dialog .player-stat-profile-head {
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .player-stats-dialog .player-stat-profile-head h2 {
+    font-size: 22px;
+  }
+}

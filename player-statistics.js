@@ -198,6 +198,7 @@ function playerStatsPrintRow(parent, row) {
     parent.append(el("p", "report-player-stats-summary", values.join(" · ")));
 }
 function playerStatsIcon(kind) {
+  kind = { contributions: "goals", discipline: "redCards" }[kind] || kind;
   const paths = {
     minutes: "M12 8v4l3 2 M9 2h6 M12 2v2",
     goals: "M12 8l4 3-2 5h-4l-2-5z M3 8l5 3 M21 8l-5 3 M7 20l3-4 M17 20l-3-4",
@@ -296,21 +297,54 @@ function playerStatsDecorateCards() {
       name.replaceChildren(open);
     }
     const badges = el("div", "player-stat-badges");
-    for (const [key, label] of [
-      ["minutes", "min"],
-      ["goals", "buts"],
-      ["assists", "passes"],
-      ["yellowCards", "jaunes"],
-      ["redCards", "rouges"],
-    ])
-      badges.append(
-        playerStatsMetric(key, label, playerStatsDisplay(stats, key)),
-      );
+    const minutes = playerStatsMetric(
+      "minutes",
+      "Temps de jeu · min",
+      playerStatsDisplay(stats, "minutes"),
+    );
+    const presence = playerStatsMetric(
+      "attendance",
+      "Présence",
+      stats.attendance.rate === null ? "—" : stats.attendance.rate + " %",
+    );
+    presence.append(playerStatsPresenceBar(stats.attendance));
+    const pair = (key, label, fields) => {
+      const metric = playerStatsMetric(key, label, "");
+      const value = el("div", "player-stat-pair");
+      fields.forEach(([field, suffix], index) => {
+        if (index) value.append(document.createTextNode(" / "));
+        const part = el("span");
+        part.dataset.stat = field;
+        part.append(el("strong", "", playerStatsDisplay(stats, field)));
+        if (suffix) part.append(document.createTextNode(" " + suffix));
+        value.append(part);
+      });
+      metric.querySelector("strong").replaceWith(value);
+      return metric;
+    };
+    const contributions = pair("contributions", "Buts / passes", [
+      ["goals", ""],
+      ["assists", ""],
+    ]);
+    const discipline = pair("discipline", "Cartons · jaunes / rouges", [
+      ["yellowCards", ""],
+      ["redCards", ""],
+    ]);
+    if (stats.totals.yellowCards || stats.totals.redCards)
+      discipline.classList.add("has-cards");
+    badges.append(minutes, presence, contributions, discipline);
+    const position = card.querySelector(".squad-player-info small");
+    if (position)
+      position.textContent = stats.player.position || "Poste à préciser";
     const actions = card.querySelector(".squad-row-actions");
-    actions.before(badges, playerStatsPresenceBar(stats.attendance));
+    const manage = el("details", "player-stat-manage");
+    manage.append(el("summary", "", "Gérer le joueur"), actions);
+    card.append(badges, manage);
     card.classList.add("has-player-stats");
     card.onclick = (event) => {
-      if (!event.target.closest("button,a,input,select,textarea"))
+      if (
+        !event.target.closest("button,a,input,select,textarea,summary,details")
+      )
         playerStatsOpen(id);
     };
   }
@@ -381,6 +415,19 @@ function playerStatsPaintDetail() {
   close.setAttribute("aria-label", "Fermer le bilan du joueur");
   close.onclick = () => dialog.close();
   head.append(squadCardAvatar(player), text, close);
+  text.append(
+    el(
+      "p",
+      "hint",
+      [
+        "N° " + player.number,
+        player.position,
+        player.foot ? "Pied : " + player.foot : "",
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    ),
+  );
   dialog.append(head);
   const season = el("select");
   season.setAttribute("aria-label", "Saison du bilan joueur");
@@ -426,7 +473,38 @@ function playerStatsPaintDetail() {
         (a.present + a.absent) +
         " séance(s) renseignée(s)" +
         (a.uncertain ? " · " + a.uncertain + " à confirmer" : "");
-  dialog.append(el("p", "hint", source));
+  const attendanceHistory = el("details", "player-stat-history");
+  attendanceHistory.append(
+    el("summary", "", "Présences aux séances"),
+    el("p", "hint", source),
+  );
+  for (const row of [...a.entries].sort(
+    (x, y) => y.date.localeCompare(x.date) || y.time.localeCompare(x.time),
+  )) {
+    const item = el("div", "player-stat-history-row");
+    item.append(
+      el("strong", "", row.date + " · " + row.time + " · " + row.title),
+      el(
+        "span",
+        "player-stat-attendance-state",
+        row.status === "present"
+          ? "Présent"
+          : row.status === "absent"
+            ? "Absent"
+            : "À confirmer",
+      ),
+    );
+    attendanceHistory.append(item);
+  }
+  if (!a.entries.length)
+    attendanceHistory.append(
+      el(
+        "p",
+        "hint",
+        "Aucun pointage validé pour cette saison. Les créneaux sans pointage ne sont pas comptés comme des absences.",
+      ),
+    );
+  dialog.append(attendanceHistory);
   const calculation = el("details", "player-stat-calculation");
   calculation.append(
     el("summary", "", "Comprendre le taux de présence"),
@@ -442,7 +520,7 @@ function playerStatsPaintDetail() {
         " créneau(x) passé(s) repéré(s) dans l’agenda ou les présences. Sans pointage validé, aucune absence n’est déduite.",
     ),
   );
-  dialog.append(calculation);
+  attendanceHistory.append(calculation);
   const ratio =
     stats.known.goals && stats.known.assists && stats.totals.assists > 0
       ? (stats.totals.goals / stats.totals.assists).toLocaleString("fr-FR", {
