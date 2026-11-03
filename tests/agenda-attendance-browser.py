@@ -1,15 +1,9 @@
-"""Week/category/coach filters, duplicate protection and validated persisted manual attendance."""
+"""Duplicate protection and validated persisted manual attendance."""
 from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1366,'height':900});errors=[]
  page.on('pageerror',lambda e:errors.append(str(e)));page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("typeof trainingApplyAttendance==='function'")
- page.evaluate("()=>{const base=newTraining();trainingLibrary=[['a','U17','Enzo','2026-10-20'],['b','U15','Hugo','2026-10-22'],['c','U17','Hugo','2026-10-28']].map(([id,category,coach,date])=>({...structuredClone(base),id,category,coach,date,title:'Séance '+id}));document.querySelector('#view-coach-agenda').click();workspaceFlows.agenda.go(1);document.querySelector('#coach-agenda-all').click();}")
- assert page.locator('.coach-agenda-card').count()==3
- page.locator('#agenda-calendar-filters>summary').click()
- page.locator('#coach-agenda-week').fill('2026-10-22');page.locator('#coach-agenda-week').blur();assert page.locator('.coach-agenda-card').count()==2
- page.locator('#coach-agenda-category').select_option('U17');assert page.locator('.coach-agenda-card').count()==1
- page.locator('#coach-agenda-author').select_option('Hugo');assert page.locator('.coach-agenda-card').count()==0
- page.locator('#coach-agenda-category').select_option('');assert page.locator('.coach-agenda-card').count()==1
+ # The removed calendar filter panel is no longer an entry point.
  page.evaluate("()=>{currentTraining={...newTraining(),players:10,keepers:1,space:'full'};syncTrainingForm();squadPlayers=()=>[{id:'a',name:'Alex',position:'Milieu'},{id:'b',name:'Bastien',position:'Attaquant'},{id:'g',name:'Gabriel',position:'Gardien'},{id:'d',name:'Damien',position:'Défenseur'},{id:'e',name:'Enzo',position:'Milieu'}];document.querySelector('#view-training').click();trainingWizard.go(2);}")
  page.locator('#training-attendance-open').click();d=page.locator('#training-attendance-dialog')
  assert d.get_by_label('Réponse de Enzo',exact=True).input_value()=='uncertain'
@@ -36,4 +30,4 @@ with sync_playwright() as p:
  page.locator('#training-attendance-open').click();assert d.get_by_label('Réponse de Alex',exact=True).input_value()=='uncertain'
  page.screenshot(path='/tmp/attendance-desktop.png');page.set_viewport_size({'width':390,'height':844});page.screenshot(path='/tmp/attendance-mobile.png');assert d.evaluate('e=>e.scrollWidth<=e.clientWidth+2');d.get_by_role('button',name='Fermer',exact=True).click()
  assert not errors,errors
- b.close();print('PASS agenda/attendance: combined filters, explicit confirmation, unknown versus absent, saved pending answers/reload, storage rollback, keeper count, no copied answers, duplicate slots rejected, date invalidation and mobile.')
+ b.close();print('PASS agenda/attendance: explicit confirmation, unknown versus absent, saved pending answers/reload, storage rollback, keeper count, no copied answers, duplicate slots rejected, date invalidation and mobile.')

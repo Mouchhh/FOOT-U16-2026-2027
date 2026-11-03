@@ -1,0 +1,314 @@
+.player-stats-season-filter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 0 20px;
+  color: #365373;
+  font-size: 13px;
+}
+.player-stats-season-filter select {
+  width: auto;
+  min-width: 150px;
+  min-height: 44px;
+  background: #fff;
+  border: 1px solid #dce5ef;
+  border-radius: 9px;
+  padding: 8px 12px;
+  color: #17385d;
+}
+.squad-page .squad-card .player-stat-profile-link {
+  display: inline-block;
+  min-height: 44px;
+  padding: 3px 5px;
+  border: 0;
+  background: transparent;
+  color: #17385d;
+  font: inherit;
+  font-weight: 700;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.player-stat-profile-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.player-stat-profile-link:focus-visible {
+  outline: 3px solid var(--club-logo-red, #e41f28);
+  outline-offset: 3px;
+}
+.player-stat-badges {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+.player-stat-metric {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-content: center;
+  gap: 3px 6px;
+  padding: 10px 8px;
+  background: #f3f7fc;
+  border-radius: 10px;
+  min-width: 0;
+  text-align: left;
+  color: #2855a2;
+}
+.player-stat-metric svg {
+  width: 18px;
+  height: 18px;
+  align-self: center;
+}
+.player-stat-metric strong {
+  font-size: 20px;
+  line-height: 1.2;
+  color: #17385d;
+  overflow-wrap: anywhere;
+}
+.player-stat-metric > span {
+  grid-column: 1/-1;
+  font-size: 11px;
+  color: #526780;
+}
+.player-stat-discipline svg {
+  color: var(--club-logo-red, #e41f28);
+}
+.player-stat-attendance {
+  width: 100%;
+  text-align: left;
+  color: #365373;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.player-stat-track {
+  height: 7px;
+  background: #e7eef8;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-top: 6px;
+}
+.player-stat-track > span {
+  display: block;
+  height: 100%;
+  background: #2855a2;
+  border-radius: 8px;
+}
+.player-stats-dialog {
+  width: min(760px, calc(100vw - 40px));
+  max-height: calc(100dvh - 110px);
+  padding: 26px;
+  border: 1px solid #dce5ef;
+  border-radius: 16px;
+  background: #fff;
+  color: #17385d;
+  overflow: auto;
+}
+.player-stats-dialog::backdrop {
+  background: #10274788;
+  backdrop-filter: blur(3px);
+}
+.player-stat-profile-head {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+.player-stat-profile-head .roster-avatar {
+  width: 72px;
+  height: 72px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #2855a2;
+  color: white;
+  font-size: 28px;
+  overflow: hidden;
+}
+.player-stat-profile-head .roster-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.player-stat-profile-head h2 {
+  margin: 4px 0;
+  font-size: 25px;
+  overflow-wrap: anywhere;
+}
+.player-stat-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.player-stat-detail-grid .player-stat-metric {
+  padding: 16px;
+}
+.player-stat-detail-grid .player-stat-metric strong {
+  font-size: 28px;
+}
+.player-stats-dialog > .hint {
+  font-size: 12px;
+  color: #526780;
+  line-height: 1.6;
+  margin: 14px 0;
+  overflow-wrap: anywhere;
+}
+.player-stat-contributions {
+  padding: 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-top: 1px solid #dce5ef;
+  border-bottom: 1px solid #dce5ef;
+  font-size: 14px;
+}
+.player-stat-history {
+  margin-top: 20px;
+}
+.player-stat-history summary {
+  min-height: 44px;
+  color: #2855a2;
+  cursor: pointer;
+  font-size: 14px;
+}
+.player-stat-history-row {
+  padding: 12px 0;
+  border-top: 1px solid #dce5ef;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+.player-stat-history-row p {
+  margin-bottom: 0;
+}
+.report-player-statistics {
+  margin-top: 20px;
+  border-top: 1px solid #dce5ef;
+  padding-top: 16px;
+}
+.report-player-statistics h4 {
+  color: #17385d;
+  margin: 0 0 16px;
+}
+.report-player-stats-inputs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+.player-attendance-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.player-attendance-controls .hint {
+  grid-column: 1/-1;
+  line-height: 1.6;
+  margin-top: 0;
+}
+.player-attendance-controls input[readonly] {
+  background: #eef3fa;
+  color: #526780;
+}
+.player-stats-event-type {
+  max-width: 320px;
+  margin: 16px 0;
+}
+.report-player-stats-summary {
+  font-size: 12px;
+  line-height: 1.6;
+}
+@media (max-width: 650px) {
+  .report-player-stats-inputs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .player-attendance-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .player-stats-dialog {
+    padding: 18px;
+  }
+  .player-stat-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+  .player-stat-detail-grid .player-stat-metric {
+    padding: 12px;
+  }
+  .player-stat-profile-head {
+    gap: 12px;
+  }
+  .player-stat-profile-head h2 {
+    font-size: 21px;
+  }
+  .player-stats-dialog input,
+  .player-stats-dialog select {
+    font-size: 16px;
+  }
+}
+
+#after-match[data-event-kind="training"]
+  .report-match-columns
+  > .report-panel:first-child {
+  display: none !important;
+}
+#after-match[data-event-kind="training"] .report-match-columns {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.player-stat-calculation {
+  margin: 10px 0 18px;
+  font-size: 12px;
+  color: #526780;
+  line-height: 1.6;
+}
+.player-stat-calculation summary {
+  cursor: pointer;
+  color: #2855a2;
+  min-height: 32px;
+}
+.player-stat-calculation p {
+  margin: 8px 0;
+}
+
+.squad-page .squad-card.has-player-stats {
+  gap: 10px;
+  padding: 20px 16px 16px;
+  min-height: 0;
+  cursor: pointer;
+}
+.squad-page .has-player-stats > .roster-avatar {
+  width: 72px;
+  height: 72px;
+  font-size: 28px;
+}
+.squad-page .has-player-stats .squad-player-info small {
+  margin-top: 4px;
+  font-size: 12px;
+}
+/* Give the number a whole row: a season total must not wrap after 2 digits. */
+.player-stat-badges .player-stat-metric {
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 3px 4px;
+  padding: 8px 6px;
+}
+.player-stat-badges .player-stat-metric strong {
+  grid-column: 1/-1;
+  grid-row: 1;
+  white-space: nowrap;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
+}
+.player-stat-badges .player-stat-metric svg {
+  grid-column: 1;
+  grid-row: 2;
+  width: 14px;
+  height: 14px;
+}
+.player-stat-badges .player-stat-metric > span {
+  grid-column: 2;
+  grid-row: 2;
+  font-size: 10px;
+}

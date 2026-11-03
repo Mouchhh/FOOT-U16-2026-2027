@@ -286,6 +286,11 @@ document.addEventListener("DOMContentLoaded", () => {
     ])
       next.info[k] = info[k] || "";
     if (context.key) next.agendaSourceKey = context.key;
+    const statsSource=source?.info?source:currentReport;
+    if(statsSource?.id&&documentEntrySameContext(context,documentEntryContext("report",statsSource))){
+      next.statsEventId=statsSource.statsEventId||statsSource.id;
+      next.eventType=statsSource.eventType||"match";
+    }
     if (source?.preparation) {
       next.preparation = structuredClone(source.preparation);
       for (const objective of next.preparation.objectives) {

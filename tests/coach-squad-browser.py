@@ -8,7 +8,7 @@ def init(ctx,who):
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);ctx=b.new_context(viewport={'width':1440,'height':1100});init(ctx,A);page=ctx.new_page();errors=[];page.on('pageerror',lambda e:errors.append(str(e)));page.goto(URL);page.wait_for_function("typeof squadSave==='function'")
  page.evaluate("document.querySelector('#view-pitch').click()")
- page.locator('#coach-squad-open').click();d=page.locator('#coach-squad-dialog');assert d.is_visible()
+ page.locator('#workspace-squad-entry').click();d=page.locator('#coach-squad-dialog');assert d.is_visible()
  assert d.locator('.squad-composition-row').count()==page.evaluate('getCompositionBoard().players.length');assert page.evaluate('squadDocument()===undefined')
  d.locator('.squad-composition-row').first.get_by_role('button',name='Créer la fiche de Joueur 1',exact=True).click();assert page.locator('#coach-squad-editor').get_by_label('Prénom et nom',exact=True).input_value()=='';page.locator('#coach-squad-editor').get_by_role('button',name='Fermer la fiche effectif',exact=True).click()
  d.get_by_role('button',name='+ Nouveau joueur',exact=True).click();editor=page.locator('#coach-squad-editor');editor.get_by_label('Prénom et nom',exact=True).fill('Alex Martin');editor.get_by_label('Numéro habituel',exact=True).fill('8');editor.get_by_label('Poste habituel',exact=True).select_option('Milieu')
@@ -24,6 +24,7 @@ with sync_playwright() as p:
  d.get_by_role('button',name='Utiliser Alex Martin',exact=True).click();page.locator('#coach-squad-picker').get_by_role('button',name='Ajouter à cette place').click()
  after=page.evaluate('getCompositionBoard().players[0]');assert after['name']=='Alex Martin' and after['id']==before['id'] and after['x']==before['x'] and after['y']==before['y'] and after['photo']
  page.reload();page.wait_for_function("typeof squadPlayers==='function'");assert page.evaluate('squadPlayers().length')==1;assert page.evaluate('getCompositionBoard().players[0].name')=='Alex Martin'
+ page.locator('#document-entry-resume').click()
  # No duplicate addition; profile edits affect future selections, not old compositions.
  page.evaluate('openCoachSquad()');d.get_by_role('button',name='Utiliser Alex Martin',exact=True).click();assert not page.locator('#coach-squad-picker').is_visible()
  d.get_by_role('button',name='Modifier Alex Martin',exact=True).click();editor.get_by_label('Numéro habituel',exact=True).fill('10');editor.get_by_role('button',name='Enregistrer le joueur',exact=True).click();assert page.evaluate('getCompositionBoard().players[0].number')==8
