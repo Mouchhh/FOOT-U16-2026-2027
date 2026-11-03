@@ -12,14 +12,18 @@ with sync_playwright() as p:
  card.locator('.player-stat-manage summary').click();assert not page.locator('#player-stats-dialog').count()
  for width in [1440,768,390,320]:
   page.set_viewport_size({'width':width,'height':1000});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
-  assert card.locator('.player-stat-badges').evaluate('e=>getComputedStyle(e).gridTemplateColumns.split(" ").length')==2
+  assert card.locator('.player-stat-badges').evaluate('e=>getComputedStyle(e).display')=='flex'
+  assert card.locator('.player-stat-badges>.player-stat-metric').evaluate_all("es=>es.every(e=>getComputedStyle(e).backgroundColor==='rgba(0, 0, 0, 0)')")
+  assert card.locator('.player-stat-card-symbol.is-yellow').evaluate('e=>getComputedStyle(e).backgroundColor')=='rgb(250, 204, 21)'
+  assert card.locator('.player-stat-card-symbol.is-red').evaluate('e=>getComputedStyle(e).backgroundColor')=='rgb(228, 31, 40)'
+  assert card.bounding_box()['height']<330
   card.locator('.player-stat-profile-link').click();dialog=page.locator('#player-stats-dialog');assert dialog.is_visible()
   assert dialog.get_by_text('Présences aux séances',exact=True).is_visible()
   assert dialog.locator('[data-stat=yellowCards]').count()==1
   close=dialog.get_by_role('button',name='Fermer le bilan du joueur',exact=True);assert close.evaluate("e=>e.classList.contains('external-modal-close')")
   assert close.evaluate("e=>getComputedStyle(e,'::before').color")=='rgb(228, 31, 40)'
-  assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1');close.click()
+  assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1');close.click();dialog.wait_for(state='detached')
  page.set_viewport_size({'width':1440,'height':1000});page.screenshot(path='/tmp/squad-clean-desktop.png')
  assert not errors,errors
  b.close()
-print('Four metric groups, contextual actions, player detail, external red cross and responsive grid passed')
+print('Minimal transparent metric row, football card colors, compact height, contextual actions, player sheet and responsive grid passed')

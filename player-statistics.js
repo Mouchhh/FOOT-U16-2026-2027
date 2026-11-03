@@ -299,7 +299,7 @@ function playerStatsDecorateCards() {
     const badges = el("div", "player-stat-badges");
     const minutes = playerStatsMetric(
       "minutes",
-      "Temps de jeu · min",
+      "min",
       playerStatsDisplay(stats, "minutes"),
     );
     const presence = playerStatsMetric(
@@ -307,7 +307,15 @@ function playerStatsDecorateCards() {
       "Présence",
       stats.attendance.rate === null ? "—" : stats.attendance.rate + " %",
     );
-    presence.append(playerStatsPresenceBar(stats.attendance));
+    minutes.title = "Temps de jeu total";
+    presence.title = "Présence aux séances";
+    presence.setAttribute("role", "progressbar");
+    presence.setAttribute("aria-label", "Présence aux séances");
+    presence.setAttribute("aria-valuemin", "0");
+    presence.setAttribute("aria-valuemax", "100");
+    if (stats.attendance.rate !== null)
+      presence.setAttribute("aria-valuenow", String(stats.attendance.rate));
+    else presence.setAttribute("aria-valuetext", "Non renseignée");
     const pair = (key, label, fields) => {
       const metric = playerStatsMetric(key, label, "");
       const value = el("div", "player-stat-pair");
@@ -322,16 +330,27 @@ function playerStatsDecorateCards() {
       metric.querySelector("strong").replaceWith(value);
       return metric;
     };
-    const contributions = pair("contributions", "Buts / passes", [
+    const contributions = pair("contributions", "b / p", [
       ["goals", ""],
       ["assists", ""],
     ]);
-    const discipline = pair("discipline", "Cartons · jaunes / rouges", [
-      ["yellowCards", ""],
-      ["redCards", ""],
-    ]);
-    if (stats.totals.yellowCards || stats.totals.redCards)
-      discipline.classList.add("has-cards");
+    contributions.title = "Buts / passes décisives";
+    const discipline = el("div", "player-stat-metric player-stat-cards");
+    discipline.dataset.stat = "discipline";
+    for (const [field, label, color] of [
+      ["yellowCards", "Cartons jaunes", "yellow"],
+      ["redCards", "Cartons rouges", "red"],
+    ]) {
+      const item = el("span", "player-stat-card-count"),
+        rectangle = el("i", "player-stat-card-symbol is-" + color);
+      rectangle.setAttribute("aria-hidden", "true");
+      item.dataset.stat = field;
+      const value = playerStatsDisplay(stats, field);
+      item.title = label + " : " + value;
+      item.setAttribute("aria-label", label + " : " + value);
+      item.append(rectangle, el("strong", "", value));
+      discipline.append(item);
+    }
     badges.append(minutes, presence, contributions, discipline);
     const position = card.querySelector(".squad-player-info small");
     if (position)

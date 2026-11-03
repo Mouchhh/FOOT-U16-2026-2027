@@ -80,8 +80,10 @@ avec croix rouge externe.
 
 ## Effectif épuré
 
-Les cartes utilisent quatre groupes : minutes, présence avec micro-jauge, buts / passes et cartons jaunes / rouges. Les valeurs inconnues restent « — ». Le poste et le numéro accompagnent la photo et le nom ; le pied préféré est conservé dans la fiche détaillée. Les actions existantes restent disponibles sous « Gérer le joueur », sans déclencher la fiche de statistiques. Le clic sur la carte ou le bouton de nom ouvre le bilan de saison, avec croix rouge extérieure.
+Les cartes blanches, à avatar compact, utilisent une ligne de quatre groupes sans boîtes intérieures : minutes, taux de présence, buts / passes et cartons jaunes / rouges. Les valeurs inconnues restent « — ». Le poste et le numéro accompagnent la photo et le nom ; le pied préféré est conservé dans la fiche détaillée. Les actions existantes restent disponibles sous « Gérer le joueur », sans déclencher la fiche de statistiques. Le clic sur la carte ou le bouton de nom ouvre le bilan de saison, avec croix rouge extérieure.
 
 La fiche rassemble les chiffres de saison, les bilans par match et une rubrique repliable « Présences aux séances ». Son historique est dérivé des mêmes pointages validés, dédoublonnés par date et horaire, que le calcul de présence : aucun créneau sans pointage n’est transformé en absence. Aucun changement du stockage ni migration des fiches n’est nécessaire.
 
 `tests/squad-clean-browser.py` vérifie quatre groupes, les actions repliées, le clic sur le joueur, la croix externe et l’absence de débordement aux formats 320, 390, 768 et 1440 pixels. Les tests de gestion d’effectif empruntent désormais le menu « Gérer le joueur ».
+
+Les cartons sont représentés par deux petits rectangles (jaune `#facc15`, rouge du club `#e41f28`) avec leur nombre. Les libellés accessibles distinguent explicitement jaunes et rouges ; « — » reste une valeur inconnue et ne devient pas zéro. La ligne de statistiques revient à la ligne sur les petites cartes plutôt que de déborder. Les statistiques détaillées et les actions restent accessibles comme précédemment.

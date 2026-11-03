@@ -313,73 +313,114 @@
   font-size: 10px;
 }
 
-/* Four light indicators, generous card spacing, management kept one click away. */
+/* Minimal player cards: one white surface, compact metrics without inner boxes. */
 .squad-page .squad-list {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
   gap: 24px;
   align-items: stretch;
 }
 .squad-page .squad-card.has-player-stats {
-  padding: 28px 22px 18px;
-  gap: 18px;
-  border-radius: 20px;
-  box-shadow: 0 6px 24px #18345506;
+  padding: 24px 20px 10px;
+  gap: 10px;
+  border-radius: 16px;
+  border-color: #e5eaf1;
+  background: #fff;
+  box-shadow: 0 3px 16px #18345504;
 }
 .squad-page .has-player-stats > .roster-avatar {
-  width: 80px;
-  height: 80px;
-  font-size: 30px;
+  width: 56px;
+  height: 56px;
+  font-size: 23px;
+}
+.squad-page .squad-card .player-stat-profile-link {
+  min-height: 36px;
+  padding: 0;
+  font-size: 17px;
+  line-height: 1.4;
+}
+.squad-page .has-player-stats .squad-player-info small {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #718096;
 }
 .squad-page .player-stat-badges {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px 16px;
   width: 100%;
-  margin-top: 4px;
+  margin-top: 12px;
+  padding: 14px 0 10px;
+  border-top: 1px solid #eef1f5;
 }
 .squad-page .player-stat-badges > .player-stat-metric {
-  grid-template-columns: 16px minmax(0, 1fr);
-  padding: 12px 10px;
-  gap: 6px;
-  background: #f5f8fc;
-  border-radius: 12px;
-  align-content: start;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  min-height: 24px;
+  color: #718096;
 }
-.squad-page .player-stat-badges .player-stat-metric > strong,
-.squad-page .player-stat-pair {
-  grid-column: 1/-1;
-  grid-row: 1;
-  font-size: 20px;
-  line-height: 1.3;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
+.squad-page .player-stat-badges .player-stat-metric svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
 }
+.squad-page .player-stat-badges .player-stat-metric strong,
 .squad-page .player-stat-pair strong {
-  font-size: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0;
+  white-space: nowrap;
+  color: #1b2d52;
+}
+.squad-page .player-stat-pair {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  line-height: 1.4;
   white-space: nowrap;
 }
 .squad-page .player-stat-badges .player-stat-metric > span {
   font-size: 10px;
-  line-height: 1.5;
+  line-height: 1.4;
 }
-.squad-page .player-stat-badges .player-stat-attendance {
-  grid-column: 1/-1;
-  margin: 0;
-}
-.squad-page .player-stat-badges .player-stat-attendance > span {
+.squad-page .player-stat-badges [data-stat="attendance"] > span {
   display: none;
 }
-.squad-page .player-stat-badges .player-stat-track {
-  height: 4px;
-  margin: 2px 0 0;
+.squad-page .player-stat-badges > .player-stat-cards {
+  gap: 12px;
 }
-.squad-page .player-stat-badges .has-cards svg {
-  color: var(--club-logo-red, #e41f28);
+.squad-page .player-stat-card-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.player-stat-card-symbol {
+  display: inline-block;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  flex: none;
+  box-shadow: inset 0 0 0 1px #132c4d12;
+}
+.player-stat-card-symbol.is-yellow {
+  background: #facc15;
+}
+.player-stat-card-symbol.is-red {
+  background: var(--club-logo-red, #e41f28);
 }
 .player-stat-manage {
   width: 100%;
   margin-top: auto;
-  border-top: 1px solid #edf1f6;
-  padding-top: 10px;
+  border-top: 0;
+  padding-top: 0;
 }
 .player-stat-manage > summary {
   min-height: 44px;
@@ -422,7 +463,7 @@
     gap: 18px;
   }
   .squad-page .squad-card.has-player-stats {
-    padding: 24px 20px 14px;
+    padding: 22px 20px 10px;
   }
   .player-stats-dialog {
     padding: 20px;
