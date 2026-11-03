@@ -80,7 +80,7 @@
  function capture(){
   const board=structuredClone(state),candidate=getGamePlanBoard();
   const linked=board.boardKind!=='plan'&&board.documentId&&candidate?.sourceCompositionId===board.documentId?structuredClone(candidate):null;
-  return {board,linked,landscape:document.body.classList.contains('landscape-mode')};
+  return {board,linked,demonstrations:window.causerieAnimations?.capture(),landscape:document.body.classList.contains('landscape-mode')};
  }
  async function pitchImage(board,landscape){
   const options={bench:board.benchVisible!==false,opponents:!!board.opponents?.visible,arrows:true,lanes:!!board.lanes};
@@ -95,7 +95,8 @@
   const pptx=new window.PptxGenJS();pptx.layout='LAYOUT_WIDE';pptx.author='Le Vestiaire';
   pptx.subject='Causerie du coach';pptx.title=snapshot.board.title||snapshot.board.team;pptx.lang='fr-FR';
   pptx.theme={headFontFace:'Montserrat',bodyFontFace:'Calistoga',lang:'fr-FR'};
-  return window.causerieLayout.build(pptx,snapshot,includeLinked,style,{textPages,pitchImage});
+  await window.causerieLayout.build(pptx,snapshot,includeLinked,style,{textPages,pitchImage});
+  return window.causerieAnimations?.append(pptx,snapshot.demonstrations)||pptx;
  }
  window.causerieExport={textPages,collect,capture,build};
  document.addEventListener('DOMContentLoaded',()=>{
@@ -106,7 +107,7 @@
   const dialog=el('dialog','causerie-dialog');dialog.id='causerie-dialog';dialog.setAttribute('aria-labelledby','causerie-heading');
   const heading=el('div','section-heading'),title=el('h2','','Préparer ma causerie pour Canva');title.id='causerie-heading';
   const close=el('button','icon-button','×');close.type='button';close.setAttribute('aria-label','Fermer la préparation Canva');heading.append(title,close);dialog.append(heading);
-  dialog.append(el('p','hint','La présentation suit les rubriques de votre préparation. Les pages s’adaptent aux textes saisis, sans résumé ni reformulation. Les textes sont modifiables ; les terrains sont des images fixes. Les animations restent disponibles sur le site.'));
+  dialog.append(el('p','hint','La présentation suit les rubriques de votre préparation. Les pages s’adaptent aux textes saisis, sans résumé ni reformulation. Les textes sont modifiables ; les terrains sont des images fixes. Ajoutez vos démonstrations depuis le bouton Démonstrations : trajectoires natives dans PowerPoint, GIF / MP4 pour Canva.'));
   const summary=el('p','causerie-summary');dialog.append(summary);
   const label=el('label','causerie-option'),include=el('input');include.type='checkbox';include.id='causerie-linked';label.append(include,document.createTextNode('Inclure la vue épurée liée à cette composition'));dialog.append(label);
   const details=el('details'),count=el('summary'),inventory=el('ul');count.textContent='Vérifier les informations reprises';details.append(count,inventory);dialog.append(details);
@@ -281,7 +282,7 @@
   dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
   dialog.addEventListener('close',()=>{viewVersion++;stopConnectionPoll();});
   const pptStatus=el('p','hint causerie-ppt-status');pptStatus.id='causerie-ppt-status';pptStatus.setAttribute('role','status');
-  download.textContent='PowerPoint (.pptx)';download.className='export causerie-ppt-direct';
+  download.textContent='Télécharger en PPT (Animé)';download.className='export causerie-ppt-direct';
   window.causerieExport.downloadCurrent=async()=>{
    if(busy)return false;
    const current=capture(),account=currentUser(),coach=activeCoach.id,team=activeCoachTeam.id;

@@ -27,5 +27,5 @@
  #match-plan-form .causerie-ppt-direct{border-left:3px solid var(--club-logo-red,#e41f28);background:#fff;color:#2855a2;}
  .causerie-ppt-status{flex-basis:100%;margin:0;overflow-wrap:anywhere;}
  .causerie-ppt-status:empty{display:none;}
- @media(max-width:650px){.causerie-direct-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;}.causerie-direct-actions>button{width:100%;white-space:normal;padding:10px 8px;}.causerie-ppt-status{grid-column:1/-1;}}
+ @media(max-width:650px){.causerie-direct-actions{display:grid;align-items:stretch;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;}.causerie-direct-actions>button{width:100%;white-space:normal;padding:10px 8px;}.causerie-ppt-status{grid-column:1/-1;}}
 }
