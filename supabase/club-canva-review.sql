@@ -40,11 +40,14 @@ create policy canva_test_members on public.club_members as restrictive
  for select to authenticated
  using (not (select public.club_is_test_account()) or user_id=(select auth.uid()));
 
--- These SECURITY DEFINER RPCs bypass RLS, so they need their own safeguards.
--- Optional migrations may not yet be installed. Known signatures only; fail
--- closed if their implementation cannot be recognised. Re-running is safe.
+-- SECURITY DEFINER RPCs bypass RLS. Preserve each existing implementation in
+-- a private schema, and put a guarded wrapper at its existing public signature.
+-- No parsing or rewriting of its SQL/PLpgSQL body (case/line endings independent).
+create schema if not exists club_review_internal;
+revoke all on schema club_review_internal from public,anon,authenticated;
 do $migration$
-declare sig text; definition text; body text; replacement text;
+declare sig text; definition text; original_body text; fn text; args text;
+ result_type text; protected_body text; clone_definition text;
 begin
  foreach sig in array array[
   'public.club_connected_coaches()',
@@ -53,29 +56,44 @@ begin
   'public.club_review_reference(uuid,integer,boolean)'
  ] loop
   if to_regprocedure(sig) is null then continue; end if;
-  select pg_get_functiondef(to_regprocedure(sig)),prosrc into definition,body
-   from pg_proc where oid=to_regprocedure(sig);
-  if position('-- canva-test-isolation' in body)>0 then continue; end if;
-  if position('club_connected_coaches' in sig)>0 or position('club_educator_activity' in sig)>0 then
-   if position('where m.active' in body)=0 then
-    raise exception 'RPC non reconnue : %. Installation annulée.',sig;
-   end if;
-   replacement:=replace(body,'where m.active','where m.active and (not public.club_is_test_account() or m.user_id=auth.uid()) /* canva-test-isolation */');
-   -- Use the same marker as the other patches to ensure idempotence.
-   replacement:=E'-- canva-test-isolation\n'||replacement;
-  else
-   if position(E'begin\n' in body)=0 then
-    raise exception 'RPC non reconnue : %. Installation annulée.',sig;
-   end if;
-   if position('club_reference_overview' in sig)>0 then
-    replacement:=replace(body,E'begin\n',E'begin\n -- canva-test-isolation\n if public.club_is_test_account() then return jsonb_build_object(\'scope_version\',2,\'can_review\',false,\'poles\',\'[]\'::jsonb,\'references\',\'[]\'::jsonb); end if;\n');
-   else
-    replacement:=replace(body,E'begin\n',E'begin\n -- canva-test-isolation\n if public.club_is_test_account() then raise exception \'Validation indisponible pour un compte de test\' using errcode=\'42501\'; end if;\n');
-   end if;
+  select pg_get_functiondef(p.oid),p.prosrc,p.proname,
+         pg_get_function_arguments(p.oid),pg_get_function_result(p.oid)
+   into definition,original_body,fn,args,result_type
+   from pg_proc p where p.oid=to_regprocedure(sig);
+  if position('-- canva-review-wrapper-v2' in original_body)>0 then continue; end if;
+  clone_definition:=regexp_replace(definition,
+    '^CREATE OR REPLACE FUNCTION public\.'||fn||'\(',
+    'CREATE OR REPLACE FUNCTION club_review_internal.'||fn||'(');
+  if clone_definition=definition then
+   raise exception 'Signature non reconnue : %. Installation annulée.',sig;
   end if;
-  execute replace(definition,body,replacement);
+  execute clone_definition;
+  protected_body:=E'-- canva-review-wrapper-v2\nbegin\n if not public.club_is_member() then raise exception ''Accès réservé aux éducateurs autorisés'' using errcode=''42501''; end if;\n';
+  if fn in ('club_connected_coaches','club_educator_activity') then
+   protected_body:=protected_body||format(
+     ' return query select entry.* from club_review_internal.%I() entry where not public.club_is_test_account() or entry.user_id=auth.uid();',fn);
+  elsif fn='club_reference_overview' then
+   if result_type not in ('json','jsonb') then
+    raise exception 'Type de retour non pris en charge : %. Installation annulée.',result_type;
+   end if;
+   protected_body:=protected_body||format(
+     ' if public.club_is_test_account() then return %L::%s; end if; return club_review_internal.%I();',
+     '{"scope_version":2,"can_review":false,"poles":[],"references":[]}',result_type,fn);
+  else
+   if result_type<>'void' then
+    raise exception 'Type de retour non pris en charge : %. Installation annulée.',result_type;
+   end if;
+   protected_body:=protected_body||format(
+     ' if public.club_is_test_account() then raise exception %L using errcode=%L; end if; perform club_review_internal.%I($1,$2,$3); return;',
+     'Validation indisponible pour un compte de test','42501',fn);
+  end if;
+  protected_body:=protected_body||E'\nend';
+  execute format('create or replace function public.%I(%s) returns %s language plpgsql security definer set search_path='''' as %L',fn,args,result_type,protected_body);
+  execute 'revoke all on function '||sig||' from public,anon';
+  execute 'grant execute on function '||sig||' to authenticated';
  end loop;
 end $migration$;
+revoke all on all functions in schema club_review_internal from public,anon,authenticated;
 
 -- Administration only: authorize a NEW dedicated email and return its private
 -- one-time activation code. This never changes an existing user's permissions.
@@ -94,3 +112,7 @@ end $$;
 revoke all on function public.club_authorize_canva_reviewer(text) from public,anon,authenticated;
 notify pgrst,'reload schema';
 commit;
+
+-- Résultat attendu après une installation complète (aucun secret).
+select 'canva-review-v2' as installation,
+ to_regprocedure('public.club_authorize_canva_reviewer(text)') as fonction;

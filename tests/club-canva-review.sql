@@ -16,8 +16,31 @@ insert into public.club_documents(owner_id,kind,source_id,title,payload) values
 \ir ../supabase/club-accounts.sql
 \ir ../supabase/club-presence.sql
 \ir ../supabase/club-references.sql
+-- Regression: production may have upper-case BEGIN and Windows line endings.
+-- The former migration failed before reaching COMMIT for these valid bodies.
+do $$declare original text; definition text; changed text;
+begin
+ select prosrc,pg_get_functiondef(oid) into original,definition from pg_proc
+ where oid='public.club_reference_overview()'::regprocedure;
+ changed:=replace(replace(original,E'begin\n',E'BEGIN\n'),E'\n',E'\r\n');
+ execute replace(definition,original,changed);
+end $$;
+create temp table original_rpc_bodies as
+ select proname,prosrc from pg_proc where oid in (
+ 'public.club_connected_coaches()'::regprocedure,
+ 'public.club_educator_activity()'::regprocedure,
+ 'public.club_reference_overview()'::regprocedure,
+ 'public.club_review_reference(uuid,integer,boolean)'::regprocedure);
 \ir ../supabase/club-canva-review.sql
 \ir ../supabase/club-canva-review.sql
+do $$begin
+ if exists(select 1 from original_rpc_bodies before
+  left join (select p.proname,p.prosrc from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+             where n.nspname='club_review_internal') after using(proname)
+  where after.prosrc is distinct from before.prosrc) then
+  raise exception 'Original RPC body modified';
+ end if;
+end $$;
 create temp table reviewer_invite as select * from public.club_authorize_canva_reviewer('review@example.test');
 insert into auth.users(id,email,raw_user_meta_data)
  select '00000000-0000-4000-8000-000000000002',invited_email,
@@ -34,8 +57,9 @@ do $$begin
  if (select count(*) from public.club_members)<>1 then raise exception 'Real members exposed';end if;
  if (select count(*) from public.club_connected_coaches())<>1 then raise exception 'Real presence exposed';end if;
  if (select count(*) from public.club_educator_activity())<>1 then raise exception 'Real activity exposed';end if;
- if public.club_reference_overview()->'references'<>'[]'::jsonb then raise exception 'Real references exposed';end if;
+ if (public.club_reference_overview()::jsonb)->'references'<>'[]'::jsonb then raise exception 'Real references exposed';end if;
  begin perform public.club_review_reference(gen_random_uuid(),1,true);raise exception 'Review RPC allowed';exception when insufficient_privilege then null;end;
+ begin perform * from club_review_internal.club_educator_activity();raise exception 'Private original RPC callable';exception when insufficient_privilege then null;end;
  begin perform * from public.club_test_accounts;raise exception 'Classification readable';exception when insufficient_privilege then null;end;
  begin perform * from public.club_authorize_canva_reviewer('escape@example.test');raise exception 'Admin function allowed';exception when insufficient_privilege then null;end;
  perform public.club_publish_document('composition','demo','Démonstration','{}',0);
@@ -50,7 +74,7 @@ do $$begin
  if (select count(*) from public.club_documents)<>2 then raise exception 'Normal document access changed';end if;
  if (select count(*) from public.club_members)<>2 then raise exception 'Normal member access changed';end if;
  if (select count(*) from public.club_educator_activity())<>2 then raise exception 'Normal RPC changed';end if;
- if jsonb_array_length(public.club_reference_overview()->'references')<>1 then raise exception 'Normal references missing';end if;
+ if jsonb_array_length((public.club_reference_overview()::jsonb)->'references')<>1 then raise exception 'Normal references missing';end if;
 end $$;
 reset role;
 -- Refuse to reclassify an existing account, and preserve all real documents.

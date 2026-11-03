@@ -5,6 +5,10 @@ club et comptes. Le script installe des protections sans créer de compte ni
 supprimer les documents. Les autorisations ordinaires restent inchangées.
 Les lectures REST des documents et profils sont limitées au compte de revue ;
 les RPC de présence/activité et de références ont des protections distinctes.
+Leur implémentation existante est copiée sans modification dans un schéma privé
+inaccessible aux éducateurs. Une enveloppe publique contrôle le compte avant
+d’appeler cette implémentation. SQL/PLpgSQL, majuscules et fins de ligne Windows
+ne nécessitent pas de réécriture du corps des fonctions.
 Les écritures de documents restent limitées à leur propriétaire.
 
 Puis, dans SQL Editor uniquement :
