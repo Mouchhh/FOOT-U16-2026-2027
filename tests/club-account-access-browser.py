@@ -3,6 +3,7 @@ import json,time
 from urllib.parse import urlparse,parse_qs
 from playwright.sync_api import sync_playwright
 BASE='http://127.0.0.1:3016';uid='00000000-0000-4000-8000-000000000001';calls=[];errors=[];weak=False;authorized=False;fail_logout=False
+auth_failure={'code':400,'error_code':'invalid_credentials','msg':'Invalid login credentials'}
 
 def api(route):
  global weak
@@ -15,7 +16,7 @@ def api(route):
   if req.method=='PUT' and weak:weak=False;return reply({'code':'weak_password'},422)
   return reply({'id':uid,'email':'coach@example.test'})
  if path=='/auth/v1/verify':return reply({'access_token':'verified','refresh_token':'refresh','expires_in':3600,'user':{'id':uid,'email':'coach@example.test'}})
- if path=='/auth/v1/token':return reply({'code':400,'error_code':'invalid_credentials','msg':'Invalid login credentials'},400)
+ if path=='/auth/v1/token':return reply(auth_failure,400)
  if path=='/auth/v1/logout':return route.abort() if fail_logout else reply({})
  if path=='/rest/v1/club_members':return reply([{'user_id':uid,'display_name':'Coach Test','active':True}] if authorized else []) # A valid reset never grants membership.
  return reply([])
@@ -24,6 +25,18 @@ with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);ctx=b.new_context(viewport={'width':1366,'height':900})
  ctx.route('**/club-cloud-config.js',lambda r:r.fulfill(content_type='application/javascript',body="window.CLUB_CLOUD_CONFIG={url:'https://club-test.supabase.co',publishableKey:'sb_publishable_test'};"));ctx.route('https://club-test.supabase.co/**',api)
  page=ctx.new_page();page.on('pageerror',lambda e:errors.append(str(e)));page.goto(BASE+'/?auth=login');page.wait_for_selector('#club-auth-forgot')
+ # Real response parsing: modern and legacy Auth errors, plus safe diagnostics.
+ for payload,expected in [
+  ({'code':400,'error_code':'invalid_credentials'},'incorrect'),
+  ({'error':'invalid_grant','error_description':'Invalid login credentials'},'incorrect'),
+  ({'error':'invalid_grant','error_description':'Email not confirmed'},'confirmée'),
+  ({'code':400,'error_code':'validation_failed','message':'HiddenSecret private@example.test'},'auth-181 / identification / HTTP 400 / validation_failed'),
+  ({'code':400,'error_code':'HiddenSecret private@example.test'},'HTTP 400 / sans code')]:
+  auth_failure=payload
+  message=page.evaluate("async()=>{try{await clubNetworkRequest('/auth/v1/token?grant_type=password',{method:'POST',auth:false,body:{email:'fake@example.test',password:'fake-only'}});throw Error('Expected failure')}catch(e){return clubNetworkMessage(e)}}")
+  assert expected in message,(payload,message)
+  assert 'HiddenSecret' not in message and 'private@example.test' not in message
+ auth_failure={'code':400,'error_code':'invalid_credentials'}
  page.locator('#club-network-email').fill('coach@example.test');page.locator('#club-network-password').fill('incorrect');page.locator('#club-network-signin').click();page.wait_for_function("document.querySelector('#club-network-status').textContent.includes('incorrect')");assert page.locator('#club-network-email').input_value()=='coach@example.test'
  page.locator('#club-auth-forgot').click();assert page.locator('#club-recovery-email').input_value()=='coach@example.test';page.locator('#club-network-recover').get_by_role('button',name='Recevoir le lien',exact=True).click();page.wait_for_function("document.querySelector('#club-network-status').textContent.includes('Si un compte')")
  page.locator('#club-auth-resend').click();page.wait_for_function("document.querySelector('#club-network-status').textContent.includes('attend une confirmation')");assert any(c[0]=='/auth/v1/resend' and c[2]=={'type':'signup','email':'coach@example.test'} for c in calls)

@@ -56,7 +56,10 @@ function clubNetworkMessage(error){
  if(error?.status===401)return 'Connexion expirée. Reconnectez-vous ; vos brouillons locaux sont conservés.';
  if(error?.status===403||error?.code==='42501')return 'Ce compte n’est pas autorisé. Le responsable doit autoriser cette adresse dans le club.';
  if(error?.status===429)return 'Trop de demandes. Patientez avant de réessayer.';
- if(error?.status===400||error?.status===422)return 'Demande refusée : vérifiez votre e-mail, votre mot de passe ou le document.';
+ if(error?.status===400||error?.status===422){
+  const reference=error?.diagnostic;
+  return reference?'Demande refusée — '+reference+'. Transmettez cette référence au responsable du site.':'Demande refusée : vérifiez votre e-mail, votre mot de passe ou le document.';
+ }
  return 'Connexion interrompue ou service indisponible. Les enregistrements locaux sont conservés ; la synchronisation réessaiera à la reconnexion.';
 }
 function clubNetworkError(message,status=0,code=''){const error=new Error(message);error.status=status;error.code=code;return error;}
@@ -71,10 +74,19 @@ async function clubNetworkRequest(path,{method='GET',body,auth=true,retry=true}=
  const text=await response.text();if(generation!==clubNetworkGeneration)throw Error('Session terminée.');let result=null;try{result=text?JSON.parse(text):null;}catch{throw Error('Réponse serveur invalide.');}
  if(!response.ok){
   if(auth&&response.status===401&&retry){await clubNetworkRefreshSession();return clubNetworkRequest(path,{method,body,auth,retry:false});}
-  // Auth may return {code:400,error_code:'invalid_credentials'}; REST uses
-  // a textual code. Do not lose the Auth reason behind its numeric HTTP code.
-  const code=typeof result?.error_code==='string'?result.error_code:typeof result?.code==='string'?result.code:'';
-  throw clubNetworkError('Requête refusée',response.status,code);
+  // Auth versions use either error_code, textual code, or legacy OAuth error.
+  // Keep diagnostics to a fixed operation label, HTTP status and machine code;
+  // never display/log the response body, credentials or recovery URLs.
+  let code=typeof result?.error_code==='string'?result.error_code:typeof result?.code==='string'?result.code:typeof result?.error==='string'?result.error:'';
+  if(path.startsWith('/auth/')){
+   const legacy=typeof result?.error_description==='string'?result.error_description:typeof result?.msg==='string'?result.msg:'';
+   if(legacy==='Invalid login credentials')code='invalid_credentials';
+   else if(legacy==='Email not confirmed')code='email_not_confirmed';
+  }
+  const operation=path.startsWith('/auth/v1/token?grant_type=password')?'identification':path.startsWith('/auth/')?'authentification':path.startsWith('/rest/v1/club_members?')?'profil du club':path.startsWith('/rest/')?'données du club':'service';
+  const error=clubNetworkError('Requête refusée',response.status,code);
+  error.diagnostic='auth-181 / '+operation+' / HTTP '+response.status+' / '+(/^[a-zA-Z0-9_]{1,64}$/.test(code)?code:'sans code');
+  throw error;
  }
  return result;
 }
