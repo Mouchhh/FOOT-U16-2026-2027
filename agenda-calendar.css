@@ -8,8 +8,8 @@
  .agenda-calendar-day{min-width:0;min-height:112px;padding:7px;border-right:1px solid #e3eaf3;border-bottom:1px solid #e3eaf3;display:flex;flex-direction:column;align-items:stretch;gap:4px}.agenda-calendar-day:nth-child(7n){border-right:0}.agenda-calendar-day.outside{background:#f8fafc}.agenda-calendar-day.outside>.agenda-day-number{color:#8598af}.agenda-calendar-day.selected{background:#eef5ff;box-shadow:inset 0 0 0 2px #2855a2}
  .agenda-day-number{align-self:flex-start;border:0;border-radius:7px;color:#24466d;background:transparent;font-size:14px;font-weight:650;padding:6px 9px;min-height:32px}.agenda-calendar-day.today .agenda-day-number{background:#2855a2;color:#fff}
  .agenda-calendar-event{display:flex;align-items:center;width:100%;min-width:0;border:1px solid transparent;border-radius:5px;text-align:left;padding:5px 6px;font-size:11px;line-height:1.4;min-height:28px}.agenda-calendar-event-title{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.agenda-calendar-event-short{display:none}.agenda-day-more{border:0;background:transparent;color:#2855a2;text-align:left;font-size:11px;padding:4px}
- .agenda-kind-training{background:#e9f1ff;color:#2855a2}.agenda-kind-match{background:#17385d;color:#fff}.agenda-kind-report{background:#f0f3f7;color:#405873;border:1px dashed #879bb4}
- .agenda-day-details{display:grid;gap:12px;margin:20px 0}.agenda-day-details>.section-heading{flex-wrap:wrap;gap:12px}.agenda-day-details h3{font-size:18px;color:#17385d;text-transform:capitalize}.agenda-day-details button{min-height:44px}.agenda-event-card{display:flex;align-items:center;justify-content:space-between;gap:18px}.agenda-event-card strong{font-size:14px}.agenda-event-card p{font-size:12px;margin-top:6px}.agenda-event-card.agenda-kind-match{background:#fff;color:#17385d;border-left:4px solid #17385d}.agenda-event-card.agenda-kind-report{background:#fff;color:#405873;border:1px solid #dce5ef;border-left:4px solid #879bb4}
+ .agenda-kind-training{background:#e9f1ff;color:#2855a2}.agenda-kind-match{background:var(--club-logo-red,#e41f28);color:#fff}.agenda-kind-report{background:#f0f3f7;color:#405873;border:1px dashed #879bb4}
+ .agenda-day-details{display:grid;gap:12px;margin:20px 0}.agenda-day-details>.section-heading{flex-wrap:wrap;gap:12px}.agenda-day-details h3{font-size:18px;color:#17385d;text-transform:capitalize}.agenda-day-details button{min-height:44px}.agenda-event-card{display:flex;align-items:center;justify-content:space-between;gap:18px}.agenda-event-card strong{font-size:14px}.agenda-event-card p{font-size:12px;margin-top:6px}.agenda-event-card.agenda-kind-match{background:#fff;color:#17385d;border-left:4px solid var(--club-logo-red,#e41f28)}.agenda-event-card.agenda-kind-report{background:#fff;color:#405873;border:1px solid #dce5ef;border-left:4px solid #879bb4}
  @media(max-width:700px){.agenda-calendar-heading{padding:14px;gap:12px}.agenda-calendar-heading h2{font-size:22px}.agenda-calendar-heading .report-actions{width:100%;gap:5px;flex-wrap:wrap}.agenda-calendar-heading button{font-size:12px;padding:8px 10px}.agenda-calendar-legend{padding:0 12px 12px;gap:6px}.agenda-calendar-legend span{font-size:11px;padding:5px 7px}.agenda-calendar-weekday{font-size:10px;padding:10px 2px}.agenda-calendar-day{min-height:85px;padding:4px 2px;gap:3px}.agenda-day-number{font-size:12px;min-height:32px;padding:5px 7px}.agenda-calendar-event{justify-content:center;min-height:22px;padding:2px;font-size:10px}.agenda-calendar-event-title{display:none}.agenda-calendar-event-short{display:block;font-weight:700}.agenda-day-more{font-size:9px;padding:2px;line-height:1.3}.agenda-event-card{flex-direction:column;align-items:stretch}.agenda-day-details h3{font-size:16px}.agenda-day-details .coach-agenda-card{flex-wrap:wrap}}
 }
 @media print{.agenda-calendar{display:none}}
@@ -23,3 +23,22 @@
 }
 /* The agenda opens directly on its calendar; paste import stays in the heading. */
 #agenda-fff-panel,#agenda-calendar-filters{display:none!important}
+
+@media screen {
+ /* Match type keeps the club red, including pending recurring fixtures. */
+ .agenda-calendar .agenda-calendar-event.agenda-kind-match,
+ .agenda-calendar-legend .agenda-kind-match {
+  background:var(--club-logo-red,#e41f28);
+  color:#fff;
+  border-color:var(--club-logo-red,#e41f28);
+ }
+ .agenda-day-details .agenda-event-card.agenda-kind-match {
+  background:#fff;
+  color:#17385d;
+  border-color:var(--club-logo-red,#e41f28);
+  border-left:4px solid var(--club-logo-red,#e41f28)!important;
+ }
+ .agenda-day-details .agenda-event-card.agenda-kind-match strong {
+  color:var(--club-logo-red,#e41f28);
+ }
+}
