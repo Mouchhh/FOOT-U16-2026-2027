@@ -19,8 +19,9 @@ with sync_playwright() as p:
             page.locator(selector).click()
             page.wait_for_function('(a)=>{let s=workspaceFraming.getState();return s.revision>a.r&&s.view===a.v}',arg={'r':revision,'v':view})
             page.wait_for_function("workspaceFraming.getState().phase==='idle'")
-            if view not in ['squad','resources']:
+            if view not in ['squad','resources','home']:
                 assert page.locator('#task-section-navigation').is_visible()
+            if view=='home':assert page.locator('#task-section-navigation').is_hidden()
             assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+2')
             assert nav.evaluate("n=>{let r=n.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight+1}")
             assert page.evaluate("()=>{let n=document.getElementById('workspace-navigation'),r=n.getBoundingClientRect();return document.elementFromPoint(r.left+10,r.top+10).closest('#workspace-navigation')===n}")

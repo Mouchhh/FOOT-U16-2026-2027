@@ -1,0 +1,67 @@
+/* Club blue/white; the existing exact logo red remains the tertiary accent. */
+.report-tactical-blocks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.report-tactical-blocks > .report-panel {
+  min-width: 0;
+  border-top: 3px solid #2855a2;
+}
+.report-tactical-blocks > .report-panel:last-child {
+  border-top-color: var(--club-logo-red, #e41f28);
+}
+.report-tactical-blocks h2 {
+  font-size: 19px;
+  line-height: 1.4;
+}
+.report-tactical-blocks .report-field + .report-field {
+  margin-top: 18px;
+}
+.report-analysis-details,
+.report-previous-notes {
+  padding: 18px;
+  margin: 0 0 18px;
+  background: #fff;
+  border: 1px solid #d9e2f0;
+  border-radius: 10px;
+}
+.report-analysis-details > summary,
+.report-previous-notes > summary {
+  cursor: pointer;
+  color: #2855a2;
+  font-weight: 600;
+  min-height: 32px;
+  line-height: 1.5;
+}
+.report-previous-notes p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+#report-group-message-copy {
+  min-height: 44px;
+  margin-top: 14px;
+  border-left: 3px solid var(--club-logo-red, #e41f28);
+}
+#report-content .report-player-remove {
+  min-height: 44px;
+  color: var(--club-logo-red, #e41f28);
+  border: 1px solid #d9e2f0;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.report-player > .section-heading {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+@media (max-width: 800px) {
+  .report-tactical-blocks {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .report-tactical-blocks h2 {
+    font-size: 17px;
+  }
+}

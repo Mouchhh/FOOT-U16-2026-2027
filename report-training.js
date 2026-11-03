@@ -1,7 +1,7 @@
 // Passage volontaire du bilan de match au brouillon de séance du coach actif.
 // Les propositions sont éditoriales et locales ; aucun service IA ni envoi externe.
 function reportTrainingAxes(report){
- const definitions=[['priority','Priorité de la semaine','Relance',report.plan?.priority],['improveAttack','Progrès offensif','Relance',report.analysis?.improveAttack],['improveDefence','Progrès défensif','Défense',report.analysis?.improveDefence],['transitions','Transitions','Transitions',report.analysis?.transitions],['setPieces','Phases arrêtées','CPA',report.analysis?.setPieces]];
+ const definitions=[['sessionObjective','Objectif de séance','Relance',report.plan?.sessionObjective],['priority','Priorité de la semaine','Relance',report.plan?.priority],['improveAttack','Progrès offensif','Relance',report.analysis?.improveAttack],['improveDefence','Progrès défensif','Défense',report.analysis?.improveDefence],['transitions','Transitions','Transitions',report.analysis?.transitions],['setPieces','Phases arrêtées','CPA',report.analysis?.setPieces]];
  const seen=new Set();return definitions.filter(([, , ,text])=>typeof text==='string'&&text.trim()&&!seen.has(text.trim())&&seen.add(text.trim())).map(([id,label,theme,text])=>({id,label,theme,text:text.trim().slice(0,2000)}));
 }
 function reportTrainingSuggestions(axes,session){
@@ -58,7 +58,7 @@ function openReportTraining(){
   if(signature(currentReport)!==reportSnapshot||signature(currentTraining)!==trainingSnapshot){status.textContent='Le bilan ou la séance a changé pendant l’aperçu. Fermez puis rouvrez cette préparation pour conserver les dernières modifications.';return;}
   if(target.blocks.length+picked.length>20)return status.textContent='La séance dépasserait la limite de 20 blocs. Retirez un bloc avant de continuer.';
   const heading='À travailler après le match '+(source.date||'sans date')+' contre '+(source.opponent||'adversaire à préciser');
-  const added=heading+'\n'+picked.map(c=>'• '+c.axis.text+' ['+c.axis.theme+']').join('\n')+(success?'\nCritère de réussite : '+success:'');
+  const added=heading+'\n'+picked.map(c=>'• '+c.axis.text+' ['+c.axis.theme+']').join('\n')+(success?'\nCritère de réussite : '+success:'')+(currentReport.plan.sessionExercise?.trim()?'\nExercice prévu : '+currentReport.plan.sessionExercise.trim():'');
   if(target.notes.length+added.length+2>12000)return status.textContent='L’objectif personnalisé est trop long. Raccourcissez-le avant d’ajouter ces priorités.';
   const previous=structuredClone(currentTraining),candidate=structuredClone(target);if(destination.value==='new')candidate.themes=[];
   candidate.notes=[candidate.notes,added].filter(Boolean).join('\n\n');

@@ -9,6 +9,7 @@ function crakitoDocumentSummary(row){
   lines.push([p.info.category,p.info.date,p.info.team,p.info.opponent].filter(Boolean).join(' · '));
   if(p.info.goalsFor!==''&&p.info.goalsAgainst!=='')lines.push('Score renseigné : '+p.info.goalsFor+' – '+p.info.goalsAgainst);
   for(const key of ['withBall','withoutBall','transitions','setPieces','improveAttack','improveDefence'])if(p.analysis[key].trim())lines.push(reportAnalysis[key]+' : '+p.analysis[key]);
+  for(const [key,label]of [['sessionObjective','Objectif de séance'],['sessionExercise','Exercice prévu']])if(p.plan[key]?.trim())lines.push(label+' : '+p.plan[key]);
   for(const key of ['priority','session1','session2','success'])if(p.plan[key].trim())lines.push(reportPlan[key]+' : '+p.plan[key]);
  }else{
   lines.push([p.team,p.category,p.formation].filter(Boolean).join(' · '));if(p.notes?.trim())lines.push('Notes : '+p.notes);
