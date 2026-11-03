@@ -221,3 +221,20 @@
     color: #2855a2;
   }
 }
+
+/* Full HTML documents retain their own responsive styles in an isolated viewer. */
+.resource-html-canvas {
+  overflow: hidden;
+}
+.resource-html-frame {
+  display: block;
+  width: 100%;
+  height: 65vh;
+  height: 65dvh;
+  min-height: 240px;
+  border: 0;
+  background: #fff;
+}
+.resource-actions [hidden] {
+  display: none !important;
+}

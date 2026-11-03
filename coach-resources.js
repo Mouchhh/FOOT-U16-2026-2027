@@ -9,6 +9,72 @@
   ];
   const documents = [
     {
+      id: "coups-de-pied-arretes",
+      title: "Les coups de pied arrêtés",
+      category: "tactics",
+      description:
+        "Repères, rôles et schémas pour travailler les coups de pied arrêtés.",
+      kind: "html",
+      format: "Fiche HTML",
+      tags: ["CPA", "Corners", "Coups francs"],
+      url: "assets/resources/coups-de-pied-arretes.html",
+    },
+    {
+      id: "preparation-physique",
+      title: "La préparation physique",
+      category: "protocols",
+      description:
+        "Qualités physiques, reprise et progression du travail avec ballon.",
+      kind: "html",
+      format: "Fiche HTML",
+      tags: ["Physique", "Reprise", "Préparation"],
+      url: "assets/resources/preparation-physique.html",
+    },
+    {
+      id: "planification-par-blocs",
+      title: "La planification par blocs",
+      category: "protocols",
+      description:
+        "Organiser la saison et construire une progression par blocs.",
+      kind: "html",
+      format: "Fiche HTML",
+      tags: ["Planification", "Saison", "Progression"],
+      url: "assets/resources/planification-par-blocs.html",
+    },
+    {
+      id: "construire-une-seance",
+      title: "Construire une séance",
+      category: "protocols",
+      description: "Préparer, structurer et animer une séance d’entraînement.",
+      kind: "html",
+      format: "Fiche HTML",
+      tags: ["Séance", "Exercice", "Situation", "Jeu"],
+      url: "assets/resources/construire-une-seance.html",
+    },
+    {
+      id: "echauffement-avant-match",
+      title: "L’échauffement d’avant-match",
+      category: "protocols",
+      description:
+        "Déroulé et étapes pour préparer les joueurs avant le match.",
+      kind: "html",
+      format: "Fiche HTML",
+      tags: ["Échauffement", "Avant-match", "Préparation"],
+      url: "assets/resources/echauffement-avant-match.html",
+    },
+    {
+      id: "analyse-video",
+      title: "L’analyse vidéo",
+      category: "media",
+      description:
+        "Filmer, découper et partager les séquences utiles au groupe.",
+      kind: "html",
+      format: "Fiche HTML",
+      tags: ["Vidéo", "Analyse", "Adversaire"],
+      url: "assets/resources/analyse-video.html",
+    },
+
+    {
       id: "progression-crm-foot",
       title: "Progression CRM foot",
       category: "protocols",
@@ -180,7 +246,17 @@
       "aria-label",
       "Aperçu du document, défilable après agrandissement",
     );
-    if (doc.kind === "video") {
+    if (doc.kind === "html") {
+      // An isolated document preserves the supplied layout and diagrams.
+      const frame = document.createElement("iframe");
+      frame.className = "resource-html-frame";
+      frame.title = doc.title;
+      frame.setAttribute("sandbox", "allow-scripts");
+      frame.src = doc.url;
+      canvas.classList.add("resource-html-canvas");
+      canvas.append(frame);
+      zoom.hidden = true;
+    } else if (doc.kind === "video") {
       const video = document.createElement("video");
       video.controls = true;
       video.preload = "metadata";
