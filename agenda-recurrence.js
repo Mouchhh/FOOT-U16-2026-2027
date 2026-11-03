@@ -1,4 +1,4 @@
-// Coach-scoped weekly appointments; recurrence never auto-saves training documents.
+// Rules persist indefinitely; only the requested calendar window is materialized.
 const agendaRecurringTypes = {
   training: { label: "Entraînement", short: "Séance", kind: "training" },
   match: { label: "Match", short: "Match", kind: "match" },
@@ -6,97 +6,520 @@ const agendaRecurringTypes = {
   meeting: { label: "Réunion / autre", short: "Réunion", kind: "meeting" },
 };
 const agendaRecurringKey = "vestiaire-agenda-week-template";
+const agendaRecurringId = /^[a-zA-Z0-9-]{1,80}$/;
+function agendaRecurringLegacyValid(plan) {
+  return (
+    plan &&
+    plan.version === 1 &&
+    ["month", "season", "custom"].includes(plan.scope) &&
+    Number.isSafeInteger(plan.revision) &&
+    plan.revision >= 0 &&
+    typeof plan.enabled === "boolean" &&
+    trainingDateValid(plan.from) &&
+    trainingDateValid(plan.to) &&
+    plan.to >= plan.from &&
+    typeof plan.category === "string" &&
+    plan.category.length <= 30 &&
+    Array.isArray(plan.slots) &&
+    plan.slots.length <= 20 &&
+    new Set(plan.slots.map((s) => s?.id)).size === plan.slots.length &&
+    new Set(plan.slots.map((s) => [s?.day, s?.type, s?.time].join("|")))
+      .size === plan.slots.length &&
+    (!plan.enabled || plan.slots.length > 0) &&
+    plan.slots.every(
+      (s) =>
+        s &&
+        agendaRecurringSlotValid({
+          ...s,
+          seriesId: s.id,
+          from: plan.from,
+          to: plan.to,
+          category: plan.category,
+          location: "",
+        }),
+    ) &&
+    plan.statuses &&
+    typeof plan.statuses === "object" &&
+    !Array.isArray(plan.statuses)
+  );
+}
+function agendaRecurringSlotValid(s) {
+  return (
+    s &&
+    typeof s.id === "string" &&
+    typeof s.seriesId === "string" &&
+    agendaRecurringId.test(s.id) &&
+    agendaRecurringId.test(s.seriesId) &&
+    trainingDateValid(s.from) &&
+    (s.to === null || (trainingDateValid(s.to) && s.to >= s.from)) &&
+    Number.isInteger(s.day) &&
+    s.day >= 1 &&
+    s.day <= 7 &&
+    Object.hasOwn(agendaRecurringTypes, s.type) &&
+    /^([01]\d|2[0-3]):[0-5]\d$/.test(s.time) &&
+    typeof s.title === "string" &&
+    s.title.length <= 100 &&
+    ["pending", "confirmed"].includes(s.status) &&
+    typeof s.category === "string" &&
+    s.category.length <= 30 &&
+    typeof s.location === "string" &&
+    s.location.length <= 500
+  );
+}
+function agendaRecurringKeyValid(id) {
+  const match = /^recurring:([a-zA-Z0-9-]{1,80}):(\d{4}-\d{2}-\d{2})$/.exec(id);
+  return match && trainingDateValid(match[2]) ? match : null;
+}
+function agendaRecurringFrozenValid(event) {
+  return (
+    event &&
+    typeof event.id === "string" &&
+    agendaRecurringKeyValid(event.id) &&
+    ["training", "match", "video", "meeting"].includes(event.kind) &&
+    trainingDateValid(event.date) &&
+    /^([01]\d|2[0-3]):[0-5]\d$/.test(event.time) &&
+    typeof event.title === "string" &&
+    event.title.length <= 100 &&
+    typeof event.category === "string" &&
+    event.category.length <= 30 &&
+    typeof event.location === "string" &&
+    event.location.length <= 500 &&
+    ["pending", "confirmed"].includes(event.status) &&
+    event.recurring &&
+    agendaRecurringId.test(event.recurring.slotId) &&
+    agendaRecurringId.test(event.recurring.seriesId) &&
+    Object.hasOwn(agendaRecurringTypes, event.recurring.type) &&
+    trainingDateValid(event.recurring.originalDate)
+  );
+}
+function agendaRecurringPreservePast(plan, cutoff, seriesId = null) {
+  for (const id of Object.keys(plan.exceptions)) {
+    const event = agendaRecurringResolve(id, plan);
+    if (
+      !event ||
+      (seriesId && event.recurring.seriesId !== seriesId) ||
+      event.date >= cutoff ||
+      event.recurring.originalDate < cutoff
+    )
+      continue;
+    const { open, ...snapshot } = event;
+    (plan.frozen ??= {})[id] = snapshot;
+  }
+}
 function agendaRecurringValid(plan) {
+  if (plan?.version === 1) return agendaRecurringLegacyValid(plan);
   if (
     !plan ||
-    plan.version !== 1 ||
-    !["month", "season", "custom"].includes(plan.scope) ||
+    plan.version !== 2 ||
+    plan.scope !== "persistent" ||
     !Number.isSafeInteger(plan.revision) ||
     plan.revision < 0 ||
     typeof plan.enabled !== "boolean" ||
     !trainingDateValid(plan.from) ||
-    !trainingDateValid(plan.to) ||
-    plan.to < plan.from ||
-    Date.parse(plan.to + "T12:00:00Z") - Date.parse(plan.from + "T12:00:00Z") >
-      399 * 86400000 ||
+    plan.to !== null ||
     typeof plan.category !== "string" ||
     plan.category.length > 30 ||
     !Array.isArray(plan.slots) ||
-    plan.slots.length > 20 ||
-    (plan.enabled && !plan.slots.length) ||
+    plan.slots.length > 2000 ||
+    !plan.slots.every(agendaRecurringSlotValid) ||
+    new Set(plan.slots.map((s) => s.id)).size !== plan.slots.length ||
     !plan.statuses ||
     typeof plan.statuses !== "object" ||
     Array.isArray(plan.statuses) ||
-    Object.keys(plan.statuses).length > 2000
+    !plan.exceptions ||
+    typeof plan.exceptions !== "object" ||
+    Array.isArray(plan.exceptions)
   )
     return false;
-  const ids = new Set(),
-    times = new Set();
-  for (const s of plan.slots) {
+  if (plan.enabled !== plan.slots.some((s) => s.to === null)) return false;
+  if (
+    plan.templateSlots !== undefined &&
+    (!Array.isArray(plan.templateSlots) ||
+      plan.templateSlots.length > 20 ||
+      !plan.templateSlots.every(
+        (s) =>
+          s &&
+          agendaRecurringSlotValid({
+            ...s,
+            seriesId: s.seriesId || s.id,
+            from: plan.from,
+            to: null,
+            category: plan.category,
+            location: s.location || "",
+          }),
+      ))
+  )
+    return false;
+  if (
+    plan.frozen !== undefined &&
+    (!plan.frozen ||
+      typeof plan.frozen !== "object" ||
+      Array.isArray(plan.frozen) ||
+      Object.keys(plan.frozen).length > 20000 ||
+      !Object.entries(plan.frozen).every(
+        ([id, event]) => id === event?.id && agendaRecurringFrozenValid(event),
+      ))
+  )
+    return false;
+  if (
+    Object.keys(plan.statuses).length > 20000 ||
+    Object.keys(plan.exceptions).length > 20000
+  )
+    return false;
+  if (
+    !Object.entries(plan.statuses).every(
+      ([id, status]) =>
+        agendaRecurringKeyValid(id) &&
+        ["pending", "confirmed"].includes(status),
+    )
+  )
+    return false;
+  if (
+    !Object.entries(plan.exceptions).every(
+      ([id, x]) =>
+        agendaRecurringKeyValid(id) &&
+        x &&
+        typeof x.deleted === "boolean" &&
+        (x.deleted ||
+          (trainingDateValid(x.date) &&
+            /^([01]\d|2[0-3]):[0-5]\d$/.test(x.time) &&
+            typeof x.title === "string" &&
+            x.title.trim() &&
+            x.title.length <= 100 &&
+            typeof x.location === "string" &&
+            x.location.length <= 500)),
+    )
+  )
+    return false;
+  // Two versions of the same series may never overlap.
+  const series = new Map();
+  for (const slot of plan.slots) {
+    const versions = series.get(slot.seriesId) || [];
     if (
-      !s ||
-      typeof s.id !== "string" ||
-      !/^[a-zA-Z0-9-]{1,80}$/.test(s.id) ||
-      ids.has(s.id) ||
-      !Number.isInteger(s.day) ||
-      s.day < 1 ||
-      s.day > 7 ||
-      !Object.hasOwn(agendaRecurringTypes, s.type) ||
-      !/^([01]\d|2[0-3]):[0-5]\d$/.test(s.time) ||
-      typeof s.title !== "string" ||
-      s.title.length > 100 ||
-      !["pending", "confirmed"].includes(s.status)
+      versions.some(
+        (s) =>
+          (s.to === null || s.to >= slot.from) &&
+          (slot.to === null || slot.to >= s.from),
+      )
     )
       return false;
-    const key = [s.day, s.type, s.time].join("|");
-    if (times.has(key)) return false;
-    ids.add(s.id);
-    times.add(key);
+    versions.push(slot);
+    series.set(slot.seriesId, versions);
   }
-  return Object.entries(plan.statuses).every(
-    ([key, status]) =>
-      /^recurring:[a-zA-Z0-9-]{1,80}:\d{4}-\d{2}-\d{2}$/.test(key) &&
-      ["pending", "confirmed"].includes(status),
-  );
+  return true;
+}
+function agendaRecurringUpgrade(plan) {
+  if (plan.version === 2) return structuredClone(plan);
+  return {
+    version: 2,
+    scope: "persistent",
+    revision: plan.revision,
+    enabled: plan.enabled,
+    from: plan.from,
+    to: null,
+    category: plan.category,
+    templateSlots: plan.slots.map((s) => ({ ...s, location: "" })),
+    slots: plan.slots.flatMap((s) => {
+      const stop =
+        plan.to < agendaCalendarToday()
+          ? plan.to
+          : agendaCalendarAdd(agendaCalendarToday(), -1);
+      return !plan.enabled && stop < plan.from
+        ? []
+        : [
+            {
+              ...s,
+              seriesId: s.id,
+              from: plan.from,
+              to: plan.enabled ? null : stop,
+              category: plan.category,
+              location: "",
+            },
+          ];
+    }),
+    statuses: { ...plan.statuses },
+    exceptions: {},
+  };
 }
 function agendaRecurringRead() {
   try {
-    const data = JSON.parse(coachStorageGet(agendaRecurringKey) || "null");
-    return agendaRecurringValid(data) ? data : null;
+    const value = JSON.parse(coachStorageGet(agendaRecurringKey) || "null");
+    if (!agendaRecurringValid(value)) return null;
+    const plan = agendaRecurringUpgrade(value);
+    return agendaRecurringValid(plan) ? plan : null;
   } catch {
     return null;
   }
 }
-function agendaRecurringOccurrences(plan = agendaRecurringRead()) {
-  if (!plan?.enabled || !agendaRecurringValid(plan)) return [];
-  const rows = [];
-  for (
-    let date = plan.from;
-    date <= plan.to;
-    date = agendaCalendarAdd(date, 1)
-  ) {
-    const day = new Date(date + "T12:00:00Z").getUTCDay() || 7;
-    for (const slot of plan.slots)
-      if (slot.day === day) {
-        const type = agendaRecurringTypes[slot.type],
-          id = "recurring:" + slot.id + ":" + date;
-        rows.push({
-          id,
-          kind: type.kind,
-          label: type.short,
-          date,
-          time: slot.time,
-          title: slot.title || type.label,
-          category: plan.category,
-          status: plan.statuses[id] || slot.status,
-          recurring: { slotId: slot.id, originalDate: date, type: slot.type },
-          _agendaKeys: ["event:" + id],
-          open: () => agendaRecurringOpen(id),
+function agendaRecurringWindow() {
+  const month = $("coach-agenda-month")?.value,
+    week = $("coach-agenda-week")?.value;
+  if (/^\d{4}-\d{2}$/.test(month || "")) {
+    const first = month + "-01",
+      start = agendaCalendarAdd(
+        first,
+        -((new Date(first + "T12:00:00Z").getUTCDay() + 6) % 7),
+      );
+    return {
+      from: start,
+      to: agendaCalendarAdd(agendaCalendarMonth(month, 1) + "-01", 6),
+    };
+  }
+  if (trainingDateValid(week || "")) {
+    const first = trainingWeekStart(week);
+    return { from: first, to: agendaCalendarAdd(first, 6) };
+  }
+  const today = agendaCalendarToday();
+  return {
+    from: agendaCalendarAdd(today, -31),
+    to: agendaCalendarAdd(today, 366),
+  };
+}
+function agendaRecurringMakeEvent(plan, slot, date) {
+  if (plan.frozen?.["recurring:" + slot.id + ":" + date]) return null;
+  if (
+    date < slot.from ||
+    (slot.to && date > slot.to) ||
+    (new Date(date + "T12:00:00Z").getUTCDay() || 7) !== slot.day
+  )
+    return null;
+  const id = "recurring:" + slot.id + ":" + date,
+    x = plan.exceptions[id];
+  if (x?.deleted) return null;
+  const type = agendaRecurringTypes[slot.type];
+  return {
+    id,
+    kind: type.kind,
+    label: type.short,
+    date: x?.date || date,
+    time: x?.time || slot.time,
+    title: x?.title || slot.title || type.label,
+    category: slot.category,
+    location: x?.location ?? slot.location,
+    status: plan.statuses[id] || slot.status,
+    recurring: {
+      slotId: slot.id,
+      seriesId: slot.seriesId,
+      originalDate: date,
+      type: slot.type,
+    },
+    _agendaKeys: ["event:" + id],
+    open: () => agendaRecurringOpen(id),
+  };
+}
+function agendaRecurringResolve(id, plan = agendaRecurringRead()) {
+  const match = agendaRecurringKeyValid(id);
+  if (!plan || !match) return null;
+  if (plan.frozen?.[id]) {
+    const x = plan.exceptions[id];
+    if (x?.deleted) return null;
+    return {
+      ...plan.frozen[id],
+      ...(x && !x.deleted ? x : {}),
+      status: plan.statuses[id] || plan.frozen[id].status,
+      open: () => agendaRecurringOpen(id),
+    };
+  }
+  const slot = plan.slots.find((s) => s.id === match[1]);
+  return slot ? agendaRecurringMakeEvent(plan, slot, match[2]) : null;
+}
+function agendaRecurringOccurrences(
+  plan = agendaRecurringRead(),
+  range = window.agendaRecurringQueryRange || agendaRecurringWindow(),
+) {
+  if (
+    !plan ||
+    !agendaRecurringValid(plan) ||
+    !trainingDateValid(range.from) ||
+    !trainingDateValid(range.to) ||
+    range.to < range.from ||
+    Date.parse(range.to) - Date.parse(range.from) > 800 * 86400000
+  )
+    return [];
+  plan = agendaRecurringUpgrade(plan);
+  const events = new Map();
+  for (const slot of plan.slots) {
+    let from = slot.from > range.from ? slot.from : range.from,
+      to = slot.to && slot.to < range.to ? slot.to : range.to;
+    if (from > to) continue;
+    const day = new Date(from + "T12:00:00Z").getUTCDay() || 7;
+    from = agendaCalendarAdd(from, (slot.day - day + 7) % 7);
+    for (let date = from; date <= to; date = agendaCalendarAdd(date, 7)) {
+      const event = agendaRecurringMakeEvent(plan, slot, date);
+      if (event) events.set(event.id, event);
+    }
+  }
+  // A moved occurrence must also be found in its destination month, even years away.
+  for (const [id, x] of Object.entries(plan.exceptions))
+    if (!x.deleted && x.date >= range.from && x.date <= range.to) {
+      const event = agendaRecurringResolve(id, plan);
+      if (event) events.set(id, event);
+    }
+  for (const id of Object.keys(plan.frozen || {})) {
+    const event = agendaRecurringResolve(id, plan);
+    if (event && event.date >= range.from && event.date <= range.to)
+      events.set(id, event);
+  }
+  const legacyEdits =
+    typeof agendaEventEdits === "function" ? agendaEventEdits() : [];
+  for (const edit of legacyEdits)
+    if (edit.date >= range.from && edit.date <= range.to)
+      for (const key of edit.keys) {
+        if (!key.startsWith("event:recurring:")) continue;
+        const event = agendaRecurringResolve(key.slice(6), plan);
+        if (event) events.set(event.id, event);
+      }
+  return [...events.values()]
+    .filter(
+      (e) =>
+        (e.date >= range.from && e.date <= range.to) ||
+        legacyEdits.some(
+          (x) =>
+            x.keys.includes("event:" + e.id) &&
+            x.date >= range.from &&
+            x.date <= range.to,
+        ),
+    )
+    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+}
+function agendaRecurringTrimMetadata(plan) {
+  const eligible = (id) => {
+    if (plan.frozen?.[id]) return true;
+    const m = agendaRecurringKeyValid(id),
+      s = m && plan.slots.find((s) => s.id === m[1]);
+    return s && m[2] >= s.from && (!s.to || m[2] <= s.to);
+  };
+  plan.statuses = Object.fromEntries(
+    Object.entries(plan.statuses).filter(([id]) => eligible(id)),
+  );
+  plan.exceptions = Object.fromEntries(
+    Object.entries(plan.exceptions).filter(([id]) => eligible(id)),
+  );
+  plan.enabled = plan.slots.some((s) => s.to === null);
+  return plan;
+}
+function agendaRecurringCommit(plan, revision) {
+  if ((agendaRecurringRead()?.revision || 0) !== revision)
+    throw Error(
+      "La récurrence a changé dans une autre fenêtre. Rouvrez le réglage.",
+    );
+  plan.revision = revision + 1;
+  if (!agendaRecurringValid(plan))
+    throw Error(
+      "Réglage invalide ou trop volumineux. Les rendez-vous précédents sont conservés.",
+    );
+  coachStorageSet(agendaRecurringKey, JSON.stringify(plan));
+}
+function agendaRecurringReplace(plan, rows, cutoff, enabled, category) {
+  const next = plan
+      ? structuredClone(plan)
+      : {
+          version: 2,
+          scope: "persistent",
+          revision: 0,
+          enabled: true,
+          from: cutoff,
+          to: null,
+          category,
+          statuses: {},
+          exceptions: {},
+          slots: [],
+        },
+    kept = new Set(),
+    same = (s, r) =>
+      ["day", "type", "time", "title", "status", "location"].every(
+        (k) => (s[k] || "") === (r[k] || ""),
+      ) && s.category === category;
+  agendaRecurringPreservePast(next, cutoff);
+  next.slots = next.slots.flatMap((s) => {
+    if (s.to && s.to < cutoff) return [s];
+    const row = rows.find((r) => r.id === s.id);
+    if (enabled && row && same(s, row) && s.to === null && s.from <= cutoff) {
+      kept.add(row.id);
+      return [s];
+    }
+    return s.from < cutoff ? [{ ...s, to: agendaCalendarAdd(cutoff, -1) }] : [];
+  });
+  if (enabled)
+    for (const row of rows)
+      if (!kept.has(row.id)) {
+        const previous = plan?.slots.find((s) => s.id === row.id);
+        next.slots.push({
+          ...row,
+          id: crypto.randomUUID(),
+          seriesId: previous?.seriesId || row.seriesId || row.id,
+          from: cutoff,
+          to: null,
+          category,
+          location: row.location || "",
         });
       }
-  }
-  return rows;
+  next.from = next.from < cutoff ? next.from : cutoff;
+  next.category = category;
+  next.templateSlots = structuredClone(rows);
+  return agendaRecurringTrimMetadata(next);
 }
+function agendaRecurringChange(id, scope, changes, revision) {
+  const plan = agendaRecurringRead(),
+    event = agendaRecurringResolve(id, plan);
+  if (!event || plan.revision !== revision)
+    throw Error("Ce rendez-vous a changé. Rouvrez-le depuis le calendrier.");
+  if (scope === "one") {
+    plan.exceptions[id] = changes
+      ? { ...changes, deleted: false }
+      : { deleted: true };
+  } else if (scope === "future") {
+    const previousDefaults = plan.slots.filter((s) => s.to === null);
+    const slot = plan.slots.find((s) => s.id === event.recurring.slotId) ||
+        plan.slots.find((s) => s.seriesId === event.recurring.seriesId) || {
+          ...event.recurring,
+          ...event,
+          id: event.recurring.slotId,
+          seriesId: event.recurring.seriesId,
+          type: event.recurring.type,
+        },
+      today = agendaCalendarToday(),
+      firstAffected =
+        changes && changes.date < event.date ? changes.date : event.date,
+      cutoff = firstAffected > today ? firstAffected : today;
+    agendaRecurringPreservePast(plan, cutoff, slot.seriesId);
+    // An exception moved out of a past slot into the affected future must not resurrect at its old date.
+    for (const key of Object.keys(plan.exceptions)) {
+      const moved = agendaRecurringResolve(key, plan);
+      if (
+        moved &&
+        moved.recurring.seriesId === slot.seriesId &&
+        moved.date >= cutoff &&
+        moved.recurring.originalDate < cutoff
+      )
+        plan.exceptions[key] = { deleted: true };
+    }
+    plan.slots = plan.slots.flatMap((s) =>
+      s.seriesId !== slot.seriesId || (s.to && s.to < cutoff)
+        ? [s]
+        : s.from < cutoff
+          ? [{ ...s, to: agendaCalendarAdd(cutoff, -1) }]
+          : [],
+    );
+    if (changes)
+      plan.slots.push({
+        ...slot,
+        id: crypto.randomUUID(),
+        from: changes.date > cutoff ? changes.date : cutoff,
+        to: null,
+        day: new Date(changes.date + "T12:00:00Z").getUTCDay() || 7,
+        time: changes.time,
+        title: changes.title,
+        location: changes.location,
+      });
+    agendaRecurringTrimMetadata(plan);
+    plan.templateSlots = structuredClone(
+      plan.enabled ? plan.slots.filter((s) => s.to === null) : previousDefaults,
+    );
+  } else throw Error("Choisissez la portée de la modification.");
+  agendaRecurringCommit(plan, revision);
+}
+
 function agendaRecurringState(event) {
   if (["pending", "confirmed"].includes(event.status)) return event.status;
   if (event.draft && event.kind === "match") {
@@ -287,8 +710,141 @@ function agendaRecurringOpen(id) {
     dialog.close();
     agendaRecurringConfigure();
   };
-  actions.append(toggle, configure);
+  const edit = el("button", "export", "Modifier ce rendez-vous"),
+    remove = el(
+      "button",
+      "export recurring-delete",
+      "Supprimer ce rendez-vous",
+    );
+  edit.type = remove.type = "button";
+  edit.onclick = () => {
+    dialog.close();
+    agendaRecurringEdit(id);
+  };
+  remove.onclick = () => {
+    dialog.close();
+    agendaRecurringEdit(id, true);
+  };
+  actions.append(toggle, edit, remove, configure);
   dialog.append(state, actions, status);
+  document.body.append(dialog);
+  dialog.showModal();
+}
+function agendaRecurringEdit(id, remove = false, moveDate = null) {
+  const plan = agendaRecurringRead(),
+    event =
+      agendaCalendarEvents().find((e) => e.id === id && e.recurring) ||
+      agendaRecurringResolve(id, plan);
+  if (!plan || !event) return;
+  const owner = activeCoach.id,
+    revision = plan.revision,
+    { dialog, close } = agendaRecurringDialog(
+      remove
+        ? "Supprimer le rendez-vous récurrent"
+        : "Modifier le rendez-vous récurrent",
+      "agenda-recurring-edit",
+    ),
+    form = el("form", "training-form"),
+    scopeLabel = el("label", "report-field", "Appliquer à"),
+    scope = el("select");
+  scope.id = "recurring-edit-scope";
+  scope.append(
+    new Option("Cette occurrence uniquement", "one"),
+    new Option("Toutes les occurrences futures de ce créneau", "future"),
+  );
+  scopeLabel.append(scope);
+  form.append(scopeLabel);
+  const field = (label, type, value, max) => {
+    const wrap = el("label", "report-field", label),
+      input = el("input");
+    input.type = type;
+    input.value = value || "";
+    if (max) input.maxLength = max;
+    wrap.append(input);
+    form.append(wrap);
+    return input;
+  };
+  let title, date, time, location;
+  if (!remove) {
+    title = field("Titre", "text", event.title, 100);
+    date = field("Date", "date", moveDate || event.date);
+    time = field("Heure", "time", event.time);
+    location = field("Lieu", "text", event.location, 500);
+    title.required = date.required = time.required = true;
+  }
+  const note = el("p", "hint"),
+    status = el("p", "hint"),
+    save = el(
+      "button",
+      remove ? "export recurring-delete" : "primary",
+      remove ? "Supprimer" : "Enregistrer les modifications",
+    );
+  status.setAttribute("role", "alert");
+  save.type = "submit";
+  const explain = () => {
+    if (date) {
+      date.min = scope.value === "future" ? agendaCalendarToday() : "";
+      if (scope.value === "future" && date.value < date.min) {
+        const day = new Date(date.value + "T12:00:00Z").getUTCDay() || 7,
+          current = new Date(date.min + "T12:00:00Z").getUTCDay() || 7;
+        date.value = agendaCalendarAdd(date.min, (day - current + 7) % 7);
+      }
+    }
+    note.textContent =
+      scope.value === "one"
+        ? "Les autres rendez-vous restent inchangés."
+        : "S’applique à ce créneau à partir de la première date concernée (au plus tôt aujourd’hui). Les dates passées et les séances ou matchs déjà enregistrés sont conservés.";
+  };
+  scope.onchange = explain;
+  explain();
+  form.append(note, status, save);
+  dialog.append(form);
+  let dirty = false;
+  form.addEventListener("input", () => (dirty = true));
+  form.addEventListener("change", () => (dirty = true));
+  const mayClose = () =>
+    !dirty ||
+    confirm("Fermer sans enregistrer la modification de ce rendez-vous ?");
+  close.onclick = () => {
+    if (mayClose()) dialog.close();
+  };
+  dialog.addEventListener("cancel", (e) => {
+    if (!mayClose()) e.preventDefault();
+  });
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    if (activeCoach.id !== owner || !form.reportValidity()) return;
+    if (!remove && !title.value.trim()) return;
+    try {
+      agendaRecurringChange(
+        id,
+        scope.value,
+        remove
+          ? null
+          : {
+              title: title.value.trim(),
+              date: date.value,
+              time: time.value,
+              location: location.value.trim(),
+            },
+        revision,
+      );
+      dirty = false;
+      dialog.close();
+      if (!remove) {
+        $("coach-agenda-month").value = date.value.slice(0, 7);
+        $("coach-agenda-week").value = "";
+      }
+      renderCoachAgenda();
+      notify(
+        remove
+          ? "Récurrence supprimée pour la portée choisie."
+          : "Rendez-vous mis à jour pour la portée choisie.",
+      );
+    } catch (error) {
+      status.textContent = error.message || "Modification non enregistrée.";
+    }
+  };
   document.body.append(dialog);
   dialog.showModal();
 }
@@ -301,71 +857,53 @@ function agendaRecurringConfigure() {
       "Ma semaine type",
       "agenda-week-template",
     );
-  const month =
-      $("coach-agenda-month").value || agendaCalendarToday().slice(0, 7),
-    year = Number(month.slice(0, 4)) - (Number(month.slice(5)) < 7 ? 1 : 0);
   dialog.append(
     el(
       "p",
       "hint",
-      "Choisissez vos jours, horaires et types de rendez-vous. La récurrence est affichée chaque semaine entre les dates choisies, sans créer de fiches de séance vides. Les documents et rencontres déjà enregistrés sont conservés.",
+      "Vos créneaux se répètent sans date de fin, jusqu’à votre modification ou suppression. Les modifications ci-dessous s’appliquent à partir de la date choisie ; le passé reste conservé.",
     ),
   );
   const form = el("form"),
-    fields = el("div", "recurring-period");
-  let dirty = false;
+    fields = el("div", "recurring-period"),
+    today = agendaCalendarToday(),
+    month = $("coach-agenda-month").value || today.slice(0, 7);
+  let dirty = false,
+    slotsDirty = false;
   function field(label, type, value) {
     const wrap = el("label", "report-field", label),
       input = el("input");
     input.type = type;
     input.value = value;
-    input.setAttribute("aria-label", label);
     wrap.append(input);
     fields.append(wrap);
     return input;
   }
-  const modeLabel = el("label", "report-field", "Période"),
-    mode = el("select");
-  mode.setAttribute("aria-label", "Période");
-  for (const [value, label] of [
-    ["month", "Mois affiché"],
-    ["season", "Saison juillet → juin"],
-    ["custom", "Dates personnalisées"],
-  ])
-    mode.append(new Option(label, value));
-  mode.value = stored?.scope || "month";
-  modeLabel.append(mode);
-  fields.append(modeLabel);
-  const from = field("Du", "date", stored?.from || month + "-01"),
-    to = field(
-      "Au",
+  const from = field(
+      "À partir du",
       "date",
-      stored?.to ||
-        agendaCalendarAdd(agendaCalendarMonth(month, 1) + "-01", -1),
+      month + "-01" > today ? month + "-01" : today,
     ),
     category = field(
       "Catégorie / équipe",
       "text",
-      stored?.category || getCompositionBoard().category || "",
+      stored?.category ||
+        activeCoachTeam.category ||
+        getCompositionBoard().category ||
+        "",
     );
-  from.required = to.required = true;
+  from.required = true;
+  if (stored) from.min = today;
   category.maxLength = 30;
-  if (
-    stored &&
-    ((mode.value === "month" &&
-      (from.value !== month + "-01" ||
-        to.value !==
-          agendaCalendarAdd(agendaCalendarMonth(month, 1) + "-01", -1))) ||
-      (mode.value === "season" &&
-        (from.value !== year + "-07-01" || to.value !== year + 1 + "-06-30")))
-  )
-    mode.value = "custom";
   const activeLabel = el("label", "recurring-enabled"),
     active = el("input");
   active.type = "checkbox";
   active.checked = stored?.enabled ?? true;
   active.setAttribute("aria-label", "Activer la récurrence");
-  activeLabel.append(active, document.createTextNode(" Activer la récurrence"));
+  activeLabel.append(
+    active,
+    document.createTextNode(" Activer la récurrence sans date de fin"),
+  );
   const list = el("div", "recurring-slots"),
     add = el("button", "export", "+ Ajouter un créneau"),
     preview = el("p", "hint"),
@@ -453,8 +991,10 @@ function agendaRecurringConfigure() {
       status: state.input,
       time,
       title,
+      location: value.location || "",
     };
     remove.onclick = () => {
+      slotsDirty = true;
       rows.splice(rows.indexOf(item), 1);
       row.remove();
       dirty = true;
@@ -465,72 +1005,79 @@ function agendaRecurringConfigure() {
     list.append(row);
     refresh();
   }
+
+  function values() {
+    return rows.map((r) => ({
+      id: r.id,
+      day: Number(r.day.value),
+      type: r.type.value,
+      time: r.time.value,
+      title: r.title.value.trim(),
+      status: r.status.value,
+      location: r.location || "",
+    }));
+  }
   function draft() {
-    return {
-      version: 1,
-      revision: revision + 1,
-      enabled: active.checked,
-      scope: mode.value,
-      from: from.value,
-      to: to.value,
-      category: category.value.trim(),
-      slots: rows.map((r) => ({
-        id: r.id,
-        day: Number(r.day.value),
-        type: r.type.value,
-        time: r.time.value,
-        title: r.title.value.trim(),
-        status: r.status.value,
-      })),
-      statuses: Object.fromEntries(
-        Object.entries(stored?.statuses || {}).filter(([key]) => {
-          const [, id, date] = key.split(":");
-          return (
-            rows.some((r) => r.id === id) &&
-            date >= from.value &&
-            date <= to.value
-          );
-        }),
-      ),
-    };
+    return agendaRecurringReplace(
+      stored,
+      values(),
+      from.value,
+      active.checked,
+      category.value.trim(),
+    );
   }
   function refresh() {
-    const plan = draft();
     add.disabled = rows.length >= 20;
-    if (!agendaRecurringValid(plan)) {
+    if (
+      !trainingDateValid(from.value) ||
+      (active.checked && !rows.length) ||
+      rows.some((r) => !r.day.value || !r.type.value || !r.time.value)
+    ) {
       preview.textContent =
-        "Renseignez une période valide (400 jours maximum), puis le jour, le type et l’horaire de chaque créneau. Deux créneaux identiques ne peuvent pas être enregistrés.";
+        "Choisissez les jours, les types et les horaires de vos créneaux.";
       return;
     }
-    const occurrences = agendaRecurringOccurrences(plan);
-    preview.textContent = plan.enabled
-      ? occurrences.length +
-        " rendez-vous hebdomadaire(s) sur cette période. Les rendez-vous déjà enregistrés à ces créneaux prennent leur place."
-      : "Récurrence en pause. Les rendez-vous déjà enregistrés restent dans votre agenda.";
+    preview.textContent = active.checked
+      ? rows.length +
+        " créneau(x) par semaine · sans date de fin. Les rendez-vous déjà enregistrés prennent leur place."
+      : "Arrêt des occurrences futures à la date choisie. Les rendez-vous passés et les documents enregistrés restent conservés.";
   }
-  mode.onchange = () => {
-    if (mode.value === "month") {
-      from.value = month + "-01";
-      to.value = agendaCalendarAdd(agendaCalendarMonth(month, 1) + "-01", -1);
-    } else if (mode.value === "season") {
-      from.value = year + "-07-01";
-      to.value = year + 1 + "-06-30";
-    }
-    dirty = true;
-    refresh();
-  };
-  from.onchange = to.onchange = () => {
-    mode.value = "custom";
-  };
   add.onclick = () => {
+    slotsDirty = true;
     addSlot();
     dirty = true;
   };
   form.append(fields, activeLabel, list, add, preview, status, save);
   dialog.append(form);
-  for (const slot of stored?.slots || []) addSlot(slot);
+  function loadSlots() {
+    let selected =
+      stored?.slots.filter(
+        (s) => s.from <= from.value && (!s.to || s.to >= from.value),
+      ) || [];
+    if (stored && !stored.enabled) {
+      const latest = new Map();
+      for (const slot of stored.slots)
+        if (
+          !latest.has(slot.seriesId) ||
+          latest.get(slot.seriesId).from < slot.from
+        )
+          latest.set(slot.seriesId, slot);
+      selected = stored.templateSlots?.length
+        ? stored.templateSlots
+        : [...latest.values()];
+    }
+    list.replaceChildren();
+    rows.length = 0;
+    for (const slot of selected) addSlot(slot);
+  }
+  loadSlots();
+  from.addEventListener("change", () => {
+    if (stored && !slotsDirty) loadSlots();
+    refresh();
+  });
   refresh();
-  form.addEventListener("input", () => {
+  form.addEventListener("input", (event) => {
+    if (list.contains(event.target)) slotsDirty = true;
     dirty = true;
     refresh();
   });
@@ -549,32 +1096,34 @@ function agendaRecurringConfigure() {
   });
   form.onsubmit = (e) => {
     e.preventDefault();
-    if (!form.reportValidity()) return;
-    const plan = draft();
+    if (activeCoach.id !== owner || !form.reportValidity()) return;
+    const slots = values(),
+      keys = slots.map((s) => [s.day, s.type, s.time].join("|"));
     if (
-      activeCoach.id !== owner ||
-      (agendaRecurringRead()?.revision || 0) !== revision
+      (active.checked && !slots.length) ||
+      new Set(keys).size !== keys.length ||
+      slots.some((s) => !s.day || !s.type || !s.time)
     ) {
       status.textContent =
-        "Le coach ou la semaine type a changé. Fermez puis rouvrez le réglage.";
-      return;
-    }
-    if (!agendaRecurringValid(plan)) {
-      refresh();
-      status.textContent =
-        "Vérifiez les dates et les créneaux. Ajoutez un créneau ou désactivez la récurrence.";
+        "Ajoutez des créneaux complets et distincts, ou désactivez la récurrence.";
       return;
     }
     try {
-      coachStorageSet(agendaRecurringKey, JSON.stringify(plan));
+      const plan = draft();
+      agendaRecurringCommit(plan, revision);
       dirty = false;
       dialog.close();
       renderCoachAgenda();
       notify(
-        "Votre semaine type est enregistrée dans votre agenda sur cet appareil.",
+        active.checked
+          ? "Semaine type enregistrée sans date de fin sur cet appareil."
+          : "Récurrence arrêtée à partir du " +
+              from.value +
+              ". Le passé reste conservé.",
       );
-    } catch {
+    } catch (error) {
       status.textContent =
+        error.message ||
         "Enregistrement impossible. Les réglages précédents sont conservés.";
     }
   };
@@ -622,75 +1171,114 @@ document.addEventListener("DOMContentLoaded", () => {
   $("coach-agenda-list").before(intro);
   const render = renderCoachAgenda;
   renderCoachAgenda = function () {
-    render();
-    const plan = agendaRecurringRead();
-    intro.replaceChildren(
-      el(
-        "strong",
-        "",
-        plan
-          ? plan.enabled
-            ? "Votre semaine type est active"
-            : "Votre semaine type est en pause"
-          : "Quand ont lieu vos séances ?",
-      ),
-      el(
-        "p",
-        "hint",
-        plan
-          ? plan.slots.length +
-              " créneau(x) · du " +
-              plan.from +
+    const previousRange = window.agendaRecurringQueryRange;
+    window.agendaRecurringQueryRange = previousRange || agendaRecurringWindow();
+    try {
+      render();
+      const plan = agendaRecurringRead();
+      intro.replaceChildren(
+        el(
+          "strong",
+          "",
+          plan
+            ? plan.enabled
+              ? "Votre semaine type est active"
+              : "Vos occurrences futures sont arrêtées"
+            : "Quand ont lieu vos séances ?",
+        ),
+        el(
+          "p",
+          "hint",
+          plan
+            ? plan.slots.filter((s) => s.to === null).length +
+                " créneau(x) sans date de fin. Modifiez une occurrence ou les suivantes depuis le calendrier."
+            : "Choisissez vos jours et horaires : vos rendez-vous se répéteront sans date de fin.",
+        ),
+      );
+      const configure = el(
+        "button",
+        "export",
+        plan ? "Modifier ma semaine type" : "Configurer ma semaine type",
+      );
+      configure.type = "button";
+      configure.onclick = agendaRecurringConfigure;
+      intro.append(configure);
+      if (
+        plan &&
+        !$("coach-agenda-month").value &&
+        !$("coach-agenda-week").value
+      ) {
+        const range = agendaRecurringWindow();
+        intro.append(
+          el(
+            "p",
+            "hint",
+            "Vue Tout : récurrences affichées du " +
+              range.from +
               " au " +
-              plan.to +
-              ". Modifiez les créneaux, ou une seule occurrence depuis le calendrier."
-          : "Choisissez vos jours et horaires pour afficher automatiquement vos rendez-vous du mois ou de la saison.",
-      ),
-    );
-    const configure = el(
-      "button",
-      "export",
-      plan ? "Modifier ma semaine type" : "Configurer ma semaine type",
-    );
-    configure.type = "button";
-    configure.onclick = agendaRecurringConfigure;
-    intro.append(configure);
-    const events = new Map(agendaCalendarEvents().map((e) => [e.id, e]));
-    for (const node of $("coach-agenda-list").querySelectorAll(
-      "[data-agenda-event]",
-    )) {
-      const event = events.get(node.dataset.agendaEvent);
-      if (!event) continue;
-      const state = agendaRecurringState(event);
-      node.dataset.eventStatus = state;
-      node.classList.remove("agenda-status-pending", "agenda-status-confirmed");
-      node.classList.add("agenda-status-" + state);
-      node.title +=
-        (node.title ? " · " : "") +
-        (state === "pending" ? "À préparer / en attente" : "Créé / confirmé");
-    }
-    const legend = $("coach-agenda-list").querySelector(
-      ".agenda-calendar-legend",
-    );
-    if (legend) {
-      legend
-        .querySelectorAll("[data-recurring-legend]")
-        .forEach((node) => node.remove());
-      for (const [state, label] of [
-        ["pending", "À préparer"],
-        ["confirmed", "Créé / confirmé"],
-      ]) {
-        const tag = el("span", "agenda-status-" + state, label);
-        tag.dataset.recurringLegend = "true";
-        legend.append(tag);
+              range.to +
+              ". Choisissez un autre mois pour poursuivre, sans limite de fin.",
+          ),
+        );
       }
+      const events = new Map(agendaCalendarEvents().map((e) => [e.id, e]));
+      for (const node of $("coach-agenda-list").querySelectorAll(
+        "[data-agenda-event]",
+      )) {
+        const event = events.get(node.dataset.agendaEvent);
+        if (!event) continue;
+        const state = agendaRecurringState(event);
+        node.dataset.eventStatus = state;
+        node.classList.remove(
+          "agenda-status-pending",
+          "agenda-status-confirmed",
+        );
+        node.classList.add("agenda-status-" + state);
+        node.title +=
+          (node.title ? " · " : "") +
+          (state === "pending" ? "À préparer / en attente" : "Créé / confirmé");
+      }
+      const legend = $("coach-agenda-list").querySelector(
+        ".agenda-calendar-legend",
+      );
+      if (legend) {
+        legend
+          .querySelectorAll("[data-recurring-legend]")
+          .forEach((node) => node.remove());
+        for (const [state, label] of [
+          ["pending", "À préparer"],
+          ["confirmed", "Créé / confirmé"],
+        ]) {
+          const tag = el("span", "agenda-status-" + state, label);
+          tag.dataset.recurringLegend = "true";
+          legend.append(tag);
+        }
+      }
+    } finally {
+      window.agendaRecurringQueryRange = previousRange;
     }
   };
   const clear = clubNetworkClear;
   clubNetworkClear = function () {
     $("agenda-week-template")?.close();
     $("agenda-recurring-event")?.close();
+    $("agenda-recurring-edit")?.close();
     return clear();
   };
   renderCoachAgenda();
 });
+
+function agendaRecurringDeletedCount() {
+  return Object.values(agendaRecurringRead()?.exceptions || {}).filter(
+    (x) => x.deleted,
+  ).length;
+}
+function agendaRecurringRestoreDeleted() {
+  const plan = agendaRecurringRead();
+  if (!plan) return;
+  const revision = plan.revision;
+  plan.exceptions = Object.fromEntries(
+    Object.entries(plan.exceptions).filter(([, x]) => !x.deleted),
+  );
+  agendaRecurringCommit(plan, revision);
+}

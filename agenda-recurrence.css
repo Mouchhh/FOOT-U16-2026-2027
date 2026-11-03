@@ -146,3 +146,28 @@
     border-style: solid;
   }
 }
+@media screen {
+  .recurring-delete {
+    color: var(--club-logo-red, #e41f28);
+    border-color: var(--club-logo-red, #e41f28);
+    background: #fff;
+  }
+  #agenda-recurring-edit .training-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+  #agenda-recurring-edit input,
+  #agenda-recurring-edit select {
+    box-sizing: border-box;
+    min-height: 44px;
+    max-width: 100%;
+    min-width: 0;
+  }
+  @media (max-width: 650px) {
+    #agenda-recurring-edit input,
+    #agenda-recurring-edit select {
+      font-size: 16px;
+    }
+  }
+}

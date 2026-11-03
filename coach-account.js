@@ -146,7 +146,10 @@ function coachAccountCheckReminders(date = new Date()) {
     const now = homeClubNow(date).minutes;
     const due = (
       typeof agendaCalendarAllEvents === "function"
-        ? agendaCalendarAllEvents()
+        ? agendaCalendarAllEvents({
+            from: homeClubNow(date).day,
+            to: agendaCalendarAdd(homeClubNow(date).day, 1),
+          })
         : agendaCalendarEvents()
     )
       .filter((e) => settings[e.kind] && /^\d{2}:\d{2}$/.test(e.time))

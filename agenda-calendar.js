@@ -1,6 +1,6 @@
 // Reminder queries ignore display filters without changing the coach's selected view.
 let agendaCalendarUnfilteredDepth=0;
-function agendaCalendarAllEvents(){agendaCalendarUnfilteredDepth++;try{return agendaCalendarEvents();}finally{agendaCalendarUnfilteredDepth--;}}
+function agendaCalendarAllEvents(range){const previous=window.agendaRecurringQueryRange;window.agendaRecurringQueryRange=range;agendaCalendarUnfilteredDepth++;try{return agendaCalendarEvents();}finally{agendaCalendarUnfilteredDepth--;window.agendaRecurringQueryRange=previous;}}
 // Calendar dates represent the club's local appointments; date arithmetic uses UTC, not browser DST.
 function agendaCalendarToday(){return homeClubNow().day;}
 function agendaCalendarAdd(day,n){const date=new Date(day+'T12:00:00Z');date.setUTCDate(date.getUTCDate()+n);return date.toISOString().slice(0,10);}

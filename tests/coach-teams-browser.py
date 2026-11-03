@@ -43,7 +43,7 @@ with sync_playwright() as p:
     assert page.evaluate("JSON.parse(localStorage.getItem(coachTeamBaseKey('vestiaire-training-library'))).map(s=>s.title).sort()")==['Sans catégorie','Séance Seniors','Séance U15']
     page.locator('#coach-team-select').select_option(ids['senior']);page.wait_for_function('(id)=>activeCoachTeam.id===id',arg=ids['senior']);ready(page)
     assert page.evaluate('currentTraining.title')=='Brouillon Seniors'
-    assert page.evaluate('agendaRecurringOccurrences().length')==4
+    assert page.evaluate("agendaRecurringOccurrences(agendaRecurringRead(),{from:'2026-11-01',to:'2026-11-30'}).length")==4
     assert page.evaluate('squadPlayers().map(p=>p.name)')==['Alice','Carole']
     # A second tab independently selects a team; stale callbacks in the first keep their scope.
     other=context.new_page();other.on('pageerror',lambda e:errors.append(str(e)));other.goto('http://127.0.0.1:3016/?mode=local');ready(other)
