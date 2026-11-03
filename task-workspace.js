@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded',()=>{
  const terrain=workspaceFlows.terrain,causerie=document.querySelector('#terrain-page-1 .terrain-team-section'),form=$('match-plan-form'),summary=document.querySelector('.match-plan-card'),settings=document.querySelector('.settings');
  const settingsDrawer=el('details','flow-disclosure task-match-settings');settingsDrawer.id='task-match-settings';settingsDrawer.append(el('summary','','Réglages du match · équipe, terrain et maillots'));
  settings.before(settingsDrawer);settingsDrawer.append(settings);
+ // Match settings belong to Composition; keep the causerie focused on its content.
+ document.querySelector("#terrain-page-0 .terrain-team-section").append(settingsDrawer);
  const brief=el('section','task-causerie');brief.id='task-causerie';const summaryDrawer=el('details','task-causerie-summary');summaryDrawer.append(el('summary','','Repères du match & notes existantes'),summary);brief.append(summaryDrawer,form);causerie.prepend(brief);
  if($('personal-canva'))brief.append($('personal-canva'));
  if($('personal-canva-download'))brief.append($('personal-canva-download'));
@@ -54,7 +56,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(focusId&&$(focusId))$(focusId).focus({preventScroll:true});
  }
  function schedule(){cancelAnimationFrame(frame);frame=requestAnimationFrame(refresh);}
- window.taskWorkspace={enter(parent){workspaceMenus.close();if(parent==='view-home')workspaceFlows.home.go(0);else if(parent==='view-pitch'){if(activateTerrainBoard('composition'))terrain.go(0);}else if(parent==='view-coach-agenda')workspaceFlows.agenda.go(1);else if(parent==='view-club-network'&&clubNetworkBound())workspaceFlows.club.go(0);schedule();},settings(){go('view-pitch',()=>{if(!activateTerrainBoard('composition'))return;terrain.go(1);settingsDrawer.open=true;if(window.workspaceFraming)workspaceFraming.request({target:settingsDrawer});else settingsDrawer.scrollIntoView({block:'start'});});}};
+ window.taskWorkspace={enter(parent){workspaceMenus.close();if(parent==='view-home')workspaceFlows.home.go(0);else if(parent==='view-pitch'){if(activateTerrainBoard('composition'))terrain.go(0);}else if(parent==='view-coach-agenda')workspaceFlows.agenda.go(1);else if(parent==='view-club-network'&&clubNetworkBound())workspaceFlows.club.go(0);schedule();},settings(){go('view-pitch',()=>{if(!activateTerrainBoard('composition'))return;terrain.go(0);settingsDrawer.open=true;if(window.workspaceFraming)workspaceFraming.request({target:settingsDrawer});else settingsDrawer.scrollIntoView({block:'start'});});}};
  new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['class']});
  for(const flow of Object.values(workspaceFlows))new MutationObserver(schedule).observe(flow.root,{attributes:true,attributeFilter:['data-step']});
  new MutationObserver(schedule).observe($('training-space'),{subtree:true,attributes:true,attributeFilter:['hidden']});

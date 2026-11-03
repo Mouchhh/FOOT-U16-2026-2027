@@ -45,3 +45,6 @@
  .task-navigation:has(#terrain-page-1:not([hidden])) #landscape-toggle{display:none!important}
  @media(max-width:700px){.task-navigation #workspace-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}}
 }
+
+/* Keep secondary board tools out of Match > Causerie. */
+body:not(.simple-mode) #terrain-page-1 :is(#terrain-tactics-drawer,#terrain-intro-drawer,#terrain-bench-drawer){display:none!important}
