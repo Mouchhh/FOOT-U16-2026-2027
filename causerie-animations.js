@@ -469,5 +469,14 @@
       target.parentElement.append(button);
     }
   });
-  window.causerieAnimations = { capture, frames, append, animationGif };
+  window.causerieAnimations = {
+    capture,
+    frames,
+    append,
+    animationGif,
+    clearCurrent: () => {
+      selections.delete(key());
+      media.delete(key());
+    },
+  };
 })();
