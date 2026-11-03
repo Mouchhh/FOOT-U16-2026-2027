@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   }else if(parent==='view-reports'){
    for(const [id,label]of Object.entries({general:'Le match',sport:'Analyse',players:'Joueurs',plan:'Plan d’action',preview:'Synthèse'}))add('task-report-'+id,label,()=>report(id),reportTab===id||id==='sport'&&reportTab==='human');
   }else if(parent==='view-club-network'){
-   for(const [i,label]of [[0,'Éducateurs'],[2,'Mon partage']])add('task-club-'+i,label,()=>{if(clubNetworkBound())workspaceFlows.club.go(i);},i===0?workspaceFlows.club.index()<=1:workspaceFlows.club.index()===i);
+   for(const [i,label]of [[0,'Éducateurs']])add('task-club-'+i,label,()=>{if(clubNetworkBound())workspaceFlows.club.go(i);},i===0?workspaceFlows.club.index()<=1:workspaceFlows.club.index()===i);
   }
   const tabs=el('div','task-section-tabs');for(const item of items){const button=el('button','task-section-tab',item.label);button.id=item.id;button.type='button';button.setAttribute('aria-pressed',String(item.selected));button.onclick=()=>go(parent,item.action);tabs.append(button);}strip.append(tabs);
   strip.append(assistant);

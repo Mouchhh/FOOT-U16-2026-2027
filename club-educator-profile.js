@@ -405,6 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   const go = flow.go;
   flow.go = function (index) {
+    if(index===2)index=0;
     if (index === 1 && !author.value) {
       go(0);
       return false;

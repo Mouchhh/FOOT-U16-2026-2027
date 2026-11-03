@@ -1,5 +1,6 @@
 @media screen {
   body.educator-profiles-ready #club-step-link-1,
+  body.educator-profiles-ready #club-step-link-2,
   body.educator-profiles-ready [data-flow="club"] > .flow-footer {
     display: none !important;
   }

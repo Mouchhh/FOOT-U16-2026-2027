@@ -1,6 +1,6 @@
 # Profil éducateur et documents de ses équipes
 
-Le menu Club propose **Éducateurs** et **Mon partage**. L’ancien accès autonome **Documents partagés** n’apparaît plus dans la navigation. Cliquer sur la carte d’un éducateur ouvre une page de profil avec deux onglets : **Profil** et **Documents partagés**. Le bouton **Tous les éducateurs** ramène au répertoire ; **Mon profil d’éducateur** ouvre son propre profil.
+Le menu Club propose uniquement **Éducateurs**. L’accès **Mon partage** a été retiré ; les anciens liens vers cette page ramènent au répertoire. L’ancien accès autonome **Documents partagés** n’apparaît plus dans la navigation. Cliquer sur la carte d’un éducateur ouvre une page de profil avec deux onglets : **Profil** et **Documents partagés**. Le bouton **Tous les éducateurs** ramène au répertoire ; **Mon profil d’éducateur** ouvre son propre profil.
 
 ## Choix explicite de l’équipe
 
