@@ -15,7 +15,7 @@ def api(route):
   if req.method=='PUT' and weak:weak=False;return reply({'code':'weak_password'},422)
   return reply({'id':uid,'email':'coach@example.test'})
  if path=='/auth/v1/verify':return reply({'access_token':'verified','refresh_token':'refresh','expires_in':3600,'user':{'id':uid,'email':'coach@example.test'}})
- if path=='/auth/v1/token':return reply({'code':'invalid_credentials'},400)
+ if path=='/auth/v1/token':return reply({'code':400,'error_code':'invalid_credentials','msg':'Invalid login credentials'},400)
  if path=='/auth/v1/logout':return route.abort() if fail_logout else reply({})
  if path=='/rest/v1/club_members':return reply([{'user_id':uid,'display_name':'Coach Test','active':True}] if authorized else []) # A valid reset never grants membership.
  return reply([])
@@ -43,7 +43,7 @@ with sync_playwright() as p:
  authorized=True;page.goto(BASE+'/index.html?auth=recovery#access_token=authorized&refresh_token=refresh&type=recovery');page.wait_for_function("document.querySelector('#club-network-status').textContent.includes('Lien vérifié')")
  page.locator('#club-recovery-password').fill('UnAutreMotDePasse2026!');page.locator('#club-recovery-confirm').fill('UnAutreMotDePasse2026!');page.locator('#club-network-reset button[type=submit]').click();page.wait_for_selector('#club-home',state='visible');assert page.evaluate('activeCoach.id')=='account-'+uid;assert page.locator('#coach-select option:checked').inner_text()=='Coach Test';assert not page.evaluate('clubAccountRecoveryActive')
  page.evaluate("document.querySelector('#view-training').click();trainingWizard.go(2)");page.wait_for_function("history.state?.clubNavigation?.page.view==='training'");page.reload();page.wait_for_function("clubNetworkBound() && !clubNetworkBusy && document.body.classList.contains('training-mode')");assert page.locator('#training-step-2').is_visible();page.evaluate("document.querySelector('#view-home').click()")
- page.evaluate("currentTraining.title='Brouillon conservé après déconnexion';saveTrainingDraft()");old_session=page.evaluate('clubNetworkSession');fail_logout=True;page.locator('#club-account-signout').click();page.wait_for_url('**/accueil.html');page.goto(BASE+'/index.html?auth=login');assert not page.locator('main').is_visible();assert page.evaluate("Object.values(localStorage).some(s=>s.includes('Brouillon conservé après déconnexion'))")
+ page.evaluate("currentTraining.title='Brouillon conservé après déconnexion';saveTrainingDraft()");old_session=page.evaluate('clubNetworkSession');fail_logout=True;page.locator('#coach-account-open').click();page.locator('#account-tab-preferences').click();page.locator('.account-logout').click();page.wait_for_url('**/accueil.html');page.goto(BASE+'/index.html?auth=login');assert not page.locator('main').is_visible();assert page.evaluate("Object.values(localStorage).some(s=>s.includes('Brouillon conservé après déconnexion'))")
  page.evaluate('s=>{clubNetworkSession=s;clubNetworkResume()}',old_session);assert page.evaluate('clubNetworkSession===null');assert not page.locator('main').is_visible()
  # Confirmation email returns use the same verified account and membership checks.
  page.goto(BASE+'/index.html?auth=login#access_token=confirmed&refresh_token=refresh&type=signup');page.wait_for_selector('#club-home',state='visible');assert page.evaluate('activeCoach.id')=='account-'+uid;assert not page.evaluate('clubAccountRecoveryActive');assert 'access_token' not in page.url

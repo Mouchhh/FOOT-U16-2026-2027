@@ -71,7 +71,10 @@ async function clubNetworkRequest(path,{method='GET',body,auth=true,retry=true}=
  const text=await response.text();if(generation!==clubNetworkGeneration)throw Error('Session terminée.');let result=null;try{result=text?JSON.parse(text):null;}catch{throw Error('Réponse serveur invalide.');}
  if(!response.ok){
   if(auth&&response.status===401&&retry){await clubNetworkRefreshSession();return clubNetworkRequest(path,{method,body,auth,retry:false});}
-  throw clubNetworkError('Requête refusée',response.status,result?.code||'');
+  // Auth may return {code:400,error_code:'invalid_credentials'}; REST uses
+  // a textual code. Do not lose the Auth reason behind its numeric HTTP code.
+  const code=typeof result?.error_code==='string'?result.error_code:typeof result?.code==='string'?result.code:'';
+  throw clubNetworkError('Requête refusée',response.status,code);
  }
  return result;
 }
