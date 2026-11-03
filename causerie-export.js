@@ -112,8 +112,8 @@
   const details=el('details'),count=el('summary'),inventory=el('ul');count.textContent='Vérifier les informations reprises';details.append(count,inventory);dialog.append(details);
   const status=el('p','hint');status.id='causerie-status';status.setAttribute('role','status');dialog.append(status);
   const actions=el('div','report-actions'),download=el('button','primary','Télécharger la présentation (.pptx)'),canva=el('a','causerie-canva-link','Ouvrir Canva ↗');
-  download.id='causerie-download';download.type='button';canva.href='https://www.canva.com/';canva.target='_blank';canva.rel='noopener noreferrer';actions.append(download,canva);dialog.append(actions);
-  const account=el('p','hint','Compte Canva non connecté au site. Dans Canva, importez le fichier téléchargé, puis vérifiez la présentation. L’import réel et la connexion directe restent à configurer et à valider. Aucun contenu n’est envoyé automatiquement.');dialog.append(account);
+  download.id='causerie-download';download.type='button';canva.href='https://www.canva.com/';canva.target='_blank';canva.rel='noopener noreferrer';actions.append(canva);dialog.append(actions);
+  const account=el('p','hint','Compte Canva non connecté au site. Pour télécharger un PowerPoint, utilisez le bouton placé à côté de « Causerie · Canva » dans votre causerie. Vous pouvez ensuite importer ce fichier dans Canva. Aucun contenu n’est envoyé automatiquement.');dialog.append(account);
   const connectedActions=el('div','report-actions'),connect=el('button','export','Connecter Canva'),refreshConnection=el('button','export','Vérifier la connexion'),disconnect=el('button','export','Déconnecter Canva'),upload=el('button','primary','Créer dans mon Canva');
   connect.type=refreshConnection.type=disconnect.type=upload.type='button';
   connect.id='causerie-connect';refreshConnection.id='causerie-refresh';disconnect.id='causerie-disconnect';upload.id='causerie-upload';
@@ -251,6 +251,7 @@
    }
   }
   function open(check=true){
+   if(busy)return null;
    if(!window.causerieLayout?.analyze){notify('Actualisez le site pour charger la présentation, puis réessayez.');return null;}
    viewVersion++;
    stopConnectionPoll();results.replaceChildren();ownerAtOpen=currentUser();snapshot=capture();include.checked=!!snapshot.linked;label.hidden=!snapshot.linked;
@@ -265,7 +266,7 @@
    if(busy||launching)return;
    const version=open(false);
    if(version===null)return;
-   if(!gateway){status.textContent='La création directe dans votre Canva attend l’activation du service par le responsable du site. Votre causerie peut déjà être vérifiée et téléchargée ici.';return;}
+   if(!gateway){status.textContent='La création directe dans votre Canva attend l’activation du service par le responsable du site. Vérifiez-la ici ; le bouton PowerPoint reste disponible directement dans votre causerie.';return;}
    const popup=reserveWindow();launching=true;
    status.textContent='Connexion au service Canva… Son réveil peut prendre une minute avec l’offre gratuite.';
    try{
@@ -279,27 +280,33 @@
   include.onchange=refresh;close.onclick=()=>{if(!busy)dialog.close();};
   dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
   dialog.addEventListener('close',()=>{viewVersion++;stopConnectionPoll();});
-  download.onclick=async()=>{
-   if(busy)return;busy=true;download.disabled=true;include.disabled=true;close.disabled=true;
-   status.textContent='Création de la présentation complète…';
-   try{
-    const pptx=await build(snapshot,include.checked),blob=await pptx.write({outputType:'blob',compression:true});
-    mediaDownload(blob,namedDocumentFilename(snapshot.board.title||snapshot.board.team,'pptx'));
-    status.textContent='Présentation téléchargée. Importez-la dans Canva et vérifiez les pages avant votre causerie.';
-   }catch(error){status.textContent='Export impossible : '+(error.message||'réessayez après avoir vérifié le document.')+' Aucun fichier incomplet n’a été téléchargé.';}
-   finally{busy=false;download.disabled=false;include.disabled=false;close.disabled=false;}
+  const pptStatus=el('p','hint causerie-ppt-status');pptStatus.id='causerie-ppt-status';pptStatus.setAttribute('role','status');
+  download.textContent='PowerPoint (.pptx)';download.className='export causerie-ppt-direct';
+  window.causerieExport.downloadCurrent=async()=>{
+   if(busy)return false;
+   const current=capture(),account=currentUser(),coach=activeCoach.id,team=activeCoachTeam.id;
+   const includeLinked=snapshot&&snapshot.board.documentId===current.board.documentId?include.checked:!!current.linked;
+   if(!valid(current.board)){pptStatus.textContent='Vérifiez les champs du match avant de télécharger la causerie.';return false;}
+   busy=true;download.disabled=true;download.setAttribute('aria-busy','true');pptStatus.textContent='Création de la présentation complète…';
+   try{const pptx=await build(current,includeLinked),blob=await pptx.write({outputType:'blob',compression:true});
+    if(activeCoach.id!==coach||activeCoachTeam.id!==team||currentUser()!==account)throw Error('Le compte ou l’équipe a changé. Rouvrez votre causerie.');
+    mediaDownload(blob,namedDocumentFilename(current.board.title||current.board.team,'pptx'));
+    pptStatus.textContent='Causerie PowerPoint téléchargée.';return true;
+   }catch(error){pptStatus.textContent='Export impossible : '+(error.message||'réessayez après avoir vérifié le document.')+' Aucun fichier incomplet n’a été téléchargé.';return false;}
+   finally{busy=false;download.disabled=false;download.removeAttribute('aria-busy');}
   };
+  download.onclick=()=>window.causerieExport.downloadCurrent();
   for(const target of [document.querySelector('#match-plan-form .report-actions'),$('composition-export')?.parentElement]){
    if(!target)continue;
-   const button=el('button','export','Causerie · Canva');button.type='button';button.dataset.causerieExport='true';button.onclick=open;target.append(button);
+   const button=el('button','export','Causerie · Canva');button.type='button';button.dataset.causerieExport='true';button.onclick=open;if(target.closest('#match-plan-form')){const row=el('div','causerie-direct-actions');row.setAttribute('role','group');row.setAttribute('aria-label','Exporter la causerie');row.append(button,download,pptStatus);target.append(row);}else target.append(button);
   }
   const lastPage=document.querySelector('#terrain-page-2 .terrain-team-section');
   if(lastPage){
    const panel=el('section','causerie-export-panel');panel.setAttribute('aria-labelledby','causerie-export-title');
-   const title=el('h2','','Votre causerie dans Canva');title.id='causerie-export-title';
+   const title=el('h2','','Vérifier ma causerie pour Canva');title.id='causerie-export-title';
    panel.append(title,el('p','','Retrouvez la préparation du match, vos consignes, votre effectif et le terrain dans une présentation.'));
    const steps=el('ol');
-   for(const text of ['Préparez et téléchargez la présentation de votre causerie.','Ouvrez votre Canva personnel, puis choisissez « Importer un fichier ».','Sélectionnez le fichier .pptx téléchargé et vérifiez les pages.'])steps.append(el('li','',text));
+   for(const text of ['Vérifiez les rubriques de votre causerie.','Créez votre présentation dans votre Canva personnel.','Pour une copie PowerPoint, utilisez le bouton à côté de « Causerie · Canva » dans la causerie.'])steps.append(el('li','',text));
    const button=el('button','primary','Préparer ma causerie pour Canva');button.type='button';button.id='causerie-last-page';button.dataset.causerieExport='true';button.onclick=open;
    panel.append(steps,button,el('p','hint',gateway?'Vous pouvez aussi connecter votre Canva dans la fenêtre de préparation.':'Le téléchargement fonctionne sans connecter Canva au site. Les textes sont modifiables ; les terrains sont des images fixes.'));
    lastPage.prepend(panel);

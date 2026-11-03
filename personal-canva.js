@@ -45,7 +45,7 @@
   render();target.prepend(card);
   const manual=target.querySelector('.causerie-export-panel');
   if(manual){
-   const options=el('details','personal-canva-download'),summary=el('summary','','Vérifier ou télécharger une copie de ma causerie');
+   const options=el('details','personal-canva-download'),summary=el('summary','','Vérifier les informations de ma causerie');
    options.id='personal-canva-download';manual.before(options);options.append(summary,manual);
   }
  });

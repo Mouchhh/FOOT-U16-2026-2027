@@ -1,5 +1,19 @@
 # Exporter vers Canva
 
+## Télécharger la causerie
+
+Dans **Match → Causerie**, le bouton **PowerPoint (.pptx)** se trouve à côté de
+**Causerie · Canva**. Il télécharge directement les informations actuellement
+affichées, sans connexion Canva et sans modifier ni valider le document.
+La fenêtre Canva conserve la vérification et la création dans Canva ; elle ne
+contient plus de bouton de téléchargement PowerPoint.
+
+Le téléchargement utilise une copie des données au clic. Le choix d’inclure la
+vue liée, lorsqu’il a été fait pour cette causerie dans la fenêtre Canva, reste
+respecté. Sinon, une vue liée disponible est incluse par défaut. Un message
+accessible indique la progression ou l’erreur ; aucun fichier incomplet n’est
+proposé en cas d’échec.
+
 ## Style de la présentation
 
 La mise en page s’inspire du PDF de référence « Copie de PROJET DE JEU » fourni

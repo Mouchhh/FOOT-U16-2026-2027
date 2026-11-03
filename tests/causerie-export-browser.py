@@ -101,6 +101,7 @@ with sync_playwright() as p:
     page.evaluate("document.querySelector('[data-causerie-export]').click()")
     assert page.locator('#causerie-linked').is_checked()
     page.locator('#causerie-linked').uncheck()
+    page.get_by_role('button', name='Fermer la préparation Canva', exact=True).click()
     with page.expect_download(timeout=30000) as download:
         page.locator('#causerie-download').click()
     download.value.save_as(OUT)
@@ -121,11 +122,10 @@ with sync_playwright() as p:
     assert written['board.0.players.1.name']=='Remplaçant'
     assert not any('Vue liée EXACTE' in text for texts in slides for text in texts)
     assert page.evaluate('JSON.stringify({state,gamePlanBoard})') == before
-    # The snapshot remains frozen even if the draft changes while the dialog is open.
+    # The Canva builder still accepts its frozen snapshot even after the draft changes.
     page.evaluate("state.notes='NOUVELLE VERSION À NE PAS EXPORTER';render()")
-    page.locator('#causerie-linked').check()
     with page.expect_download(timeout=30000) as linked_download:
-        page.locator('#causerie-download').click()
+        page.evaluate("async snapshot=>{const deck=await causerieExport.build(snapshot,true);mediaDownload(await deck.write({outputType:'blob'}),'linked-test.pptx')}",fixture)
     linked_path = Path('/tmp/causerie-linked-test.pptx');linked_download.value.save_as(linked_path)
     linked_slides, linked_images = slide_texts(linked_path)
     assert linked_images == 2
@@ -160,6 +160,7 @@ with sync_playwright() as p:
     with zipfile.ZipFile(empty_path) as archive:
         assert len([name for name in archive.namelist() if re.fullmatch(r'ppt/slides/slide\d+\.xml',name)])==1, 'Blank/default sections must not create filler slides'
     # Responsive dialog, retained inventory and visible, honest account status.
+    page.evaluate("document.querySelector('[data-causerie-export]').click()")
     for width in [320, 390, 768, 1366]:
         page.set_viewport_size({'width': width, 'height': 844})
         assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'), width
@@ -169,15 +170,14 @@ with sync_playwright() as p:
     assert not errors, errors
     page.get_by_role('button', name='Fermer la préparation Canva', exact=True).click()
     # A broken photo must abort; do not silently omit a visible portrait.
-    page.evaluate("state.players[0].photo='data:image/png;base64,invalid';document.querySelector('[data-causerie-export]').click()")
+    page.evaluate("state.players[0].photo='data:image/png;base64,invalid';render()")
     page.locator('#causerie-download').click()
-    page.wait_for_function("document.querySelector('#causerie-status').textContent.startsWith('Export impossible')")
-    assert 'Aucun fichier incomplet' in page.locator('#causerie-status').inner_text()
+    page.wait_for_function("document.querySelector('#causerie-ppt-status').textContent.startsWith('Export impossible')")
+    assert 'Aucun fichier incomplet' in page.locator('#causerie-ppt-status').inner_text()
     assert not page.locator('#causerie-download').is_disabled()
-    page.get_by_role('button', name='Fermer la préparation Canva', exact=True).click()
-    page.evaluate("state.players[0].photo='';state.clubLogo='data:image/png;base64,invalid';document.querySelector('[data-causerie-export]').click()")
+    page.evaluate("state.players[0].photo='';state.clubLogo='data:image/png;base64,invalid';render()")
     page.locator('#causerie-download').click()
-    page.wait_for_function("document.querySelector('#causerie-status').textContent.includes('logo de votre équipe')")
-    assert 'Aucun fichier incomplet' in page.locator('#causerie-status').inner_text()
+    page.wait_for_function("document.querySelector('#causerie-ppt-status').textContent.includes('logo de votre équipe')")
+    assert 'Aucun fichier incomplet' in page.locator('#causerie-ppt-status').inner_text()
     browser.close()
     print('PASS: exact PPTX text including long notes/whitespace/accents, pagination, pitch PNG, linked plan selection, frozen draft, mobile dialog and no uploads.')
