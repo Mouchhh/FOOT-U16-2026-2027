@@ -30,8 +30,8 @@ with sync_playwright() as p:
  # Storage and stale-document protections remain active.
  page.evaluate("()=>{state.notes='Nouvelle note à conserver';persist()}");page.locator('#view-home').click();page.locator('#view-pitch').click()
  page.evaluate("()=>{window.entryWriter=coachStorageSet;coachStorageSet=(k,v)=>{if(k==='vestiaire-document-versions')throw Error('quota');return entryWriter(k,v)}}")
- d.locator('#document-entry-create').click();assert d.is_visible();assert page.evaluate('getCompositionBoard().notes')=='Nouvelle note à conserver';assert 'Impossible de conserver' in d.inner_text();page.evaluate('()=>{coachStorageSet=entryWriter}');d.get_by_role('button',name='Retour',exact=True).click()
- page.locator('#view-home').click();page.locator('#view-pitch').click();page.evaluate("()=>{state.notes='Modifié pendant le choix';persist()}");d.locator('#document-entry-create').click();assert 'Le compte ou le document a changé' in d.inner_text();d.get_by_role('button',name='Retour',exact=True).click()
+ d.locator('#document-entry-create').click();assert d.is_visible();assert page.evaluate('getCompositionBoard().notes')=='Nouvelle note à conserver';assert 'Impossible de conserver' in d.inner_text();page.evaluate('()=>{coachStorageSet=entryWriter}');d.get_by_role('button',name='Fermer',exact=True).click()
+ page.locator('#view-home').click();page.locator('#view-pitch').click();page.evaluate("()=>{state.notes='Modifié pendant le choix';persist()}");d.locator('#document-entry-create').click();assert 'Le compte ou le document a changé' in d.inner_text();d.get_by_role('button',name='Fermer',exact=True).click()
  # Mobile choice is located on Composition and remains readable.
  page.set_viewport_size({'width':390,'height':844});page.locator('#view-home').click();page.locator('#view-pitch').click();assert d.is_visible();assert page.evaluate('workspaceFlows.terrain.index()')==0;assert page.evaluate('document.documentElement.scrollWidth<=innerWidth');page.screenshot(path='/tmp/composition-entry-choice-mobile.png',full_page=True);d.locator('#document-entry-resume').click()
  # Report context is still derived from the active match and does not reuse A.

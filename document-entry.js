@@ -93,7 +93,7 @@ function documentEntryPayloadValid(kind, payload) {
         payload.boardKind !== "plan";
 }
 function documentEntrySignature(payload) {
-  const {teamContext, ...content}=payload;
+  const { teamContext, ...content } = payload;
   return JSON.stringify({ ...content, updatedAt: "" });
 }
 function documentEntryArchives() {
@@ -313,6 +313,8 @@ document.addEventListener("DOMContentLoaded", () => {
     state.phase = "opening";
     if (fresh && kind === "report") reportTab = "general";
     perform(() => continuation());
+    if (typeof documentCompletionBeginEdit === "function")
+      documentCompletionBeginEdit(kind, current(kind));
     if (fresh && kind === "report") {
       renderReportTabs();
       renderReportContent();
@@ -376,6 +378,23 @@ document.addEventListener("DOMContentLoaded", () => {
       matchContext.opponent
         ? matchContext
         : documentEntryContext(kind, current(kind)));
+    // Completed documents stay quiet on passive module entry, including after reload.
+    if (
+      typeof documentCompletionIsCompleted === "function" &&
+      documentCompletionIsCompleted(kind, current(kind)) &&
+      !documentCompletionIsEditing(kind, current(kind)) &&
+      !options.newDocument &&
+      !options.managesContext &&
+      documentEntrySameContext(
+        context,
+        documentEntryContext(kind, current(kind)),
+      )
+    ) {
+      openEditor(kind, continuation);
+      documentCompletionEndEdit(kind);
+      documentCompletionRefresh();
+      return true;
+    }
     state.phase = "checking";
     state.kind = kind;
     state.context = structuredClone(context);
@@ -430,6 +449,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const head = el("div", "section-heading"),
       cancel = el("button", "export", "Retour");
     cancel.type = "button";
+    cancel.setAttribute("aria-label", "Fermer");
     cancel.onclick = () => {
       dialog.close();
       if (kind === "causerie")
@@ -832,7 +852,7 @@ document.addEventListener("DOMContentLoaded", () => {
           renderReportTabs();
           renderReportContent();
         }),
-      { force: true },
+      { force: true, newDocument: true },
     );
   for (const kind of ["causerie", "report"]) {
     const button = el("button", "export", "Versions précédentes");
