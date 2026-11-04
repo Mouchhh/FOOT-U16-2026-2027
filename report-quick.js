@@ -4,7 +4,13 @@ function renderReportQuickMinutes(root) {
   const panel = reportSection("Temps de jeu");
   panel.id = "report-players-panel";
   panel.classList.add("report-quick-minutes");
-  const roster = squadPlayers();
+  const roster = squadPlayers().filter(
+    (player) =>
+      !currentReport.preparation?.imported ||
+      currentReport.players.some(
+        (row) => playerStatsResolve(row)?.id === player.id,
+      ),
+  );
   const entries = roster.map((player) => ({
     player,
     row: currentReport.players.find(

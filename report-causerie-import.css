@@ -1,0 +1,111 @@
+.report-causerie-import {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 0;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #dce5ef;
+  color: #142d50;
+}
+.report-causerie-import select {
+  flex: 1 1 230px;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  border: 1px solid #cbd8e7;
+  border-radius: 8px;
+  background: white;
+  color: #142d50;
+  padding: 8px;
+}
+#report-causerie-import-button {
+  background: var(--club-logo-red, #e41f28);
+  border-color: var(--club-logo-red, #e41f28);
+  color: white;
+  min-height: 44px;
+  white-space: normal;
+}
+.report-causerie-status {
+  width: 100%;
+  margin: 0;
+  font-size: 12px;
+  color: #526b88;
+}
+.report-causerie-status:empty {
+  display: none;
+}
+.report-causerie-summary {
+  width: 100%;
+  font-size: 13px;
+}
+.report-causerie-summary summary {
+  cursor: pointer;
+  min-height: 32px;
+}
+.report-causerie-summary p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media screen {
+  body > .report-actions-dock {
+    display: none;
+  }
+  body.reports-mode:not(.document-completed-report)
+    > .flow-footer.report-actions-dock {
+    position: fixed;
+    bottom: var(--navigation-bottom-space, 0px);
+    top: auto;
+    right: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 10px 14px max(10px, env(safe-area-inset-bottom));
+    min-height: 64px;
+    background: #fff;
+    border: 1px solid #dce5ef;
+    border-bottom: 0;
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 -4px 16px #142d500c;
+    z-index: 94;
+    transform: none;
+  }
+  body.reports-mode #after-match {
+    min-height: calc(100vh - var(--workspace-header-height, 120px));
+    min-height: calc(100dvh - var(--workspace-header-height, 120px));
+  }
+  body.reports-mode:not(.document-completed-report) .report-actions-clearance {
+    height: calc(var(--report-actions-height, 64px) + 16px);
+    flex: none;
+  }
+  body.reports-mode:not(.document-completed-report) .coach-settings-dock {
+    bottom: calc(
+      var(--navigation-bottom-space, 0px) + var(--report-actions-height, 64px) +
+        16px
+    );
+  }
+}
+@media (max-width: 600px) {
+  .report-causerie-import select,
+  #report-causerie-import-button {
+    width: 100%;
+    flex-basis: 100%;
+    font-size: 14px;
+  }
+  body.reports-mode > .flow-footer.report-actions-dock {
+    gap: 6px;
+    padding-inline: 8px;
+  }
+  .report-actions-dock > span {
+    font-size: 10px;
+  }
+}
+@media print {
+  .report-actions-dock,
+  .report-actions-clearance,
+  .report-causerie-import {
+    display: none !important;
+  }
+}
