@@ -1,0 +1,62 @@
+.resource-card .resource-preview:has(.resource-illustration) {
+  padding: 0;
+  background: #142d50;
+  position: relative;
+  overflow: hidden;
+}
+.resource-illustration {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(125deg, #142d50, #244d80);
+}
+.resource-illustration > svg {
+  display: block;
+  width: 100%;
+  height: calc(100% - 26px);
+}
+.resource-illustration-label {
+  position: absolute;
+  left: 16px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.resource-illustration-label svg,
+.resource-card .eyebrow svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.resource-card .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.resource-card .eyebrow svg {
+  color: var(--club-logo-red, #e41f28);
+}
+.resource-card .resource-preview:focus-visible {
+  outline: 3px solid var(--club-logo-red, #e41f28);
+  outline-offset: -4px;
+}
+.resource-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.resource-card-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.resource-card-content .resource-actions {
+  margin-top: auto;
+  padding-top: 16px;
+}

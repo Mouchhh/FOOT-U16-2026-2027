@@ -15,7 +15,7 @@
       description:
         "Repères, rôles et schémas pour travailler les coups de pied arrêtés.",
       kind: "html",
-      format: "Fiche HTML",
+      format: "Guide",
       tags: ["CPA", "Corners", "Coups francs"],
       url: "assets/resources/coups-de-pied-arretes.html",
     },
@@ -26,7 +26,7 @@
       description:
         "Qualités physiques, reprise et progression du travail avec ballon.",
       kind: "html",
-      format: "Fiche HTML",
+      format: "Guide",
       tags: ["Physique", "Reprise", "Préparation"],
       url: "assets/resources/preparation-physique.html",
     },
@@ -37,7 +37,7 @@
       description:
         "Organiser la saison et construire une progression par blocs.",
       kind: "html",
-      format: "Fiche HTML",
+      format: "Guide",
       tags: ["Planification", "Saison", "Progression"],
       url: "assets/resources/planification-par-blocs.html",
     },
@@ -47,7 +47,7 @@
       category: "protocols",
       description: "Préparer, structurer et animer une séance d’entraînement.",
       kind: "html",
-      format: "Fiche HTML",
+      format: "Guide",
       tags: ["Séance", "Exercice", "Situation", "Jeu"],
       url: "assets/resources/construire-une-seance.html",
     },
@@ -58,7 +58,7 @@
       description:
         "Déroulé et étapes pour préparer les joueurs avant le match.",
       kind: "html",
-      format: "Fiche HTML",
+      format: "Guide",
       tags: ["Échauffement", "Avant-match", "Préparation"],
       url: "assets/resources/echauffement-avant-match.html",
     },
@@ -69,7 +69,7 @@
       description:
         "Filmer, découper et partager les séquences utiles au groupe.",
       kind: "html",
-      format: "Fiche HTML",
+      format: "Guide",
       tags: ["Vidéo", "Analyse", "Adversaire"],
       url: "assets/resources/analyse-video.html",
     },
@@ -155,16 +155,20 @@
         image.alt = doc.previewAlt || doc.title;
         image.loading = "lazy";
         preview.append(image);
-      } else preview.append(el("span", "", doc.format));
+      } else preview.append(resourceIllustration(doc.id));
       const content = el("div", "resource-card-content");
       content.append(
         el("p", "eyebrow", categories.find((c) => c[0] === doc.category)[1]),
         el("h2", "", doc.title),
         el("p", "", doc.description),
-        el(
-          "p",
-          "resource-meta",
-          doc.format + (doc.pages ? " · " + doc.pages + " page" : ""),
+      );
+      if (doc.pages)
+        content.append(el("p", "resource-meta", doc.pages + " page"));
+      const category = content.querySelector(".eyebrow");
+      category.prepend(
+        resourceCategoryIcon(
+          resourcePreviewArt[doc.id]?.icon ||
+            (doc.category === "protocols" ? "planning" : "tactics"),
         ),
       );
       const actions = el("div", "resource-actions");
