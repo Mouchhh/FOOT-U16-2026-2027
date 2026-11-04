@@ -878,7 +878,7 @@ function agendaRecurringEdit(id, remove = false, moveDate = null) {
   document.body.append(dialog);
   dialog.showModal();
 }
-function agendaRecurringConfigure() {
+function agendaRecurringConfigure({ inline = false } = {}) {
   if ($("agenda-week-template")?.open) return;
   const owner = activeCoach.id,
     stored = agendaRecurringRead(),
@@ -1157,8 +1157,14 @@ function agendaRecurringConfigure() {
         "Enregistrement impossible. Les réglages précédents sont conservés.";
     }
   };
-  document.body.append(dialog);
-  dialog.showModal();
+  if (inline) {
+    dialog.classList.add("agenda-inline-week");
+    $("coach-agenda-list").before(dialog);
+    dialog.show();
+  } else {
+    document.body.append(dialog);
+    dialog.showModal();
+  }
 }
 // Project a newly configured weekly template one week backwards, once only.
 function agendaRecurringCompleteInitialWeek() {

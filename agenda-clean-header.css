@@ -1,0 +1,17 @@
+#agenda-week-template-intro,
+#coach-agenda #planning-next-week,
+#coach-agenda #coach-agenda-squad,
+#coach-agenda #agenda-matches-restore { display: none !important; }
+.agenda-week-menu { position: relative; }
+#agenda-week-template-open { min-height: 44px; border-color: var(--club-logo-red,#e41f28); color: #142d50; background: white; }
+.agenda-week-dropdown { position: absolute; top: calc(100% + 6px); right: 0; width: 230px; max-width: calc(100vw - 32px); padding: 8px; background: white; border: 1px solid #dce5ef; border-radius: 10px; box-shadow: 0 8px 24px #142d5018; z-index: 120; }
+.agenda-week-dropdown[hidden] { display: none !important; }
+.agenda-week-dropdown button { width: 100%; min-height: 44px; padding: 10px; border: 0; background: white; color: #142d50; text-align: left; font: inherit; font-size: 13px; cursor: pointer; border-radius: 6px; }
+.agenda-week-dropdown button:hover, .agenda-week-dropdown button:focus-visible { background: #fff5f6; color: var(--club-logo-red,#e41f28); }
+#agenda-week-template.agenda-inline-week { position: relative !important; inset: auto !important; width: 100% !important; max-width: none !important; height: auto !important; max-height: none !important; margin: 16px 0 !important; padding: 24px !important; box-sizing: border-box; border: 1px solid #dce5ef; border-radius: 12px; background: white; color: #142d50; overflow: visible; }
+#agenda-week-template.agenda-inline-week .external-modal-close { position: absolute !important; top: 8px !important; right: 8px !important; }
+@media(max-width:600px) { #agenda-week-template.agenda-inline-week { padding: 18px !important; } }
+@media (prefers-reduced-motion: no-preference) {
+ .agenda-week-dropdown:not([hidden]) { animation: agenda-menu-enter 120ms ease-out; }
+ @keyframes agenda-menu-enter { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
+}

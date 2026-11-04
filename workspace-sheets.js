@@ -63,7 +63,7 @@
     );
   }
   function register(panel) {
-    if (panel.ownerDocument !== document) return;
+    if (panel.ownerDocument !== document || panel.classList.contains("agenda-inline-week")) return;
     panel.classList.add("workspace-sheet");
     if (context.has(panel)) return;
     context.set(panel, { focus: null, owner: "" });
