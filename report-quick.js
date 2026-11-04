@@ -1,16 +1,128 @@
-// Match facts first; the complete original form and quick follow-up stay available.
-let reportQuickDetailed=false;
-function renderReportQuick(){
- if(reportTab!=='general')return;const root=$('report-content'),original=[...root.children],panel=el('section','report-match-page');panel.id='report-quick-panel';
- const toggle=el('button','export',reportQuickDetailed?'Revenir au bilan essentiel':'Renseigner tous les détails du match');toggle.type='button';toggle.onclick=()=>{reportQuickDetailed=!reportQuickDetailed;renderReportContent();};
- if(!reportQuickDetailed){
-  const layout=el('div','report-match-columns'),resultPanel=reportSection('Le résultat'),board=el('div','report-scoreboard'),home=el('div','report-score-side'),away=el('div','report-score-side'),homeName=el('strong','',currentReport.info.team||'Notre équipe'),awayName=el('strong','',currentReport.info.opponent||'Adversaire');homeName.dataset.scoreTeam='home';awayName.dataset.scoreTeam='away';home.append(homeName,reportField(reportInfo.goalsFor,currentReport.info.goalsFor,v=>currentReport.info.goalsFor=v,{type:'number'}));away.append(awayName,reportField(reportInfo.goalsAgainst,currentReport.info.goalsAgainst,v=>currentReport.info.goalsAgainst=v,{type:'number'}));board.append(home,el('span','report-score-separator','—'),away);resultPanel.append(board);
-  const score=el('p','report-quick-result',reportResult());score.id='report-quick-result';score.setAttribute('role','status');resultPanel.append(score);const halves=el('div','report-grid');for(const key of ['halfFor','halfAgainst'])halves.append(reportField(reportInfo[key],currentReport.info[key],v=>currentReport.info[key]=v,{type:'number'}));resultPanel.append(halves);
-  const facts=reportSection('La rencontre'),grid=el('div','report-grid');for(const key of ['opponent','date','competition','venue','formation']){const options=key==='date'?{type:'date'}:key==='venue'?{choices:['Domicile','Extérieur','Terrain neutre']}:{};grid.append(reportField(reportInfo[key],currentReport.info[key],v=>{currentReport.info[key]=v;if(key==='opponent')awayName.textContent=v||'Adversaire';},options));}
-  grid.append(reportField('Titre du bilan',currentReport.title||'',v=>{currentReport.title=v;$('report-title').value=v;},{maxLength:100}));facts.append(grid);layout.append(resultPanel,facts);panel.append(layout);
-  const essential=el('details','report-essential-followup');essential.append(el('summary','','Les premiers enseignements · préparer la suite'));const followup=el('div','report-grid');for(const [section,key,label]of [['analysis','topAttack','Un point fort avec le ballon'],['plan','priority','La priorité à travailler'],['analysis','topDefence','Un point fort sans le ballon']])followup.append(reportField(label,currentReport[section][key],v=>currentReport[section][key]=v,{area:true,rows:2}));essential.append(followup);panel.append(essential);
-  const next=el('button','primary','Choisir les exercices pour la prochaine séance');next.type='button';next.onclick=openReportTraining;const tools=el('div','report-actions');tools.append(toggle,next);panel.append(tools,el('p','hint','Le brouillon reste sur cet appareil. Enregistrez le bilan pour le retrouver dans vos documents.'));
- }else panel.append(toggle);
- original.forEach(node=>node.hidden=!reportQuickDetailed);root.prepend(panel);
+// Minimal match entry. Historical analysis remains available in its dedicated tabs.
+let reportQuickDetailed = false; // Retained for saved navigation state compatibility.
+function renderReportQuickMinutes(root) {
+  const panel = reportSection("Temps de jeu");
+  panel.id = "report-players-panel";
+  panel.classList.add("report-quick-minutes");
+  const roster = squadPlayers();
+  const entries = roster.map((player) => ({
+    player,
+    row: currentReport.players.find(
+      (row) => playerStatsResolve(row)?.id === player.id,
+    ),
+  }));
+  entries.push(
+    ...currentReport.players
+      .filter((row) => !playerStatsResolve(row))
+      .map((row) => ({ player: null, row })),
+  );
+  for (const entry of entries) {
+    const name = entry.player?.name || entry.row?.name || "Joueur sans nom";
+    const line = el("div", "report-minute-line");
+    const number = entry.player?.number ?? entry.row?.number;
+    line.append(el("span", "", (number ? "N° " + number + " · " : "") + name));
+    const field = reportField(
+      "Minutes · " + name,
+      entry.row?.minutes || "",
+      (value) => {
+        if (!entry.row) {
+          if (currentReport.players.length >= 40) return;
+          entry.row = {
+            id: crypto.randomUUID(),
+            squadPlayerId: entry.player.id,
+            name: entry.player.name,
+            number: String(entry.player.number || ""),
+            role: "Titulaire",
+            minutes: "",
+            score: "",
+            note: "",
+            objective: "",
+          };
+          currentReport.players.push(entry.row);
+        }
+        entry.row.minutes = value;
+      },
+      { type: "number", max: 180 },
+    );
+    const input = field.querySelector("input");
+    input.setAttribute("aria-label", "Minutes jouées · " + name);
+    input.disabled = !entry.row && currentReport.players.length >= 40;
+    field.querySelector("span").textContent = "min";
+    line.append(field);
+    panel.append(line);
+  }
+  if (!entries.length)
+    panel.append(el("p", "hint", "Aucun joueur dans l’effectif."));
+  root.append(panel);
 }
-document.addEventListener('DOMContentLoaded',()=>{const before=renderReportContent;renderReportContent=function(){before();renderReportQuick();};if(reportTab==='general')renderReportContent();});
+function renderReportQuick() {
+  if (reportTab !== "general") return;
+  const root = $("report-content"),
+    panel = el("section", "report-match-page");
+  panel.id = "report-quick-panel";
+  const layout = el("div", "report-match-columns");
+  const result = reportSection("Score");
+  const board = el("div", "report-scoreboard");
+  const awayName = el(
+    "strong",
+    "",
+    currentReport.info.opponent || "Adversaire",
+  );
+  for (const [key, name] of [
+    ["goalsFor", el("strong", "", currentReport.info.team || "Notre équipe")],
+    ["goalsAgainst", awayName],
+  ]) {
+    const side = el("div", "report-score-side");
+    side.append(
+      name,
+      reportField(
+        reportInfo[key],
+        currentReport.info[key],
+        (v) => (currentReport.info[key] = v),
+        { type: "number" },
+      ),
+    );
+    if (board.children.length)
+      board.append(el("span", "report-score-separator", "—"));
+    board.append(side);
+  }
+  const score = el("p", "report-quick-result", reportResult());
+  score.id = "report-quick-result";
+  score.setAttribute("role", "status");
+  result.append(board, score);
+  const context = reportSection("Match"),
+    grid = el("div", "report-grid");
+  grid.append(
+    reportField("Adversaire", currentReport.info.opponent, (v) => {
+      currentReport.info.opponent = v;
+      awayName.textContent = v || "Adversaire";
+    }),
+    reportField(
+      "Date",
+      currentReport.info.date,
+      (v) => (currentReport.info.date = v),
+      { type: "date" },
+    ),
+  );
+  context.append(grid);
+  layout.append(result, context);
+  panel.append(layout);
+  root.replaceChildren(panel);
+  renderReportEvents(panel);
+  renderReportQuickMinutes(panel);
+  const actions = el("div", "report-actions");
+  const validate = el("button", "primary", "Valider le bilan");
+  validate.id = "report-quick-validate";
+  validate.type = "button";
+  validate.onclick = () => documentCompletionFinish("report");
+  actions.append(validate);
+  panel.append(actions);
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const before = renderReportContent;
+  renderReportContent = function () {
+    before();
+    renderReportQuick();
+  };
+  if (reportTab === "general") renderReportContent();
+});

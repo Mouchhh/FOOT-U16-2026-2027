@@ -27,14 +27,15 @@ function playerStatsReportContext(panel) {
     renderReportContent();
   };
   wrap.append(select);
-  panel.append(
-    wrap,
-    el(
-      "p",
-      "hint",
-      "Associez chaque joueur à sa fiche d’effectif pour cumuler ses statistiques. Seuls les bilans datés et enregistrés comptent ; le brouillon reste indépendant.",
-    ),
-  );
+  panel.append(wrap);
+  if (reportTab !== "general")
+    panel.append(
+      el(
+        "p",
+        "hint",
+        "Associez chaque joueur à sa fiche d’effectif pour cumuler ses statistiques. Seuls les bilans datés et enregistrés comptent ; le brouillon reste indépendant.",
+      ),
+    );
 }
 function playerStatsReportFields(card, row) {
   const section = el("section", "report-player-statistics"),

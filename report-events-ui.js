@@ -25,7 +25,8 @@ function reportEventsCommit(change, control = null) {
     const old = $("report-players-panel"),
       fragment = document.createDocumentFragment();
     if (old) {
-      renderReportPlayers(fragment, false);
+      if (reportTab === "general") renderReportQuickMinutes(fragment);
+      else renderReportPlayers(fragment, false);
       old.replaceWith(fragment);
     }
     const event = currentReport.events[Number(anchor.dataset.eventIndex)],
@@ -190,10 +191,7 @@ function reportEventParticipants(event) {
   return participants;
 }
 function renderReportEvents(root) {
-  const panel = reportSection(
-    "Faits marquants",
-    "Sélectionnez les joueurs : les buts, passes et cartons alimentent leur suivi sans double saisie. La fiche Effectif est actualisée après l’enregistrement du bilan.",
-  );
+  const panel = reportSection("Faits marquants");
   const add = el("button", "primary", "+ Ajouter un fait de match");
   add.type = "button";
   add.onclick = () => {

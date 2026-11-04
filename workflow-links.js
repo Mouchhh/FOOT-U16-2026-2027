@@ -48,5 +48,5 @@ document.addEventListener('DOMContentLoaded',()=>{
  match.append(el('h3','','Après le match'),el('p','hint','Retrouver les objectifs de la causerie pour observer ce qui a fonctionné et préparer la suite.'),button);$('task-causerie').append(match);
  const training=el('section','workflow-links');training.id='workflow-training-links';$('training-step-3').append(training);
  const renderTraining=renderTrainingBlocks;renderTrainingBlocks=function(){renderTraining();workflowRenderTrainingLinks();};workflowRenderTrainingLinks();
- const renderReport=renderReportContent;renderReportContent=function(){renderReport();if(reportTab!=='general')return;const panel=el('section','workflow-links');panel.id='workflow-report-links';const next=el('button','export','Choisir les priorités pour la prochaine séance');next.type='button';next.onclick=()=>workspaceNavigation.run('view-reports',()=>{reportTab='plan';renderReportTabs();renderReportContent();$('report-to-training').scrollIntoView({block:'center'});$('report-to-training').focus({preventScroll:true});});panel.append(el('h3','','Du bilan au terrain'),el('p','hint','Renseignez vos observations, puis retenez une ou deux priorités dans le plan d’action.'),next);$('report-content').append(panel);};renderReportContent();
+
 });

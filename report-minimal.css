@@ -1,0 +1,50 @@
+.report-minute-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e8edf4;
+  color: #142d50;
+}
+.report-minute-line:last-child {
+  border-bottom: 0;
+}
+.report-minute-line > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+.report-minute-line .report-field {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex: none;
+  gap: 8px;
+  margin: 0;
+}
+.report-minute-line .report-field > span {
+  order: 2;
+  font-size: 12px;
+  color: #586a80;
+}
+.report-minute-line input {
+  width: 76px;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+#report-quick-validate {
+  background: var(--club-logo-red, #e41f28);
+  border-color: var(--club-logo-red, #e41f28);
+  color: white;
+  min-height: 44px;
+}
+#report-quick-validate:focus-visible {
+  outline: 2px solid #142d50;
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  #report-quick-validate {
+    width: 100%;
+  }
+}
