@@ -16,7 +16,7 @@ with sync_playwright() as p:
   assert card.locator('.player-stat-badges>.player-stat-metric').evaluate_all("es=>es.every(e=>getComputedStyle(e).backgroundColor==='rgba(0, 0, 0, 0)')")
   assert card.locator('.player-stat-card-symbol.is-yellow').evaluate('e=>getComputedStyle(e).backgroundColor')=='rgb(250, 204, 21)'
   assert card.locator('.player-stat-card-symbol.is-red').evaluate('e=>getComputedStyle(e).backgroundColor')=='rgb(228, 31, 40)'
-  assert card.bounding_box()['height']<330
+  assert card.bounding_box()['height']<380  # Includes category and availability badges.
   card.locator('.player-stat-profile-link').click();dialog=page.locator('#player-stats-dialog');assert dialog.is_visible()
   assert dialog.get_by_text('Présences aux séances',exact=True).is_visible()
   assert dialog.locator('[data-stat=yellowCards]').count()==1

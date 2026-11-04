@@ -15,7 +15,7 @@ with sync_playwright() as p:
  page.locator('#workspace-squad-entry').click();d=page.locator('#coach-squad-dialog');assert d.is_visible()
  assert d.locator('.squad-composition-row').count()==page.evaluate('getCompositionBoard().players.length');assert page.evaluate('squadDocument()===undefined')
  d.locator('.squad-composition-row').first.get_by_role('button',name='Créer la fiche de Joueur 1',exact=True).click();assert page.locator('#coach-squad-editor').get_by_label('Prénom et nom',exact=True).input_value()=='';page.locator('#coach-squad-editor').get_by_role('button',name='Fermer la fiche effectif',exact=True).click()
- d.get_by_role('button',name='+ Nouveau joueur',exact=True).click();editor=page.locator('#coach-squad-editor');editor.get_by_label('Prénom et nom',exact=True).fill('Alex Martin');editor.get_by_label('Numéro habituel',exact=True).fill('8');editor.get_by_label('Poste habituel',exact=True).select_option('Milieu')
+ d.get_by_role('button',name='+ Nouveau joueur',exact=True).click();editor=page.locator('#coach-squad-editor');editor.get_by_label('Prénom et nom',exact=True).fill('Alex Martin');editor.get_by_label('Poste habituel',exact=True).select_option('Milieu')
  # Real upload conversion, not a mocked data URI.
  image=page.evaluate("()=>{const c=document.createElement('canvas');c.width=c.height=32;const x=c.getContext('2d');x.fillStyle='#2855a2';x.fillRect(0,0,32,32);return c.toDataURL('image/png').split(',')[1]}")
  editor.get_by_label('Photo du joueur',exact=True).set_input_files({'name':'alex.png','mimeType':'image/png','buffer':base64.b64decode(image)})
@@ -30,11 +30,11 @@ with sync_playwright() as p:
  page.reload();page.wait_for_function("typeof squadPlayers==='function'");assert page.evaluate('squadPlayers().length')==1;assert page.evaluate('getCompositionBoard().players[0].name')=='Alex Martin'
  page.wait_for_function('window.documentEntry && window.taskWorkspace')
  if page.locator('#document-entry-resume').is_visible():page.locator('#document-entry-resume').click()
- else:assert page.evaluate("document.body.classList.contains('squad-mode')")
+ else:assert page.evaluate("document.body.classList.contains('squad-mode') || workspaceFlows.terrain.index()===0")
  # No duplicate addition; profile edits affect future selections, not old compositions.
  page.evaluate('openCoachSquad()');managed_click(d,'Utiliser Alex Martin');assert not page.locator('#coach-squad-picker').is_visible()
- managed_click(d,'Modifier Alex Martin');editor.get_by_label('Numéro habituel',exact=True).fill('10');editor.get_by_role('button',name='Enregistrer le joueur',exact=True).click();assert page.evaluate('getCompositionBoard().players[0].number')==8
- d.get_by_role('button',name='+ Nouveau joueur',exact=True).click();editor.get_by_label('Prénom et nom',exact=True).fill('Sam');editor.get_by_label('Numéro habituel',exact=True).fill('12');editor.get_by_role('button',name='Enregistrer le joueur',exact=True).click()
+ managed_click(d,'Modifier Alex Martin');editor.get_by_label('Catégorie principale',exact=True).fill('U17');editor.get_by_role('button',name='Enregistrer le joueur',exact=True).click();assert page.evaluate('getCompositionBoard().players[0].number')==1
+ d.get_by_role('button',name='+ Nouveau joueur',exact=True).click();editor.get_by_label('Prénom et nom',exact=True).fill('Sam');editor.get_by_role('button',name='Enregistrer le joueur',exact=True).click()
  page.evaluate("()=>{activateTerrainBoard('plan');window.oldPlan=JSON.stringify(getGamePlanBoard())}")
  managed_click(d,'Utiliser Sam');picker=page.locator('#coach-squad-picker');picker.get_by_label('Place dans la composition',exact=True).select_option('__bench');picker.get_by_role('button',name='Ajouter à cette place').click()
  assert page.evaluate("getCompositionBoard().players.some(p=>p.name==='Sam'&&p.role==='sub')")

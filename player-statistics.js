@@ -494,16 +494,14 @@ function playerStatsPaintDetail() {
     el(
       "p",
       "hint",
-      [
-        "N° " + player.number,
-        player.position,
-        player.foot ? "Pied : " + player.foot : "",
-      ]
+      [player.position, player.foot ? "Pied : " + player.foot : ""]
         .filter(Boolean)
         .join(" · "),
     ),
   );
   dialog.append(head);
+  if (typeof squadIdentityBadges === "function")
+    dialog.append(squadIdentityBadges(player, stats));
   const season = el("select");
   season.setAttribute("aria-label", "Saison du bilan joueur");
   for (const year of playerStatsAvailableSeasons())
