@@ -1,0 +1,15 @@
+/* Keep sub-tabs, the locker-room heading and direct pitch-player selection. */
+body.match-clean-mode #club-assistant-open,
+body.match-clean-mode #workspace-save-open,
+body.match-clean-mode #club-profile,
+body.match-clean-mode #causerie-archive-reuse,
+body.match-clean-mode #match-roster-add,
+body.match-clean-mode #match-roster-add-button,
+body.match-clean-mode #tactic-opponents-tab {
+  display: none !important;
+}
+body.match-clean-mode #match-new {
+  background: var(--club-logo-red, #e41f28);
+  border-color: var(--club-logo-red, #e41f28);
+  color: #fff;
+}

@@ -6,8 +6,10 @@ function showTacticTool(name){
 $('move').addEventListener('click',()=>showTacticTool('move'));
 $('arrow').addEventListener('click',()=>showTacticTool('arrow'));
 $('tactic-opponents-tab').onclick=()=>{$('move').click();showTacticTool('opponents');if(!state.opponents?.visible)$('opponents-toggle').click();};
-for(let i=0;i<tacticToolTabs.length;i++)$(tacticToolTabs[i].id).addEventListener('keydown',event=>{
- let target;if(event.key==='ArrowRight')target=(i+1)%3;else if(event.key==='ArrowLeft')target=(i+2)%3;else if(event.key==='Home')target=0;else if(event.key==='End')target=2;else return;
- event.preventDefault();const button=$(tacticToolTabs[target].id);button.click();button.focus();
+for(const tab of tacticToolTabs)$(tab.id).addEventListener('keydown',event=>{
+ const visible=tacticToolTabs.map(t=>$(t.id)).filter(button=>button.getClientRects().length);
+ const index=visible.indexOf(event.currentTarget);
+ let target;if(event.key==='ArrowRight')target=(index+1)%visible.length;else if(event.key==='ArrowLeft')target=(index+visible.length-1)%visible.length;else if(event.key==='Home')target=0;else if(event.key==='End')target=visible.length-1;else return;
+ event.preventDefault();const button=visible[target];button?.click();button?.focus();
 });
 showTacticTool('move');
