@@ -6,7 +6,7 @@ with sync_playwright() as p:
  agendaCalendarToday=()=> '2026-11-04';playerStatsNow=()=>({day:'2026-11-05',time:'23:59'});
  squadSave([{id:'monday-a',name:'Alex',number:8,photo:'',position:'Milieu'}]);
  const slots=[1,3].map(day=>({id:crypto.randomUUID(),day,type:'training',time:'19:00',title:'Entraînement',status:'pending',location:''}));
- const plan=agendaRecurringReplace(null,slots,'2026-11-04',true,'U17');agendaRecurringCommit(plan,0);
+ const plan=agendaRecurringReplace(null,slots,'2026-11-04',true,'U17');delete plan.initialWeekBackfilled;plan.from='2026-11-04';for(const s of plan.slots)s.from=plan.from;agendaRecurringCommit(plan,0);
  currentReport.info.date='2026-11-08';reportTab='general';renderReportContent();
  }''')
  page.locator('#view-reports').click()
@@ -20,6 +20,10 @@ with sync_playwright() as p:
  assert page.evaluate('trainingLibrary[0].date')=='2026-11-02'
  assert page.evaluate("playerStatsSeasonSnapshot(2026).players.get('monday-a').attendance.rate")==100
  assert not page.evaluate('agendaRecurringCompleteInitialWeek()')
+ assert page.evaluate('agendaRecurringRead().from')=='2026-10-26'
+ assert page.evaluate("agendaRecurringOccurrences(agendaRecurringRead(),{from:'2026-10-19',to:'2026-10-25'}).length")==0
+ assert page.evaluate("agendaRecurringOccurrences(agendaRecurringRead(),{from:'2026-10-26',to:'2026-11-01'}).length")==2
+ assert page.evaluate("agendaRecurringOccurrences(agendaRecurringRead(),{from:'2027-02-01',to:'2027-02-07'}).length")==2
  # Changing the template while the report is open refreshes the rows without clearing minutes.
  page.locator('.report-minute-line').get_by_label('Minutes jouées · Alex',exact=True).fill('60')
  page.evaluate('''()=>{const p=agendaRecurringRead();const wed=p.slots.find(s=>s.day===3);p.exceptions['recurring:'+wed.id+':2026-11-04']={deleted:true};agendaRecurringCommit(p,p.revision);}''')

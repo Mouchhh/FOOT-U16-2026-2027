@@ -10,6 +10,6 @@ Les réponses restent enregistrées par équipe, joueur et occurrence réelle vi
 
 ## Semaine initiale et statut de préparation
 
-Une première configuration utilise désormais le lundi courant comme début par défaut. Au chargement, un ancien modèle actif démarré en cours de la semaine courante est étendu au lundi uniquement s’il s’agit encore de sa première période (tous les créneaux partagent cette date de début et n’ont pas de fin). Les modèles futurs, les périodes historiques et les séries déjà modifiées restent inchangés. Les exceptions de suppression restent appliquées.
+La semaine type du coach est la référence. Lors de sa première configuration passée ou courante, ses créneaux sont projetés à partir du lundi de la semaine précédente, puis restent récurrents sans date de fin. Les anciens modèles actifs reçoivent la même extension une seule fois, avec un marqueur persistant `initialWeekBackfilled`. Les changements ultérieurs de créneaux conservent leurs dates d’effet et l’historique ; les exceptions de suppression restent appliquées. Un modèle commençant dans le futur n’est pas étendu avant sa prise d’effet. Aucun joueur n’est automatiquement déclaré présent ou absent.
 
 Le statut « À préparer » ne filtre jamais le pointage d’une occurrence passée. Un pointage peut matérialiser la séance sans fiche pédagogique préparée. Après modification des récurrences, les contrôles de présence du bilan sont actualisés sans remplacer les champs de minutes et de discipline en cours de saisie.

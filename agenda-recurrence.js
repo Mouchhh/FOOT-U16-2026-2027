@@ -458,6 +458,12 @@ function agendaRecurringReplace(plan, rows, cutoff, enabled, category) {
   next.from = next.from < cutoff ? next.from : cutoff;
   next.category = category;
   next.templateSlots = structuredClone(rows);
+  if (!plan && cutoff <= agendaCalendarToday()) {
+    const start = agendaCalendarAdd(trainingWeekStart(cutoff), -7);
+    next.from = start;
+    for (const slot of next.slots) slot.from = start;
+    next.initialWeekBackfilled = true;
+  }
   return agendaRecurringTrimMetadata(next);
 }
 function agendaRecurringChange(id, scope, changes, revision) {
@@ -870,7 +876,7 @@ function agendaRecurringConfigure() {
     el(
       "p",
       "hint",
-      "Vos créneaux se répètent sans date de fin, jusqu’à votre modification ou suppression. Les modifications ci-dessous s’appliquent à partir de la date choisie ; le passé reste conservé.",
+      "Votre semaine type s’applique dès la semaine précédente lors de sa première configuration, puis sans date de fin, jusqu’à votre modification ou suppression. Les modifications ci-dessous s’appliquent à partir de la date choisie ; le passé reste conservé.",
     ),
   );
   const form = el("form"),
@@ -1139,15 +1145,18 @@ function agendaRecurringConfigure() {
   document.body.append(dialog);
   dialog.showModal();
 }
-// A first weekly template applies to its whole current week, including pending slots.
+// Project a newly configured weekly template one week backwards, once only.
 function agendaRecurringCompleteInitialWeek() {
   const plan = agendaRecurringRead();
-  const today = agendaCalendarToday(), start = trainingWeekStart(today);
-  if (!plan || plan.version !== 2 || plan.from <= start || plan.from > today ||
-      !plan.enabled || !plan.slots.length || plan.slots.some(slot => slot.from !== plan.from || slot.to !== null)) return false;
+  if (!plan || plan.version !== 2 || plan.initialWeekBackfilled ||
+      plan.from > agendaCalendarToday() || !plan.enabled || !plan.slots.length) return false;
   const next = structuredClone(plan);
+  const initial = next.slots.filter(slot => slot.from === plan.from);
+  if (!initial.length) return false;
+  const start = agendaCalendarAdd(trainingWeekStart(plan.from), -7);
   next.from = start;
-  for (const slot of next.slots) slot.from = start;
+  for (const slot of initial) slot.from = start;
+  next.initialWeekBackfilled = true;
   agendaRecurringCommit(next, plan.revision);
   return true;
 }
