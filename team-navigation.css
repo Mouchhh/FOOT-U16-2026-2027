@@ -259,3 +259,43 @@ body .coach-account-open.coach-settings-dock {
     display: none !important;
   }
 }
+
+/* Main team selector exposes created teams and one add action only. */
+.team-space-picker {
+  margin-left: auto;
+  flex: 0 1 240px;
+  max-width: 240px;
+}
+.coach-profile-menu {
+  margin-left: 0;
+}
+.team-space-list {
+  left: auto;
+  right: 0;
+  width: min(280px, calc(100vw - 32px));
+  padding: 10px;
+}
+.team-space-list .team-space-cards {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+}
+.team-space-list .team-space-card {
+  min-height: 44px;
+  justify-content: center;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 8px;
+}
+.team-space-list .team-space-card[aria-pressed="true"] {
+  padding: 9px 11px;
+}
+@media (max-width: 650px) {
+  .team-space-picker {
+    flex: 1;
+    max-width: none;
+  }
+  .team-space-list {
+    left: 0;
+    right: auto;
+  }
+}

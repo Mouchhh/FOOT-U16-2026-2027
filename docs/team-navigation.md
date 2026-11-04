@@ -1,6 +1,6 @@
 # Espaces équipes et navigation personnelle
 
-Le bouton « Mon équipe » affiche le contexte actif dans l’en-tête. Son panneau présente les équipes du coach sous forme de cartes, marque l’équipe active en rouge `#e41f28`, permet d’ajouter une équipe et de configurer l’équipe active. Les libellés sont rendus comme texte, sans interprétation HTML.
+Le bouton « Mon équipe » affiche le contexte actif dans l’en-tête. Son panneau présente uniquement les noms des équipes créées, marque l’équipe active en rouge `#e41f28` et permet d’ajouter une équipe. La configuration reste séparée dans le profil. Les libellés sont rendus comme texte, sans interprétation HTML.
 
 Le changement utilise `coachTeamSwitch` : sauvegarde de l’espace courant, mémorisation du module, sélection du contexte puis rechargement automatique. Le contexte reste figé pendant la durée de chaque page pour empêcher les callbacks différés et les écritures `pagehide` de viser l’équipe suivante. Les clés locales des bibliothèques, brouillons, agendas et récurrences sont distinctes ; les documents distants sont filtrés à l’hydratation. Les écritures de bibliothèques et les brouillons portant explicitement le contexte d’une autre équipe sont refusés. Une erreur de sauvegarde bloque le changement, sans abandonner le travail.
 

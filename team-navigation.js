@@ -23,15 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const add = el("button", "team-space-add", "+ Ajouter une équipe");
   add.type = "button";
   add.id = "team-space-add";
-  const edit = el("button", "team-space-edit", "Configurer l’équipe active");
-  edit.type = "button";
-  list.append(
-    el("h2", "", "Mes équipes"),
-    el("p", "", "Un effectif, un agenda et un suivi propres à chaque équipe."),
-    teams,
-    add,
-    edit,
-  );
+  list.append(teams, add);
   picker.append(trigger, list);
   legacy.after(picker);
 
@@ -131,46 +123,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 160);
   });
   function refreshTeams() {
-    name.textContent = activeCoachTeam.label;
+    const activeLabel =
+      activeCoachTeam.id === "unassigned"
+        ? "Choisir une équipe"
+        : activeCoachTeam.label;
+    name.textContent = activeLabel;
     trigger.setAttribute(
       "aria-label",
-      "Équipe active : " + activeCoachTeam.label + ". Changer d’équipe",
+      "Mon équipe : " + activeLabel + ". Changer d’équipe",
     );
     teams.replaceChildren(
-      ...coachTeams.map((team) => {
-        const button = el("button", "team-space-card");
-        button.type = "button";
-        button.dataset.teamId = team.id;
-        button.setAttribute(
-          "aria-pressed",
-          String(team.id === activeCoachTeam.id),
-        );
-        button.append(
-          el("strong", "", team.label),
-          el(
-            "small",
-            "",
-            [team.category, team.team].filter(Boolean).join(" · ") ||
-              "Documents à classer",
-          ),
-        );
-        if (team.id === activeCoachTeam.id)
-          button.append(el("span", "team-space-active", "Active"));
-        button.onclick = () => {
-          closeMenus();
-          coachTeamSwitch(team.id);
-        };
-        return button;
-      }),
+      ...coachTeams
+        .filter((team) => team.id !== "unassigned")
+        .map((team) => {
+          const button = el("button", "team-space-card");
+          button.type = "button";
+          button.dataset.teamId = team.id;
+          button.setAttribute(
+            "aria-pressed",
+            String(team.id === activeCoachTeam.id),
+          );
+          button.append(el("strong", "", team.label));
+          button.onclick = () => {
+            closeMenus();
+            coachTeamSwitch(team.id);
+          };
+          return button;
+        }),
     );
   }
   add.onclick = () => {
     closeMenus();
     coachTeamAddDialog();
-  };
-  edit.onclick = () => {
-    closeMenus();
-    coachTeamAddDialog(true);
   };
   function option(label, action) {
     const button = el("button", "", label);

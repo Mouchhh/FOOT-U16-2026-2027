@@ -8,9 +8,10 @@ with sync_playwright() as p:
     def ready(page): page.wait_for_function('window.externalModalClose && window.workspaceFraming && document.getElementById("coach-team-select")')
     page.goto('http://127.0.0.1:3016/?mode=local');ready(page)
     def select_team(value):
+        if value=='__edit':
+            page.evaluate('()=>coachTeamAddDialog(true)');return
         page.locator('#team-space-trigger').click()
         if value=='__add': page.locator('#team-space-add').click()
-        elif value=='__edit': page.locator('.team-space-edit').click()
         else: page.locator(f'.team-space-card[data-team-id="{value}"]').click()
     # Existing technical content is preserved verbatim and discovered by its actual category.
     ids=page.evaluate("""()=>{

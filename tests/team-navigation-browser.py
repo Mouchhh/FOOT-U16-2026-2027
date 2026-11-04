@@ -9,7 +9,7 @@ with sync_playwright() as p:
     assert not page.locator('header #coach-account-open').count()
     assert page.locator('#coach-account-open').is_visible()
     page.locator('#team-space-trigger').click()
-    assert page.locator('.team-space-card[aria-pressed=true]').count()==1
+    assert page.locator('.team-space-card[aria-pressed=true]').count()==page.evaluate('Number(activeCoachTeam.id!=="unassigned")')
     assert page.locator('#team-space-add').is_visible()
     page.locator('#team-space-trigger').press('Escape')
     assert not page.locator('#team-space-list').is_visible()
