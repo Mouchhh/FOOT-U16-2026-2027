@@ -95,7 +95,7 @@ function clubNetworkSource(kind,payload){
  const id=kind==='composition'?payload.documentId:payload.id;
  if(!id||!clubNetworkPayloadValid(kind,payload))return null;
  const fallback=kind==='training'?payload.date+' · '+payload.team:kind==='report'?(payload.info.date||'Match')+' · '+payload.info.team+' / '+payload.info.opponent:payload.team+' · '+payload.formation;
- return {kind,id,title:((kind==='composition'&&payload.pionExplanation?'Explication · ':'')+(kind==='composition'&&payload.boardKind==='plan'&&!payload.title?.startsWith('Plan de jeu · ')?'Plan de jeu · ':'')+(payload.title?.trim()||fallback||clubNetworkKinds[kind])).slice(0,150),payload:coachTeamStamp(structuredClone(payload))};
+ return {kind,id,title:((kind==='composition'&&!payload.squadDirectory&&!payload.pionExplanation&&payload.boardKind!=='plan'&&matchPreparationFilled(payload.matchPreparation)&&!payload.title?.startsWith('Causerie · ')?'Causerie · ':'')+(kind==='composition'&&payload.pionExplanation?'Explication · ':'')+(kind==='composition'&&payload.boardKind==='plan'&&!payload.title?.startsWith('Plan de jeu · ')?'Plan de jeu · ':'')+(payload.title?.trim()||fallback||clubNetworkKinds[kind])).slice(0,150),payload:coachTeamStamp(structuredClone(payload))};
 }
 function clubNetworkComposition(payload){
  if(payload.pionExplanation)return simpleExplanationPreview(payload);

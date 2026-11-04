@@ -163,6 +163,16 @@ function documentCompletionFinish(kind) {
     const message =
       (kind === "report" ? "Bilan enregistré." : "Causerie enregistrée.") +
       " Vous pouvez le retrouver dans votre historique.";
+    document.dispatchEvent(
+      new CustomEvent("document-completed", {
+        detail: {
+          kind,
+          id: documentCompletionId(kind, stored),
+          coachId: activeCoach.id,
+          teamId: activeCoachTeam.id,
+        },
+      }),
+    );
     notify(kind === "report" ? reportStatsSaveNotice(message) : message);
     return true;
   } catch (error) {
