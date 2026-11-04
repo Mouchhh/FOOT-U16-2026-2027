@@ -16,12 +16,12 @@ with sync_playwright() as p:
  fresh=page.evaluate('getCompositionBoard().documentId');assert fresh!=original
  def blank():
   assert page.evaluate('getCompositionBoard().players.length')==0
-  assert page.evaluate('getCompositionBoard().formation')==''
+  assert page.evaluate('getCompositionBoard().formation')=='4-3-3'
   assert page.evaluate('getCompositionBoard().notes')==''
   assert page.evaluate('getCompositionBoard().arrows.length')==0
   assert page.evaluate('Object.values(getCompositionBoard().matchPreparation).flat().every(v=>v==="")')
-  assert page.locator('#players .player').count()==0
-  assert page.locator('#formation').input_value()==''
+  assert page.locator('#players .player:not(.player-empty-slot)').count()==0
+  assert page.locator('#formation').input_value()=='4-3-3'
   assert page.locator('dialog[open]').count()==0
  blank()
  assert page.evaluate('gamePlanBoard===null && beforeTactic===null')
@@ -58,7 +58,7 @@ with sync_playwright() as p:
  # New FFF/agenda preparations preserve only the chosen fixture context, never the last players.
  page.evaluate("()=>agendaFFFPrepare({key:'fixture-new',date:'2026-11-14',title:'Match C',opponent:'Adversaire C'})")
  assert page.evaluate('getCompositionBoard().players.length')==0
- assert page.evaluate('getCompositionBoard().formation')==''
+ assert page.evaluate('getCompositionBoard().formation')=='4-3-3'
  assert page.evaluate('getCompositionBoard().matchPreparation.opponent')=='Adversaire C'
  assert page.evaluate('getCompositionBoard().matchPreparation.defensive')==''
  assert page.locator('dialog[open]').count()==0

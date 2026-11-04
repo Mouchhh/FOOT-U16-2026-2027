@@ -36,7 +36,7 @@ function documentEntryMeaningful(kind, payload) {
     if (
       payload.matchCreation === "blank" &&
       !payload.players.length &&
-      payload.formation === "" &&
+      ["", "4-3-3"].includes(payload.formation) &&
       !payload.notes.trim() &&
       !payload.arrows.length &&
       !payload.matchPreparation?.objectives.some(Boolean) &&
@@ -301,7 +301,7 @@ document.addEventListener("DOMContentLoaded", () => {
       kind === "causerie" &&
       payload.matchCreation === "blank" &&
       !payload.players.length &&
-      payload.formation === ""
+      ["", "4-3-3"].includes(payload.formation)
     )
       return matchWorkspaceInstall(payload);
     return perform(() =>

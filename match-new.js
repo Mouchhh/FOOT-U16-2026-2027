@@ -12,7 +12,7 @@ function newBlankMatch(context = {}) {
     squad: "",
     matchDuration: "",
     title: "",
-    formation: "",
+    formation: "4-3-3",
     color: "#2855a2",
     lanes: true,
     benchVisible: true,
@@ -168,14 +168,16 @@ document.addEventListener("DOMContentLoaded", () => {
     )
       return;
     const next = structuredClone(state);
+    const slot = compositionEmptySlots(next)[0];
     next.players.push({
       id: player.id,
       name: player.name,
       number: player.number,
       photo: player.photo,
       role: "starter",
-      x: 50,
-      y: 50,
+      x: slot?.x ?? 50,
+      y: slot?.y ?? 50,
+      ...(slot ? { formationSlot: slot.formationSlot } : {}),
     });
     try {
       coachStorageSet("vestiaire-draft", JSON.stringify(next));

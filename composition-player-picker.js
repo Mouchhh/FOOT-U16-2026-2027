@@ -39,7 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (activeDialog?.open || !compositionVisible()) return;
     const board = getCompositionBoard(),
-      slot = board.players.find((p) => p.id === id);
+      slot =
+        board.players.find((p) => p.id === id) ||
+        compositionEmptySlots(board).find((p) => p.id === id);
+    const virtual = !board.players.some((p) => p.id === id);
     if (!slot) return;
     const owner = activeCoach.id,
       generation = clubNetworkGeneration,
@@ -58,8 +61,10 @@ document.addEventListener("DOMContentLoaded", () => {
       generation === clubNetworkGeneration &&
       compositionVisible() &&
       (getCompositionBoard().documentId || "draft") === documentId &&
-      JSON.stringify(getCompositionBoard().players.find((p) => p.id === id)) ===
-        baseline;
+      JSON.stringify(
+        getCompositionBoard().players.find((p) => p.id === id) ||
+          compositionEmptySlots(getCompositionBoard()).find((p) => p.id === id),
+      ) === baseline;
     const heading = el("div", "section-heading"),
       title = el("h2", "", "Choisir le joueur");
     title.id = "composition-player-picker-title";
@@ -70,11 +75,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const context = el(
       "p",
       "hint",
-      "Emplacement de " +
-        slot.name +
-        " · N° " +
-        slot.number +
-        ". Le placement et le rôle sur le terrain sont conservés.",
+      virtual
+        ? "Emplacement libre · choisissez un joueur de votre effectif."
+        : "Emplacement de " +
+            slot.name +
+            " · N° " +
+            slot.number +
+            ". Le placement et le rôle sur le terrain sont conservés.",
     );
     const tabs = el("div", "composition-picker-tabs");
     tabs.setAttribute("role", "tablist");
@@ -85,6 +92,23 @@ document.addEventListener("DOMContentLoaded", () => {
     create.id = "composition-picker-create";
     existing.setAttribute("role", "tabpanel");
     create.setAttribute("role", "tabpanel");
+    let matchNumberDirty = false;
+    const matchNumberLabel = el(
+        "label",
+        "report-field",
+        "Numéro pour ce match",
+      ),
+      matchNumber = el("input");
+    matchNumber.type = "number";
+    matchNumber.min = 1;
+    matchNumber.max = 99;
+    matchNumber.step = 1;
+    matchNumber.value = slot.number;
+    matchNumber.placeholder = "Numéro de la fiche joueur";
+    matchNumber.oninput = () => (matchNumberDirty = true);
+    matchNumber.setAttribute("aria-label", "Numéro pour ce match");
+    matchNumberLabel.append(matchNumber);
+    existing.append(matchNumberLabel);
     const status = el("p", "composition-picker-status");
     status.setAttribute("role", "status");
     const searchLabel = el(
@@ -122,23 +146,46 @@ document.addEventListener("DOMContentLoaded", () => {
         renderList();
         return false;
       }
-      const next = structuredClone(getCompositionBoard()),
-        target = next.players.find((x) => x.id === id),
-        other = assignedPlayer(actual),
-        old = {
-          name: target.name,
-          number: target.number,
-          photo: target.photo,
-          squadPlayerId: target.squadPlayerId,
-        };
-      if (other) {
+      if (
+        matchNumber.value &&
+        !/^(?:[1-9]|[1-9][0-9])$/.test(matchNumber.value)
+      ) {
+        status.textContent = "Choisissez un numéro entier de 1 à 99.";
+        return false;
+      }
+      const next = structuredClone(getCompositionBoard());
+      const other = assignedPlayer(actual);
+      let target = next.players.find((x) => x.id === id);
+      if (virtual) {
+        if (other) next.players = next.players.filter((p) => p.id !== other.id);
+        if (next.players.length >= 30) {
+          status.textContent = "30 joueurs maximum.";
+          return false;
+        }
+        target = { ...slot, id: crypto.randomUUID() };
+        next.players.push(target);
+      }
+      const old = {
+        name: target.name,
+        number: target.number,
+        photo: target.photo,
+        squadPlayerId: target.squadPlayerId,
+      };
+      if (other && !virtual) {
         const counterpart = next.players.find((x) => x.id === other.id);
         Object.assign(counterpart, old);
         if (!old.squadPlayerId) delete counterpart.squadPlayerId;
       }
       Object.assign(target, {
         name: actual.name,
-        number: actual.number,
+        number:
+          matchNumberDirty && matchNumber.value
+            ? Number(matchNumber.value)
+            : (other?.number ??
+              (!virtual &&
+              (slot.squadPlayerId === actual.id || slot.id === actual.id)
+                ? slot.number
+                : actual.number)),
         photo: actual.photo,
         squadPlayerId: actual.id,
       });
@@ -168,6 +215,34 @@ document.addEventListener("DOMContentLoaded", () => {
           : actual.name + " affecté à cet emplacement.",
       );
       return true;
+    }
+    if (!virtual) {
+      const updateNumber = el("button", "export", "Enregistrer le numéro");
+      updateNumber.type = "button";
+      updateNumber.onclick = () => {
+        if (!alive())
+          return (status.textContent =
+            "La composition a changé. Rouvrez cet emplacement.");
+        if (!/^(?:[1-9]|[1-9][0-9])$/.test(matchNumber.value))
+          return (status.textContent =
+            "Choisissez un numéro entier de 1 à 99.");
+        const next = structuredClone(getCompositionBoard());
+        next.players.find((p) => p.id === id).number = Number(
+          matchNumber.value,
+        );
+        try {
+          coachStorageSet("vestiaire-draft", JSON.stringify(next));
+        } catch {
+          return (status.textContent =
+            "Numéro non enregistré : stockage indisponible.");
+        }
+        state = next;
+        compositionBoard = next;
+        terrainKnownState = next;
+        render();
+        dialog.close();
+      };
+      existing.append(updateNumber);
     }
     const normal = (s) =>
       String(s)
@@ -232,7 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
     first.required = last.required = number.required = true;
     number.min = 1;
     number.max = 99;
-    number.value = slot.number;
+    number.value = slot.number || "";
     first.autocomplete = "given-name";
     last.autocomplete = "family-name";
     number.inputMode = "numeric";
@@ -408,6 +483,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const settings = el("button", "export", "Autres réglages du pion");
     settings.type = "button";
+    settings.hidden = virtual;
     settings.onclick = () => {
       if (!alive()) {
         status.textContent =
@@ -449,7 +525,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (e.button !== 0 || mode !== "move" || !compositionVisible()) return;
       const token = e.target.closest(".player");
       if (!token || token.dataset.side === "opponent") return;
-      const p = state.players.find((p) => p.id === token.dataset.id);
+      const p =
+        state.players.find((p) => p.id === token.dataset.id) ||
+        compositionEmptySlots(state).find((p) => p.id === token.dataset.id);
       if (!p) return;
       gesture = {
         id: p.id,

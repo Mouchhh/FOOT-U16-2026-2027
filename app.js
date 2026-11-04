@@ -29,7 +29,7 @@ function endDrag(e){if(!drag||drag.pointer!==e.pointerId)return;if(drag.arrow){c
 $('pitch').addEventListener('pointerup',endDrag);$('pitch').addEventListener('pointercancel',endDrag);
 for(const tool of ['move','arrow'])$(tool).onclick=()=>{mode=tool;$('move').classList.toggle('active',tool==='move');$('arrow').classList.toggle('active',tool==='arrow');$('pitch').style.cursor=tool==='arrow'?'crosshair':'';};
 $('erase').onclick=()=>{state.arrows=[];drawArrows();persist();};
-function reposition(){if(!layouts[state.formation]){render();persist();return;}state.players.filter(p=>p.role!=='sub').forEach((p,i)=>{const pos=layouts[state.formation][i]||[10+(i-11)%6*15,7];[p.x,p.y]=pos;});render();persist();}
+function reposition(){if(!layouts[state.formation]){render();persist();return;}state.players.filter(p=>p.role!=='sub').forEach((p,i)=>{const pos=layouts[state.formation][Number.isInteger(p.formationSlot)?p.formationSlot:i]||[10+(i-11)%6*15,7];[p.x,p.y]=pos;});render();persist();}
 $('formation').onchange=e=>{state.formation=e.target.value;reposition();};$('reset').onclick=()=>{reposition();notify('Joueurs replacés selon la formation.');};
 $('team').oninput=e=>{state.team=e.target.value;renderClubProfile();persist();};$('notes').oninput=e=>{state.notes=e.target.value;persist();};
 function setColor(color){state.color=color;document.documentElement.style.setProperty('--shirt',color);$('color').value=color;persist();}

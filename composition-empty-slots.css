@@ -1,0 +1,10 @@
+.player-empty-slot .token {
+  border: 2px dashed #fff;
+  background: var(--shirt, #2855a2);
+  opacity: 0.8;
+}
+.player-empty-slot:focus-visible {
+  outline: 3px solid var(--club-logo-red, #e41f28);
+  outline-offset: 4px;
+  border-radius: 50%;
+}
