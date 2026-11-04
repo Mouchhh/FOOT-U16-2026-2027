@@ -1,0 +1,11 @@
+/* Keep the home photographs; suppress retired widgets regardless of their DOM container. */
+body.home-mode #home-tools,
+body.home-mode #home-work-quick,
+body.home-mode .coach-quickstart-entry,
+body.home-mode #coach-quickstart-open,
+body.home-mode #club-home .flow-progress,
+body.home-mode #club-home .flow-footer,
+body.home-mode #club-home footer,
+body.home-mode > main > footer {
+  display: none !important;
+}
