@@ -12,8 +12,8 @@ document.addEventListener('DOMContentLoaded',()=>{
  const homeFlow=workspaceFlows.home,homeGo=homeFlow.go;
  homeFlow.go=()=>homeGo.call(homeFlow,0);
  homeFlow.go();
- // Keep the club photo as a quiet background, with no carousel widget.
- homeSlidePaused=true;updateHomeSlideTimer();
+ // Rotate all club photographs in the background; keep the old tools hidden.
+ homeSlidePaused=homeSlideMotion.matches;updateHomeSlideTimer();
  const hero=document.querySelector('.home-hero'),copy=hero.firstElementChild;copy.classList.add('home-welcome-copy');hero.append($('home-slideshow-controls'));
  const subtitle=copy.querySelector('p:not(#home-date)');subtitle.textContent='Préparez votre semaine : séances, match, causerie et bilan.';subtitle.classList.add('home-welcome-intro');copy.querySelector('.eyebrow').textContent='LE VESTIAIRE · STADE MAYENNAIS';
  const latest=el('p','home-last-saved');latest.id='home-last-saved';latest.setAttribute('role','status');$('home-greeting').after(latest);

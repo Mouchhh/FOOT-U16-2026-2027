@@ -11,12 +11,12 @@ function renderHomeSlide(){
 }
 function updateHomeSlideTimer(){
  clearInterval(homeSlideTimer);homeSlideTimer=null;
- if(homeSlideImages.length>1&&!homeSlidePaused&&homeSlideVisible())homeSlideTimer=setInterval(()=>changeHomeSlide(1),6000);
+ if(homeSlideImages.length>1&&!homeSlidePaused&&!document.body.classList.contains('coach-reduced-motion')&&homeSlideVisible())homeSlideTimer=setInterval(()=>changeHomeSlide(1),6000);
 }
 function changeHomeSlide(direction){if(!homeSlideImages.length)return;homeSlideIndex=(homeSlideIndex+direction+homeSlideImages.length)%homeSlideImages.length;renderHomeSlide();}
 $('home-slide-previous').onclick=()=>{changeHomeSlide(-1);updateHomeSlideTimer();};$('home-slide-next').onclick=()=>{changeHomeSlide(1);updateHomeSlideTimer();};
 $('home-slide-pause').onclick=()=>{homeSlidePaused=!homeSlidePaused;renderHomeSlide();updateHomeSlideTimer();};
-homeSlideMotion.addEventListener('change',event=>{if(event.matches){homeSlidePaused=true;renderHomeSlide();updateHomeSlideTimer();}});
+homeSlideMotion.addEventListener('change',event=>{homeSlidePaused=event.matches;renderHomeSlide();updateHomeSlideTimer();});
 document.addEventListener('visibilitychange',updateHomeSlideTimer);
 new MutationObserver(updateHomeSlideTimer).observe(document.body,{attributes:true,attributeFilter:['class']});
 async function initializeHomeSlides(){
