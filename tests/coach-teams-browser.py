@@ -7,6 +7,11 @@ with sync_playwright() as p:
     page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept())
     def ready(page): page.wait_for_function('window.externalModalClose && window.workspaceFraming && document.getElementById("coach-team-select")')
     page.goto('http://127.0.0.1:3016/?mode=local');ready(page)
+    def select_team(value):
+        page.locator('#team-space-trigger').click()
+        if value=='__add': page.locator('#team-space-add').click()
+        elif value=='__edit': page.locator('.team-space-edit').click()
+        else: page.locator(f'.team-space-card[data-team-id="{value}"]').click()
     # Existing technical content is preserved verbatim and discovered by its actual category.
     ids=page.evaluate("""()=>{
       const sessions=[],reports=[],boards=[];
@@ -30,7 +35,7 @@ with sync_playwright() as p:
     assert page.evaluate("clubNetworkRecoveryCandidates().map(c=>c.payload.title)")==['Séance Seniors']
     page.evaluate("()=>{coachStorageSet(agendaRecurringKey,JSON.stringify({version:1,scope:'month',revision:1,enabled:true,from:'2026-11-01',to:'2026-11-30',category:'Seniors',statuses:{},slots:[{id:'slot-test',day:2,type:'training',time:'19:00',title:'Seniors récurrent',status:'pending'}]}));currentTraining.title='Brouillon Seniors';saveTrainingDraft();squadSave([...squadPlayers(),{id:'extra',name:'Carole',number:8,photo:'',position:'Milieu',foot:''}])}")
     page.locator('#workspace-squad-entry').click()
-    page.locator('#coach-team-select').select_option(ids['youth']);ready(page);page.wait_for_function('(id)=>activeCoachTeam.id===id',arg=ids['youth'])
+    select_team(ids['youth']);ready(page);page.wait_for_function('(id)=>activeCoachTeam.id===id',arg=ids['youth'])
     assert page.evaluate('trainingLibrary.map(s=>s.title)')==['Séance U15']
     assert page.evaluate("document.body.classList.contains('squad-mode')")
     assert page.evaluate('reportLibrary.map(r=>r.info.goalsFor)')==['1']
@@ -41,7 +46,7 @@ with sync_playwright() as p:
     # Team writes never rewrite the historical libraries or another team's keys.
     page.evaluate("()=>{coachStorageSet('vestiaire-training-library','[]');trainingLibrary=[]}")
     assert page.evaluate("JSON.parse(localStorage.getItem(coachTeamBaseKey('vestiaire-training-library'))).map(s=>s.title).sort()")==['Sans catégorie','Séance Seniors','Séance U15']
-    page.locator('#coach-team-select').select_option(ids['senior']);page.wait_for_function('(id)=>activeCoachTeam.id===id',arg=ids['senior']);ready(page)
+    select_team(ids['senior']);page.wait_for_function('(id)=>activeCoachTeam.id===id',arg=ids['senior']);ready(page)
     assert page.evaluate('currentTraining.title')=='Brouillon Seniors'
     assert page.evaluate("agendaRecurringOccurrences(agendaRecurringRead(),{from:'2026-11-01',to:'2026-11-30'}).length")==4
     assert page.evaluate('squadPlayers().map(p=>p.name)')==['Alice','Carole']
@@ -69,7 +74,7 @@ with sync_playwright() as p:
     assert 'Distant U15' not in page.evaluate('teamHydratedTitles')
     assert page.evaluate("JSON.parse(localStorage.getItem(coachTeamManifestKey)).some(t=>t.id==='team-other-tab-empty')")
     # Coach supplies all setup data; another team can share the same football category.
-    page.locator('#coach-team-select').select_option('__add');dialog=page.locator('.coach-team-dialog');dialog.locator('.external-modal-close').wait_for()
+    select_team('__add');dialog=page.locator('.coach-team-dialog');dialog.locator('.external-modal-close').wait_for()
     dialog.get_by_label('Nom affiché (ex. Seniors A)',exact=True).fill('Mon groupe B');dialog.get_by_label('Catégorie (ex. Seniors, U15)',exact=True).fill('Seniors');dialog.get_by_label('Nom de l’équipe',exact=True).fill('Club B')
     dialog.get_by_role('button',name='Créer et ouvrir cette équipe',exact=True).click();page.wait_for_function("activeCoachTeam.label==='Mon groupe B'");ready(page)
     assert page.evaluate('trainingLibrary.length+reportLibrary.length+squadPlayers().length')==0
@@ -82,11 +87,11 @@ with sync_playwright() as p:
     for width in [1366,390,320]:
         page.set_viewport_size({'width':width,'height':844})
         assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
-        page.locator('#coach-team-select').select_option('__edit');dialog=page.locator('.coach-team-dialog');cross=dialog.locator('.external-modal-close');cross.wait_for()
+        select_team('__edit');dialog=page.locator('.coach-team-dialog');cross=dialog.locator('.external-modal-close');cross.wait_for()
         assert cross.evaluate("e=>getComputedStyle(e,'::before').color")=='rgb(228, 31, 40)'
         assert dialog.evaluate('e=>e.scrollWidth<=e.clientWidth+2')
         dialog.get_by_role('button',name='Fermer',exact=True).click();dialog.wait_for(state='detached')
-    page.locator('#coach-team-select').select_option('__edit');dialog=page.locator('.coach-team-dialog')
+    select_team('__edit');dialog=page.locator('.coach-team-dialog')
     team_id=page.evaluate('activeCoachTeam.id')
     dialog.get_by_label('Nom affiché (ex. Seniors A)',exact=True).fill('Mon équipe espoir');dialog.get_by_label('Catégorie (ex. Seniors, U15)',exact=True).fill('Espoirs')
     dialog.get_by_role('button',name='Enregistrer mon équipe',exact=True).click();page.wait_for_function("activeCoachTeam.label==='Mon équipe espoir'");ready(page)

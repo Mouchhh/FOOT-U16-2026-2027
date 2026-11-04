@@ -291,6 +291,18 @@ coachStorageSet = function (key, value) {
     coachLibraryBaselines.set(key, encoded);
     return;
   }
+  if (
+    [
+      "vestiaire-draft",
+      "vestiaire-training-draft",
+      "vestiaire-report-draft",
+      "vestiaire-gameplan-draft",
+    ].includes(key)
+  ) {
+    const draft = JSON.parse(value);
+    if (draft?.teamContext && !coachTeamOwns(draft))
+      throw Error("Ce brouillon appartient à une autre équipe.");
+  }
   localStorage.setItem(coachStorageKey(key), value);
 };
 function coachTeamsRefreshSelector() {
@@ -302,6 +314,7 @@ function coachTeamsRefreshSelector() {
     new Option("+ Ajouter une équipe…", "__add"),
   );
   select.value = activeCoachTeam.id;
+  document.dispatchEvent(new Event("coach-teams-updated"));
 }
 function coachTeamRememberView(id) {
   sessionStorage.setItem(
