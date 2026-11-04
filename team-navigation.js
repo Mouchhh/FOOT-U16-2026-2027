@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   trigger.type = "button";
   trigger.setAttribute("aria-expanded", "false");
   trigger.setAttribute("aria-controls", "team-space-list");
-  const caption = el("small", "", "MON ÉQUIPE");
+  const caption = el("small", "", "Mon équipe");
   const name = el("strong", "", activeCoachTeam.label);
   const chevron = el("span", "team-space-chevron", "⌄");
   chevron.setAttribute("aria-hidden", "true");
@@ -48,9 +48,13 @@ document.addEventListener("DOMContentLoaded", () => {
     [picker, trigger, list],
     [profile, profileTrigger, options],
   ];
-  let hoverOpened = false;
+  let hoverOpened = false,
+    teamHoverOpened = false,
+    teamHoverTimer;
   function closeMenus(focus = false) {
     hoverOpened = false;
+    teamHoverOpened = false;
+    clearTimeout(teamHoverTimer);
     for (const [, button, panel] of menus) {
       const wasOpen = !panel.hidden;
       panel.hidden = true;
@@ -68,6 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
       // A first mouse click keeps the menu that hover has just disclosed open.
       if (button === profileTrigger && hoverOpened && !panel.hidden) {
         hoverOpened = false;
+        return;
+      }
+      if (button === trigger && teamHoverOpened && !panel.hidden) {
+        teamHoverOpened = false;
         return;
       }
       panel.hidden ? openMenu(button, panel) : closeMenus();
@@ -101,6 +109,26 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("pointerdown", (event) => {
     if (!menus.some(([container]) => container.contains(event.target)))
       closeMenus();
+  });
+  picker.addEventListener("pointerenter", (event) => {
+    clearTimeout(teamHoverTimer);
+    if (
+      event.pointerType === "mouse" &&
+      matchMedia("(hover:hover)").matches &&
+      !document.querySelector("dialog[open]")
+    ) {
+      openMenu(trigger, list);
+      teamHoverOpened = true;
+    }
+  });
+  picker.addEventListener("pointerleave", () => {
+    teamHoverTimer = setTimeout(() => {
+      if (!picker.contains(document.activeElement)) {
+        list.hidden = true;
+        trigger.setAttribute("aria-expanded", "false");
+        teamHoverOpened = false;
+      }
+    }, 160);
   });
   let hoverTimer;
   profile.addEventListener("pointerenter", (event) => {

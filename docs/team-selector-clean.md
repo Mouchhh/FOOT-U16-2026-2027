@@ -1,6 +1,6 @@
 # Sélecteur Mon équipe simplifié
 
-Le sélecteur reste dans le groupe supérieur droit, près du profil. Son panneau contient uniquement les noms des équipes créées et l’action « + Ajouter une équipe ». Le contexte technique `unassigned` n’est pas proposé ; le bouton affiche « Choisir une équipe » tant que ce contexte est actif. Aucune donnée ni équipe historique n’est supprimée.
+Le sélecteur reste dans le groupe supérieur droit, près du profil, sous une forme compacte sur une ligne : « Mon équipe U17 » (avec le nom réel de l’équipe active). Le menu apparaît au survol avec une souris et au toucher sur mobile ; le clavier et le clic restent disponibles. Son panneau contient uniquement les noms des équipes créées et l’action « + Ajouter une équipe ». Le contexte technique `unassigned` n’est pas proposé ; le bouton affiche « Choisir une équipe » tant que ce contexte est actif. Aucune donnée ni équipe historique n’est supprimée.
 
 La phrase explicative, les détails redondants et le bouton « Configurer l’équipe active » sont retirés de ce menu. L’équipe active est identifiée par son accent rouge et `aria-pressed`. Les fonctions de configuration restent accessibles dans le profil du coach, séparément du sélecteur rapide.
 
