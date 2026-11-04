@@ -12,6 +12,7 @@ with sync_playwright() as p:
  }''')
  panel=page.locator('#report-attendance-inline');panel.locator(':scope > summary').click();panel.get_by_label('Enregistrement immédiat',exact=True).uncheck()
  assert page.locator('dialog[open]').count()==0
+ panel.locator('.report-attendance-advanced > summary').click()
  panel.get_by_label('Présences du',exact=True).fill('2026-09-01');panel.get_by_label('Présences du',exact=True).dispatch_event('change')
  panel.get_by_label('Présences au',exact=True).fill('2026-09-30');panel.get_by_label('Présences au',exact=True).dispatch_event('change')
  select=panel.get_by_label('Séance de l’agenda',exact=True);assert select.locator('option').count()==5

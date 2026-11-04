@@ -24,8 +24,8 @@
         : playerStatsNow().day;
     if (s.anchor !== anchor && !s.dirty) {
       s.anchor = anchor;
-      s.from = agendaCalendarAdd(anchor, -6);
-      s.to = anchor;
+      s.from = trainingWeekStart(anchor);
+      s.to = agendaCalendarAdd(s.from, 6);
       s.selected = "";
     }
     return s;
@@ -90,6 +90,32 @@
     auto.onchange = () => {
       s.auto = auto.checked;
     };
+    const weekBar = el("div", "report-attendance-week");
+    const previousWeek = el("button", "export", "←"),
+      nextWeek = el("button", "export", "→"),
+      matchWeek = el("button", "export", "Semaine du bilan"),
+      weekCaption = el("span");
+    previousWeek.type = nextWeek.type = matchWeek.type = "button";
+    previousWeek.setAttribute("aria-label", "Semaine de présence précédente");
+    nextWeek.setAttribute("aria-label", "Semaine de présence suivante");
+    weekBar.append(previousWeek, weekCaption, nextWeek, matchWeek);
+    const dayButtons = el("div", "report-attendance-days");
+    dayButtons.setAttribute("role", "group");
+    dayButtons.setAttribute("aria-label", "Jours de séance de l’agenda");
+    const advanced = el("details", "report-attendance-advanced");
+    advanced.append(el("summary", "", "Autre période ou séance"), filters, label);
+    function chooseWeek(start) {
+      if (s.dirty) return;
+      s.from = trainingWeekStart(start);
+      s.to = agendaCalendarAdd(s.from, 6);
+      s.selected = "";
+      from.value = s.from;
+      to.value = s.to;
+      sessions();
+    }
+    previousWeek.onclick = () => chooseWeek(agendaCalendarAdd(s.from, -7));
+    nextWeek.onclick = () => chooseWeek(agendaCalendarAdd(s.from, 7));
+    matchWeek.onclick = () => chooseWeek(s.anchor);
     let available = [],
       event = null,
       ratios = new Map();
@@ -127,6 +153,11 @@
     }
     function lock() {
       from.disabled = to.disabled = select.disabled = s.dirty;
+      previousWeek.disabled = nextWeek.disabled = matchWeek.disabled = s.dirty;
+      for (const button of dayButtons.children) {
+        button.disabled = s.dirty;
+        button.setAttribute("aria-pressed", String(button.dataset.occurrence === s.selected));
+      }
       cancel.hidden = !s.dirty;
       save.disabled = !event || !squadPlayers().length;
     }
@@ -236,11 +267,13 @@
         available = [];
         status.textContent = "Choisissez une période valide.";
       } else {
-        available = playerAttendanceSessions.events(options());
+        available = playerAttendanceSessions.events(options()).sort((a, b) => playerAttendanceSessions.occurrenceKey(a).localeCompare(playerAttendanceSessions.occurrenceKey(b)));
         status.textContent = available.length
           ? ""
           : "Aucune séance passée sur cette période. Modifiez les dates ou configurez vos créneaux dans l’agenda.";
       }
+      dayButtons.replaceChildren();
+      weekCaption.textContent = "Du " + s.from.split("-").reverse().join("/") + " au " + s.to.split("-").reverse().join("/");
       select.replaceChildren(
         ...available.map(
           (e) =>
@@ -277,6 +310,21 @@
           ? playerAttendanceSessions.occurrenceKey(available[0])
           : "";
       select.value = s.selected;
+      for (const occurrence of available) {
+        const key = playerAttendanceSessions.occurrenceKey(occurrence);
+        const weekday = new Intl.DateTimeFormat("fr-FR", {weekday: "long", timeZone: "UTC"}).format(new Date(occurrence.date + "T12:00:00Z"));
+        const button = el("button", "report-attendance-day", "Séance " + weekday + " · " + occurrence.time);
+        button.type = "button";
+        button.dataset.occurrence = key;
+        button.title = agendaCalendarDateLabel(occurrence.date) + " · " + occurrence.time + " · " + occurrence.title;
+        button.onclick = () => {
+          if (s.dirty) return;
+          s.selected = key;
+          select.value = key;
+          load();
+        };
+        dayButtons.append(button);
+      }
       summary.textContent =
         "Pointer les présences · " + available.length + " séance(s)";
       load();
@@ -436,8 +484,9 @@
     };
     create.append(fields, add);
     panel.append(
-      filters,
-      label,
+      weekBar,
+      dayButtons,
+      advanced,
       autoLabel,
       list,
       confirmation,

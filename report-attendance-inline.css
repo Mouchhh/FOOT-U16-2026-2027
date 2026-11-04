@@ -123,3 +123,14 @@
     font-size: 16px;
   }
 }
+
+/* Agenda weekdays are the primary pointage navigation; exact dates stay optional. */
+.report-attendance-week { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+.report-attendance-week span { flex: 1; font-size: 12px; color: #526b88; }
+.report-attendance-week button { min-height: 44px; }
+.report-attendance-days { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.report-attendance-day { min-height: 44px; padding: 10px 14px; border: 1px solid #d3dfed; border-radius: 8px; background: white; color: #142d50; font: inherit; font-size: 13px; cursor: pointer; }
+.report-attendance-day[aria-pressed="true"] { border-color: var(--club-logo-red, #e41f28); color: var(--club-logo-red, #e41f28); background: #fff5f6; }
+.report-attendance-day:disabled { opacity: .6; cursor: default; }
+.report-attendance-advanced > summary { color: #526b88; font-size: 12px; cursor: pointer; min-height: 44px; align-content: center; }
+@media(max-width: 600px) { .report-attendance-days > button { flex: 1 1 160px; } }
