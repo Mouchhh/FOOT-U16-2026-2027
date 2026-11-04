@@ -17,6 +17,8 @@
     const next = structuredClone(board),
       old = next.matchPreparation || {};
     delete next.causerieAnimations;
+    delete next.causerieSlideAnimations;
+    delete next.causerieAnimationVariant;
     next.matchPreparation = {
       ...newMatchPreparation(),
       date: old.date || "",

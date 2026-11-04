@@ -118,13 +118,21 @@
       binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
     return "data:image/gif;base64," + btoa(binary);
   }
-  async function append(pptx, bundle) {
+  async function append(pptx, bundle, options = {}) {
     if (!bundle || (!bundle.sequences.length && !bundle.media.length))
       return pptx;
     const timings = [];
-    for (const entry of bundle.sequences) {
-      const model = frames(entry),
-        slide = pptx.addSlide();
+    const integrated = Array.isArray(options.hosts);
+    const sequenceHosts = integrated ? options.hosts.filter(host => host.entry) : bundle.sequences.map(entry => ({entry}));
+    let hostNumber = 0;
+    for (const host of sequenceHosts) {
+      const entry = host.entry, model = frames(entry), slide = host.slide || pptx.addSlide();
+      hostNumber++;
+      if (host.slide && options.variant === 'gif') {
+        slide.addImage({data: await animationGif(entry), ...host.box});
+        continue;
+      }
+      if (!host.slide) {
       slide.background = { color: "1B2D52" };
       slide.addText(entry.title, {
         x: 0.5,
@@ -143,10 +151,11 @@
         color: "E8B85F",
         fontSize: 12,
       });
-      const box = { x: 0.7, y: 1.3, w: 8, h: 5.7 };
+      }
+      const box = host.box || { x: 0.7, y: 1.3, w: 8, h: 5.7 };
       slide.addShape(pptx.ShapeType.rect, {
         ...box,
-        fill: { color: "294D37" },
+        fill: { color: host.slide ? "112C48" : "294D37" },
         line: { color: "FFFFFF", width: 1 },
       });
       slide.addShape(pptx.ShapeType.line, {
@@ -156,14 +165,20 @@
         h: 0,
         line: { color: "FFFFFF", width: 1 },
       });
+      if (host.slide) for (const right of [false,true]) slide.addShape(pptx.ShapeType.rect, {
+        x:right?box.x+box.w*.84:box.x,y:box.y+box.h*.25,w:box.w*.16,h:box.h*.5,
+        fill:{color:'112C48',transparency:100},line:{color:'FFFFFF',width:.7}
+      });
+      const radius = host.slide ? Math.min(box.w,box.h)*.12 : .6;
       slide.addShape(pptx.ShapeType.ellipse, {
-        x: box.x + box.w / 2 - 0.6,
-        y: box.y + box.h / 2 - 0.6,
-        w: 1.2,
-        h: 1.2,
+        x: box.x + box.w / 2 - radius,
+        y: box.y + box.h / 2 - radius,
+        w: radius*2,
+        h: radius*2,
         line: { color: "FFFFFF" },
         fill: { color: "294D37", transparency: 100 },
       });
+      const diameter = host.slide ? Math.max(.08, Math.min(.36, box.w / 18, box.h / 10)) : .36;
       const tokens = [
         ...model.initial.tokens.filter(
           (t) => t.side !== "away" || model.initial.showOpponents !== false,
@@ -172,24 +187,25 @@
       ];
       const objects = {};
       tokens.forEach((t, index) => {
-        const objectName = "demo-token-" + index;
+        const objectName = "demo-token-" + hostNumber + "-" + index;
         objects[t.id] = objectName;
         slide.addText(t.label, {
           objectName,
-          x: box.x + ((100 - t.y) * box.w) / 100 - 0.18,
-          y: box.y + (t.x * box.h) / 100 - 0.18,
-          w: 0.36,
-          h: 0.36,
+          x: box.x + ((100 - t.y) * box.w) / 100 - diameter / 2,
+          y: box.y + (t.x * box.h) / 100 - diameter / 2,
+          w: diameter,
+          h: diameter,
           shape: pptx.ShapeType.ellipse,
+          fit: "shrink",
           margin: 0,
           align: "center",
           valign: "mid",
-          fontSize: t.label.length > 4 ? 7 : 11,
+          fontSize: host.slide ? Math.max(4,diameter*30) : t.label.length > 4 ? 7 : 11,
           color: t.id === "ball" ? "1B2D52" : "FFFFFF",
           fill: {
             color:
               t.id === "ball"
-                ? "E8B85F"
+                ? (host.slide ? "FFFFFF" : "E8B85F")
                 : t.side === "away"
                   ? "E41F28"
                   : "2855A2",
@@ -197,7 +213,7 @@
           line: { color: "FFFFFF", width: 1 },
         });
       });
-      model.steps.forEach((step, i) =>
+      if (!host.slide) model.steps.forEach((step, i) =>
         slide.addText(i + 1 + ". " + step.caption, {
           x: 9,
           y: 1.4 + i * Math.min(0.48, 5.4 / model.steps.length),
@@ -209,17 +225,18 @@
           fit: "shrink",
         }),
       );
-      timings.push({ index: pptx._slides.length, model, objects, box });
+      timings.push({ index: pptx._slides.indexOf(slide) + 1, model, objects, box });
     }
-    const compatibleMedia = [...bundle.media];
-    for (const entry of bundle.sequences)
+    const compatibleMedia = integrated ? options.hosts.filter(host => host.media).map(host => ({...host.media, host})) : [...bundle.media];
+    if (!integrated) for (const entry of bundle.sequences)
       compatibleMedia.push({
         name: entry.title + " · Version animée pour Canva",
         type: "image/gif",
         data: await animationGif(entry),
       });
     for (const item of compatibleMedia) {
-      const slide = pptx.addSlide();
+      const slide = item.host?.slide || pptx.addSlide();
+      if (!item.host) {
       slide.background = { color: "1B2D52" };
       slide.addText(item.name, {
         x: 0.5,
@@ -229,20 +246,22 @@
         color: "FFFFFF",
         fontSize: 23,
       });
+      }
+      const mediaBox = item.host?.box || {x:0.6,y:1,w:12.1,h:6.1};
       if (item.type === "image/gif") {
         const image = new Image();
         image.src = item.data;
         await image.decode();
         const scale = Math.min(
-          12.1 / image.naturalWidth,
-          6.1 / image.naturalHeight,
+          mediaBox.w / image.naturalWidth,
+          mediaBox.h / image.naturalHeight,
         );
         const w = image.naturalWidth * scale,
           h = image.naturalHeight * scale;
         slide.addImage({
           data: item.data,
-          x: 0.6 + (12.1 - w) / 2,
-          y: 1 + (6.1 - h) / 2,
+          x: mediaBox.x + (mediaBox.w - w) / 2,
+          y: mediaBox.y + (mediaBox.h - h) / 2,
           w,
           h,
         });
@@ -250,10 +269,7 @@
         slide.addMedia({
           type: "video",
           data: item.data,
-          x: 0.6,
-          y: 1,
-          w: 12.1,
-          h: 6.1,
+          ...mediaBox,
           extn: "mp4",
         });
     }
@@ -264,8 +280,10 @@
         throw Error("Les démonstrations animées nécessitent un export Blob.");
       const blob = await originalWrite(options),
         zip = await JSZip.loadAsync(await blob.arrayBuffer());
-      for (const timing of timings) {
-        const name = "ppt/slides/slide" + timing.index + ".xml";
+      const groups = new Map();
+      for (const timing of timings) { if(!groups.has(timing.index)) groups.set(timing.index, []); groups.get(timing.index).push(timing); }
+      for (const [slideIndex, slideTimings] of groups) {
+        const name = "ppt/slides/slide" + slideIndex + ".xml";
         const doc = new DOMParser().parseFromString(
           await zip.file(name).async("string"),
           "application/xml",
@@ -279,6 +297,8 @@
         let id = 10,
           delay = 0,
           nodes = "";
+        for (const timing of slideTimings) {
+        delay = 0;
         const base = [
           ...timing.model.initial.tokens,
           { id: "ball", ...timing.model.initial.ball },
@@ -295,6 +315,7 @@
             nodes += `<p:par><p:cTn id="${id++}" fill="hold"><p:stCondLst><p:cond delay="${delay}"/></p:stCondLst><p:childTnLst><p:animMotion origin="layout" pathEditMode="relative" path="M ${point(path.start)} L ${point(path.end)} E"><p:cBhvr additive="base"><p:cTn id="${id++}" dur="${step.duration}" fill="hold"/><p:tgtEl><p:spTgt spid="${target}"/></p:tgtEl></p:cBhvr></p:animMotion></p:childTnLst></p:cTn></p:par>`;
           }
           delay += step.duration;
+        }
         }
         const xml = `<p:timing xmlns:p="${ns}"><p:tnLst><p:par><p:cTn id="1" dur="indefinite" restart="never" nodeType="tmRoot"><p:childTnLst><p:seq concurrent="1" nextAc="seek"><p:cTn id="2" dur="indefinite" nodeType="mainSeq"><p:childTnLst><p:par><p:cTn id="3" fill="hold"><p:stCondLst><p:cond delay="indefinite"/></p:stCondLst><p:childTnLst><p:par><p:cTn id="4" fill="hold" nodeType="clickEffect"><p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst>${nodes}</p:childTnLst></p:cTn></p:par></p:childTnLst></p:cTn></p:par></p:childTnLst></p:cTn><p:prevCondLst><p:cond evt="onPrev" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:prevCondLst><p:nextCondLst><p:cond evt="onNext" delay="0"><p:tgtEl><p:sldTgt/></p:tgtEl></p:cond></p:nextCondLst></p:seq></p:childTnLst></p:cTn></p:par></p:tnLst></p:timing>`;
         const node = new DOMParser().parseFromString(
@@ -329,7 +350,7 @@
       el(
         "p",
         "hint",
-        "Sélectionnez vos séquences enregistrées : leurs déplacements seront ajoutés en trajectoires natives PowerPoint. Une seconde diapositive GIF est générée pour Canva. Vous pouvez aussi ajouter vos GIF / MP4 d’exercices. Les trajectoires PowerPoint ne sont pas garanties à l’import.",
+        "Sélectionnez vos séquences enregistrées : leurs déplacements seront ajoutés en trajectoires natives PowerPoint. Dans la présentation en 11 slides, choisissez la version GIF pour Canva et les phases de jeu dans « Présentation · 11 slides ». Vous pouvez aussi ajouter vos GIF / MP4 d’exercices. Les trajectoires PowerPoint ne sont pas garanties à l’import.",
       ),
     );
     const list = el("div"),
@@ -485,6 +506,7 @@
       selections.delete(key());
       media.delete(key());
       delete getCompositionBoard().causerieAnimations;
+      delete getCompositionBoard().causerieSlideAnimations;
     },
   };
 })();

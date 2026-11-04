@@ -78,12 +78,12 @@
   return entries;
  }
  function capture(){
-  const board=structuredClone(state),candidate=getGamePlanBoard();
+  const board=structuredClone(getCompositionBoard()),candidate=getGamePlanBoard();
   const linked=board.boardKind!=='plan'&&board.documentId&&candidate?.sourceCompositionId===board.documentId?structuredClone(candidate):null;
   return {board,linked,demonstrations:window.causerieAnimations?.capture(),landscape:document.body.classList.contains('landscape-mode')};
  }
- async function pitchImage(board,landscape){
-  const options={bench:board.benchVisible!==false,opponents:!!board.opponents?.visible,arrows:true,lanes:!!board.lanes};
+ async function pitchImage(board,landscape,{nameScale=1}={}){
+  const options={nameScale,bench:board.benchVisible!==false,opponents:!!board.opponents?.visible,arrows:true,lanes:!!board.lanes};
   const images=await compositionImages(board,options),canvas=document.createElement('canvas');
   canvas.width=1920;canvas.height=1080;
   compositionPitch(canvas.getContext('2d'),{x:0,y:0,w:canvas.width,h:canvas.height},landscape,board,images,options);
@@ -91,10 +91,11 @@
  }
  async function build(snapshot,includeLinked){
   if(!window.causerieLayout?.build)throw Error('La présentation ne peut pas être préparée. Actualisez le site, puis réessayez.');
-  const [,style]=await Promise.all([loadLibrary(),loadStyle()]);
-  const pptx=new window.PptxGenJS();pptx.layout='LAYOUT_WIDE';pptx.author='Le Vestiaire';
+  const [,style]=await Promise.all([loadLibrary(),window.causerieEleven?Promise.resolve(null):loadStyle()]);
+  const pptx=new window.PptxGenJS();pptx.layout='LAYOUT_WIDE';pptx.author='Stade Mayennais';
   pptx.subject='Causerie du coach';pptx.title=snapshot.board.title||snapshot.board.team;pptx.lang='fr-FR';
   pptx.theme={headFontFace:'Montserrat',bodyFontFace:'Calistoga',lang:'fr-FR'};
+  if(window.causerieEleven) return window.causerieEleven.build(pptx,snapshot,style,{pitchImage});
   await window.causerieLayout.build(pptx,snapshot,includeLinked,style,{textPages,pitchImage});
   return window.causerieAnimations?.append(pptx,snapshot.demonstrations)||pptx;
  }
@@ -107,7 +108,7 @@
   const dialog=el('dialog','causerie-dialog');dialog.id='causerie-dialog';dialog.setAttribute('aria-labelledby','causerie-heading');
   const heading=el('div','section-heading'),title=el('h2','','Préparer ma causerie pour Canva');title.id='causerie-heading';
   const close=el('button','icon-button','×');close.type='button';close.setAttribute('aria-label','Fermer la préparation Canva');heading.append(title,close);dialog.append(heading);
-  dialog.append(el('p','hint','La présentation suit les rubriques de votre préparation. Les pages s’adaptent aux textes saisis, sans résumé ni reformulation. Les textes sont modifiables ; les terrains sont des images fixes. Ajoutez vos démonstrations depuis le bouton Démonstrations : trajectoires natives dans PowerPoint, GIF / MP4 pour Canva.'));
+  dialog.append(el('p','hint','La présentation comporte exactement 11 diapositives. Choisissez vos animations pour les quatre phases dans « Présentation en 11 slides » : trajectoires natives pour PowerPoint ou GIF pour Canva. Les textes restent modifiables et leur intégralité figure aussi dans les notes du présentateur.'));
   const summary=el('p','causerie-summary');dialog.append(summary);
   const label=el('label','causerie-option'),include=el('input');include.type='checkbox';include.id='causerie-linked';label.append(include,document.createTextNode('Inclure la vue épurée liée à cette composition'));dialog.append(label);
   const details=el('details'),count=el('summary'),inventory=el('ul');count.textContent='Vérifier les informations reprises';details.append(count,inventory);dialog.append(details);
@@ -255,7 +256,7 @@
    if(busy)return null;
    if(!window.causerieLayout?.analyze){notify('Actualisez le site pour charger la présentation, puis réessayez.');return null;}
    viewVersion++;
-   stopConnectionPoll();results.replaceChildren();ownerAtOpen=currentUser();snapshot=capture();include.checked=!!snapshot.linked;label.hidden=!snapshot.linked;
+   stopConnectionPoll();results.replaceChildren();ownerAtOpen=currentUser();snapshot=capture();include.checked=window.causerieEleven?false:!!snapshot.linked;label.hidden=!!window.causerieEleven||!snapshot.linked;
    summary.textContent='Document ouvert : '+(snapshot.board.title||snapshot.board.team);
    status.textContent='Cette version reprend le document au moment de l’ouverture de cette fenêtre. Fermez et rouvrez après une modification.';
    refresh();dialog.showModal();

@@ -1,0 +1,7 @@
+.causerie-eleven-options { padding: 18px 0; border-top: 1px solid #dce5ef; color: #142d50; }
+.causerie-eleven-options > summary { min-height: 44px; align-content: center; cursor: pointer; font-weight: 600; }
+.causerie-eleven-fields, .causerie-eleven-phases { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px 24px; margin: 18px 0; }
+.causerie-eleven-phases section { min-width: 0; padding-left: 12px; border-left: 2px solid var(--club-logo-red,#e41f28); }
+.causerie-phase-choice { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 13px; }
+.causerie-phase-choice input { accent-color: var(--club-logo-red,#e41f28); }
+@media(max-width:650px) { .causerie-eleven-fields, .causerie-eleven-phases { grid-template-columns: minmax(0,1fr); } }
