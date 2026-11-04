@@ -33,10 +33,7 @@ function agendaFFFParse(text,url){
 function agendaFFFPrepare(fixture){
  const current=getCompositionBoard(),existing=[current,...saves.map(s=>s.state)].find(board=>valid(board)&&board.fffFixtureKey===fixture.key);
  if(existing){if(existing.matchPreparation?.date!==fixture.date&&confirm('La date importée est maintenant le '+fixture.date+'. Mettre à jour la préparation en conservant la causerie et les joueurs ?')){const updated=structuredClone(existing);updated.matchPreparation.date=fixture.date;updated.matchPreparation.context=[updated.matchPreparation.context,'Dernier import FFF : '+fixture.date+(fixture.time?' à '+fixture.time:'')+(fixture.location?' · '+fixture.location:'')].filter(Boolean).join('\n');if(!workspaceReplaceDraft('composition',updated))return;homeOpenTerrain();}else homeOpenTerrain(existing);return;}
- if(!confirm('Préparer « '+fixture.title+' » avec vos joueurs actuels ? Votre brouillon de match précédent sera conservé dans la récupération.'))return;
- const next=structuredClone(current);next.documentId=crypto.randomUUID();next.boardKind='composition';next.coach=activeCoach.name;next.title=fixture.title.slice(0,100);next.notes='';next.arrows=[];delete next.opponents;delete next.clubReference;delete next.clubApproval;delete next.clubValidation;next.fffFixtureKey=fixture.key;const category=fixture.category||agendaFFFRead().category;if(category)next.category=category;if(fixture.team)next.team=fixture.team;
- next.matchPreparation={...newMatchPreparation(),date:fixture.date,match:fixture.title,opponent:fixture.opponent||fixture.title,context:[fixture.time?'Horaire : '+fixture.time:'Horaire à préciser',fixture.location,fixture.competition].filter(Boolean).join('\n')};
- if(workspaceReplaceDraft('composition',next))homeOpenTerrain();
+ return startBlankMatch({date:fixture.date,key:fixture.key,opponent:fixture.opponent||fixture.title,match:fixture.title,title:fixture.title.slice(0,100)});
 }
 function agendaFFFEvents(){const data=agendaFFFRead();return data.fixtures.filter(f=>f.status!=='cancelled'&&agendaCalendarMatches(f.date,data.category,activeCoach.name)).map(f=>({id:'fff:'+f.key,kind:'match',label:'Match FFF',date:f.date,time:f.time,title:f.title,category:data.category,fff:f,open:()=>agendaFFFPrepare(f)}));}
 document.addEventListener('DOMContentLoaded',()=>{

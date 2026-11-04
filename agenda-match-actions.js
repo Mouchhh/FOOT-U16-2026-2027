@@ -14,7 +14,7 @@ function agendaEventEdits(){try{const rows=JSON.parse(coachStorageGet('vestiaire
 function agendaEventBoard(event){return [getCompositionBoard(),...saves.map(s=>s.state)].find(b=>event.fff?.key?b.fffFixtureKey===event.fff.key:'match:'+(b.documentId||'draft')===event.id);}
 function agendaEventCauserie(event,date){
  if(event){if(event.fff)agendaFFFPrepare(event.fff);else event.open();const board=getCompositionBoard();if(event.fff?board.fffFixtureKey!==event.fff.key:'match:'+(board.documentId||'draft')!==event.id)return;if(board.matchPreparation?.date!==event.date){const updated=structuredClone(board);updated.matchPreparation.date=event.date;if(!workspaceReplaceDraft('composition',updated))return;}}
- else{const next=structuredClone(getCompositionBoard());next.documentId=crypto.randomUUID();next.boardKind='composition';next.coach=activeCoach.name;next.title='';next.notes='';next.arrows=[];delete next.opponents;delete next.fffFixtureKey;delete next.clubReference;delete next.clubApproval;delete next.clubValidation;next.matchPreparation={...newMatchPreparation(),date};if(!workspaceReplaceDraft('composition',next))return;}
+ else{if(!startBlankMatch({date}))return;}
  workspaceNavigation.run('view-pitch',()=>{if(activateTerrainBoard('composition'))workspaceFlows.terrain.go(1);});
 }
 function agendaEventReport(event,date){

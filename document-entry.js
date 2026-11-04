@@ -33,6 +33,18 @@ function documentEntrySameContext(a, b) {
 }
 function documentEntryMeaningful(kind, payload) {
   if (kind === "causerie") {
+    if (
+      payload.matchCreation === "blank" &&
+      !payload.players.length &&
+      payload.formation === "" &&
+      !payload.notes.trim() &&
+      !payload.arrows.length &&
+      !payload.matchPreparation?.objectives.some(Boolean) &&
+      !["offensive", "defensive", "specific", "context"].some((k) =>
+        payload.matchPreparation?.[k]?.trim(),
+      )
+    )
+      return false;
     // Legacy storage kind retained: the decision now concerns the whole Match preparation.
     return (
       !!payload.documentId ||
@@ -234,35 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function blank(kind, context, source) {
     if (kind === "causerie") {
-      const live = getCompositionBoard(),
-        next = structuredClone(
-          documentEntrySameContext(context, documentEntryContext(kind, live))
-            ? live
-            : source,
-        );
-      next.coach = activeCoach.name;
-      next.notes = "";
-      next.title = "";
-      next.arrows = [];
-      delete next.opponents;
-      delete next.clubApproval;
-      delete next.clubValidation;
-      const old = next.matchPreparation || newMatchPreparation(),
-        same = documentEntrySameContext(
-          context,
-          documentEntryContext(kind, next),
-        );
-      next.documentId = crypto.randomUUID();
-      if (context.key) next.fffFixtureKey = context.key;
-      else delete next.fffFixtureKey;
-      next.matchPreparation = {
-        ...newMatchPreparation(),
-        date: context.date,
-        title: same ? old.title : "",
-        match: same ? old.match : context.opponent,
-        opponent: context.opponent,
-      };
-      return next;
+      return newBlankMatch(context);
     }
     const next = newReport(),
       info = source?.info || next.info;
@@ -313,6 +297,13 @@ document.addEventListener("DOMContentLoaded", () => {
     return next;
   }
   function replace(kind, payload) {
+    if (
+      kind === "causerie" &&
+      payload.matchCreation === "blank" &&
+      !payload.players.length &&
+      payload.formation === ""
+    )
+      return matchWorkspaceInstall(payload);
     return perform(() =>
       workspaceReplaceDraft(
         kind === "report" ? "report" : "composition",
@@ -345,6 +336,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   // A pending choice never mutates the active document. Only an explicit action can replace it.
   function request(kind, continuation, options = {}) {
+    if (kind === "causerie" && options.newDocument) {
+      if (pending?.open) pending.close();
+      return startBlankMatch();
+    }
     if (bypass) return continuation();
     if (pending && !pending.open) {
       pending.remove();
@@ -569,7 +564,7 @@ document.addEventListener("DOMContentLoaded", () => {
         "",
         kind === "report"
           ? "Repartir avec un texte vierge. L’ancien travail sera conservé dans les versions précédentes."
-          : "Nouvelle préparation avec votre effectif. L’ancien match est conservé dans les versions précédentes.",
+          : "Match entièrement vierge, sans joueur ni consigne. L’ancien match est conservé dans les versions précédentes.",
       ),
     );
     actions.append(resume, create);
@@ -586,6 +581,15 @@ document.addEventListener("DOMContentLoaded", () => {
         state.error = status.textContent;
         state.phase = "error";
         return;
+      }
+      if (kind === "causerie" && fresh) {
+        if (!archive(kind, current(kind))) {
+          status.textContent = state.error;
+          state.phase = "error";
+          return;
+        }
+        dialog.close();
+        return startBlankMatch();
       }
       const row = isReport
         ? candidates(kind, context)[0]
@@ -958,6 +962,13 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   window.documentEntry = {
     request,
+    accept: (kind) => {
+      accepted[kind] = key(kind, current(kind));
+      state.kind = kind;
+      state.context = documentEntryContext(kind, current(kind));
+      state.phase = "idle";
+      state.error = "";
+    },
     perform,
     history: showHistory,
     getState: () => structuredClone(state),

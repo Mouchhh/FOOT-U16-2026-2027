@@ -1,0 +1,38 @@
+.match-new-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 12px;
+}
+#match-new {
+  background: var(--club-logo-red, #e41f28);
+  border-color: var(--club-logo-red, #e41f28);
+  color: white;
+  min-height: 44px;
+}
+.match-new-actions select {
+  min-height: 44px;
+  min-width: 0;
+  flex: 1 1 200px;
+  max-width: 100%;
+  background: white;
+  color: #142d50;
+  border: 1px solid #cbd8e7;
+  border-radius: 8px;
+  padding: 8px;
+}
+.match-new-actions button {
+  min-height: 44px;
+}
+@media (max-width: 600px) {
+  .match-new-actions select {
+    flex-basis: 100%;
+    font-size: 16px;
+  }
+}
+@media print {
+  .match-new-actions {
+    display: none !important;
+  }
+}

@@ -33,6 +33,7 @@ render=function(){
  renderBeforeTerrainWorkspace();renderTerrainMode();
 };
 function newGamePlan(){
+ if(!layouts[compositionBoard.formation])return notify('Choisissez un système pour créer un plan de jeu.'),null;
  const source=compositionBoard,starters=source.players.filter(p=>p.role!=='sub');
  if(starters.length!==11){notify('Votre composition doit contenir exactement 11 titulaires pour créer le plan.');return null;}
  const plan=structuredClone(source);plan.boardKind='plan';plan.documentId=crypto.randomUUID();plan.title=('Plan de jeu · '+(source.title||source.team)).slice(0,100);plan.players=structuredClone(starters);plan.arrows=[];delete plan.opponents;plan.notes='';plan.benchVisible=false;
