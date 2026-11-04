@@ -1,0 +1,7 @@
+.composition-bench-choice { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 12px 0; color: #142d50; font-size: 13px; }
+.composition-bench-choice[hidden] { display: none !important; }
+.composition-bench-choice button { min-width: 44px; min-height: 44px; border: 1px solid var(--club-logo-red,#e41f28); border-radius: 8px; background: white; color: var(--club-logo-red,#e41f28); font: inherit; cursor: pointer; }
+.composition-bench-choice button:hover { background: #fff5f6; }
+#players .player-empty-sub .token { background: var(--club-logo-red,#e41f28); border-color: white; }
+body.match-clean-mode .pitch-brand,
+body.match-clean-mode .board-footer { display: none !important; }
