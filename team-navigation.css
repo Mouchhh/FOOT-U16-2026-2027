@@ -374,3 +374,15 @@ body .coach-account-open.coach-settings-dock {
     font-size: 10px;
   }
 }
+
+/* The header selector is the single visible team context across all modules. */
+:root body.task-navigation.responsive-navigation main > #club-profile {
+  display: none !important;
+}
+.team-space-trigger > small {
+  display: none;
+}
+.team-space-trigger strong {
+  flex: 1;
+  min-width: 0;
+}

@@ -155,10 +155,11 @@ document.addEventListener("DOMContentLoaded", () => {
       activeCoachTeam.id === "unassigned"
         ? "Choisir une équipe"
         : activeCoachTeam.label;
-    name.textContent = activeLabel;
+    name.textContent = activeLabel + (activeCoachTeam.id === "unassigned" ? "" : " · Football à 11");
+    trigger.title = name.textContent;
     trigger.setAttribute(
       "aria-label",
-      "Mon équipe : " + activeLabel + ". Changer d’équipe",
+      "Mon équipe : " + name.textContent + ". Changer d’équipe",
     );
     teams.replaceChildren(
       ...coachTeams
