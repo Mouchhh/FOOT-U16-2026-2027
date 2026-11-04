@@ -17,9 +17,7 @@ with sync_playwright() as p:
  assert page.evaluate("playerStatsSeasonSnapshot(2026).players.get('whole-a').attendance.entries.length")==0
  selects.nth(0).select_option('present')
  assert page.evaluate("playerStatsSeasonSnapshot(2026).players.get('whole-a').attendance.entries.length")==1
- panel=page.locator('#report-attendance-inline');panel.locator(':scope > summary').click()
- assert panel.locator('.report-attendance-day').count()==3
- assert 'à venir' in panel.locator('.report-attendance-day').nth(2).inner_text()
+ assert page.locator('#report-attendance-inline').count()==0
  page.evaluate("playerStatsNow=()=>({day:'2026-11-07',time:'23:00'})")
  assert page.evaluate("playerStatsSeasonSnapshot(2026).players.get('whole-a').attendance.entries.length")==2
  for width in [390,320]:

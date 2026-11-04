@@ -33,7 +33,7 @@
   function render() {
     const root = $("report-content");
     root?.querySelector("#report-attendance-inline")?.remove();
-    if (!root || !["general", "players"].includes(reportTab)) return;
+    if (window.reportAttendanceRowsOnly || !root || !["general", "players"].includes(reportTab)) return;
     const s = state(),
       reportId = currentReport.id,
       context = owner(),

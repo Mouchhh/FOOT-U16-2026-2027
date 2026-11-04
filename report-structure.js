@@ -34,7 +34,7 @@ function reportPreviousNotes(title, entries) {
 function reportRenderAnalysis(root) {
   const blocks = el("div", "report-tactical-blocks");
   for (const [title, top, improve] of [
-    ["Top Offensivement (Avec le ballon)", "topAttack", "improveAttack"],
+    ["Top Offensif (Avec le ballon)", "topAttack", "improveAttack"],
     ["Top Défensif (Sans le ballon)", "topDefence", "improveDefence"],
   ]) {
     const panel = reportSection(title);
@@ -55,6 +55,15 @@ function reportRenderAnalysis(root) {
     );
     blocks.append(panel);
   }
+  for (const [title, key, label] of [
+    ["Transitions", "transitions", "À la récupération et à la perte"],
+    ["Phases arrêtées", "setPieces", "Pour et contre"],
+  ]) {
+    const panel = reportSection(title);
+    panel.dataset.reportAnalysis = key;
+    panel.append(reportGrowingField(label, currentReport.analysis[key], value => currentReport.analysis[key] = value));
+    blocks.append(panel);
+  }
   root.append(blocks);
   const extra = el("details", "report-analysis-details");
   extra.append(el("summary", "", "Compléments et évaluations sportives"));
@@ -62,7 +71,7 @@ function reportRenderAnalysis(root) {
   reportRatings(ratings, reportSport);
   extra.append(ratings);
   const fields = el("div", "report-grid");
-  for (const key of ["withBall", "withoutBall", "transitions", "setPieces"])
+  for (const key of ["withBall", "withoutBall"])
     fields.append(
       reportGrowingField(
         reportAnalysis[key],
@@ -175,7 +184,7 @@ function reportSportDocument() {
   const section = el("section");
   section.append(el("h2", "", "2. Analyse tactique"));
   for (const [title, top, improve] of [
-    ["Top Offensivement (Avec le ballon)", "topAttack", "improveAttack"],
+    ["Top Offensif (Avec le ballon)", "topAttack", "improveAttack"],
     ["Top Défensif (Sans le ballon)", "topDefence", "improveDefence"],
   ]) {
     const block = el("div", "report-doc-tactical");

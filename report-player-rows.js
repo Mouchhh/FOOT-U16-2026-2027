@@ -1,3 +1,5 @@
+// Attendance is edited on player rows; the former collective disclosure is retired.
+window.reportAttendanceRowsOnly = true;
 // Reuse the existing inputs and canonical attendance commits; never persist aggregate counters.
 document.addEventListener('DOMContentLoaded', () => {
   function ensureRow(player, entry) {

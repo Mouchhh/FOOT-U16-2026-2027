@@ -9,3 +9,5 @@ Dans la vue rapide, minutes et discipline créent au besoin une seule ligne lié
 Les champs se répartissent sur plusieurs lignes sur mobile. Les sélecteurs restent tactiles et les cartes jaunes/rouges conservent leurs repères colorés (rouge du club : #e41f28).
 
 Les trois créneaux hebdomadaires restent visibles même lorsque le dernier est à venir. Le pointage anticipé est explicite et demeure hors des cumuls statistiques jusqu’à la séance. Le service générique de pointage conserve par défaut son filtre sur les séances passées ; les vues hebdomadaires demandent explicitement la semaine complète.
+
+Le bandeau collectif « Pointer les présences » est retiré de l’interface. Le service de pointage canonique et les contrôles des lignes joueurs restent actifs. L’analyse tactique regroupe les six champs existants dans quatre sections : offensif, défensif, transitions et phases arrêtées ; aucun ancien texte n’est supprimé ni recomposé.
