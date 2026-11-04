@@ -52,8 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return saves.map((s) => s.state).filter(causerieArchiveValid);
   }
   function paint() {
-    const previous = select.value,
-      board = getCompositionBoard(),
+    const board = getCompositionBoard(),
       rows = items();
     select.replaceChildren(
       new Option(
@@ -74,11 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ),
       ),
     );
-    select.value = rows.some((p) => p.documentId === previous)
-      ? previous
-      : rows.some((p) => p.documentId === board.documentId)
-        ? board.documentId
-        : "";
+    select.value = rows.some((p) => p.documentId === board.documentId) ? board.documentId : "";
     resume.disabled = reuse.disabled = !select.value;
     const complete =
       terrainBoardKind === "composition" &&
@@ -101,6 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
   select.onchange = () => {
     resume.disabled = reuse.disabled = !select.value;
     status.textContent = "";
+    if (select.value) openSelected(false);
   };
   function clearTransient() {
     beforeTactic = null;
@@ -145,7 +141,10 @@ document.addEventListener("DOMContentLoaded", () => {
       next.teamContext = { ...activeCoachTeam };
     }
     // Persist/recover the current draft before changing anything visible.
-    if (!workspaceReplaceDraft("composition", next)) return;
+    const installed = typeof matchWorkspaceInstall === "function"
+      ? matchWorkspaceInstall(next)
+      : workspaceReplaceDraft("composition", next);
+    if (!installed) { paint(); return; }
     documentCompletionEndEdit("causerie");
     if (
       copy ||
