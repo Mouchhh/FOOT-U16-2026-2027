@@ -348,7 +348,7 @@ function playerStatsDisplay(stats, key) {
 function playerStatsValidationMessage(report) {
   if (!Array.isArray(report?.players)) return "";
   const used = new Set();
-  for (const row of identityFirst(report.players)) {
+  for (const row of report.players) {
     if (!row) continue;
     if (row.squadPlayerId && used.has(row.squadPlayerId))
       return "Une fiche d’effectif est associée à plusieurs lignes : gardez une seule ligne par joueur dans ce bilan.";

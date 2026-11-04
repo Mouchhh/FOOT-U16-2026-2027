@@ -1,16 +1,58 @@
 // Event changes update the open report; season figures remain based on saved reports.
-function reportEventsCommit(change) {
+function reportEventsCommit(change, control = null) {
   const before = structuredClone(currentReport);
   change();
   reportEventsApply(currentReport, squadPlayers());
-  if (!reportValid(currentReport)) {
+  // Editing an event must not rebuild the report because another field is temporarily invalid.
+  const invalidEvent = currentReport.events.some(
+    (e) => !reportEventLinksValid(e),
+  );
+  const excessiveCount = currentReport.players.some((row) =>
+    Object.values(row.eventStats || {}).some(
+      (n) => !Number.isInteger(n) || n < 0 || n > 99,
+    ),
+  );
+  if (invalidEvent || excessiveCount || currentReport.players.length > 40) {
     currentReport = before;
     notify("Vérifiez les joueurs et les valeurs (99 maximum par statistique).");
     renderReportContent();
     return;
   }
   reportAutosave();
-  renderReportContent();
+  if (control?.isConnected) {
+    const anchor = control.closest(".report-event"),
+      top = anchor.getBoundingClientRect().top;
+    const old = $("report-players-panel"),
+      fragment = document.createDocumentFragment();
+    if (old) {
+      renderReportPlayers(fragment, false);
+      old.replaceWith(fragment);
+    }
+    const event = currentReport.events[Number(anchor.dataset.eventIndex)],
+      passer = anchor.querySelector('[aria-label="Passeur décisif"]');
+    if (control.getAttribute("aria-label") === "Événement")
+      anchor
+        .querySelector(".report-event-participants")
+        .replaceWith(reportEventParticipants(event));
+    if (passer && passer.isConnected) {
+      passer.disabled = !event.playerId;
+      passer.value = event.assisterId || "";
+    }
+    const delta = anchor.getBoundingClientRect().top - top;
+    let scroller = anchor.parentElement;
+    while (
+      scroller &&
+      scroller !== document.body &&
+      !(
+        /auto|scroll/.test(getComputedStyle(scroller).overflowY) &&
+        scroller.scrollHeight > scroller.clientHeight
+      )
+    )
+      scroller = scroller.parentElement;
+    if (scroller && scroller !== document.body) scroller.scrollTop += delta;
+    else window.scrollBy({ top: delta, behavior: "instant" });
+    control.focus({ preventScroll: true });
+  } else renderReportContent();
 }
 function reportEventsUnlinkPlayer(id) {
   for (const event of currentReport.events) {
@@ -65,10 +107,17 @@ function reportEventPlayerField(event, key, label) {
   }
   select.value = event[key] || "";
   if (key === "assisterId") select.disabled = !event.playerId;
-  select.onchange = () => {
+  for (const type of ["click", "pointerdown", "input"])
+    select.addEventListener(type, (event) => event.stopPropagation());
+  select.onchange = (changeEvent) => {
+    changeEvent.stopPropagation();
     const value = select.value,
       player = roster.find((p) => p.id === value);
-    if (value && !inReport.has(value) && currentReport.players.length >= 40) {
+    if (
+      value &&
+      !currentReport.players.some((r) => playerStatsResolve(r)?.id === value) &&
+      currentReport.players.length >= 40
+    ) {
       notify("40 joueurs maximum dans ce bilan.");
       select.value = event[key] || "";
       return;
@@ -91,9 +140,54 @@ function reportEventPlayerField(event, key, label) {
         event.assisterId = "";
         event.assisterName = "";
       }
-    });
+    }, select);
   };
   return field;
+}
+function reportEventParticipants(event) {
+  const participants = el("div", "report-event-participants");
+  if (event.type !== "But contre")
+    participants.append(
+      reportEventPlayerField(
+        event,
+        "playerId",
+        event.type === "But pour"
+          ? "Buteur"
+          : event.type === "Changement"
+            ? "Joueur sortant"
+            : "Joueur concerné",
+      ),
+    );
+  if (event.type === "But pour")
+    participants.append(
+      reportEventPlayerField(event, "assisterId", "Passeur décisif"),
+    );
+  if (event.type === "Changement")
+    participants.append(
+      reportEventPlayerField(event, "secondPlayerId", "Joueur entrant"),
+    );
+  if (event.type === "Carton") {
+    const label = el("label", "report-field"),
+      select = el("select");
+    select.setAttribute("aria-label", "Couleur du carton");
+    select.append(
+      new Option("Choisir la couleur", ""),
+      new Option("Jaune", "yellow"),
+      new Option("Rouge", "red"),
+    );
+    select.value = event.card || "";
+    label.append(el("span", "", "Couleur du carton"), select);
+    participants.append(label);
+    for (const type of ["click", "pointerdown", "input"])
+      select.addEventListener(type, (e) => e.stopPropagation());
+    select.onchange = (e) => {
+      e.stopPropagation();
+      reportEventsCommit(() => {
+        event.card = select.value;
+      }, select);
+    };
+  }
+  return participants;
 }
 function renderReportEvents(root) {
   const panel = reportSection(
@@ -137,7 +231,7 @@ function renderReportEvents(root) {
               event.secondPlayerName = "";
             }
             if (v !== "Carton") event.card = "";
-          }),
+          }, main.querySelector('[aria-label="Événement"]')),
         {
           choices: [
             "But pour",
@@ -161,53 +255,8 @@ function renderReportEvents(root) {
       reportEventsCommit(() => currentReport.events.splice(index, 1));
     main.append(remove);
     row.append(main);
-    const participants = el("div", "report-event-participants");
-    if (event.type !== "But contre")
-      participants.append(
-        reportEventPlayerField(
-          event,
-          "playerId",
-          event.type === "But pour"
-            ? "Buteur"
-            : event.type === "Changement"
-              ? "Joueur sortant"
-              : "Joueur concerné",
-        ),
-      );
-    if (event.type === "But pour")
-      participants.append(
-        reportEventPlayerField(event, "assisterId", "Passeur décisif"),
-      );
-    if (event.type === "Changement")
-      participants.append(
-        reportEventPlayerField(event, "secondPlayerId", "Joueur entrant"),
-      );
-    if (event.type === "Carton")
-      participants.append(
-        reportField(
-          "Couleur du carton",
-          event.card || "",
-          (v) =>
-            reportEventsCommit(() => {
-              event.card = v;
-            }),
-          { choices: ["Choisir la couleur", "Jaune", "Rouge"] },
-        ),
-      );
-    // reportField's choices are strings; the card-color selector uses explicit machine values.
-    if (event.type === "Carton") {
-      const old = participants.lastElementChild,
-        select = old.querySelector("select");
-      select.replaceChildren(
-        new Option("Choisir la couleur", ""),
-        new Option("Jaune", "yellow"),
-        new Option("Rouge", "red"),
-      );
-      select.value = event.card || "";
-      select.setAttribute("aria-label", "Couleur du carton");
-    }
     row.append(
-      participants,
+      reportEventParticipants(event),
       reportField(
         "Précision (facultatif)",
         event.detail,

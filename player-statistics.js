@@ -2,6 +2,16 @@
 let playerStatsSelectedSeason = null,
   playerStatsDetail = null;
 function playerStatsReportContext(panel) {
+  if (reportTab === "players") {
+    const date = reportField(
+      "Date du bilan",
+      currentReport.info.date,
+      (v) => (currentReport.info.date = v),
+      { type: "date" },
+    );
+    date.querySelector("input").setAttribute("aria-label", "Date du bilan");
+    panel.append(date);
+  }
   const wrap = el("label", "report-field player-stats-event-type");
   wrap.append(el("span", "", "Ce bilan concerne"));
   const select = el("select");
@@ -318,7 +328,10 @@ function playerStatsDecorateCards() {
         "aria-label",
         "Ouvrir le bilan de saison de " + stats.player.name,
       );
-      open.onclick = () => playerStatsOpen(id);
+      open.onclick = (event) => {
+        event.stopPropagation();
+        playerStatsOpen(id);
+      };
       name.replaceChildren(open);
     }
     const badges = el("div", "player-stat-badges");
@@ -394,6 +407,11 @@ function playerStatsDecorateCards() {
   }
 }
 function playerStatsOpen(id) {
+  if (
+    !document.body.classList.contains("squad-mode") ||
+    document.body.classList.contains("reports-mode")
+  )
+    return;
   const player = squadPlayers().find((p) => p.id === id);
   if (!player) return;
   const old = $("player-stats-dialog");
@@ -657,6 +675,8 @@ function playerStatsPaintDetail() {
   dialog.append(history);
 }
 function playerStatsRefresh() {
+  if (playerStatsDetail && !document.body.classList.contains("squad-mode"))
+    playerStatsDetail.dialog.close();
   if (document.body.classList.contains("squad-mode")) squadRender();
   if (playerStatsDetail) playerStatsPaintDetail();
 }
@@ -707,6 +727,12 @@ document.addEventListener("DOMContentLoaded", () => {
     playerStatsDetail?.dialog.close();
     return clear();
   };
+  document.addEventListener("report-saved", (event) => {
+    if (event.detail?.team !== activeCoachTeam.id) return;
+    squadRender();
+    if (playerStatsDetail && document.body.classList.contains("squad-mode"))
+      playerStatsPaintDetail();
+  });
   window.addEventListener("storage", playerStatsRefresh);
   document.addEventListener("club-session-ready", playerStatsRefresh);
   squadRender();

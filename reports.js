@@ -65,13 +65,13 @@ function renderReportContent(){
 function importReportRoster(){
  let added=0;(typeof getCompositionBoard==='function'?getCompositionBoard():state).players.forEach(p=>{const linked=playerStatsResolve(p);if(currentReport.players.length>=40||currentReport.players.some(q=>q.id===p.id||linked&&playerStatsResolve(q)?.id===linked.id))return;currentReport.players.push({id:p.id,...(linked?{squadPlayerId:linked.id}:{}),name:p.name,number:String(p.number),role:p.role==='sub'?'Impacteur / Finisseur':'Titulaire',minutes:'',score:'',note:'',objective:''});added++;});reportAutosave();renderReportContent();notify(added+' joueur(s) ajouté(s) au rapport.');
 }
-function renderReportPlayers(root){
+function renderReportPlayers(root,includeEvents=true){
  reportEventsApply(currentReport,squadPlayers());
- const panel=reportSection('Suivi individuel','Minutes, performances, discipline et présences de vos joueurs.');const tools=el('div','report-actions');const roster=el('button','export','Importer les joueurs de ma compo');roster.onclick=importReportRoster;const add=el('button','primary','+ Ajouter un joueur');add.onclick=()=>{if(currentReport.players.length>=40)return notify('40 joueurs maximum.');currentReport.players.push({id:crypto.randomUUID(),name:'',number:'',role:'Impacteur / Finisseur',minutes:'',score:'',note:'',objective:''});reportAutosave();renderReportContent();};tools.append(roster,add);panel.append(tools);playerStatsReportContext(panel);
+ const panel=reportSection('Suivi individuel','Minutes, performances, discipline et présences de vos joueurs.');panel.id='report-players-panel';const tools=el('div','report-actions');const roster=el('button','export','Importer les joueurs de ma compo');roster.onclick=importReportRoster;const add=el('button','primary','+ Ajouter un joueur');add.onclick=()=>{if(currentReport.players.length>=40)return notify('40 joueurs maximum.');currentReport.players.push({id:crypto.randomUUID(),name:'',number:'',role:'Impacteur / Finisseur',minutes:'',score:'',note:'',objective:''});reportAutosave();renderReportContent();};tools.append(roster,add);panel.append(tools);playerStatsReportContext(panel);
  if(!currentReport.players.length)panel.append(el('p','hint','Importez votre effectif ou ajoutez les joueurs manuellement.'));
  currentReport.players.forEach((p,index)=>{const card=el('div','report-player');const head=el('div','section-heading');head.append(el('h3','',p.name||'Joueur '+(index+1)));const del=el('button','report-player-remove','Retirer du suivi');del.type='button';del.setAttribute('aria-label','Retirer '+(p.name||'ce joueur')+' du suivi individuel');del.onclick=()=>{const linked=playerStatsResolve(p),related=linked&&currentReport.events.some(e=>reportEventPlayerKeys.some(k=>e[k]===linked.id));if(!confirm('Retirer '+(p.name||'ce joueur')+' du suivi de ce bilan ? Sa fiche dans votre effectif est conservée.'+(related?' Ses liens avec les faits marquants seront retirés.':'')))return;if(linked)reportEventsUnlinkPlayer(linked.id);currentReport.players=currentReport.players.filter(player=>player.id!==p.id);reportEventsApply(currentReport,squadPlayers());reportAutosave();renderReportContent();};head.append(del);card.append(head);const grid=el('div','report-grid');grid.append(reportField('Prénom / nom',p.name,v=>p.name=v,{maxLength:100}),reportField('Numéro',p.number,v=>p.number=v,{type:'number'}),reportField('Statut',p.role,v=>p.role=v,{choices:['Titulaire','Impacteur / Finisseur','Non entré']}),reportField('Minutes jouées',p.minutes,v=>p.minutes=v,{type:'number',max:180}));
  card.append(grid);playerStatsReportFields(card,p);panel.append(card);});root.append(panel);
- renderReportEvents(root);
+ if(includeEvents)renderReportEvents(root);
 }
 function reportValue(v){return v.trim()||'Non renseigné';}
 function reportPrintText(parent,label,value){const row=el('div','report-text-block');row.append(el('h3','',label),el('p','',reportValue(value)));parent.append(row);}
@@ -90,9 +90,26 @@ function buildReportDocument(){
 function renderReportLibrary(){
  const select=$('report-library-select');select.replaceChildren();const empty=el('option','','Ouvrir un rapport enregistré…');empty.value='';select.append(empty);reportLibrary.forEach(r=>{const label=(r.title?r.title+' · ':'')+(r.info.date||'Sans date')+' · '+(r.info.team||'Équipe')+' / '+(r.info.opponent||'Adversaire')+' · '+(r.info.round||'');const o=el('option','',label);o.value=r.id;select.append(o);});select.value=reportLibrary.some(r=>r.id===currentReport.id)?currentReport.id:'';
 }
-function saveReport(){
+function reportStatsPrepareForSave(){
  reportEventsApply(currentReport,squadPlayers());
- if(!reportValid(currentReport)){notify(playerStatsValidationMessage(currentReport)||'Vérifiez les scores, les minutes et les champs numériques avant d’enregistrer.');return false;}flushReportDraft();const next=[structuredClone(currentReport),...reportLibrary.filter(r=>r.id!==currentReport.id)];try{coachStorageSet('vestiaire-reports',JSON.stringify(next));reportLibrary=next;renderReportLibrary();$('report-save-status').textContent='Rapport enregistré dans « Mes rapports » sur cet appareil.';notify('Rapport enregistré.');return true;}catch(error){notify(error.code==='local_library_conflict'?clubNetworkMessage(error):'Stockage plein : le rapport reste ouvert. Libérez de l’espace puis réessayez.');return false;}
+ for(const row of currentReport.players){const player=playerStatsResolve(row);if(player)row.squadPlayerId=player.id;}
+ const hasStats=currentReport.players.some(r=>['minutes','goals','assists','yellowCards','redCards','attendanceRate'].some(k=>r[k]!==undefined&&r[k]!==''));
+ if(hasStats&&!trainingDateValid(currentReport.info.date)){
+  const message='Renseignez la date du bilan pour rattacher les statistiques à la bonne saison.';
+  $('report-save-status').textContent=message;notify(message);return false;
+ }
+ return true;
+}
+function reportStatsUnlinked(){return currentReport.players.filter(r=>!playerStatsResolve(r)&&['minutes','goals','assists','yellowCards','redCards'].some(k=>r[k]!==undefined&&r[k]!==''));}
+function reportStatsSaveNotice(message){
+ const missing=reportStatsUnlinked().length;
+ if(missing)message+=' '+missing+' joueur(s) non associé(s) à une fiche Effectif : leurs statistiques restent uniquement dans ce bilan.';
+ if(currentReport.info.date>playerStatsNow().day)message+=' Les statistiques de ce bilan futur seront comptées à la date du match.';
+ return message;
+}
+function saveReport(){
+ if(!reportStatsPrepareForSave())return false;
+ if(!reportValid(currentReport)){notify(playerStatsValidationMessage(currentReport)||'Vérifiez les scores, les minutes et les champs numériques avant d’enregistrer.');return false;}flushReportDraft();const next=[structuredClone(currentReport),...reportLibrary.filter(r=>r.id!==currentReport.id)];try{coachStorageSet('vestiaire-reports',JSON.stringify(next));reportLibrary=next;renderReportLibrary();$('report-save-status').textContent='Rapport enregistré dans « Mes rapports » sur cet appareil.';$('report-save-status').textContent=reportStatsSaveNotice($('report-save-status').textContent);document.dispatchEvent(new CustomEvent('report-saved',{detail:{id:currentReport.id,team:activeCoachTeam.id,season:playerStatsSeason(currentReport.info.date)}}));notify(reportStatsSaveNotice('Rapport enregistré.'));return true;}catch(error){notify(error.code==='local_library_conflict'?clubNetworkMessage(error):'Stockage plein : le rapport reste ouvert. Libérez de l’espace puis réessayez.');return false;}
 }
 $('report-save').onclick=saveReport;
 $('report-new').onclick=()=>{if(!confirm('Créer un nouveau rapport ? Enregistrez le rapport courant dans « Mes rapports » si vous souhaitez le retrouver.'))return;if(typeof workspaceReplaceDraft==='function'){if(!workspaceReplaceDraft('report',newReport()))return;reportTab='general';renderReportTabs();renderReportContent();return;}currentReport=newReport();reportTab='general';flushReportDraft();renderReportTabs();renderReportContent();renderReportLibrary();};

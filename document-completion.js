@@ -108,6 +108,7 @@ function documentCompletionOpen(
   return true;
 }
 function documentCompletionFinish(kind) {
+  if (kind === "report" && !reportStatsPrepareForSave()) return false;
   if (kind === "causerie" && !activateTerrainBoard("composition")) return false;
   const payload = documentCompletionCurrent(kind),
     root = kind === "report" ? $("after-match") : $("match-plan-form"),
@@ -159,10 +160,10 @@ function documentCompletionFinish(kind) {
       if ($(id)?.open) $(id).close();
     documentCompletionRefresh();
     documentEntry.perform(() => workspaceNavigation.run("view-home"));
-    notify(
+    const message =
       (kind === "report" ? "Bilan enregistré." : "Causerie enregistrée.") +
-        " Vous pouvez le retrouver dans votre historique.",
-    );
+      " Vous pouvez le retrouver dans votre historique.";
+    notify(kind === "report" ? reportStatsSaveNotice(message) : message);
     return true;
   } catch (error) {
     const current = documentCompletionCurrent(kind);

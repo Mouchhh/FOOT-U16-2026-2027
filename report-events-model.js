@@ -79,7 +79,9 @@ function reportEventsApply(report, roster) {
         row.eventStats ||= {};
         row.manualStatsBeforeEvents ||= {};
         if (!Object.hasOwn(row.eventStats, key))
-          row.manualStatsBeforeEvents[key] = row[key] ?? "";
+          row.manualStatsBeforeEvents[key] = playerStatsNumber(row[key])
+            ? row[key]
+            : "";
         row[key] = String(values[key]);
         row.eventStats[key] = values[key];
       } else if (row.eventStats && Object.hasOwn(row.eventStats, key)) {
