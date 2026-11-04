@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  $('match-plan-close').textContent='Retour au tableau';$('match-plan-close').className='export';$('match-plan-close').setAttribute('aria-label','Retour au tableau du match');$('match-plan-close').onclick=()=>terrain.go(0);
  const go=(parent,action)=>workspaceNavigation.run(parent,action);
  const composition=()=>{if(activateTerrainBoard('composition'))terrain.go(0);};
- const tactical=()=>{if(document.body.classList.contains('simple-mode'))terrain.go(0);else if(activateTerrainBoard('plan'))terrain.go(0);};
+ const tactical=()=>{$('mode-simple').click();terrain.go(0);};
  const talk=()=>{if(activateTerrainBoard('composition')){terrain.go(1);renderMatchPreparation();}};
  $('match-plan-open').textContent='Reprendre la rédaction';$('match-plan-open').onclick=()=>go('view-pitch',()=>{if(document.body.classList.contains('simple-mode'))activateTerrainBoard('composition');terrain.go(1);renderMatchPreparation();$('match-plan-context').focus({preventScroll:false});});
  const prepare=()=>{$('training-prepare-tab').click();trainingWizard.go(trainingWizard.step());};
@@ -47,11 +47,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   }else if(parent==='view-reports'){
    for(const [id,label]of Object.entries({general:'Le match',sport:'Analyse',players:'Moments marquants',plan:'Plan d’action',preview:'Synthèse'}))add('task-report-'+id,label,()=>report(id),reportTab===id||id==='sport'&&reportTab==='human');
   }else if(parent==='view-club-network'){
-   for(const [i,label]of [[0,'Éducateurs']])add('task-club-'+i,label,()=>{if(clubNetworkBound())workspaceFlows.club.go(i);},i===0?workspaceFlows.club.index()<=1:workspaceFlows.club.index()===i);
+   for(const [i,label]of [[0,'Éducateurs']])add('task-club-'+i,label,()=>{document.body.classList.remove('club-animations-mode');if(clubNetworkBound())workspaceFlows.club.go(i);},!document.body.classList.contains('club-animations-mode'));add('task-club-animations','Animations',()=>window.clubAnimationsOpen?.(),document.body.classList.contains('club-animations-mode'));
   }
   const tabs=el('div','task-section-tabs');for(const item of items){const button=el('button','task-section-tab',item.label);button.id=item.id;button.type='button';button.setAttribute('aria-pressed',String(item.selected));button.onclick=()=>go(parent,item.action);tabs.append(button);}strip.append(tabs);
   strip.append(assistant);
-  if(parent==='view-pitch'&&simple||index!==1&&kind==='plan'){const modes=el('div','task-tactical-modes');modes.setAttribute('role','group');modes.setAttribute('aria-label','Outils tactiques');for(const [id,label,on]of [['mode-focus','Placement tactique',!simple],['mode-simple','Pions & animations',simple]]){const button=el('button','',label);button.type='button';button.setAttribute('aria-pressed',String(on));button.onclick=()=>go(parent,()=>{$(id).click();terrain.go(0);});modes.append(button);}strip.append(modes);}
+  if(parent==='view-pitch'&&(simple||index!==1&&kind==='plan')){const modes=el('div','task-tactical-modes');modes.setAttribute('role','group');modes.setAttribute('aria-label','Outils tactiques');for(const [id,label,on]of [['mode-focus','Placement tactique',!simple],['mode-simple','Animations',simple]]){const button=el('button','',label);button.type='button';button.setAttribute('aria-pressed',String(on));button.onclick=()=>go(parent,()=>{$(id).click();terrain.go(0);});modes.append(button);}strip.append(modes);}
   if(parent==='view-pitch')$('match-plan-dialog-title').textContent=kind==='plan'?'Causerie · vue tactique':'Ma causerie';
   if(focusId&&$(focusId))$(focusId).focus({preventScroll:true});
  }

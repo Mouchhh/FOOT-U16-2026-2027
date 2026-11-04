@@ -5,13 +5,11 @@
     media = new Map();
   const key = () =>
     [activeCoach.id, activeCoachTeam.id, state.documentId || "draft"].join(":");
-  const selected = () => selections.get(key()) || [];
+  const selected = () => getCompositionBoard().causerieAnimations?.map(entry => entry.id) || selections.get(key()) || [];
   function capture() {
     simpleRefreshLibrary();
     return {
-      sequences: simpleLibrary
-        .filter((e) => selected().includes(e.id))
-        .map((e) => structuredClone(e)),
+      sequences: structuredClone(getCompositionBoard().causerieAnimations || simpleLibrary.filter(e => selected().includes(e.id))),
       media: structuredClone(media.get(key()) || []),
     };
   }
@@ -404,13 +402,22 @@
           check = el("input");
         check.type = "checkbox";
         check.checked = selected().includes(entry.id);
-        check.onchange = () =>
-          selections.set(
-            key(),
-            check.checked
-              ? [...selected(), entry.id]
-              : selected().filter((id) => id !== entry.id),
-          );
+        check.onchange = () => {
+          const board = getCompositionBoard();
+          const before = board.causerieAnimations;
+          const entries = before || simpleLibrary.filter(e => selected().includes(e.id));
+          board.causerieAnimations = check.checked
+            ? [...entries.filter(e => e.id !== entry.id), structuredClone(entry)]
+            : entries.filter(e => e.id !== entry.id);
+          if (!persistTerrainWorkspace()) {
+            if (before === undefined) delete board.causerieAnimations;
+            else board.causerieAnimations = before;
+            check.checked = selected().includes(entry.id);
+            status.textContent = "Sélection non enregistrée. Réessayez.";
+            return;
+          }
+          selections.set(key(), board.causerieAnimations.map(e => e.id));
+        };
         row.append(check, document.createTextNode(entry.title));
         const gifButton = el("button", "export", "GIF pour Canva");
         gifButton.type = "button";
@@ -477,6 +484,7 @@
     clearCurrent: () => {
       selections.delete(key());
       media.delete(key());
+      delete getCompositionBoard().causerieAnimations;
     },
   };
 })();

@@ -16,6 +16,7 @@
   function cleanTalk(board) {
     const next = structuredClone(board),
       old = next.matchPreparation || {};
+    delete next.causerieAnimations;
     next.matchPreparation = {
       ...newMatchPreparation(),
       date: old.date || "",

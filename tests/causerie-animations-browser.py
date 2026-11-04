@@ -54,7 +54,7 @@ with sync_playwright() as p:
         assert any(getattr(im,'n_frames',1)>20 for im in animated)
         assert any(im.size==(960,540) for im in animated)
     assert page.evaluate('JSON.stringify({state,simpleState,saves})')==snapshot
-    page.evaluate("state.documentId='another-match'")
+    page.evaluate("startBlankMatch()")
     assert page.evaluate('causerieAnimations.capture().sequences.length')==0
     assert page.evaluate('causerieAnimations.capture().media.length')==0
     assert not errors,errors

@@ -1,0 +1,25 @@
+#simple-board label[hidden], #simple-objective[hidden], #simple-step-text[hidden] { display: none !important; }
+.task-tactical-modes { padding: 4px 0; gap: 8px; }
+.task-tactical-modes button { border-radius: 8px; }
+#simple-sequence-save { background: var(--club-logo-red,#e41f28); border-color: var(--club-logo-red,#e41f28); color: white; }
+.simple-library-panel .report-actions { flex-wrap: wrap; gap: 10px; }
+.tactical-animation-attach { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; padding: 18px 0; border-top: 1px solid #dce5ef; }
+.tactical-animation-attach h3, .tactical-animation-attach .hint, .tactical-attached { flex-basis: 100%; margin: 0; }
+.tactical-animation-attach > label { flex: 1 1 200px; min-width: 0; margin: 0; }
+.tactical-animation-attach select { min-height: 44px; max-width: 100%; }
+.tactical-animation-attach button, .club-animation-row button { min-height: 44px; }
+.tactical-attached-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #e5eaf1; }
+.club-animation-library { display: none; color: #142d50; }
+.club-animations-mode #club-animation-library { display: block; }
+.club-animations-mode #club-page-1 > :not(#club-animation-library) { display: none !important; }
+.club-animation-library > input { width: min(100%,420px); box-sizing: border-box; min-height: 44px; padding: 10px; border: 1px solid #dce5ef; border-radius: 8px; margin: 12px 0 20px; font: inherit; }
+.club-animation-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 20px 0; border-bottom: 1px solid #e5eaf1; }
+.club-animation-row strong { flex: 1 1 180px; overflow-wrap: anywhere; }
+.club-animation-row .hint { flex-basis: 100%; margin: 0; }
+@media(max-width:600px) { .tactical-animation-attach select { font-size: 16px; width: 100%; } }
+#simple-board > .simple-library-panel { display: grid; grid-template-columns: minmax(180px,1fr) auto; gap: 12px; padding: 16px; border: 1px solid #dce5ef; border-radius: 10px; background: white; margin-bottom: 16px; }
+#simple-board > .simple-library-panel > label { margin: 0; }
+#simple-board > .simple-library-panel > .report-actions { align-items: end; margin: 0; }
+.tactical-library-more { grid-column: 1/-1; }
+.tactical-library-more > summary { min-height: 44px; align-content: center; cursor: pointer; color: #526b88; font-size: 12px; }
+@media(max-width:600px) { #simple-board > .simple-library-panel { grid-template-columns: minmax(0,1fr); } }
