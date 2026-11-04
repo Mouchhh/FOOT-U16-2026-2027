@@ -1,9 +1,11 @@
-// Shared presentation adapter: keep each panel's original controls and save/error handlers.
+// One visible full-screen workspace. Preserve each original form and its save/cancel guards.
 (() => {
   "use strict";
-  const nativeShow = HTMLDialogElement.prototype.show;
-  const nativeModal = HTMLDialogElement.prototype.showModal;
-  const context = new WeakMap();
+  const nativeShow = HTMLDialogElement.prototype.show,
+    nativeModal = HTMLDialogElement.prototype.showModal,
+    nativeClose = HTMLDialogElement.prototype.close;
+  const context = new WeakMap(),
+    inerted = new Set();
   let order = 0;
   const owner = () =>
     [
@@ -15,23 +17,68 @@
       (a, b) =>
         Number(a.dataset.sheetOrder || 0) - Number(b.dataset.sheetOrder || 0),
     );
-  // Decisions that protect existing work retain native modal focus/inert behavior.
-  const decision = (panel) =>
-    /(?:delete|confirm|conflict|document-entry|document-name)/i.test(
-      panel.id + " " + panel.className,
+  function restoreBackground() {
+    for (const node of inerted) node.inert = false;
+    inerted.clear();
+  }
+  function isolate(parent, active) {
+    for (const child of parent.children) {
+      if (child === active || child.matches("script,style,link")) continue;
+      if (child.contains(active)) isolate(child, active);
+      else if (!child.inert) {
+        child.inert = true;
+        inerted.add(child);
+      }
+    }
+  }
+  function refresh() {
+    restoreBackground();
+    const panels = sheets(),
+      active = panels
+        .filter(
+          (p) => !context.get(p)?.owner || context.get(p).owner === owner(),
+        )
+        .at(-1);
+    for (const panel of panels) {
+      const suspended = panel !== active;
+      panel.classList.toggle("workspace-sheet-suspended", suspended);
+      if (suspended) panel.setAttribute("aria-hidden", "true");
+      else panel.removeAttribute("aria-hidden");
+    }
+    document.body.classList.toggle("workspace-panel-open", !!active);
+    if (active) isolate(document.body, active);
+    return active;
+  }
+  function focusables(panel) {
+    return [
+      ...panel.querySelectorAll(
+        "button,a[href],input,select,textarea,summary,[tabindex]",
+      ),
+    ].filter(
+      (e) =>
+        !e.disabled &&
+        e.tabIndex >= 0 &&
+        e.getClientRects().length &&
+        !e.closest("[inert]"),
     );
+  }
   function register(panel) {
     if (panel.ownerDocument !== document) return;
     panel.classList.add("workspace-sheet");
     if (context.has(panel)) return;
     context.set(panel, { focus: null, owner: "" });
     panel.addEventListener("close", () => {
-      const record = context.get(panel);
-      if (
-        !sheets().length &&
-        record.focus?.isConnected &&
-        record.owner === owner()
-      )
+      const active = refresh(),
+        record = context.get(panel);
+      if (active) {
+        if (!active.contains(document.activeElement)) {
+          const target =
+            record.owner === owner() && active.contains(record.focus)
+              ? record.focus
+              : focusables(active)[0] || active;
+          target.focus({ preventScroll: true });
+        }
+      } else if (record.owner === owner() && record.focus?.isConnected)
         record.focus.focus({ preventScroll: true });
     });
   }
@@ -44,39 +91,90 @@
     record.owner = owner();
     this.dataset.sheetOrder = String(++order);
     this.style.setProperty("--sheet-layer", String(2200 + order));
-    this.setAttribute("aria-modal", decision(this) ? "true" : "false");
-    return (decision(this) ? nativeModal : nativeShow).call(this);
+    this.setAttribute("aria-modal", "true");
+    // Native show() avoids stacked top-layer backdrops. Visibility and focus are managed here.
+    restoreBackground();
+    this.classList.remove("workspace-sheet-suspended");
+    this.removeAttribute("aria-hidden");
+    try {
+      nativeShow.call(this);
+      refresh();
+    } catch (error) {
+      refresh();
+      throw error;
+    }
   };
-  // Non-modal sheets support Escape and honor existing cancel guards (busy/unsaved work).
+  HTMLDialogElement.prototype.close = function (...args) {
+    const result = nativeClose.apply(this, args);
+    if (
+      this.ownerDocument === document &&
+      this.classList.contains("workspace-sheet")
+    )
+      refresh();
+    return result;
+  };
   document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape" || event.defaultPrevented) return;
-    const panel = sheets().at(-1);
-    if (!panel || panel.matches(":modal")) return;
-    event.preventDefault();
-    if (panel.dispatchEvent(new Event("cancel", { cancelable: true })))
-      panel.close();
+    if (event.defaultPrevented) return;
+    const panel = sheets()
+      .filter((p) => !p.classList.contains("workspace-sheet-suspended"))
+      .at(-1);
+    if (!panel) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      if (panel.dispatchEvent(new Event("cancel", { cancelable: true })))
+        panel.close();
+    } else if (event.key === "Tab") {
+      const list = focusables(panel),
+        first = list[0],
+        last = list.at(-1);
+      if (!first) {
+        event.preventDefault();
+        panel.focus();
+      } else if (
+        event.shiftKey &&
+        (!panel.contains(document.activeElement) ||
+          document.activeElement === first)
+      ) {
+        event.preventDefault();
+        last.focus();
+      } else if (
+        !event.shiftKey &&
+        (!panel.contains(document.activeElement) ||
+          document.activeElement === last)
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
   });
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll("dialog").forEach(register);
-    const observer = new MutationObserver((changes) => {
+    new MutationObserver((changes) => {
       for (const change of changes)
         for (const node of change.addedNodes) {
           if (node.nodeType !== Node.ELEMENT_NODE) continue;
           if (node.matches("dialog")) register(node);
           node.querySelectorAll("dialog").forEach(register);
         }
+      refresh();
+    }).observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["open"],
     });
-    observer.observe(document.body, { childList: true, subtree: true });
-    // A panel must never continue editing the previous coach/team after a switch.
     document.addEventListener("club-session-ready", () => {
       for (const panel of sheets())
         if (context.get(panel)?.owner && context.get(panel).owner !== owner())
           panel.close();
+      refresh();
     });
+    refresh();
   });
   window.workspaceSheets = {
     register,
     open: (panel) => panel.showModal(),
     close: (panel) => panel.close(),
+    refresh,
   };
 })();
