@@ -1,0 +1,104 @@
+/* One player per row. Existing profile, statistics and management controls stay intact. */
+.squad-page .squad-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.squad-page .squad-card,
+.squad-page .squad-card.has-player-stats {
+  display: grid;
+  grid-template-columns: 56px minmax(180px, 1fr) minmax(230px, auto) auto;
+  align-items: center;
+  gap: 18px 28px;
+  min-height: 0;
+  padding: 24px;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #e5eaf1;
+  border-radius: 12px;
+  box-shadow: none;
+}
+.squad-page .squad-card > .roster-avatar {
+  width: 56px;
+  height: 56px;
+  font-size: 23px;
+}
+.squad-page .squad-card .squad-player-info {
+  width: auto;
+  min-width: 0;
+}
+.squad-page .squad-card .player-stat-profile-link {
+  text-align: left;
+}
+.squad-page .squad-identity-badges {
+  justify-content: flex-start;
+  gap: 6px 10px;
+}
+.squad-page .squad-card .player-stat-badges {
+  justify-content: flex-end;
+  gap: 14px 20px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.squad-page .squad-card .player-stat-manage {
+  grid-column: 4;
+  width: 124px;
+  margin: 0;
+  padding: 0;
+}
+.squad-page .squad-card .player-stat-manage[open] {
+  grid-column: 2 / -1;
+  width: 100%;
+}
+.squad-page .squad-card .player-stat-manage > summary {
+  justify-content: flex-end;
+  min-height: 44px;
+}
+.squad-page .squad-card .squad-row-actions {
+  justify-content: flex-end;
+  margin: 0;
+}
+.squad-page .squad-card .player-discipline-alert {
+  grid-column: 2 / -1;
+  margin: 0;
+}
+@media (max-width: 900px) {
+  .squad-page .squad-card,
+  .squad-page .squad-card.has-player-stats {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 14px 18px;
+    padding: 20px;
+  }
+  .squad-page .squad-card > .roster-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+  .squad-page .squad-card .player-stat-badges {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    padding-top: 14px;
+    border-top: 1px solid #eef1f5;
+  }
+  .squad-page .squad-card .player-stat-manage,
+  .squad-page .squad-card .player-stat-manage[open],
+  .squad-page .squad-card .player-discipline-alert {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .squad-page .squad-composition-row > button {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .squad-page .squad-card {
+    transition: border-color 150ms ease;
+  }
+}
+.squad-page .squad-card:hover,
+.squad-page .squad-card:focus-within {
+  border-color: #b7c8dd;
+}
