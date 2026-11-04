@@ -27,10 +27,8 @@ with sync_playwright() as p:
     assert page.evaluate('currentReport.analysis.topAttack')=='À conserver malgré quota'
     page.evaluate('()=>{coachStorageSet=completionSet}');page.locator('#report-finish').click();assert page.evaluate('reportLibrary.length')==1
     page.locator('#view-reports').click();landing=page.locator('#document-completion-report')
-    landing.get_by_role('button',name='Créer un nouveau bilan',exact=True).click();choice=page.locator('#document-entry-dialog');choice.wait_for()
-    cross=choice.locator('.external-modal-close');cross.wait_for();assert cross.evaluate("e=>getComputedStyle(e,'::before').color")=='rgb(228, 31, 40)'
-    choice.get_by_role('button',name='Fermer',exact=True).click();choice.wait_for(state='detached');assert landing.is_visible()
-    landing.get_by_role('button',name='Créer un nouveau bilan',exact=True).click();page.locator('#document-entry-create').click()
+    landing.get_by_role('button',name='Créer un nouveau bilan',exact=True).click()
+    assert page.locator('#document-entry-dialog').count()==0
     assert page.evaluate('currentReport.id')!=first and page.locator('#report-content').is_visible()
     assert page.evaluate('reportLibrary[0].analysis.topAttack')=='À conserver malgré quota'
     # Saving an unfinished document remains an ordinary save; only Finish closes it.

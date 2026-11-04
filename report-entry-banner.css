@@ -1,0 +1,94 @@
+/* One non-blocking line: no dialog, backdrop, focus trap or navigation interception. */
+.report-entry-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0 0 16px;
+  padding: 5px 10px 5px 14px;
+  border: 1px solid #dce5ef;
+  border-left: 3px solid var(--club-logo-red, #e41f28);
+  border-radius: 9px;
+  background: #f5f8fc;
+  color: #1b2d52;
+}
+.report-entry-banner .report-entry-label {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  min-height: 44px;
+  color: inherit;
+  text-align: left;
+  font-weight: 400;
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.report-entry-open {
+  flex: none;
+  min-height: 44px;
+  white-space: nowrap;
+  padding: 8px 10px;
+  background: transparent;
+  border: 0;
+  color: #2855a2;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.report-entry-close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: var(--club-logo-red, #e41f28);
+  font-size: 24px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.report-entry-banner button:focus-visible {
+  outline: 2px solid var(--club-logo-red, #e41f28);
+  outline-offset: 2px;
+}
+.report-entry-banner .report-entry-error:empty {
+  display: none;
+}
+.report-entry-error {
+  font-size: 12px;
+  color: var(--club-logo-red, #e41f28);
+  margin: 0;
+  max-width: 35%;
+  overflow-wrap: anywhere;
+}
+body.document-completed-report #after-match > .report-entry-banner {
+  display: flex !important;
+}
+@media (max-width: 600px) {
+  .report-entry-banner {
+    gap: 4px;
+    padding: 4px 4px 4px 9px;
+  }
+  .report-entry-label {
+    font-size: 12px;
+  }
+  .report-entry-open {
+    font-size: 12px;
+    padding: 8px 5px;
+  }
+  .report-entry-error {
+    font-size: 11px;
+    max-width: 30%;
+  }
+}

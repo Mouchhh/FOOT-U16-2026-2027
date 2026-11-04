@@ -286,10 +286,16 @@ document.addEventListener("DOMContentLoaded", () => {
     ])
       next.info[k] = info[k] || "";
     if (context.key) next.agendaSourceKey = context.key;
-    const statsSource=source?.info?source:currentReport;
-    if(statsSource?.id&&documentEntrySameContext(context,documentEntryContext("report",statsSource))){
-      next.statsEventId=statsSource.statsEventId||statsSource.id;
-      next.eventType=statsSource.eventType||"match";
+    const statsSource = source?.info ? source : currentReport;
+    if (
+      statsSource?.id &&
+      documentEntrySameContext(
+        context,
+        documentEntryContext("report", statsSource),
+      )
+    ) {
+      next.statsEventId = statsSource.statsEventId || statsSource.id;
+      next.eventType = statsSource.eventType || "match";
     }
     if (source?.preparation) {
       next.preparation = structuredClone(source.preparation);
@@ -385,6 +391,7 @@ document.addEventListener("DOMContentLoaded", () => {
         : documentEntryContext(kind, current(kind)));
     // Completed documents stay quiet on passive module entry, including after reload.
     if (
+      (kind !== "report" || reportEntryBanner.dismissed()) &&
       typeof documentCompletionIsCompleted === "function" &&
       documentCompletionIsCompleted(kind, current(kind)) &&
       !documentCompletionIsEditing(kind, current(kind)) &&
@@ -448,8 +455,33 @@ document.addEventListener("DOMContentLoaded", () => {
     const owner = activeCoach.id,
       generation = clubNetworkGeneration,
       initial = documentEntrySignature(current(kind));
-    const dialog = el("dialog", "document-entry-dialog");
-    dialog.id = "document-entry-dialog";
+    const isReport = kind === "report";
+    const noticeKey = isReport ? reportEntryBanner.key() : null;
+    const dialog = el(
+      isReport ? "section" : "dialog",
+      isReport ? "report-entry-banner" : "document-entry-dialog",
+    );
+    dialog.id = isReport ? "report-entry-banner" : "document-entry-dialog";
+    if (isReport) {
+      dialog.open = true;
+      dialog.close = () => {
+        dialog.open = false;
+        reportEntryBanner.dismiss(noticeKey);
+        dialog.remove();
+        dialog.dispatchEvent(new Event("close"));
+        if (
+          state.kind === "report" &&
+          ["choice", "error"].includes(state.phase)
+        )
+          state.phase = "idle";
+      };
+      dialog.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          dialog.close();
+        }
+      });
+    }
     dialog.setAttribute("aria-labelledby", "document-entry-title");
     const head = el("div", "section-heading"),
       cancel = el("button", "export", "Retour");
@@ -516,8 +548,8 @@ document.addEventListener("DOMContentLoaded", () => {
       resume = el("button", "primary document-entry-choice"),
       create = el("button", "export document-entry-choice");
     resume.type = create.type = "button";
-    resume.id = "document-entry-resume";
-    create.id = "document-entry-create";
+    resume.id = isReport ? "report-entry-open" : "document-entry-resume";
+    create.id = isReport ? "report-entry-create" : "document-entry-create";
     resume.append(
       el("strong", "", "Reprendre / Modifier"),
       el(
@@ -546,7 +578,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const alive = () =>
       activeCoach.id === owner &&
       clubNetworkGeneration === generation &&
-      documentEntrySignature(current(kind)) === initial;
+      (isReport || documentEntrySignature(current(kind)) === initial);
     function choose(fresh) {
       if (!alive()) {
         status.textContent =
@@ -555,7 +587,9 @@ document.addEventListener("DOMContentLoaded", () => {
         state.phase = "error";
         return;
       }
-      const row = rows[Number(select.value)];
+      const row = isReport
+        ? candidates(kind, context)[0]
+        : rows[Number(select.value)];
       if (!row) return;
       state.phase = fresh ? "creating" : "opening";
       state.error = "";
@@ -590,6 +624,45 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     resume.onclick = () => choose(false);
     create.onclick = () => choose(true);
+    if (isReport) {
+      // Deliberate creation or an acknowledged notice never opens another decision window.
+      if (options.newDocument || reportEntryBanner.dismissed()) {
+        choose(!!options.newDocument);
+        if (state.phase === "error") notify(state.error);
+        return state.phase !== "error";
+      }
+      $("report-entry-banner")?.remove();
+      const text = el(
+        "button",
+        "report-entry-label",
+        "Bilan du match · " + description.textContent,
+      );
+      text.type = "button";
+      text.onclick = () => choose(false);
+      text.id = "report-entry-label";
+      text.title = text.textContent;
+      dialog.setAttribute("aria-labelledby", text.id);
+      resume.className = "report-entry-open";
+      resume.textContent = "Ouvrir le bilan";
+      resume.setAttribute(
+        "aria-label",
+        "Remplir ou consulter le bilan · " + description.textContent,
+      );
+      cancel.className = "report-entry-close";
+      cancel.textContent = "×";
+      cancel.setAttribute("aria-label", "Fermer la notification du bilan");
+      status.className = "report-entry-error";
+      dialog.append(text, resume, cancel, status);
+      perform(() =>
+        navigation("view-reports", () => {
+          renderReportTabs();
+          renderReportContent();
+        }),
+      );
+      $("after-match").querySelector(".reports-heading").after(dialog);
+      state.phase = "choice";
+      return true;
+    }
     dialog.append(
       head,
       description,
@@ -876,6 +949,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const clear = clubNetworkClear;
   clubNetworkClear = function () {
     pending?.close();
+    $("report-entry-banner")?.remove();
     $("document-version-history")?.close();
     accepted.causerie = accepted.report = null;
     state.phase = "idle";
