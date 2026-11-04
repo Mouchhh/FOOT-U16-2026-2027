@@ -1,0 +1,121 @@
+/* Presentation only: original photographs, minimal home content and navigation are unchanged. */
+@media screen {
+  :is(body.home-mode #home-backdrop, .welcome-photos) {
+    overflow: hidden;
+    background: #142d50;
+  }
+  :is(body.home-mode #home-backdrop, .welcome-photos) > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: var(--home-photo-x, 50%) var(--home-photo-y, 25%);
+  }
+  /* Portrait sources: preserve the subjects' heads when a wide screen crops vertically. */
+  :is(#home-backdrop, .welcome-photos) > img[src$="/celebration-jeunes.jpg"] {
+    --home-photo-y: 18%;
+  }
+  :is(#home-backdrop, .welcome-photos) > img[src$="/celebration-equipe.jpg"] {
+    --home-photo-y: 42%;
+  }
+  :is(#home-backdrop, .welcome-photos) > img[src$="/groupe-rouge.jpg"] {
+    --home-photo-y: 36%;
+  }
+  :is(#home-backdrop, .welcome-photos) > img[src$="/encadrement.jpg"] {
+    --home-photo-y: 30%;
+  }
+  :is(#home-backdrop, .welcome-photos) > img[src$="/entree-terrain.jpg"] {
+    --home-photo-y: 23%;
+  }
+  :is(#home-backdrop, .welcome-photos) > img[src$="/duel-match.jpg"] {
+    --home-photo-y: 10%;
+  }
+  :is(#home-backdrop, .welcome-photos) > img[src$="/echange-joueurs.jpg"] {
+    --home-photo-y: 20%;
+  }
+  :is(#home-backdrop, .welcome-photos) > img[src$="/cercle-equipe.jpg"] {
+    --home-photo-y: 37%;
+  }
+  :is(#home-backdrop, .welcome-photos) > img[src$="/groupe-piste.jpg"] {
+    --home-photo-y: 50%;
+  }
+  :is(#home-backdrop, .welcome-photos) > img[src$="/course-match.jpg"] {
+    --home-photo-y: 10%;
+  }
+  :is(#home-backdrop, .welcome-photos) > img[src$="/action-ballon.jpg"] {
+    --home-photo-y: 0%;
+  }
+  :is(#home-backdrop, .welcome-photos) > img[src$="/atelier-entrainement.jpg"] {
+    --home-photo-y: 25%;
+  }
+  /* Profile photographs cover their circle; club crests are contained, never cropped. */
+  body.home-mode
+    #club-home
+    :is(.roster-avatar, .coach-avatar, .home-profile-photo) {
+    width: clamp(48px, 6vw, 72px);
+    height: auto;
+    aspect-ratio: 1;
+    flex: none;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  body.home-mode
+    #club-home
+    :is(
+      img.roster-avatar,
+      img.coach-avatar,
+      img.home-profile-photo,
+      .roster-avatar img,
+      .coach-avatar img,
+      .home-profile-photo img
+    ) {
+    display: block;
+    object-fit: cover;
+    object-position: 50% 25%;
+    border-radius: 50%;
+  }
+  body.home-mode
+    #club-home
+    :is(.roster-avatar img, .coach-avatar img, .home-profile-photo img) {
+    width: 100%;
+    height: 100%;
+  }
+  body.home-mode > header img.club-logo,
+  body.home-mode #club-home img.home-crest,
+  .welcome-brand img.welcome-badge {
+    object-fit: contain;
+    object-position: center;
+    aspect-ratio: 1;
+    flex: none;
+    border-radius: 50%;
+  }
+  body.home-mode .home-hero {
+    border-radius: 18px;
+    gap: clamp(20px, 3vw, 32px);
+  }
+  body.home-mode #club-home :is(.home-card-photo, .home-illustration) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    object-position: 50% 30%;
+    border-radius: 14px;
+  }
+  @media (max-width: 700px) {
+    /* Keep the central subjects visible when the portrait viewport crops the sides. */
+    :is(body.home-mode #home-backdrop, .welcome-photos) > img {
+      object-position: var(--home-photo-mobile-x, 50%) var(--home-photo-y, 25%);
+    }
+    :is(#home-backdrop, .welcome-photos) > img[src$="/action-ballon.jpg"] {
+      --home-photo-mobile-x: 57%;
+    }
+    :is(#home-backdrop, .welcome-photos) > img[src$="/course-match.jpg"] {
+      --home-photo-mobile-x: 57%;
+    }
+    :is(#home-backdrop, .welcome-photos) > img[src$="/encadrement.jpg"] {
+      --home-photo-mobile-x: 52%;
+    }
+  }
+}
