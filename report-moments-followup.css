@@ -1,0 +1,11 @@
+#report-moments-panel { display: grid; gap: 20px; }
+#report-moments-panel textarea { background: white; border: 1px solid #dce5ef; border-radius: 8px; line-height: 1.6; }
+.squad-followup-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+.squad-followup-tabs button { min-height: 44px; }
+.squad-followup-tabs [aria-pressed="true"] { border-color: var(--club-logo-red,#e41f28); color: var(--club-logo-red,#e41f28); }
+.squad-followup[hidden] { display: none !important; }
+.squad-followup-mode .squad-list, .squad-followup-mode .monthly-review, .squad-followup-mode .squad-category-filter, .squad-followup-mode .squad-tools, .squad-followup-mode .squad-position-filters { display: none !important; }
+.squad-followup { margin-top: 20px; color: #142d50; }
+.squad-followup select { min-height: 44px; max-width: 100%; font: inherit; background: white; color: #142d50; border: 1px solid #dce5ef; padding: 10px; border-radius: 8px; }
+.squad-followup-history { padding: 16px 0; margin: 0; border-bottom: 1px solid #e5eaf1; font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+.squad-followup-metrics { line-height: 2; overflow-wrap: anywhere; }
