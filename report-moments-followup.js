@@ -5,9 +5,31 @@ reportValid = function(report) {
   return reportMomentValid(report) && Object.keys(reportMomentFields).every(key => report.analysis[key] === undefined || reportText(report.analysis[key]));
 };
 renderReportPlayers = function(root) {
-  const section = reportSection('Moments marquants');
+  const section = el('section', 'report-moments-events');
   section.id = 'report-moments-panel';
-  for (const [key,label] of Object.entries(reportMomentFields)) section.append(reportGrowingField(label,currentReport.analysis[key] || '',value => currentReport.analysis[key]=value));
+  renderReportEvents(section);
+  const tools = section.querySelector('.report-actions');
+  tools.replaceChildren();
+  for (const [label, type, card] of [['+ But pour nous','But pour',''],['+ But adverse','But contre',''],['+ Carton jaune','Carton','yellow'],['+ Carton rouge','Carton','red']]) {
+    const button=el('button','export',label);button.type='button';
+    button.onclick=()=>{
+      if(currentReport.events.length>=100)return notify('100 faits maximum.');
+      reportEventsCommit(()=>currentReport.events.push({minute:'',type,card,detail:''}));
+    };
+    tools.append(button);
+  }
+  for (const select of section.querySelectorAll('[aria-label="Événement"]')) {
+    const selected=select.value;
+    for (const option of [...select.options]) {
+      if(!['But pour','But contre','Carton','Carton adverse',selected].includes(option.value))option.remove();
+      else if(option.value==='But pour')option.textContent='But pour nous';
+      else if(option.value==='But contre')option.textContent='But adverse';
+    }
+  }
+  const notes = el('details','report-moments-notes');
+  notes.append(el('summary','','Notes complémentaires'));
+  for (const [key,label] of Object.entries(reportMomentFields)) notes.append(reportGrowingField(label,currentReport.analysis[key] || '',value => currentReport.analysis[key]=value));
+  section.append(notes);
   root.append(section);
 };
 const reportMomentsDocument = buildReportDocument;
