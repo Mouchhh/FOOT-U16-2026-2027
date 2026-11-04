@@ -10,7 +10,7 @@ with sync_playwright() as p:
   coachStorageSet(agendaRecurringKey,JSON.stringify({version:1,scope:'month',revision:1,enabled:true,from:'2026-09-01',to:'2026-09-30',category:'U17',statuses:{},slots:[{id:'inline-slot',day:2,type:'training',time:'19:00',title:'Entraînement récurrent',status:'pending'}]}));
   currentReport.info.date='';currentReport.players=[];reportTab='general';renderReportTabs();renderReportContent();
  }''')
- panel=page.locator('#report-attendance-inline');panel.locator('summary').click()
+ panel=page.locator('#report-attendance-inline');panel.locator(':scope > summary').click();panel.get_by_label('Enregistrement immédiat',exact=True).uncheck()
  assert page.locator('dialog[open]').count()==0
  panel.get_by_label('Présences du',exact=True).fill('2026-09-01');panel.get_by_label('Présences du',exact=True).dispatch_event('change')
  panel.get_by_label('Présences au',exact=True).fill('2026-09-30');panel.get_by_label('Présences au',exact=True).dispatch_event('change')

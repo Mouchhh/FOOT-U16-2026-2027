@@ -16,6 +16,7 @@
         baseline: null,
         dirty: false,
         open: false,
+        auto: true,
       });
     const s = drafts.get(id),
       anchor = trainingDateValid(currentReport.info.date)
@@ -47,11 +48,6 @@
       "Pointer les présences aux entraînements",
     );
     panel.append(summary);
-    const intro = el(
-      "p",
-      "hint",
-      "Choisissez une séance réelle de l’agenda, puis pointez vos joueurs. Le taux automatique de la saison à ce jour est prévisualisé sans compter les créneaux non renseignés comme des absences.",
-    );
     const filters = el("div", "report-attendance-filters");
     const dateField = (title, value) => {
       const label = el("label", "report-field", title),
@@ -85,6 +81,15 @@
       checked,
       document.createTextNode("J’ai vérifié les présences de cette séance."),
     );
+    const autoLabel = el("label", "report-attendance-auto"),
+      auto = el("input");
+    auto.type = "checkbox";
+    auto.checked = s.auto;
+    auto.setAttribute("aria-label", "Enregistrement immédiat");
+    autoLabel.append(auto, document.createTextNode("Enregistrement immédiat"));
+    auto.onchange = () => {
+      s.auto = auto.checked;
+    };
     let available = [],
       event = null,
       ratios = new Map();
@@ -195,6 +200,19 @@
               "Aperçu mis à jour · enregistrez pour synchroniser les fiches joueurs.";
             paintRates();
             lock();
+            if (s.auto) {
+              checked.checked = true;
+              save.onclick();
+              list
+                .querySelector(
+                  'input[value="' +
+                    value +
+                    '"][aria-label="' +
+                    CSS.escape(title + " · " + player.name) +
+                    '"]',
+                )
+                ?.focus({ preventScroll: true });
+            }
           };
           item.append(radio, el("span", "", title));
           choices.append(item);
@@ -349,7 +367,84 @@
       s.open = panel.open;
     });
     actions.append(save, cancel, refresh);
-    panel.append(intro, filters, label, list, confirmation, actions, status);
+    const create = el("details", "report-attendance-create");
+    create.append(el("summary", "", "+ Ajouter une séance à pointer"));
+    const fields = el("div", "report-attendance-filters");
+    const make = (caption, type, value) => {
+      const label = el("label", "report-field", caption),
+        input = el("input");
+      input.type = type;
+      input.value = value;
+      input.setAttribute("aria-label", caption);
+      label.append(input);
+      fields.append(label);
+      return input;
+    };
+    const day = make("Date de la séance", "date", s.anchor),
+      time = make("Heure de la séance", "time", "19:00"),
+      title = make("Nom de la séance", "text", "Entraînement");
+    title.maxLength = 100;
+    const add = el("button", "export", "Créer et pointer cette séance");
+    add.type = "button";
+    add.onclick = () => {
+      if (s.dirty) {
+        status.textContent = "Enregistrez ou annulez le pointage en cours.";
+        return;
+      }
+      const now = playerStatsNow();
+      if (
+        context !== owner() ||
+        currentReport.id !== reportId ||
+        !trainingDateValid(day.value) ||
+        playerStatsSeason(day.value) !== year ||
+        !/^\d{2}:\d{2}$/.test(time.value) ||
+        day.value + "T" + time.value > now.day + "T" + now.time
+      ) {
+        status.textContent =
+          "Choisissez une séance passée de la saison du bilan, avec une heure valide.";
+        return;
+      }
+      try {
+        const existing = playerAttendanceSessions
+          .events({ year: playerStatsSeason(day.value), date: day.value })
+          .find((e) => e.time === time.value);
+        if (!existing) {
+          const session = newTraining();
+          session.date = day.value;
+          session.time = time.value;
+          session.title = title.value.trim() || "Entraînement";
+          if (!trainingValid(session))
+            throw Error("Vérifiez les informations de la séance.");
+          const next = [session, ...trainingLibrary];
+          coachStorageSet("vestiaire-training-library", JSON.stringify(next));
+          trainingLibrary = next;
+          renderTrainingLibrary();
+          renderCoachAgenda();
+        }
+        s.from = day.value;
+        s.to = day.value;
+        s.selected = day.value + "T" + time.value;
+        from.value = s.from;
+        to.value = s.to;
+        sessions();
+        create.open = false;
+      } catch (error) {
+        status.textContent =
+          error.message ||
+          "Séance non enregistrée. Votre pointage reste conservé.";
+      }
+    };
+    create.append(fields, add);
+    panel.append(
+      filters,
+      label,
+      autoLabel,
+      list,
+      confirmation,
+      actions,
+      create,
+      status,
+    );
     root.append(panel);
     sessions();
   }

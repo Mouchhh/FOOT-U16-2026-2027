@@ -398,6 +398,18 @@ function playerStatsDecorateCards() {
     const manage = el("details", "player-stat-manage");
     manage.append(el("summary", "", "Gérer le joueur"), actions);
     card.append(badges, manage);
+    if (stats.discipline?.alert)
+      card.append(
+        el(
+          "span",
+          "player-discipline-alert",
+          "Risque disciplinaire · " +
+            stats.discipline.yellow +
+            " jaunes / " +
+            stats.discipline.matches +
+            " matchs",
+        ),
+      );
     card.classList.add("has-player-stats");
     card.onclick = (event) => {
       if (
@@ -505,6 +517,20 @@ function playerStatsPaintDetail() {
   const label = el("label", "report-field", "Saison");
   label.append(season);
   dialog.append(label);
+  if (stats.discipline?.alert) {
+    const alert = el(
+      "p",
+      "player-discipline-alert",
+      stats.discipline.yellow +
+        " cartons jaunes depuis le " +
+        stats.discipline.start +
+        " · " +
+        stats.discipline.matches +
+        " / 10 matchs. Suspension potentielle : vérifiez la situation disciplinaire.",
+    );
+    alert.setAttribute("role", "alert");
+    dialog.append(alert);
+  }
   const grid = el("div", "player-stat-detail-grid");
   grid.append(
     playerStatsMetric(

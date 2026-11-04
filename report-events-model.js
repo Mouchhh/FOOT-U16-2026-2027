@@ -111,8 +111,23 @@ function reportEventDescription(
     if (who) parts.push("Sortant : " + who);
     if (second) parts.push("Entrant : " + second);
   } else if (who) parts.push("Joueur : " + who);
-  if (event.type === "Carton" && event.card)
+  if (["Carton", "Carton adverse"].includes(event.type) && event.card)
     parts.push(event.card === "red" ? "Carton rouge" : "Carton jaune");
   if (event.detail) parts.push(event.detail);
   return parts.join(" · ");
+}
+
+// Missing actors may be drafted, but an own goal event must be attributed before saving.
+function reportGoalValidationMessage(report, roster = squadPlayers()) {
+  const index = (report.events || []).findIndex(
+    (event) =>
+      event.type === "But pour" &&
+      (!event.playerId ||
+        !roster.some((player) => player.id === event.playerId)),
+  );
+  return index < 0
+    ? ""
+    : "But n° " +
+        (index + 1) +
+        " : sélectionnez un buteur de votre effectif avant de valider le bilan. Le passeur est facultatif.";
 }

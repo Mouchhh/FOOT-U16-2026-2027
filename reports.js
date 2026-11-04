@@ -23,7 +23,7 @@ function reportValid(r){
  if(r.info.duration!==''&&(!/^\d{1,3}$/.test(r.info.duration)||Number(r.info.duration)>180))return false;
  if(!['Domicile','Extérieur','Terrain neutre'].includes(r.info.venue))return false;
  if(!Array.isArray(r.players)||r.players.length>40||new Set(r.players.map(p=>p?.id)).size!==r.players.length||!r.players.every(p=>p&&playerStatsRowValid(p)&&reportText(p.id,100)&&reportText(p.name,100)&&['Titulaire','Impacteur / Finisseur','Non entré'].includes(p.role)&&reportText(p.number,3)&&(/^\d{1,2}$/.test(p.number)||p.number==='')&&reportText(p.minutes,3)&&(p.minutes===''||(/^\d{1,3}$/.test(p.minutes)&&Number(p.minutes)<=180))&&reportScore(p.score)&&reportText(p.note)&&reportText(p.objective)))return false;
- return Array.isArray(r.events)&&r.events.length<=100&&r.events.every(e=>e&&reportText(e.minute,3)&&(e.minute===''||(/^\d{1,3}$/.test(e.minute)&&Number(e.minute)<=180))&&['But pour','But contre','Changement','Carton','Occasion','Autre'].includes(e.type)&&reportText(e.detail)&&reportEventLinksValid(e));
+ return Array.isArray(r.events)&&r.events.length<=100&&r.events.every(e=>e&&reportText(e.minute,3)&&(e.minute===''||(/^\d{1,3}$/.test(e.minute)&&Number(e.minute)<=180))&&['But pour','But contre','Changement','Carton','Carton adverse','Occasion','Autre'].includes(e.type)&&reportText(e.detail)&&reportEventLinksValid(e));
 }
 let currentReport=newReport(),reportLibrary=[],reportTab='general',reportAutosaveTimer;
 try{const saved=JSON.parse(coachStorageGet('vestiaire-report-draft')||'null');if(reportValid(saved))currentReport=saved;const list=JSON.parse(coachStorageGet('vestiaire-reports')||'[]');if(Array.isArray(list))reportLibrary=list.filter(reportValid);}catch{}
@@ -91,6 +91,8 @@ function renderReportLibrary(){
  const select=$('report-library-select');select.replaceChildren();const empty=el('option','','Ouvrir un rapport enregistré…');empty.value='';select.append(empty);reportLibrary.forEach(r=>{const label=(r.title?r.title+' · ':'')+(r.info.date||'Sans date')+' · '+(r.info.team||'Équipe')+' / '+(r.info.opponent||'Adversaire')+' · '+(r.info.round||'');const o=el('option','',label);o.value=r.id;select.append(o);});select.value=reportLibrary.some(r=>r.id===currentReport.id)?currentReport.id:'';
 }
 function reportStatsPrepareForSave(){
+ const goalError=reportGoalValidationMessage(currentReport);
+ if(goalError){$('report-save-status').textContent=goalError;reportGoalValidationDisplay(true);notify(goalError);return false;}
  reportEventsApply(currentReport,squadPlayers());
  for(const row of currentReport.players){const player=playerStatsResolve(row);if(player)row.squadPlayerId=player.id;}
  const hasStats=currentReport.players.some(r=>['minutes','goals','assists','yellowCards','redCards','attendanceRate'].some(k=>r[k]!==undefined&&r[k]!==''));

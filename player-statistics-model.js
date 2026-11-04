@@ -228,6 +228,7 @@ function playerStatsSeasonSnapshot(
         title: report.title || report.info.opponent || "Bilan",
         kind,
         minutes: row.minutes,
+        role: row.role,
         ...Object.fromEntries(
           Object.keys(playerStatsFields).map((k) => [k, row[k] ?? ""]),
         ),
@@ -244,6 +245,8 @@ function playerStatsSeasonSnapshot(
           : null;
     }
   }
+  for (const stats of result.values())
+    stats.discipline = playerDisciplineStatus(stats.reports);
   // One validated roll call per actual date/time; copies never inflate attendance.
   const occurrences = new Map();
   for (const session of playerStatsUnique(
@@ -372,4 +375,22 @@ function playerStatsValidationMessage(report) {
       );
   }
   return "";
+}
+
+// A ten-match series begins on the first yellow, including that match; training is excluded.
+function playerDisciplineStatus(reports) {
+  let series = null;
+  for (const row of reports) {
+    if (row.kind !== "match") continue;
+    const yellow = Number(row.yellowCards || 0);
+    if ((row.role === "Non entré" || row.minutes === "0") && !yellow) continue;
+    if (series?.matches === 10) series = null;
+    if (!series && !yellow) continue;
+    if (!series)
+      series = { start: row.date, matches: 0, yellow: 0, alert: false };
+    series.matches++;
+    series.yellow += yellow;
+    series.alert = series.yellow >= 3;
+  }
+  return series || { start: "", matches: 0, yellow: 0, alert: false };
 }

@@ -1,0 +1,58 @@
+.report-goal-error:empty {
+  display: none;
+}
+.report-goal-error,
+.player-discipline-alert {
+  color: var(--club-logo-red, #e41f28);
+  border-left: 3px solid var(--club-logo-red, #e41f28);
+  background: #fff7f8;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.squad-row .player-discipline-alert {
+  display: block;
+  margin-top: 10px;
+  font-size: 11px;
+}
+.report-event-extra {
+  font-size: 12px;
+}
+.report-event-extra summary {
+  cursor: pointer;
+  min-height: 32px;
+}
+.report-attendance-auto {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 13px;
+}
+.report-attendance-create {
+  border-top: 1px solid #dce5ef;
+  margin-top: 12px;
+  padding-top: 10px;
+  font-size: 13px;
+}
+.report-attendance-create summary {
+  cursor: pointer;
+  min-height: 44px;
+}
+/* Content grows in normal document flow; the action dock must never cap its height. */
+@media screen {
+  body.responsive-navigation.reports-mode {
+    overflow: auto;
+  }
+  body.responsive-navigation.reports-mode #after-match {
+    height: auto;
+    overflow: visible;
+  }
+  body.responsive-navigation.reports-mode #after-match > #report-content {
+    flex: 0 0 auto;
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+  }
+}

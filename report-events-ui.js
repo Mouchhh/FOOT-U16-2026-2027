@@ -54,6 +54,7 @@ function reportEventsCommit(change, control = null) {
     else window.scrollBy({ top: delta, behavior: "instant" });
     control.focus({ preventScroll: true });
   } else renderReportContent();
+  reportGoalValidationDisplay();
 }
 function reportEventsUnlinkPlayer(id) {
   for (const event of currentReport.events) {
@@ -147,7 +148,7 @@ function reportEventPlayerField(event, key, label) {
 }
 function reportEventParticipants(event) {
   const participants = el("div", "report-event-participants");
-  if (event.type !== "But contre")
+  if (!["But contre", "Carton adverse"].includes(event.type))
     participants.append(
       reportEventPlayerField(
         event,
@@ -167,7 +168,7 @@ function reportEventParticipants(event) {
     participants.append(
       reportEventPlayerField(event, "secondPlayerId", "Joueur entrant"),
     );
-  if (event.type === "Carton") {
+  if (["Carton", "Carton adverse"].includes(event.type)) {
     const label = el("label", "report-field"),
       select = el("select");
     select.setAttribute("aria-label", "Couleur du carton");
@@ -200,7 +201,20 @@ function renderReportEvents(root) {
       currentReport.events.push({ minute: "", type: "But pour", detail: "" }),
     );
   };
-  panel.append(add);
+  const adversary = el("button", "export", "+ Fait adverse");
+  adversary.type = "button";
+  adversary.onclick = () => {
+    if (currentReport.events.length >= 100) return notify("100 faits maximum.");
+    reportEventsCommit(() =>
+      currentReport.events.push({ minute: "", type: "But contre", detail: "" }),
+    );
+  };
+  const tools = el("div", "report-actions");
+  tools.append(add, adversary);
+  const error = el("p", "report-goal-error");
+  error.id = "report-goal-error";
+  error.setAttribute("role", "alert");
+  panel.append(tools, error);
   currentReport.events.forEach((event, index) => {
     const row = el("article", "report-event report-event-linked");
     row.dataset.eventIndex = String(index);
@@ -228,7 +242,11 @@ function renderReportEvents(root) {
               event.secondPlayerId = "";
               event.secondPlayerName = "";
             }
-            if (v !== "Carton") event.card = "";
+            if (!["Carton", "Carton adverse"].includes(v)) event.card = "";
+            if (["But contre", "Carton adverse"].includes(v)) {
+              event.playerId = "";
+              event.playerName = "";
+            }
           }, main.querySelector('[aria-label="Événement"]')),
         {
           choices: [
@@ -236,6 +254,7 @@ function renderReportEvents(root) {
             "But contre",
             "Changement",
             "Carton",
+            "Carton adverse",
             "Occasion",
             "Autre",
           ],
@@ -253,8 +272,10 @@ function renderReportEvents(root) {
       reportEventsCommit(() => currentReport.events.splice(index, 1));
     main.append(remove);
     row.append(main);
-    row.append(
-      reportEventParticipants(event),
+    row.append(reportEventParticipants(event));
+    const extra = el("details", "report-event-extra");
+    extra.append(
+      el("summary", "", "Précision"),
       reportField(
         "Précision (facultatif)",
         event.detail,
@@ -262,7 +283,20 @@ function renderReportEvents(root) {
         { area: true, rows: 2 },
       ),
     );
+    row.append(extra);
     panel.append(row);
   });
   root.append(panel);
+  reportGoalValidationDisplay();
+}
+
+let reportGoalValidationRequested = null;
+function reportGoalValidationDisplay(force = false) {
+  if (force) reportGoalValidationRequested = currentReport.id;
+  const error = $("report-goal-error");
+  if (error)
+    error.textContent =
+      reportGoalValidationRequested === currentReport.id
+        ? reportGoalValidationMessage(currentReport)
+        : "";
 }
