@@ -275,10 +275,20 @@ function agendaRecurringWindow() {
     to: agendaCalendarAdd(today, 366),
   };
 }
+// A training season ends on 15 June, including rules created before this limit.
+function agendaRecurringSeasonEnd(date) {
+  const year = Number(date.slice(0, 4));
+  return (date.slice(5) > "06-15" ? year + 1 : year) + "-06-15";
+}
+function agendaRecurringSlotEnd(slot) {
+  return trainingDateValid(slot.seasonEnd) ? slot.seasonEnd : agendaRecurringSeasonEnd(slot.from);
+}
 function agendaRecurringMakeEvent(plan, slot, date) {
   if (plan.frozen?.["recurring:" + slot.id + ":" + date]) return null;
   if (
     date < slot.from ||
+    date > agendaRecurringSlotEnd(slot) ||
+    (plan.exceptions["recurring:" + slot.id + ":" + date]?.date || date) > agendaRecurringSlotEnd(slot) ||
     (slot.to && date > slot.to) ||
     (new Date(date + "T12:00:00Z").getUTCDay() || 7) !== slot.day
   )
@@ -312,7 +322,7 @@ function agendaRecurringResolve(id, plan = agendaRecurringRead()) {
   if (!plan || !match) return null;
   if (plan.frozen?.[id]) {
     const x = plan.exceptions[id];
-    if (x?.deleted) return null;
+    if (x?.deleted || (x?.date || plan.frozen[id].date) > agendaRecurringSeasonEnd(plan.frozen[id].date)) return null;
     return {
       ...plan.frozen[id],
       ...(x && !x.deleted ? x : {}),
@@ -340,7 +350,7 @@ function agendaRecurringOccurrences(
   const events = new Map();
   for (const slot of plan.slots) {
     let from = slot.from > range.from ? slot.from : range.from,
-      to = slot.to && slot.to < range.to ? slot.to : range.to;
+      to = [range.to, slot.to || range.to, agendaRecurringSlotEnd(slot)].sort()[0];
     if (from > to) continue;
     const day = new Date(from + "T12:00:00Z").getUTCDay() || 7;
     from = agendaCalendarAdd(from, (slot.day - day + 7) % 7);
@@ -435,7 +445,7 @@ function agendaRecurringReplace(plan, rows, cutoff, enabled, category) {
   next.slots = next.slots.flatMap((s) => {
     if (s.to && s.to < cutoff) return [s];
     const row = rows.find((r) => r.id === s.id);
-    if (enabled && row && same(s, row) && s.to === null && s.from <= cutoff) {
+    if (enabled && row && same(s, row) && s.to === null && s.from <= cutoff && agendaRecurringSlotEnd(s) >= cutoff) {
       kept.add(row.id);
       return [s];
     }
@@ -449,6 +459,7 @@ function agendaRecurringReplace(plan, rows, cutoff, enabled, category) {
           ...row,
           id: crypto.randomUUID(),
           seriesId: previous?.seriesId || row.seriesId || row.id,
+          seasonEnd: agendaRecurringSeasonEnd(cutoff),
           from: cutoff,
           to: null,
           category,
@@ -471,6 +482,9 @@ function agendaRecurringChange(id, scope, changes, revision) {
     event = agendaRecurringResolve(id, plan);
   if (!event || plan.revision !== revision)
     throw Error("Ce rendez-vous a changé. Rouvrez-le depuis le calendrier.");
+  const sourceSlot = plan.slots.find(s => s.id === event.recurring.slotId);
+  const seasonEnd = sourceSlot ? agendaRecurringSlotEnd(sourceSlot) : agendaRecurringSeasonEnd(event.date);
+  if (changes && changes.date > seasonEnd) throw Error("Ce créneau s’arrête au " + seasonEnd.split("-").reverse().join("/") + ". Configurez la semaine type de la saison suivante.");
   if (scope === "one") {
     plan.exceptions[id] = changes
       ? { ...changes, deleted: false }
@@ -511,6 +525,7 @@ function agendaRecurringChange(id, scope, changes, revision) {
     if (changes)
       plan.slots.push({
         ...slot,
+        seasonEnd: agendaRecurringSlotEnd(slot),
         id: crypto.randomUUID(),
         from: changes.date > cutoff ? changes.date : cutoff,
         to: null,
@@ -876,7 +891,7 @@ function agendaRecurringConfigure() {
     el(
       "p",
       "hint",
-      "Votre semaine type s’applique dès la semaine précédente lors de sa première configuration, puis sans date de fin, jusqu’à votre modification ou suppression. Les modifications ci-dessous s’appliquent à partir de la date choisie ; le passé reste conservé.",
+      "Votre semaine type s’applique dès la semaine précédente lors de sa première configuration, puis jusqu’au 15 juin de la saison, sauf modification ou suppression. Les modifications ci-dessous s’appliquent à partir de la date choisie ; le passé reste conservé.",
     ),
   );
   const form = el("form"),
@@ -917,7 +932,7 @@ function agendaRecurringConfigure() {
   active.setAttribute("aria-label", "Activer la récurrence");
   activeLabel.append(
     active,
-    document.createTextNode(" Activer la récurrence sans date de fin"),
+    document.createTextNode(" Activer la récurrence jusqu’au 15 juin"),
   );
   const list = el("div", "recurring-slots"),
     add = el("button", "export", "+ Ajouter un créneau"),
@@ -1054,7 +1069,7 @@ function agendaRecurringConfigure() {
     }
     preview.textContent = active.checked
       ? rows.length +
-        " créneau(x) par semaine · sans date de fin. Les rendez-vous déjà enregistrés prennent leur place."
+        " créneau(x) par semaine · jusqu’au " + agendaRecurringSeasonEnd(from.value).split("-").reverse().join("/") + ". Les rendez-vous déjà enregistrés prennent leur place."
       : "Arrêt des occurrences futures à la date choisie. Les rendez-vous passés et les documents enregistrés restent conservés.";
   }
   add.onclick = () => {
@@ -1131,7 +1146,7 @@ function agendaRecurringConfigure() {
       renderCoachAgenda();
       notify(
         active.checked
-          ? "Semaine type enregistrée sans date de fin sur cet appareil."
+          ? "Semaine type enregistrée jusqu’au 15 juin de la saison."
           : "Récurrence arrêtée à partir du " +
               from.value +
               ". Le passé reste conservé.",
@@ -1216,7 +1231,7 @@ document.addEventListener("DOMContentLoaded", () => {
           "",
           plan
             ? plan.enabled
-              ? "Votre semaine type est active"
+              ? (plan.slots.some(slot => slot.to === null && agendaRecurringSlotEnd(slot) >= agendaCalendarToday()) ? "Votre semaine type est active" : "Votre semaine type est terminée pour cette saison")
               : "Vos occurrences futures sont arrêtées"
             : "Quand ont lieu vos séances ?",
         ),
@@ -1225,8 +1240,8 @@ document.addEventListener("DOMContentLoaded", () => {
           "hint",
           plan
             ? plan.slots.filter((s) => s.to === null).length +
-                " créneau(x) sans date de fin. Modifiez une occurrence ou les suivantes depuis le calendrier."
-            : "Choisissez vos jours et horaires : vos rendez-vous se répéteront sans date de fin.",
+                " créneau(x) · fin au 15 juin de leur saison. Modifiez une occurrence ou les suivantes depuis le calendrier."
+            : "Choisissez vos jours et horaires : vos rendez-vous se répéteront jusqu’au 15 juin de la saison.",
         ),
       );
       const configure = el(
