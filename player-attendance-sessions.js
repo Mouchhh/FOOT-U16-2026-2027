@@ -25,7 +25,7 @@
         ))
     );
   }
-  function events({ year, date, cutoff, from }) {
+  function events({ year, date, cutoff, from, includeFuture = false }) {
     const now = playerStatsNow(),
       end = year + 1 + "-06-30";
     const range = {
@@ -45,7 +45,7 @@
         merged.set(occurrenceKey(event), event);
     }
     return [...merged.values()]
-      .filter((e) => e.date + "T" + e.time <= now.day + "T" + now.time)
+      .filter((e) => includeFuture || e.date + "T" + e.time <= now.day + "T" + now.time)
       .sort((a, b) => occurrenceKey(b).localeCompare(occurrenceKey(a)));
   }
   function commit({ options, batches, expectedOwner }) {

@@ -38,7 +38,7 @@
       reportId = currentReport.id,
       context = owner(),
       year = playerStatsSeason(s.anchor);
-    const options = () => ({ year, from: s.from, cutoff: s.to });
+    const options = () => ({ year, from: s.from, cutoff: s.to, includeFuture: true });
     const panel = el("details", "report-attendance-inline");
     panel.id = "report-attendance-inline";
     panel.open = s.open;
@@ -126,7 +126,8 @@
         (e) => e.date === event.date && e.time === event.time,
       )?.status;
       const answer = s.answers.get(player.id) || "uncertain";
-      const applies = playerStatsInSeason(event.date, year);
+      const now = playerStatsNow();
+      const applies = playerStatsInSeason(event.date, year) && event.date + "T" + event.time <= now.day + "T" + now.time;
       const present =
           a.present +
           (applies
@@ -270,7 +271,7 @@
         available = playerAttendanceSessions.events(options()).sort((a, b) => playerAttendanceSessions.occurrenceKey(a).localeCompare(playerAttendanceSessions.occurrenceKey(b)));
         status.textContent = available.length
           ? ""
-          : "Aucune séance passée sur cette période. Modifiez les dates ou configurez vos créneaux dans l’agenda.";
+          : "Aucune séance sur cette période. Modifiez les dates ou configurez vos créneaux dans l’agenda.";
       }
       dayButtons.replaceChildren();
       weekCaption.textContent = "Du " + s.from.split("-").reverse().join("/") + " au " + s.to.split("-").reverse().join("/");
@@ -313,7 +314,9 @@
       for (const occurrence of available) {
         const key = playerAttendanceSessions.occurrenceKey(occurrence);
         const weekday = new Intl.DateTimeFormat("fr-FR", {weekday: "long", timeZone: "UTC"}).format(new Date(occurrence.date + "T12:00:00Z"));
-        const button = el("button", "report-attendance-day", "Séance " + weekday + " · " + occurrence.time);
+        const now = playerStatsNow();
+        const future = occurrence.date + "T" + occurrence.time > now.day + "T" + now.time;
+        const button = el("button", "report-attendance-day", "Séance " + weekday + " · " + occurrence.time + (future ? " · à venir" : ""));
         button.type = "button";
         button.dataset.occurrence = key;
         button.title = agendaCalendarDateLabel(occurrence.date) + " · " + occurrence.time + " · " + occurrence.title;

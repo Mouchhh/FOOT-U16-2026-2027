@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function week() {
     const anchor = trainingDateValid(currentReport.info.date) ? currentReport.info.date : playerStatsNow().day;
     const from = trainingWeekStart(anchor);
-    return {year: playerStatsSeason(anchor), from, cutoff: agendaCalendarAdd(from, 6)};
+    return {includeFuture: true, year: playerStatsSeason(anchor), from, cutoff: agendaCalendarAdd(from, 6)};
   }
   function attendanceControls(player, events, options) {
     const group = el('div', 'report-row-attendance');
@@ -20,7 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const label = el('label', 'report-row-day');
       const weekday = new Intl.DateTimeFormat('fr-FR', {weekday: 'short', timeZone: 'UTC'}).format(new Date(event.date + 'T12:00:00Z'));
       label.append(el('span', '', weekday + (events.filter(e => e.date === event.date).length > 1 ? ' · ' + event.time : '')));
-      label.title = agendaCalendarDateLabel(event.date) + ' · ' + event.time;
+      const now = playerStatsNow();
+      const future = event.date + 'T' + event.time > now.day + 'T' + now.time;
+      if (future) label.querySelector('span').append(document.createTextNode(' · à venir'));
+      label.title = agendaCalendarDateLabel(event.date) + ' · ' + event.time + (future ? ' · À venir, hors statistiques jusqu’à la séance' : '');
       const select = el('select');
       select.setAttribute('aria-label', 'Présence ' + player.name + ' · ' + event.date + ' · ' + event.time);
       select.append(new Option('—', 'uncertain'), new Option('Présent', 'present'), new Option('Absent', 'absent'));

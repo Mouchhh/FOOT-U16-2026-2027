@@ -1,6 +1,6 @@
 # Pointage par jour de séance
 
-Le panneau de présence du bilan utilise par défaut la semaine du lundi au dimanche contenant la date du bilan (la semaine courante si le bilan n’est pas encore daté). Il affiche les séances réellement résolues dans l’agenda, dans l’ordre chronologique, sous forme de boutons « Séance lundi · 19:00 ». Les occurrences futures restent exclues du pointage.
+Le panneau de présence du bilan utilise par défaut la semaine du lundi au dimanche contenant la date du bilan (la semaine courante si le bilan n’est pas encore daté). Il affiche les séances réellement résolues dans l’agenda, dans l’ordre chronologique, sous forme de boutons « Séance lundi · 19:00 ». La semaine complète reste visible, y compris les occurrences futures marquées « à venir ». Elles peuvent être renseignées, mais ne participent aux taux de présence qu’après leur horaire.
 
 Les dates restent conservées dans les identifiants d’occurrence et affichées dans la période et les infobulles. Deux créneaux le même jour restent distincts par leur horaire. Les modifications et suppressions de récurrence utilisent le résolveur Agenda existant.
 
