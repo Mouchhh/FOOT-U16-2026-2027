@@ -19,14 +19,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const group = el('div', 'report-row-attendance');
     if (!player) return group;
     for (const event of events) {
-      const label = el('label', 'report-row-day');
+      const label = el('div', 'report-row-day');
       const weekday = new Intl.DateTimeFormat('fr-FR', {weekday: 'short', timeZone: 'UTC'}).format(new Date(event.date + 'T12:00:00Z'));
-      label.append(el('span', '', weekday + (events.filter(e => e.date === event.date).length > 1 ? ' · ' + event.time : '')));
+      const dayNumber = new Date(event.date + 'T12:00:00Z').getUTCDay();
+      const badge = el('button', 'report-presence-badge', ['D','L','Ma','M','J','V','S'][dayNumber]);
+      badge.type = 'button';
+      label.append(badge);
+      if (events.filter(e => e.date === event.date).length > 1) label.append(el('small', '', event.time));
       const now = playerStatsNow();
       const future = event.date + 'T' + event.time > now.day + 'T' + now.time;
-      if (future) label.querySelector('span').append(document.createTextNode(' · à venir'));
+      if (future) badge.dataset.upcoming = 'true';
       label.title = agendaCalendarDateLabel(event.date) + ' · ' + event.time + (future ? ' · À venir, hors statistiques jusqu’à la séance' : '');
       const select = el('select');
+      select.classList.add('report-presence-native');
+      select.tabIndex = -1;
+      select.setAttribute('aria-hidden', 'true');
       select.setAttribute('aria-label', 'Présence ' + player.name + ' · ' + event.date + ' · ' + event.time);
       select.append(new Option('—', 'uncertain'), new Option('Présent', 'present'), new Option('Absent', 'absent'));
       const read = () => {
@@ -39,6 +46,19 @@ document.addEventListener('DOMContentLoaded', () => {
       let baseline = JSON.stringify(initial.session || null);
       select.value = initial.value;
       select.dataset.status = initial.value;
+      function paintBadge() {
+        const text = {uncertain:'À confirmer',present:'Présent',absent:'Absent'}[select.value];
+        badge.dataset.status = select.value;
+        badge.setAttribute('aria-pressed', select.value === 'uncertain' ? 'mixed' : String(select.value === 'present'));
+        badge.setAttribute('aria-label', player.name + ' · ' + weekday + ' · ' + event.time + ' · ' + text + (future ? ' · à venir' : ''));
+        badge.title = label.title + ' · ' + text + ' · Cliquer pour changer';
+      }
+      paintBadge();
+      badge.onclick = () => {
+        const next = {uncertain:'present',present:'absent',absent:'uncertain'};
+        select.value = next[select.value] || 'present';
+        select.dispatchEvent(new Event('change'));
+      };
       const reportId = currentReport.id, owner = activeCoach.id + ':' + activeCoachTeam.id;
       select.onchange = () => {
         try {
@@ -49,16 +69,18 @@ document.addEventListener('DOMContentLoaded', () => {
           reportAutosave();
           baseline = JSON.stringify(read().session || null);
           select.dataset.status = select.value;
+          paintBadge();
           status.textContent = 'Présence enregistrée.';
         } catch (error) {
           const value = read(); select.value = value.value;
           select.dataset.status = value.value;
           baseline = JSON.stringify(value.session || null);
+          paintBadge();
           status.textContent = error.message || 'Pointage non enregistré. Réessayez.';
         }
       };
       // Other players may update this occurrence: the next change must use its latest snapshot.
-      select._refreshAttendance = () => { const value = read(); baseline = JSON.stringify(value.session || null); select.value = value.value; select.dataset.status = value.value; };
+      select._refreshAttendance = () => { const value = read(); baseline = JSON.stringify(value.session || null); select.value = value.value; select.dataset.status = value.value; paintBadge(); };
       label.append(select);
       group.append(label);
     }
@@ -72,8 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
     panel.classList.add('report-player-rows');
     const options = week();
     const events = playerAttendanceSessions.events(options).sort((a,b) => playerAttendanceSessions.occurrenceKey(a).localeCompare(playerAttendanceSessions.occurrenceKey(b)));
-    if (!panel.querySelector('.report-row-period')) {
-      const caption = el('p', 'hint report-row-period', 'Présences · semaine du ' + options.from.split('-').reverse().join('/') + ' · — : à confirmer');
+    panel.querySelector('.report-row-period')?.remove();
+    {
+      const caption = el('p', 'hint report-row-period', 'Présences · semaine du ' + options.from.split('-').reverse().join('/') + ' · clic : présent / absent / à confirmer');
       panel.prepend(caption);
     }
     // Rebuild only presence controls when the agenda changes; preserve active statistics inputs.
@@ -137,6 +160,9 @@ document.addEventListener('DOMContentLoaded', () => {
       decorate();
       reportAttendanceInline.render();
     }
+  });
+  document.addEventListener('input', event => {
+    if(event.target.matches('#report-content input[type="date"]') && !event.target.closest('#report-attendance-inline')) decorate();
   });
   decorate();
 });

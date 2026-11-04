@@ -32,3 +32,14 @@
 }
 .report-row-quick label:has(input[aria-label^="Cartons rouges"]) > span::before,
 .report-minute-line label:has(input[aria-label^="Cartons rouges"]) > span::before { background: var(--club-logo-red,#e41f28); }
+
+/* Tiny visible day badges, with full touch targets and explicit accessible status. */
+.report-row-day { position: relative; align-items: center; gap: 4px; }
+.report-presence-badge { position: relative; display: grid; place-items: center; min-width: 44px; min-height: 44px; padding: 8px; border: 1px solid #d3dfed; border-radius: 50%; background: white; color: #526b88; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.report-presence-badge[data-status="present"] { background: #eaf1fc; border-color: #2855a2; color: #2855a2; }
+.report-presence-badge[data-status="present"]::after { content: '✓'; position: absolute; right: -2px; top: -4px; font-size: 12px; }
+.report-presence-badge[data-status="absent"] { background: #fff5f6; border-color: var(--club-logo-red,#e41f28); color: var(--club-logo-red,#e41f28); }
+.report-presence-badge[data-status="absent"]::after { content: '−'; position: absolute; right: -2px; top: -4px; font-size: 14px; }
+.report-presence-badge[data-upcoming="true"] { border-style: dashed; }
+.report-presence-badge:focus-visible { outline: 2px solid var(--club-logo-red,#e41f28); outline-offset: 3px; }
+.report-row-day .report-presence-native { position: absolute; width: 1px; height: 1px; min-height: 0; padding: 0; border: 0; opacity: 0; pointer-events: none; overflow: hidden; }
