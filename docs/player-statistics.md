@@ -99,3 +99,17 @@ Le bouton « Sélectionner les séances · calcul auto » ouvre un tiroir avec l
 L’enregistrement se fait en une écriture de bibliothèque. Les changements concurrents, le changement de coach/équipe et les occurrences supprimées sont revérifiés avant écriture. Une erreur laisse les réponses ouvertes. Le taux automatique, la fiche du joueur et l’agenda sont actualisés après réussite. Les occurrences non pointées ne sont jamais transformées en absences ; le pourcentage manuel reste disponible séparément.
 
 `tests/player-attendance-sessions-browser.py` couvre retrait des champs sans perte des données historiques, sélection récurrente, taux 50 % puis 100 %, sauvegarde/rechargement, absence de doublons, non-modification du brouillon, erreur de stockage, occurrence devenue indisponible et responsive.
+
+## Pointage collectif directement dans le bilan
+
+`report-attendance-inline.js` ajoute « Pointer les présences » dans les écrans Le match et Joueurs & faits. Le bloc se déplie dans la page, sans nouvelle fenêtre. Une période de sept jours précédant le match est proposée ; en l’absence de date de bilan, la période actuelle est proposée et reste modifiable. Il n’est pas nécessaire d’avoir importé ou associé des lignes de suivi : tous les joueurs de l’effectif actif sont proposés.
+
+Les options proviennent désormais de `agendaCalendarAllEvents(range)`, la même source résolue que le calendrier (récurrences, exceptions, déplacements et séances sauvegardées), et ignorent les filtres visuels de l’agenda. Seuls les entraînements passés de la période sont proposés. Les occurrences identiques sont regroupées par date et horaire. Une séance sauvegardée déplacée par l’agenda est réutilisée par identifiant si nécessaire, pour ne pas dupliquer son pointage.
+
+Chaque joueur dispose de choix radio Présent, Absent et À confirmer. Le taux automatique de la saison à ce jour est prévisualisé immédiatement, en remplaçant la réponse précédente de l’occurrence sélectionnée. Cet aperçu ne modifie pas les statistiques enregistrées avant validation. Les créneaux non pointés et les réponses à confirmer restent exclus du dénominateur.
+
+L’enregistrement collectif réutilise `playerAttendanceSessions.commit`, partagé avec le tiroir individuel : même validation, même bibliothèque, même contrôle des changements concurrents et des brouillons. Le pointage de tous les joueurs est écrit en une fois. Il met à jour les statistiques automatiques, sans changer le groupe prévu ni les exercices. Les préférences manuelles d’anciens bilans restent des préférences explicites ; le mode automatique des lignes du bilan ouvert est conservé avec l’enregistrement de ce bilan.
+
+Les réponses non enregistrées sont conservées lors d’un nouveau rendu du formulaire dans la même session. La période et la séance sont verrouillées tant que ces réponses ne sont ni enregistrées ni annulées. Une séance disparue ne réattribue jamais ces réponses à un autre créneau. Les contrôles restent utilisables aux formats mobiles.
+
+`tests/report-attendance-inline-browser.py` vérifie le parcours sans date et sans association individuelle, les cinq occurrences d’une période, les choix collectifs, l’aperçu 100 % puis 50 %, les erreurs d’écriture, les corrections sans doublon, la conservation des choix lors d’un nouveau rendu, le refus d’écrasement concurrent et les formats 320/390 px.

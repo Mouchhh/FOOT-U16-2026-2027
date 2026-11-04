@@ -4,7 +4,7 @@
   const owner = () => activeCoach.id + ":" + activeCoachTeam.id;
   const occurrenceKey = (s) => s.date + "T" + s.time;
   function sessionFor(event) {
-    return trainingLibrary
+    const exact = trainingLibrary
       .filter(
         (s) =>
           trainingValid(s) &&
@@ -17,38 +17,141 @@
             (Date.parse(a.attendance?.validatedAt) || 0) ||
           playerStatsStamp(b) - playerStatsStamp(a),
       )[0];
+    return (
+      exact ||
+      (event.session &&
+        trainingLibrary.find(
+          (s) => s.id === event.session.id && playerStatsOwns(s),
+        ))
+    );
   }
-  function events({ year, date, cutoff }) {
+  function events({ year, date, cutoff, from }) {
     const now = playerStatsNow(),
       end = year + 1 + "-06-30";
     const range = {
-      from: date || year + "-07-01",
+      from: date || from || year + "-07-01",
       to: date || (cutoff && cutoff < end ? cutoff : end),
     };
     const merged = new Map();
-    for (const event of agendaRecurringOccurrences(
-      agendaRecurringRead(),
-      range,
-    ))
-      if (event.kind === "training") merged.set(occurrenceKey(event), event);
-    for (const s of trainingLibrary.filter(
-      (s) =>
-        trainingValid(s) &&
-        playerStatsOwns(s) &&
-        s.date >= range.from &&
-        s.date <= range.to,
-    ))
-      merged.set(occurrenceKey(s), {
-        id: "training:" + s.id,
-        kind: "training",
-        title: s.title || "Entraînement",
-        date: s.date,
-        time: s.time,
-        category: s.category,
-      });
+    // Use the same resolved appointments as the calendar: exceptions, edits and team scope included.
+    const listed = agendaCalendarAllEvents(range);
+    for (const event of listed) {
+      if (
+        event.kind === "training" &&
+        event.date >= range.from &&
+        event.date <= range.to &&
+        (!event.session || playerStatsOwns(event.session))
+      )
+        merged.set(occurrenceKey(event), event);
+    }
     return [...merged.values()]
       .filter((e) => e.date + "T" + e.time <= now.day + "T" + now.time)
       .sort((a, b) => occurrenceKey(b).localeCompare(occurrenceKey(a)));
+  }
+  function commit({ options, batches, expectedOwner }) {
+    if (expectedOwner !== owner())
+      throw Error("Le coach ou l’équipe a changé. Rouvrez les présences.");
+    const current = new Map(events(options).map((e) => [occurrenceKey(e), e]));
+    const roster = squadPlayers();
+    let next = [...trainingLibrary];
+    const updated = [];
+    for (const batch of batches) {
+      const event = current.get(batch.key);
+      if (!event)
+        throw Error(
+          "Une séance a été déplacée ou supprimée. Actualisez les créneaux.",
+        );
+      const stored = sessionFor(event);
+      if (JSON.stringify(stored || null) !== batch.baseline)
+        throw Error(
+          "Les présences ont changé ailleurs. Actualisez le pointage avant de le modifier.",
+        );
+      if (
+        stored?.id === currentTraining.id &&
+        (JSON.stringify(currentTraining.attendance) !==
+          JSON.stringify(stored.attendance) ||
+          currentTraining.date !== stored.date ||
+          currentTraining.time !== stored.time)
+      )
+        throw Error(
+          "Des présences sont modifiées dans la séance ouverte. Enregistrez-les avant de poursuivre.",
+        );
+      const session = stored ? structuredClone(stored) : newTraining();
+      session.date = event.date;
+      session.time = event.time;
+      session.title = event.title.slice(0, 100);
+      if (event.category) session.category = event.category;
+      const old = session.attendance,
+        matching = old?.date === event.date && old?.time === event.time;
+      const rows = old
+        ? structuredClone(old.rows).map((r) => ({
+            ...r,
+            status: matching ? r.status : "uncertain",
+          }))
+        : roster.map((p) => ({
+            id: p.id,
+            name: p.name,
+            status: "uncertain",
+            keeper: /gardien/i.test(p.position),
+            included: true,
+          }));
+      for (const response of batch.responses) {
+        const player = roster.find((p) => p.id === response.playerId);
+        if (
+          !player ||
+          !["present", "absent", "uncertain"].includes(response.status)
+        )
+          throw Error(
+            "Le joueur ou la réponse n’est plus disponible. Actualisez ce pointage.",
+          );
+        let row = rows.find(
+          (r) => r.id === player.id || r.squadPlayerId === player.id,
+        );
+        if (!row) {
+          row = {
+            id: player.id,
+            name: player.name,
+            status: "uncertain",
+            keeper: /gardien/i.test(player.position),
+            included: true,
+          };
+          rows.push(row);
+        }
+        row.status = response.status;
+        row.included = true;
+      }
+      session.attendance = {
+        version: 1,
+        source: "manual",
+        validationScope: "individual",
+        date: event.date,
+        time: event.time,
+        validatedAt: new Date().toISOString(),
+        rows,
+      };
+      session.updatedAt = new Date().toISOString();
+      if (!trainingValid(session))
+        throw Error(
+          "Ce pointage ne peut pas être enregistré. Vérifiez les données de la séance.",
+        );
+      next = [session, ...next.filter((s) => s.id !== session.id)];
+      updated.push(session);
+    }
+    if (!batches.length) return;
+    coachStorageSet("vestiaire-training-library", JSON.stringify(next));
+    trainingLibrary = next;
+    const draft = updated.find((s) => s.id === currentTraining.id);
+    if (draft) {
+      currentTraining.attendance = structuredClone(draft.attendance);
+      currentTraining.date = draft.date;
+      currentTraining.time = draft.time;
+      saveTrainingDraft();
+      syncTrainingForm();
+    }
+    renderTrainingLibrary();
+    renderCoachAgenda();
+    if (typeof playerStatsRefresh === "function") playerStatsRefresh();
+    document.dispatchEvent(new Event("attendance-saved"));
   }
   function open(options = {}) {
     if ($("player-attendance-sessions")?.open) return;
@@ -198,92 +301,16 @@
         return;
       }
       try {
-        const current = new Map(
-          events({ ...options, year }).map((e) => [occurrenceKey(e), e]),
-        );
-        let next = [...trainingLibrary];
-        const updated = [];
-        for (const [key, response] of changes) {
-          const event = current.get(key);
-          if (!event)
-            throw Error(
-              "Une séance a été déplacée ou supprimée. Rouvrez les présences.",
-            );
-          const stored = sessionFor(event);
-          if (JSON.stringify(stored || null) !== baseline.get(key))
-            throw Error(
-              "Les présences ont changé ailleurs. Rouvrez ce pointage avant de le modifier.",
-            );
-          if (
-            stored?.id === currentTraining.id &&
-            JSON.stringify(currentTraining.attendance) !==
-              JSON.stringify(stored.attendance)
-          )
-            throw Error(
-              "Des présences sont modifiées dans la séance ouverte. Enregistrez-les avant de poursuivre.",
-            );
-          const session = stored ? structuredClone(stored) : newTraining();
-          session.date = event.date;
-          session.time = event.time;
-          session.title = event.title.slice(0, 100);
-          if (event.category) session.category = event.category;
-          const old = session.attendance,
-            matching = old?.date === event.date && old?.time === event.time;
-          const rows = old
-            ? structuredClone(old.rows).map((r) => ({
-                ...r,
-                status: matching ? r.status : "uncertain",
-              }))
-            : squadPlayers().map((p) => ({
-                id: p.id,
-                name: p.name,
-                status: "uncertain",
-                keeper: /gardien/i.test(p.position),
-                included: true,
-              }));
-          let row = rows.find(
-            (r) => r.id === player.id || r.squadPlayerId === player.id,
-          );
-          if (!row) {
-            row = {
-              id: player.id,
-              name: player.name,
-              status: "uncertain",
-              keeper: /gardien/i.test(player.position),
-              included: true,
-            };
-            rows.push(row);
-          }
-          row.status = response;
-          row.included = true;
-          session.attendance = {
-            version: 1,
-            source: "manual",
-            validationScope: "individual",
-            date: event.date,
-            time: event.time,
-            validatedAt: new Date().toISOString(),
-            rows,
-          };
-          session.updatedAt = new Date().toISOString();
-          if (!trainingValid(session))
-            throw Error(
-              "Ce pointage ne peut pas être enregistré. Vérifiez les données de la séance.",
-            );
-          next = [session, ...next.filter((s) => s.id !== session.id)];
-          updated.push(session);
-        }
-        coachStorageSet("vestiaire-training-library", JSON.stringify(next));
-        trainingLibrary = next;
-        const draft = updated.find((s) => s.id === currentTraining.id);
-        if (draft) {
-          currentTraining.attendance = structuredClone(draft.attendance);
-          saveTrainingDraft();
-        }
+        commit({
+          options: { ...options, year },
+          expectedOwner: context,
+          batches: [...changes].map(([key, status]) => ({
+            key,
+            baseline: baseline.get(key),
+            responses: [{ playerId: player.id, status }],
+          })),
+        });
         changes.clear();
-        renderTrainingLibrary();
-        renderCoachAgenda();
-        if (typeof playerStatsRefresh === "function") playerStatsRefresh();
         options.onSaved?.();
         dialog.close();
         notify("Présences enregistrées. Le taux automatique est actualisé.");
@@ -299,5 +326,11 @@
     render();
     dialog.showModal();
   }
-  window.playerAttendanceSessions = { open, events };
+  window.playerAttendanceSessions = {
+    open,
+    events,
+    commit,
+    sessionFor,
+    occurrenceKey,
+  };
 })();

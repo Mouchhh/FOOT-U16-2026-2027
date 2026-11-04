@@ -1,0 +1,125 @@
+.report-attendance-inline {
+  margin: 20px 0;
+  padding: 18px 20px;
+  border: 1px solid #dce5ef;
+  border-top: 3px solid var(--club-logo-red, #e41f28);
+  border-radius: 14px;
+  background: #fff;
+  color: #1b2d52;
+  min-width: 0;
+}
+.report-attendance-inline > summary {
+  cursor: pointer;
+  font-weight: 750;
+  min-height: 44px;
+  line-height: 1.6;
+  align-content: center;
+  color: #2855a2;
+}
+.report-attendance-filters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 16px 0;
+}
+.report-attendance-inline :is(input, select) {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.report-attendance-inline .report-field input,
+.report-attendance-inline .report-field select {
+  min-height: 44px;
+  width: 100%;
+}
+.report-attendance-player {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto 80px;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf1f6;
+}
+.report-attendance-player strong {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.report-attendance-player small {
+  display: block;
+  color: #718096;
+  font-size: 11px;
+  margin-top: 4px;
+}
+.report-attendance-choices {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.report-attendance-choices label {
+  position: relative;
+  cursor: pointer;
+}
+.report-attendance-choices input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.report-attendance-choices span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 7px 12px;
+  border: 1px solid #dce5ef;
+  border-radius: 9px;
+  background: #fff;
+  color: #365373;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+.report-attendance-choices input:checked + span {
+  background: #2855a2;
+  color: #fff;
+  border-color: #2855a2;
+}
+.report-attendance-choices input[value="absent"]:checked + span {
+  background: var(--club-logo-red, #e41f28);
+  border-color: var(--club-logo-red, #e41f28);
+}
+.report-attendance-choices input:focus-visible + span {
+  outline: 3px solid var(--club-logo-red, #e41f28);
+  outline-offset: 2px;
+}
+.report-attendance-figure {
+  text-align: right;
+}
+@media (max-width: 700px) {
+  .report-attendance-inline {
+    padding: 14px;
+  }
+  .report-attendance-player {
+    grid-template-columns: minmax(0, 1fr) 80px;
+    gap: 10px;
+  }
+  .report-attendance-choices {
+    grid-column: 1/-1;
+    grid-row: 2;
+  }
+  .report-attendance-figure {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .report-attendance-choices label {
+    flex: 1;
+  }
+  .report-attendance-choices span {
+    padding: 8px;
+  }
+  .report-attendance-filters {
+    gap: 10px;
+  }
+  .report-attendance-inline input[type="date"],
+  .report-attendance-inline select {
+    font-size: 16px;
+  }
+}
