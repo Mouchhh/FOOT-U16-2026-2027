@@ -15,6 +15,25 @@ function playerStatsNumber(value, max = 99) {
 }
 function playerStatsRowValid(row) {
   return (
+    (row.eventStats === undefined ||
+      (!!row.eventStats &&
+        typeof row.eventStats === "object" &&
+        !Array.isArray(row.eventStats) &&
+        Object.entries(row.eventStats).every(
+          ([k, v]) =>
+            Object.hasOwn(playerStatsFields, k) &&
+            Number.isInteger(v) &&
+            v >= 0 &&
+            v <= 99,
+        ))) &&
+    (row.manualStatsBeforeEvents === undefined ||
+      (!!row.manualStatsBeforeEvents &&
+        typeof row.manualStatsBeforeEvents === "object" &&
+        !Array.isArray(row.manualStatsBeforeEvents) &&
+        Object.entries(row.manualStatsBeforeEvents).every(
+          ([k, v]) =>
+            Object.hasOwn(playerStatsFields, k) && playerStatsNumber(v),
+        ))) &&
     Object.keys(playerStatsFields).every(
       (k) => row[k] === undefined || playerStatsNumber(row[k]),
     ) &&
@@ -184,7 +203,8 @@ function playerStatsSeasonSnapshot(
       a.info.date.localeCompare(b.info.date) ||
       playerStatsStamp(a) - playerStatsStamp(b),
   );
-  for (const report of saved) {
+  for (const stored of saved) {
+    const report = reportEventsApply(structuredClone(stored), roster);
     const seen = new Set();
     for (const row of identityFirst(report.players)) {
       const player = playerStatsResolve(row, roster);

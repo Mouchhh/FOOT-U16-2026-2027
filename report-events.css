@@ -1,0 +1,54 @@
+.report-event.report-event-linked {
+  display: block;
+  padding: 20px 0;
+  border-bottom: 1px solid #e5ebf2;
+  min-width: 0;
+}
+.report-event-main {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 14px;
+}
+.report-event-participants {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+.report-event-linked .report-field {
+  min-width: 0;
+  margin: 0;
+}
+.report-event-linked :is(input, select, textarea) {
+  width: 100%;
+  max-width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+.report-event-remove {
+  color: var(--club-logo-red, #e41f28);
+  background: #fff;
+  border: 1px solid #e5ebf2;
+  border-radius: 9px;
+  padding: 10px;
+  min-height: 44px;
+}
+.report-event-linked > .report-field textarea {
+  min-height: 60px;
+}
+@media (max-width: 600px) {
+  .report-event-main {
+    grid-template-columns: 80px minmax(0, 1fr);
+  }
+  .report-event-remove {
+    grid-column: 1/-1;
+    justify-self: end;
+  }
+  .report-event-participants {
+    grid-template-columns: 1fr;
+  }
+  .report-event-linked :is(input, select, textarea) {
+    font-size: 16px;
+  }
+}

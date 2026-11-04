@@ -73,7 +73,12 @@ function playerStatsReportFields(card, row) {
     const field = reportField(title, row[key] ?? "", (v) => (row[key] = v), {
       type: "number",
     });
-    field.querySelector("input").setAttribute("aria-label", title);
+    const input = field.querySelector("input");
+    input.setAttribute("aria-label", title);
+    if (row.eventStats && Object.hasOwn(row.eventStats, key)) {
+      input.readOnly = true;
+      field.append(el("small", "hint", "Calculé depuis les faits marquants"));
+    }
     grid.append(field);
   }
   section.append(grid);
