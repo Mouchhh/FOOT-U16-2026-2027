@@ -7,3 +7,9 @@ Les dates restent conservées dans les identifiants d’occurrence et affichées
 Les flèches changent la semaine ; « Semaine du bilan » rétablit le contexte initial. Les dates personnalisées et la sélection détaillée sont regroupées dans « Autre période ou séance ». Aucune date de séance n’est à saisir pour utiliser les créneaux configurés.
 
 Les réponses restent enregistrées par équipe, joueur et occurrence réelle via le circuit canonique existant. Les taux de présence et l’effectif se mettent à jour comme auparavant. Les contrôles de stockage, de concurrence et les protections d’un pointage non enregistré sont conservés.
+
+## Semaine initiale et statut de préparation
+
+Une première configuration utilise désormais le lundi courant comme début par défaut. Au chargement, un ancien modèle actif démarré en cours de la semaine courante est étendu au lundi uniquement s’il s’agit encore de sa première période (tous les créneaux partagent cette date de début et n’ont pas de fin). Les modèles futurs, les périodes historiques et les séries déjà modifiées restent inchangés. Les exceptions de suppression restent appliquées.
+
+Le statut « À préparer » ne filtre jamais le pointage d’une occurrence passée. Un pointage peut matérialiser la séance sans fiche pédagogique préparée. Après modification des récurrences, les contrôles de présence du bilan sont actualisés sans remplacer les champs de minutes et de discipline en cours de saisie.

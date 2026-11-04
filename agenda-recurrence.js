@@ -409,6 +409,7 @@ function agendaRecurringCommit(plan, revision) {
       "Réglage invalide ou trop volumineux. Les rendez-vous précédents sont conservés.",
     );
   coachStorageSet(agendaRecurringKey, JSON.stringify(plan));
+  document.dispatchEvent(new CustomEvent("agenda-recurrence-updated"));
 }
 function agendaRecurringReplace(plan, rows, cutoff, enabled, category) {
   const next = plan
@@ -890,7 +891,7 @@ function agendaRecurringConfigure() {
   const from = field(
       "À partir du",
       "date",
-      month + "-01" > today ? month + "-01" : today,
+      month + "-01" > today ? month + "-01" : stored ? today : trainingWeekStart(today),
     ),
     category = field(
       "Catégorie / équipe",
@@ -1138,7 +1139,23 @@ function agendaRecurringConfigure() {
   document.body.append(dialog);
   dialog.showModal();
 }
+// A first weekly template applies to its whole current week, including pending slots.
+function agendaRecurringCompleteInitialWeek() {
+  const plan = agendaRecurringRead();
+  const today = agendaCalendarToday(), start = trainingWeekStart(today);
+  if (!plan || plan.version !== 2 || plan.from <= start || plan.from > today ||
+      !plan.enabled || !plan.slots.length || plan.slots.some(slot => slot.from !== plan.from || slot.to !== null)) return false;
+  const next = structuredClone(plan);
+  next.from = start;
+  for (const slot of next.slots) slot.from = start;
+  agendaRecurringCommit(next, plan.revision);
+  return true;
+}
+document.addEventListener("club-session-ready", () => {
+  try { agendaRecurringCompleteInitialWeek(); } catch { /* Keep the stored recurrence unchanged on failure. */ }
+});
 document.addEventListener("DOMContentLoaded", () => {
+  try { agendaRecurringCompleteInitialWeek(); } catch { /* Keep the existing plan if storage is unavailable. */ }
   const source = agendaCalendarEvents;
   agendaCalendarEvents = function () {
     const real = source(),

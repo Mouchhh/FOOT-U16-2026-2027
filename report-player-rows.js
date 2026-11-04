@@ -71,6 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const caption = el('p', 'hint report-row-period', 'Présences · semaine du ' + options.from.split('-').reverse().join('/') + ' · — : à confirmer');
       panel.prepend(caption);
     }
+    // Rebuild only presence controls when the agenda changes; preserve active statistics inputs.
+    for (const node of panel.querySelectorAll('.report-player-row-ready')) {
+      const row = currentReport.players.find(r => r.id === node.dataset.reportPlayer);
+      let player = row && playerStatsResolve(row);
+      if (!player && node.dataset.attendanceRosterId) player = squadPlayers().find(p => p.id === node.dataset.attendanceRosterId);
+      node.querySelector('.report-row-attendance')?.replaceWith(attendanceControls(player, events, options));
+    }
     for (const card of panel.querySelectorAll('.report-player:not(.report-player-row-ready)')) {
       card.classList.add('report-player-row-ready');
       const row = currentReport.players.find(r => r.id === card.dataset.reportPlayer);
@@ -96,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const roster = squadPlayers().filter(p => !currentReport.preparation?.imported || currentReport.players.some(r => playerStatsResolve(r)?.id === p.id));
       const entries = [...roster.map(player => ({player, row: currentReport.players.find(r => playerStatsResolve(r)?.id === player.id)})), ...currentReport.players.filter(r => !playerStatsResolve(r)).map(row => ({row, player:null}))];
       const entry = entries[index]; if (!entry) continue;
+      if (entry.player) line.dataset.attendanceRosterId = entry.player.id;
       line.querySelector(':scope > span').textContent = entry.player?.name || entry.row?.name || 'Joueur';
       line.insertBefore(attendanceControls(entry.player, events, options), line.querySelector('label'));
       for (const [key, title] of [['yellowCards','Cartons jaunes'],['redCards','Cartons rouges']]) {
@@ -118,6 +126,12 @@ document.addEventListener('DOMContentLoaded', () => {
   renderReportQuickMinutes = function(...args) { const value = minutes.apply(this,args); decorate(); return value; };
   document.addEventListener('attendance-saved', () => {
     document.querySelectorAll('.report-row-attendance select').forEach(input => input._refreshAttendance?.());
+  });
+  document.addEventListener('agenda-recurrence-updated', () => {
+    if (document.body.classList.contains('reports-mode')) {
+      decorate();
+      reportAttendanceInline.render();
+    }
   });
   decorate();
 });
