@@ -203,24 +203,11 @@ document.addEventListener("DOMContentLoaded", () => {
   function candidates(kind, context) {
     const live = current(kind),
       saved = kind === "report" ? reportLibrary : saves.map((s) => s.state),
-      rows = [
-        { payload: live, label: "Brouillon en cours" },
-        ...saved.map((payload) => ({
-          payload,
-          label: "Document enregistré",
-          saved: true,
-        })),
-        ...documentEntryArchives()
-          .filter((r) => r.kind === kind)
-          .map((r) => ({
-            payload: r.payload,
-            label:
-              "Version précédente · " +
-              new Date(r.at).toLocaleString("fr-FR", {
-                timeZone: "Europe/Paris",
-              }),
-          })),
-      ],
+      rows = saved.map((payload) => ({
+        payload,
+        label: "Document enregistré",
+        saved: true,
+      })),
       seen = new Set();
     return rows.filter((row) => {
       const p = row.payload;
@@ -408,6 +395,15 @@ document.addEventListener("DOMContentLoaded", () => {
     state.error = "";
     const rows = candidates(kind, context);
     if (!rows.length) {
+      if (options.newDocument) {
+        if (
+          !archive(kind, current(kind)) ||
+          !replace(kind, blank(kind, context, current(kind)))
+        )
+          return false;
+        openEditor(kind, continuation, true);
+        return true;
+      }
       if (
         options.managesContext &&
         !documentEntrySameContext(
@@ -598,9 +594,14 @@ document.addEventListener("DOMContentLoaded", () => {
       state.phase = fresh ? "creating" : "opening";
       state.error = "";
       resume.disabled = create.disabled = true;
+      const live = current(kind),
+        sameDocument =
+          kind === "report"
+            ? live.id === row.payload.id
+            : live.documentId === row.payload.documentId;
       let next = fresh
         ? blank(kind, context, row.payload)
-        : structuredClone(row.payload);
+        : structuredClone(sameDocument ? live : row.payload);
       if (kind === "report" && context.key) next.agendaSourceKey = context.key;
       if (
         (fresh && !archive(kind, row.payload)) ||
@@ -673,11 +674,6 @@ document.addEventListener("DOMContentLoaded", () => {
       versions,
       actions,
       status,
-      el(
-        "p",
-        "hint",
-        "Versions précédentes conservées sur cet appareil, dans votre espace personnel.",
-      ),
     );
     document.body.append(dialog);
     pending = dialog;
@@ -936,16 +932,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }),
       { force: true, newDocument: true },
     );
-  for (const kind of ["causerie", "report"]) {
-    const button = el("button", "export", "Versions précédentes");
-    button.type = "button";
-    button.id = "document-versions-" + kind;
-    button.onclick = () => showHistory(kind);
-    (kind === "report"
-      ? $("after-match").querySelector(".reports-heading .report-actions")
-      : $("terrain-page-0")
-    ).append(button);
-  }
   new MutationObserver(() => {
     if (!inside("causerie")) accepted.causerie = null;
     if (!inside("report")) accepted.report = null;

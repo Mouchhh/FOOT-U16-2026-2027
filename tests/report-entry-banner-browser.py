@@ -8,7 +8,7 @@ with sync_playwright() as p:
     page.goto('http://127.0.0.1:3016/?mode=local')
     page.wait_for_function('window.documentEntry && window.reportEntryBanner')
     page.locator('#view-reports').click()
-    page.evaluate("()=>{currentReport.title='Test bannière';currentReport.info.date='2026-11-01';currentReport.info.opponent='Adversaire';currentReport.analysis.topAttack='Conserver';reportAutosave();}")
+    page.evaluate("()=>{currentReport.title='Test bannière';currentReport.info.date='2026-11-01';currentReport.info.opponent='Adversaire';currentReport.analysis.topAttack='Conserver';saveReport();reportEntryBanner.reset();}")
     page.locator('#view-home').click();page.locator('#view-reports').click()
     banner=page.locator('#report-entry-banner');banner.wait_for(state='visible')
     assert page.locator('dialog#document-entry-dialog').count()==0

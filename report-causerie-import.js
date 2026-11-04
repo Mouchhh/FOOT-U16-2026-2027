@@ -31,13 +31,6 @@
           label: [label, plan.date, plan.opponent].filter(Boolean).join(" · "),
         });
     };
-    const board = getCompositionBoard();
-    add(
-      "board:" + (board.documentId || "current"),
-      board,
-      "Composition actuelle",
-      true,
-    );
     for (const save of saves)
       add(
         "board:" + (save.state.documentId || save.date),
@@ -112,6 +105,7 @@
     return next;
   }
   function render() {
+    $("report-causerie-import")?.remove();
     if (reportTab !== "general" || currentReport.eventType === "training")
       return;
     const root = $("report-quick-panel");
@@ -198,6 +192,12 @@
     renderReportContent = function () {
       before();
       render();
+    };
+    const beforeSaves = renderSaves;
+    renderSaves = function (...args) {
+      const result = beforeSaves.apply(this, args);
+      if (document.body.classList.contains("reports-mode")) render();
+      return result;
     };
     render();
   });

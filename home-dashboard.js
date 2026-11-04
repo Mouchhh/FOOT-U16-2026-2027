@@ -7,7 +7,7 @@ function homeUpcomingTraining(now=homeClubNow()){
  return trainingLibrary.filter(trainingValid).map(s=>({session:s,start:Date.parse(s.date+'T'+s.time+':00Z')/60000})).filter(e=>e.start+e.session.duration>now.minutes).sort((a,b)=>a.start-b.start||a.session.id.localeCompare(b.session.id))[0]||null;
 }
 function homeUpcomingMatch(now=homeClubNow()){
- const current=getCompositionBoard(),candidates=[{board:current,draft:true},...saves.map(s=>({board:s.state,draft:false}))],documents=new Set(),fixtures=new Set(),matches=[];
+ const candidates=saves.map(s=>({board:s.state,draft:false})),documents=new Set(),fixtures=new Set(),matches=[];
  for(const entry of candidates){const b=entry.board;if(!valid(b)||b.squadDirectory||b.boardKind==='plan')continue;if(b.documentId&&documents.has(b.documentId))continue;if(b.documentId)documents.add(b.documentId);const p=b.matchPreparation;if(!p?.date||p.date<now.day)continue;const key=JSON.stringify([p.date,b.team,b.category,b.squad,p.match.trim(),p.opponent.trim()]);if(fixtures.has(key))continue;fixtures.add(key);matches.push({...entry,date:p.date,title:p.match.trim()||p.opponent.trim().split('\n')[0]||b.title||b.team});}
  return matches.sort((a,b)=>a.date.localeCompare(b.date)||a.title.localeCompare(b.title))[0]||null;
 }

@@ -37,6 +37,7 @@ with sync_playwright() as p:
  page.locator('#formation').select_option('4-4-2')
  assert page.evaluate('getCompositionBoard().formation')=='4-4-2'
  assert page.evaluate('(id)=>JSON.stringify(saves.find(s=>s.state.documentId===id))',original)==snapshot
+ page.evaluate("()=>saveNamedComposition()")
  # The old decision screen still rejects a stale click instead of replacing modified work.
  page.locator('#view-home').click();page.locator('#view-pitch').click()
  choice=page.locator('#document-entry-dialog');choice.wait_for(state='visible')
