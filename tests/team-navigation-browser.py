@@ -18,7 +18,7 @@ with sync_playwright() as p:
     assert page.locator('#account-tab-preferences').get_attribute('aria-selected')=='true'
     page.locator('#coach-account-dialog .external-modal-close').click()
     page.locator('#coach-account-dialog').wait_for(state='detached')
-    page.locator('#coach-account-open').click()
+    page.locator('#coach-profile-trigger').click();page.locator('#coach-profile-options').get_by_role('button',name='Mon Profil',exact=True).click()
     assert page.locator('#account-tab-profile').get_attribute('aria-selected')=='true'
     page.locator('#coach-account-dialog').get_by_label('Prénom',exact=True).fill('Alex')
     page.locator('#coach-account-dialog').get_by_label('Nom',exact=True).fill('Martin')

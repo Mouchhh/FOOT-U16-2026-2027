@@ -6,7 +6,10 @@ with sync_playwright() as p:
     context=b.new_context(viewport={'width':1366,'height':900},reduced_motion='reduce');page=context.new_page();errors=[]
     page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept())
     page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function('window.externalModalClose && typeof coachAccountOpen==="function"')
-    page.locator('#coach-account-open').click();d=page.locator('#coach-account-dialog');d.locator('.external-modal-close').wait_for()
+    def open_account():
+        page.locator('#coach-profile-trigger').click()
+        page.locator('#coach-profile-options').get_by_role('button',name='Mon Profil',exact=True).click()
+    open_account();d=page.locator('#coach-account-dialog');d.locator('.external-modal-close').wait_for()
     assert d.get_by_role('tab').count()==4
     d.get_by_label('Prénom',exact=True).fill('Alex');d.get_by_label('Nom',exact=True).fill('Martin');d.get_by_label('Rôle',exact=True).fill('Entraîneur Équipe Première');d.get_by_label('E-mail de contact',exact=True).fill('coach@example.test');d.get_by_label('Téléphone',exact=True).fill('+33 6 00 00 00 00')
     image=Image.new('RGB',(60,60),'blue');data=BytesIO();image.save(data,format='PNG');d.get_by_label('Photo du coach',exact=True).set_input_files({'name':'portrait.png','mimeType':'image/png','buffer':data.getvalue()})
@@ -25,13 +28,13 @@ with sync_playwright() as p:
     assert other.evaluate('coachAccountRead().profile.photo.startsWith("data:image/jpeg")')
     other.close()
     # Saving failures must not apply a different preference.
-    page.locator('#coach-account-open').click();d=page.locator('#coach-account-dialog');d.get_by_role('tab',name='Préférences & déconnexion',exact=True).click();d.locator('#account-start-page').select_option('resources')
+    open_account();d=page.locator('#coach-account-dialog');d.get_by_role('tab',name='Préférences & déconnexion',exact=True).click();d.locator('#account-start-page').select_option('resources')
     page.evaluate("()=>{window.accountRealSet=coachStorageSet;coachStorageSet=(k,v)=>{if(k===coachAccountKey)throw new DOMException('quota','QuotaExceededError');return accountRealSet(k,v)}}")
     d.get_by_role('button',name='Enregistrer mes préférences',exact=True).click();assert page.evaluate('coachAccountDefaultPage()')=='agenda';page.evaluate('()=>{coachStorageSet=accountRealSet}')
     d.get_by_role('button',name='Fermer',exact=True).click();d.wait_for(state='detached')
     # Exercise the actual security workflow with a stubbed auth transport; never contact a live account.
     page.evaluate("""()=>{window.realAccountBound=clubNetworkBound;window.realAccountRequest=clubNetworkRequest;window.realAccountStore=clubNetworkStoreSession;window.realAccountSession=clubNetworkSession;clubNetworkBound=()=>true;clubNetworkSession={user:{id:'account-test',email:'login@example.test'}};window.authCalls=[];clubNetworkStoreSession=s=>clubNetworkSession=s;clubNetworkRequest=async(path,options)=>{authCalls.push({path,options});if(path.includes('token'))return {user:{id:'account-test',email:'login@example.test'},access_token:'test-token'};return {id:'account-test'}}}""")
-    page.locator('#coach-account-open').click();d=page.locator('#coach-account-dialog');d.get_by_role('tab',name='Mon profil & sécurité',exact=True).click()
+    open_account();d=page.locator('#coach-account-dialog');d.get_by_role('tab',name='Mon profil & sécurité',exact=True).click()
     d.get_by_label('Mot de passe actuel',exact=True).fill('old-test-password');d.get_by_label('Nouveau mot de passe',exact=True).fill('new-test-password');d.get_by_label('Confirmer le nouveau mot de passe',exact=True).fill('new-test-password');d.get_by_role('button',name='Modifier mon mot de passe',exact=True).click()
     page.wait_for_function("document.getElementById('account-panel-security').textContent.includes('Mot de passe modifié.')")
     assert page.evaluate('authCalls.length')==2
@@ -45,7 +48,7 @@ with sync_playwright() as p:
     assert page.evaluate('filteredReminderCount')==0
     assert page.evaluate('reminders.length')==1
     for width in [390,320]:
-        page.set_viewport_size({'width':width,'height':844});page.locator('#coach-account-open').click();d=page.locator('#coach-account-dialog');cross=d.locator('.external-modal-close');cross.wait_for()
+        page.set_viewport_size({'width':width,'height':844});open_account();d=page.locator('#coach-account-dialog');cross=d.locator('.external-modal-close');cross.wait_for()
         assert cross.evaluate("e=>getComputedStyle(e,'::before').color")=='rgb(228, 31, 40)'
         assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
         assert d.evaluate('e=>e.scrollWidth<=e.clientWidth+2')

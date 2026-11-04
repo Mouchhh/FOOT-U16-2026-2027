@@ -1,0 +1,138 @@
+.settings-navigation-footer {
+  position: fixed;
+  left: 12px;
+  bottom: calc(
+    var(--navigation-bottom-clearance, 0px) + env(safe-area-inset-bottom, 0px) +
+      12px
+  );
+  z-index: 98;
+}
+.settings-navigation-footer #coach-account-open {
+  position: static;
+  inset: auto;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #ccd8e8;
+  background: white;
+  color: #2855a2;
+  box-shadow: 0 2px 10px #142d5014;
+}
+.settings-navigation-footer #coach-account-open:hover,
+.settings-navigation-footer #coach-account-open[aria-expanded="true"] {
+  color: var(--club-logo-red, #e41f28);
+  border-color: var(--club-logo-red, #e41f28);
+}
+.settings-menu {
+  position: fixed;
+  z-index: 120;
+  width: min(290px, calc(100vw - 16px));
+  box-sizing: border-box;
+  max-height: 70vh;
+  max-height: 70dvh;
+  overflow: auto;
+  padding: 8px;
+  border: 1px solid #d7e1ed;
+  border-radius: 12px;
+  background: white;
+  color: #142d50;
+  box-shadow: 0 10px 30px #142d5026;
+}
+.settings-menu[hidden],
+.settings-menu [hidden] {
+  display: none !important;
+}
+#settings-menu-options > button {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  background: white;
+  border: 0;
+  border-radius: 7px;
+  text-align: left;
+  padding: 10px 12px;
+  color: #142d50;
+  font-size: 14px;
+  cursor: pointer;
+}
+#settings-menu-options > button:hover,
+#settings-menu-options > button:focus-visible {
+  background: #fff5f6;
+  color: var(--club-logo-red, #e41f28);
+}
+#settings-menu-options .settings-logout {
+  color: var(--club-logo-red, #e41f28);
+}
+.settings-preferences {
+  display: grid;
+  gap: 12px;
+  padding: 6px;
+}
+.settings-preferences h2 {
+  font-size: 17px;
+  margin: 0;
+}
+.settings-preferences select {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 8px;
+  background: white;
+  color: #142d50;
+  border: 1px solid #cbd8e7;
+  border-radius: 7px;
+}
+.settings-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 36px;
+  font-size: 13px;
+}
+.settings-back {
+  text-align: left;
+  background: white;
+  border: 0;
+  color: #526b88;
+  min-height: 36px;
+  cursor: pointer;
+}
+.settings-menu-status {
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 0 10px;
+  color: #526b88;
+}
+.settings-menu-status:empty {
+  display: none;
+}
+@media screen and (min-width: 1100px) and (hover: hover) and (pointer: fine) {
+  body.task-navigation.responsive-navigation #workspace-navigation {
+    padding-bottom: 88px;
+  }
+  .settings-navigation-footer {
+    left: 18px;
+    bottom: 16px;
+  }
+}
+@media screen and (max-width: 1099px),
+  screen and (hover: none),
+  screen and (pointer: coarse) {
+  body.reports-mode:not(.document-completed-report)
+    .settings-navigation-footer {
+    bottom: calc(
+      var(--navigation-bottom-clearance, 0px) +
+        var(--report-actions-height, 64px) + 12px
+    );
+  }
+}
+@media print {
+  .settings-navigation-footer,
+  .settings-menu {
+    display: none !important;
+  }
+}

@@ -6,7 +6,7 @@ Le changement utilise `coachTeamSwitch` : sauvegarde de l’espace courant, mém
 
 Les exercices de référence et les paramètres personnels restent communs au coach ; les documents historiques restent conservés. Cette séparation des contextes dans l’interface complète les contrôles de droits du serveur, sans les remplacer.
 
-Le profil ouvre un menu au survol avec une souris, ou au clic/toucher : Mon Profil, Mes Préférences, Se Déconnecter. Les deux premières options ouvrent les sections existantes des paramètres ; la déconnexion conserve la sauvegarde préalable et le transport d’authentification existants. La photo et le nom se mettent à jour après sauvegarde du profil. La roue de paramètres est déplacée en bas à droite, au-dessus de la barre mobile et de la zone de sécurité du téléphone.
+Le profil ouvre un menu au survol avec une souris, ou au clic/toucher : Mon Profil, Mes Préférences, Se Déconnecter. Les deux premières options ouvrent les sections existantes des paramètres ; la déconnexion conserve la sauvegarde préalable et le transport d’authentification existants. La photo et le nom se mettent à jour après sauvegarde du profil. La roue de paramètres est fixée en bas à gauche de la navigation ; son menu léger propose uniquement Préférences et Déconnexion. Sur mobile, elle reste au-dessus de la barre du bas.
 
 Les panneaux sont des disclosures non bloquants, accessibles au clavier (flèches, Home/End, Échap), mutuellement exclusifs, fermés par clic extérieur et sortie du focus. Les formulaires de configuration existants restent inchangés.
 
