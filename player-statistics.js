@@ -140,7 +140,7 @@ function playerStatsReportFields(card, row) {
           " séance(s) renseignée(s) · " +
           playerStatsSeasonLabel(year) +
           (a.uncertain ? " · " + a.uncertain + " à confirmer" : "")
-        : "Aucune présence exploitable pour cette saison. Un créneau récurrent sans pointage ne vaut pas une absence.";
+        : "Aucun pointage validé pour cette saison. Utilisez « Sélectionner les séances » pour renseigner les présences.";
   }
   mode.onchange = () => {
     row.attendanceMode = mode.value;
@@ -151,7 +151,27 @@ function playerStatsReportFields(card, row) {
     row.attendanceRate = rate.value;
     reportAutosave();
   };
-  attendance.append(modeLabel, rateLabel, hint);
+  const sessions = el(
+    "button",
+    "export",
+    "Sélectionner les séances · calcul auto",
+  );
+  sessions.type = "button";
+  sessions.disabled =
+    !linked || playerStatsSeason(currentReport.info.date) === null;
+  sessions.onclick = () =>
+    window.playerAttendanceSessions.open({
+      playerId: linked.id,
+      year: playerStatsSeason(currentReport.info.date),
+      cutoff: currentReport.info.date,
+      onSaved: () => {
+        row.attendanceMode = "auto";
+        mode.value = "auto";
+        reportAutosave();
+        paint();
+      },
+    });
+  attendance.append(modeLabel, rateLabel, sessions, hint);
   section.append(attendance);
   paint();
   card.append(section);
@@ -523,6 +543,14 @@ function playerStatsPaintDetail() {
         "Aucun pointage validé pour cette saison. Les créneaux sans pointage ne sont pas comptés comme des absences.",
       ),
     );
+  const pointage = el("button", "export", "Renseigner les présences");
+  pointage.type = "button";
+  pointage.onclick = () =>
+    window.playerAttendanceSessions.open({
+      playerId: player.id,
+      year: snapshot.year,
+    });
+  attendanceHistory.append(pointage);
   dialog.append(attendanceHistory);
   const calculation = el("details", "player-stat-calculation");
   calculation.append(

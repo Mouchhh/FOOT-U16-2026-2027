@@ -9,7 +9,7 @@ function trainingStoreAttendance(rows,source,validate=false){
  syncTrainingForm();renderTrainingBlocks();renderTrainingCatalogue();return true;
 }
 function trainingApplyAttendance(rows,source='manual'){return trainingStoreAttendance(rows,source,true);}
-function renderAttendanceSummary(){const root=$('training-attendance-summary');if(!root)return;const a=currentTraining.attendance;if(!a){root.textContent='Aucune présence validée pour ce rendez-vous.';return;}const c=trainingAttendanceCounts(a.rows),valid=!!a.validatedAt&&a.date===currentTraining.date&&a.time===currentTraining.time;root.textContent=c.players+' présents · '+c.absent+' absents · '+c.unknown+' sans réponse / à confirmer · '+(valid?'effectif validé':'à revalider pour ce rendez-vous');}
+function renderAttendanceSummary(){const root=$('training-attendance-summary');if(!root)return;const a=currentTraining.attendance;if(!a){root.textContent='Aucune présence validée pour ce rendez-vous.';return;}const c=trainingAttendanceCounts(a.rows),valid=!!a.validatedAt&&a.date===currentTraining.date&&a.time===currentTraining.time;root.textContent=c.players+' présents · '+c.absent+' absents · '+c.unknown+' sans réponse / à confirmer · '+(valid?(a.validationScope==='individual'?'pointage individuel enregistré':'effectif validé'):'à revalider pour ce rendez-vous');}
 function trainingOpenAttendance(){
  if($('training-attendance-dialog')?.open||!applyTrainingForm())return;
  const identity=JSON.stringify([activeCoach.id,currentTraining.id,currentTraining.date,currentTraining.time]),old=currentTraining.attendance,matching=old?.date===currentTraining.date&&old?.time===currentTraining.time;

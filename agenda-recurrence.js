@@ -697,7 +697,10 @@ function agendaRecurringOpen(id) {
         trainingWizard.go(2);
       });
     };
-    actions.append(prepare);
+    const attendance = el("button", "export", "Renseigner les présences");
+    attendance.type = "button";
+    attendance.onclick = () => window.playerAttendanceSessions.open({ date: event.date, year: playerStatsSeason(event.date) });
+    actions.append(prepare, attendance);
   }
   if (event.kind === "match") {
     const prepare = el("button", "primary", "Préparer ce match");

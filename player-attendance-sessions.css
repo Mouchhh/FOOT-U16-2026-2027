@@ -1,0 +1,63 @@
+.attendance-session-list {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0;
+  min-width: 0;
+}
+.attendance-session-choice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid #edf1f6;
+  padding: 12px 0;
+  min-width: 0;
+}
+.attendance-session-choice > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.attendance-session-choice strong {
+  font-size: 13px;
+  color: #1b2d52;
+}
+.attendance-session-choice small {
+  display: block;
+  color: #718096;
+  font-size: 12px;
+  margin-top: 5px;
+}
+.attendance-session-choice select {
+  min-height: 44px;
+  width: 160px;
+  flex: none;
+  background: #fff;
+  border: 1px solid #dce5ef;
+  border-radius: 9px;
+  padding: 8px;
+  color: #2855a2;
+}
+.attendance-session-confirm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 18px 0;
+}
+.attendance-session-confirm input {
+  accent-color: var(--club-logo-red, #e41f28);
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+@media (max-width: 600px) {
+  .attendance-session-choice {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .attendance-session-choice select {
+    width: 100%;
+  }
+}

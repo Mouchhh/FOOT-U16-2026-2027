@@ -87,3 +87,15 @@ La fiche rassemble les chiffres de saison, les bilans par match et une rubrique 
 `tests/squad-clean-browser.py` vérifie quatre groupes, les actions repliées, le clic sur le joueur, la croix externe et l’absence de débordement aux formats 320, 390, 768 et 1440 pixels. Les tests de gestion d’effectif empruntent désormais le menu « Gérer le joueur ».
 
 Les cartons sont représentés par deux petits rectangles (jaune `#facc15`, rouge du club `#e41f28`) avec leur nombre. Les libellés accessibles distinguent explicitement jaunes et rouges ; « — » reste une valeur inconnue et ne devient pas zéro. La ligne de statistiques revient à la ligne sur les petites cartes plutôt que de déborder. Les statistiques détaillées et les actions restent accessibles comme précédemment.
+
+## Pointage des séances récurrentes
+
+Le suivi individuel affiche uniquement identité, statut, minutes, statistiques et présence. Les champs Évaluation / 5, Observation individuelle et Objectif individuel sont retirés du formulaire ; les valeurs historiques restent conservées dans les documents et leurs exports.
+
+Le bouton « Sélectionner les séances · calcul auto » ouvre un tiroir avec les occurrences réelles passées de l’équipe, bornées à la saison et à la date du bilan. Il est aussi accessible depuis la fiche joueur et le rendez-vous récurrent de l’agenda. Le pointage est explicite et confirmé : présent, absent, ou à confirmer. Les futures occurrences et les autres types de rendez-vous n’alimentent pas ce sélecteur. Les annulations et déplacements sont résolus à partir du modèle de récurrence actuel, y compris les exceptions.
+
+`player-attendance-sessions.js` écrit dans la bibliothèque existante des séances, via le stockage isolé et la synchronisation existants. Une occurrence non matérialisée reçoit une fiche de séance datée avec un pointage individuel, sans exercice inventé. Les autres joueurs commencent à confirmer. Une séance existante est réutilisée par date et horaire et les autres réponses sont conservées. Le brouillon de séance n’est pas remplacé : seule sa présence est synchronisée s’il s’agit du même document, avec refus en cas de pointage en cours différent. L’effectif prévu et l’adaptation des exercices ne sont pas modifiés ; `validationScope: individual` distingue cette opération de la validation collective de l’effectif.
+
+L’enregistrement se fait en une écriture de bibliothèque. Les changements concurrents, le changement de coach/équipe et les occurrences supprimées sont revérifiés avant écriture. Une erreur laisse les réponses ouvertes. Le taux automatique, la fiche du joueur et l’agenda sont actualisés après réussite. Les occurrences non pointées ne sont jamais transformées en absences ; le pourcentage manuel reste disponible séparément.
+
+`tests/player-attendance-sessions-browser.py` couvre retrait des champs sans perte des données historiques, sélection récurrente, taux 50 % puis 100 %, sauvegarde/rechargement, absence de doublons, non-modification du brouillon, erreur de stockage, occurrence devenue indisponible et responsive.
