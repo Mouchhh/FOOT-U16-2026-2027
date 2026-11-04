@@ -50,11 +50,57 @@ function ensureSuppliedSections() {
     true,
   );
 }
+function ensureSuppliedLibraries() {
+  if ($("supplied-source")) return;
+  const label = el("label", "supplied-library-filter", "Bibliothèque"),
+    select = el("select"),
+    original = el(
+      "a",
+      "supplied-original-download",
+      "Fichier original MyCoach",
+    );
+  select.id = "supplied-source";
+  select.setAttribute("aria-label", "Bibliothèque d’exercices");
+  const names = {
+    banide: "Banide",
+    toro: "Toro",
+    opposition: "Opposition",
+    coach: "Séances du coach",
+    circuit: "Circuits",
+    games: "Jeux et défis",
+    physical: "Physique",
+    finishing: "Finition",
+    mycoach: "MyCoach",
+  };
+  select.append(new Option("Toutes les bibliothèques", ""));
+  for (const source of suppliedExerciseEngine.libraries)
+    select.append(new Option(names[source.key] || source.source, source.key));
+  original.href = "assets/exercises/mycoach-original.html";
+  original.download = "Exos foot - MyCoach.html";
+  original.hidden = true;
+  select.onchange = () => {
+    select.dataset.filtered = String(!!select.value);
+    original.hidden = select.value !== "mycoach";
+    renderBibleCatalogue();
+  };
+  label.append(select, original);
+  document.querySelector(".supplied-section-filters").before(label);
+  $("bible-reset").addEventListener(
+    "click",
+    () => {
+      select.value = "";
+      select.dataset.filtered = "false";
+      original.hidden = true;
+    },
+    true,
+  );
+}
 function suppliedCatalogueExercises({
   section = "",
   axis = "",
   objective = "",
   query = "",
+  source = "",
 } = {}) {
   const normalize = (text) =>
     text
@@ -66,6 +112,8 @@ function suppliedCatalogueExercises({
       .viewsOf(base)
       .filter(
         (e) =>
+          (!source ||
+            suppliedExerciseEngine.presentationFor(e).key === source) &&
           (!section ||
             suppliedExerciseEngine.sectionsFor(e).includes(section)) &&
           (!axis || suppliedMomentAxes[e.moment] === axis) &&
@@ -207,27 +255,25 @@ function suppliedBoardSnapshot(model) {
     version: 1,
     lines: true,
     seconds: 2,
-    frames: model.frames
-      .slice(0, 12)
-      .map((frame) => ({
-        objects: model.tokens
-          .filter((t) => types[t.type])
-          .map((t) => ({
-            id: t.id,
-            type: types[t.type],
-            x: Math.max(0, Math.min(100, (frame[t.id][0] / model.W) * 100)),
-            y: Math.max(0, Math.min(100, (frame[t.id][1] / model.H) * 100)),
-            rotation: (((t.rot || 0) % 360) + 360) % 360,
-            scale: 1,
-            label: String(t.label || "").slice(0, 20),
-            color:
-              t.type === "neutral"
-                ? "#ffffff"
-                : t.type === "away"
-                  ? "#d62828"
-                  : "#2855a2",
-          })),
-      })),
+    frames: model.frames.slice(0, 12).map((frame) => ({
+      objects: model.tokens
+        .filter((t) => types[t.type])
+        .map((t) => ({
+          id: t.id,
+          type: types[t.type],
+          x: Math.max(0, Math.min(100, (frame[t.id][0] / model.W) * 100)),
+          y: Math.max(0, Math.min(100, (frame[t.id][1] / model.H) * 100)),
+          rotation: (((t.rot || 0) % 360) + 360) % 360,
+          scale: 1,
+          label: String(t.label || "").slice(0, 20),
+          color:
+            t.type === "neutral"
+              ? "#ffffff"
+              : t.type === "away"
+                ? "#d62828"
+                : "#2855a2",
+        })),
+    })),
   };
 }
 function addSuppliedExercise(e) {
@@ -325,6 +371,7 @@ function addSuppliedExercise(e) {
 renderBibleCatalogue = function () {
   ensureBibleCatalogue();
   ensureSuppliedSections();
+  ensureSuppliedLibraries();
   const root = $("training-catalogue");
   root.parentElement.classList.remove("supplied-exercises-catalogue");
   const axis = $("bible-bmf-category").value;
@@ -351,8 +398,15 @@ renderBibleCatalogue = function () {
     }
   }
   const section = $("supplied-section").value,
-    exercises = suppliedCatalogueExercises({ section, axis, objective, query });
-  const signature = JSON.stringify([query, axis, objective, section]);
+    source = $("supplied-source").value,
+    exercises = suppliedCatalogueExercises({
+      section,
+      axis,
+      objective,
+      query,
+      source,
+    });
+  const signature = JSON.stringify([query, axis, objective, section, source]);
   if (signature !== bibleCatalogueSignature) {
     bibleCataloguePage = 0;
     bibleCatalogueSignature = signature;

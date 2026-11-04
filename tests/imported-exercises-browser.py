@@ -20,7 +20,7 @@ with sync_playwright() as p:
  assert page.locator('.supplied-exercise-card').count()==3
  assert page.locator('#training-search').is_visible()
  assert page.locator('#bible-bmf-category').is_visible()
- assert page.evaluate('suppliedExerciseEngine.exercises.length')==84
+ assert page.evaluate('suppliedExerciseEngine.exercises.length')==333
  assert page.evaluate('trainingAvailableExercises().length')==0
  for axis in ['ball','loss','win','off','ludic']:
   count=page.evaluate('(axis)=>suppliedCatalogueExercises({axis}).length',axis)

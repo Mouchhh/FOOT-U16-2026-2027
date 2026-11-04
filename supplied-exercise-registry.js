@@ -43,6 +43,12 @@
       key: "finishing",
       source: "Exos foot - Finition.html",
     },
+    {
+      engine: window.suppliedMyCoachExerciseEngine,
+      key: "mycoach",
+      source: "Exos foot - MyCoach.html",
+      stylesheet: "supplied-mycoach-base.css?v=mycoach-197",
+    },
   ];
   const owners = new Map(),
     views = new Map(),
@@ -111,6 +117,7 @@
     return [...sections];
   }
   window.suppliedExerciseEngine = {
+    libraries: sources.map((s) => ({ key: s.key, source: s.source })),
     exercises: sources.flatMap((s) => s.engine.exercises),
     moments: Object.assign({}, ...sources.map((s) => s.engine.moments)),
     viewsOf: (exercise) =>

@@ -16,8 +16,8 @@ with sync_playwright() as p:
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.on('dialog',lambda d:d.accept())
     page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function('typeof suppliedCatalogueExercises!=="undefined"')
-    assert page.evaluate('suppliedExerciseEngine.exercises.length')==84
-    assert page.evaluate('suppliedExerciseEngine.exercises.reduce((n,e)=>n+suppliedExerciseEngine.viewsOf(e).length,0)')==125
+    assert page.evaluate('suppliedExerciseEngine.exercises.length')==333
+    assert page.evaluate('suppliedExerciseEngine.exercises.reduce((n,e)=>n+suppliedExerciseEngine.viewsOf(e).length,0)')==462
     for bundle in manifest:
         assert page.evaluate("""name=>window[name].exercises.every(base=>window[name].viewsOf(base).every((e,index)=>{
             const actual=suppliedExerciseEngine.getExercise(base.id,index);
@@ -76,4 +76,4 @@ with sync_playwright() as p:
         page.locator('#bible-sheet-dialog').get_by_role('button',name='Fermer',exact=True).click()
     assert not errors,errors
     b.close()
-print('Five exact sources, 84 exercises/125 angles, compartments, original models/animations, saved variants, reuse and mobile red external closes passed')
+print('Five existing exact sources retained within 333 exercises/462 angles, compartments, original models/animations, saved variants, reuse and mobile red external closes passed')

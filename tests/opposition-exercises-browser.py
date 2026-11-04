@@ -18,7 +18,7 @@ with sync_playwright() as p:
     page.goto('http://127.0.0.1:3016/?mode=local')
     page.wait_for_function('window.suppliedOppositionExerciseEngine && typeof suppliedExerciseIds!=="undefined"')
     assert page.evaluate('suppliedOppositionExerciseEngine.exercises.length')==10
-    assert page.evaluate('suppliedExerciseEngine.exercises.length')==84
+    assert page.evaluate('suppliedExerciseEngine.exercises.length')==333
     # All supplied data (including functions), and every adapted model, match the source engine.
     assert page.evaluate("""()=>suppliedOppositionExerciseEngine.exercises.every(e=>{
       const integrated=suppliedExerciseEngine.exercises.find(x=>x.id===e.id);

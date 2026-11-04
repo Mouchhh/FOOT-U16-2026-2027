@@ -1,0 +1,46 @@
+.supplied-library-filter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0 16px;
+  font-size: 13px;
+  color: #365373;
+}
+.supplied-library-filter select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 9px 12px;
+  background: #fff;
+  color: #1b2d52;
+  border: 1px solid #dce5ef;
+  border-radius: 9px;
+}
+.supplied-library-filter select[data-filtered="true"] {
+  border-left: 3px solid var(--club-logo-red, #e41f28);
+}
+.supplied-library-filter select:focus-visible {
+  outline: 2px solid var(--club-logo-red, #e41f28);
+  outline-offset: 2px;
+}
+.supplied-original-download {
+  color: #2855a2;
+  font-size: 12px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.supplied-original-download[hidden] {
+  display: none;
+}
+@media (max-width: 600px) {
+  .supplied-library-filter {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .supplied-library-filter select {
+    width: 100%;
+    font-size: 16px;
+  }
+}
