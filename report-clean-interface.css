@@ -1,0 +1,43 @@
+/* Remove redundant controls only in Bilans; preserve errors and the core form. */
+body.reports-mode #task-section-navigation,
+body.reports-mode #club-profile,
+body.reports-mode #report-save,
+body.reports-mode #report-finish,
+body.reports-mode #report-quick-validate,
+body.reports-mode #report-library-drawer,
+body.reports-mode #report-previous,
+body.reports-mode .report-actions-dock > span,
+body.reports-mode #report-quick-panel > .report-actions {
+  display: none !important;
+}
+body.reports-mode .report-actions-dock {
+  justify-content: flex-end !important;
+}
+body.reports-mode #report-next.report-clean-validate {
+  min-height: 44px;
+  background: var(--club-logo-red, #e41f28);
+  border-color: var(--club-logo-red, #e41f28);
+  color: white;
+}
+body.reports-mode .reports-heading .report-actions {
+  align-items: center;
+  gap: 10px;
+}
+body.reports-mode .report-preview-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+@media (max-width: 600px) {
+  body.reports-mode #report-next.report-clean-validate {
+    width: 100%;
+  }
+}
+body.reports-mode #report-save-status:empty {
+  display: none;
+}
+body.reports-mode #report-delete {
+  background: var(--club-logo-red, #e41f28);
+  border-color: var(--club-logo-red, #e41f28);
+  color: white;
+}

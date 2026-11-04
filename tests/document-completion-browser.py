@@ -22,10 +22,10 @@ with sync_playwright() as p:
     assert page.evaluate('currentReport.plan.priority')=='Protéger notre axe'
     # A failed save keeps the editor and its content visible, with no completion marker applied.
     page.evaluate("()=>{currentReport.analysis.topAttack='À conserver malgré quota';window.completionSet=coachStorageSet;coachStorageSet=(k,v)=>{if(k==='vestiaire-reports')throw Error('quota');return completionSet(k,v)}}")
-    page.locator('#report-finish').click();assert page.locator('#report-content').is_visible()
+    page.locator('#report-next').click();assert page.locator('#report-content').is_visible()
     assert page.evaluate("document.body.classList.contains('reports-mode')")
     assert page.evaluate('currentReport.analysis.topAttack')=='À conserver malgré quota'
-    page.evaluate('()=>{coachStorageSet=completionSet}');page.locator('#report-finish').click();assert page.evaluate('reportLibrary.length')==1
+    page.evaluate('()=>{coachStorageSet=completionSet}');page.locator('#report-next').click();assert page.evaluate('reportLibrary.length')==1
     page.locator('#view-reports').click();landing=page.locator('#document-completion-report')
     landing.get_by_role('button',name='Créer un nouveau bilan',exact=True).click()
     assert page.locator('#document-entry-dialog').count()==0
@@ -33,9 +33,9 @@ with sync_playwright() as p:
     assert page.evaluate('reportLibrary[0].analysis.topAttack')=='À conserver malgré quota'
     # Saving an unfinished document remains an ordinary save; only Finish closes it.
     page.evaluate("()=>{currentReport.title='Bilan suivant';currentReport.info.opponent='Adversaire B';currentReport.info.date='2026-11-14';renderReportContent()}")
-    page.locator('#report-save').click();assert page.evaluate("document.body.classList.contains('reports-mode')")
+    page.evaluate('()=>saveReport()');assert page.evaluate("document.body.classList.contains('reports-mode')")
     assert not page.evaluate("documentCompletionIsCompleted('report',currentReport)")
-    page.locator('#report-finish').click();assert page.evaluate('reportLibrary.length')==2
+    page.locator('#report-next').click();assert page.evaluate('reportLibrary.length')==2
     # Causerie validation preserves the entire composition and closes both inline/modal presentations.
     page.locator('#view-pitch').click()
     if page.locator('#document-entry-dialog').count():page.locator('#document-entry-resume').click()

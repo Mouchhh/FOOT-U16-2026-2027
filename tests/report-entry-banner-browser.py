@@ -34,7 +34,7 @@ with sync_playwright() as p:
     assert banner.count()==0
     page.evaluate('reportEntryBanner.reset()')
     page.locator('#view-home').click();page.locator('#view-reports').click();banner.wait_for(state='visible')
-    page.locator('#report-save').click()
+    page.evaluate('()=>saveReport()')
     assert banner.count()==0 and page.evaluate('reportEntryBanner.dismissed()')
     # Logout clears only notification acknowledgements, never unrelated session data.
     page.evaluate("()=>{sessionStorage.setItem('banner-test-unrelated','keep');sessionStorage.setItem('vestiaire-report-banner:other:team','1');clubNetworkClear();}")

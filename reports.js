@@ -27,8 +27,8 @@ function reportValid(r){
 }
 let currentReport=newReport(),reportLibrary=[],reportTab='general',reportAutosaveTimer;
 try{const saved=JSON.parse(coachStorageGet('vestiaire-report-draft')||'null');if(reportValid(saved))currentReport=saved;const list=JSON.parse(coachStorageGet('vestiaire-reports')||'[]');if(Array.isArray(list))reportLibrary=list.filter(reportValid);}catch{}
-function reportAutosave(){clearTimeout(reportAutosaveTimer);$('report-save-status').textContent='Enregistrement du brouillon…';reportAutosaveTimer=setTimeout(flushReportDraft,250);}
-function flushReportDraft(){clearTimeout(reportAutosaveTimer);reportEventsApply(currentReport,squadPlayers());if(!reportValid(currentReport)){$('report-save-status').textContent=playerStatsValidationMessage(currentReport)||'Brouillon non enregistré : vérifiez les scores, les minutes et les champs numériques.';return;}currentReport.updatedAt=new Date().toISOString();try{coachStorageSet('vestiaire-report-draft',JSON.stringify(currentReport));$('report-save-status').textContent='Brouillon conservé sur cet appareil · cliquez sur « Enregistrer le rapport » pour l’ajouter à vos rapports.';}catch{$('report-save-status').textContent='Stockage indisponible ou plein : le brouillon reste ouvert. Libérez de l’espace puis réessayez.';}}
+function reportAutosave(){clearTimeout(reportAutosaveTimer);$('report-save-status').textContent='';reportAutosaveTimer=setTimeout(flushReportDraft,250);}
+function flushReportDraft(){clearTimeout(reportAutosaveTimer);reportEventsApply(currentReport,squadPlayers());if(!reportValid(currentReport)){$('report-save-status').textContent=playerStatsValidationMessage(currentReport)||'Brouillon non enregistré : vérifiez les scores, les minutes et les champs numériques.';return;}currentReport.updatedAt=new Date().toISOString();try{coachStorageSet('vestiaire-report-draft',JSON.stringify(currentReport));$('report-save-status').textContent='';}catch{$('report-save-status').textContent='Stockage indisponible ou plein : le brouillon reste ouvert. Libérez de l’espace puis réessayez.';}}
 window.addEventListener('pagehide',flushReportDraft);
 function reportField(label,value,setter,options={}){
  const wrap=el('label','report-field');wrap.append(el('span','',label));let input;
@@ -87,8 +87,9 @@ function buildReportDocument(){
  if(currentReport.events.length){const table=el('table','report-table');const tr=el('tr');['Minute','Fait','Détail'].forEach(t=>tr.append(el('th','',t)));table.append(tr);[...currentReport.events].sort((a,b)=>(a.minute===''?Infinity:Number(a.minute))-(b.minute===''?Infinity:Number(b.minute))).forEach(e=>{const row=el('tr');[e.minute?e.minute+'′':'—',e.type,reportValue(reportEventDescription(e))].forEach(v=>row.append(el('td','',v)));table.append(row);});players.append(table);}report.append(players);
  report.append(reportPlanDocument());return report;
 }
+function reportIsRecoveryCopy(report){return /^Copie locale avant ouverture\s*·/i.test(report?.title||'');}
 function renderReportLibrary(){
- const select=$('report-library-select');select.replaceChildren();const empty=el('option','','Ouvrir un rapport enregistré…');empty.value='';select.append(empty);reportLibrary.forEach(r=>{const label=(r.title?r.title+' · ':'')+(r.info.date||'Sans date')+' · '+(r.info.team||'Équipe')+' / '+(r.info.opponent||'Adversaire')+' · '+(r.info.round||'');const o=el('option','',label);o.value=r.id;select.append(o);});select.value=reportLibrary.some(r=>r.id===currentReport.id)?currentReport.id:'';
+ const select=$('report-library-select');select.replaceChildren();const empty=el('option','','Ouvrir un rapport enregistré…');empty.value='';select.append(empty);reportLibrary.filter(r=>!reportIsRecoveryCopy(r)).forEach(r=>{const label=(r.title?r.title+' · ':'')+(r.info.date||'Sans date')+' · '+(r.info.team||'Équipe')+' / '+(r.info.opponent||'Adversaire')+' · '+(r.info.round||'');const o=el('option','',label);o.value=r.id;select.append(o);});select.value=reportLibrary.some(r=>r.id===currentReport.id)?currentReport.id:'';
 }
 function reportStatsPrepareForSave(){
  const goalError=reportGoalValidationMessage(currentReport);

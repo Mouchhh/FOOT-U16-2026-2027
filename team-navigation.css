@@ -350,3 +350,27 @@ body .coach-account-open.coach-settings-dock {
     font-size: 11px;
   }
 }
+/* Keep the compact header within 320px on every workspace page. */
+@media (max-width: 650px) {
+  body.task-navigation.responsive-navigation:not(.home-mode) > header {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+  body.task-navigation.responsive-navigation:not(.home-mode) > header .brand {
+    flex: none;
+  }
+  body.task-navigation.responsive-navigation:not(.home-mode) > header .header-actions {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+  }
+  body.task-navigation.responsive-navigation:not(.home-mode) > header .team-space-picker {
+    min-width: 0;
+  }
+  body.task-navigation.responsive-navigation:not(.home-mode) > header .header-actions > .primary {
+    min-width: 0;
+    max-width: 80px;
+    white-space: normal;
+    font-size: 10px;
+  }
+}

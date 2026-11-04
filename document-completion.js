@@ -237,7 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
     open.onclick = () => {
       const items =
         kind === "report"
-          ? reportLibrary
+          ? reportLibrary.filter((r) => !reportIsRecoveryCopy(r))
           : saves
               .map((s) => s.state)
               .filter(
@@ -257,7 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const value = select.value,
         items =
           kind === "report"
-            ? reportLibrary
+            ? reportLibrary.filter((r) => !reportIsRecoveryCopy(r))
             : saves
                 .map((s) => s.state)
                 .filter(

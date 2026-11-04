@@ -21,9 +21,9 @@ with sync_playwright() as p:
  assert page.locator('dialog[open]').count()==0
  for width in [390,320]:
   page.set_viewport_size({'width':width,'height':844});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
-  assert root.locator('#report-quick-validate').is_visible()
+  assert page.locator('#report-next').is_visible()
   page.screenshot(path=f'/tmp/report-minimal-{width}.png',full_page=True)
- root.locator('#report-quick-validate').click()
+ page.locator('#report-next').click()
  assert page.evaluate("document.body.classList.contains('home-mode')")
  assert page.evaluate('reportLibrary[0].analysis.topAttack')=='Ancienne analyse conservée'
  assert page.evaluate('reportLibrary[0].plan.priority')=='Ancienne priorité'

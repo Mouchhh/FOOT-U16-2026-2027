@@ -21,7 +21,7 @@ with sync_playwright() as p:
  panel.get_by_role('radio',name='Présent · Alex',exact=True).check()
  page.get_by_label('Buts marqués',exact=True).fill('1');page.get_by_label('Buts encaissés',exact=True).fill('1')
  page.get_by_role('button',name='+ Ajouter un fait de match',exact=True).click()
- page.locator('#report-quick-validate').click()
+ page.locator('#report-next').click()
  assert page.evaluate('reportLibrary.length')==0 and page.locator('#report-content').is_visible()
  assert 'sélectionnez un buteur' in page.locator('#report-goal-error').inner_text()
  event=page.locator('[data-event-index="0"]');event.get_by_label('Buteur',exact=True).select_option('rules-a');event.get_by_label('Passeur décisif',exact=True).select_option('rules-b')
@@ -35,7 +35,7 @@ with sync_playwright() as p:
  row=page.locator('[data-event-index="2"]');row.get_by_label('Événement',exact=True).select_option('Carton adverse');row.get_by_label('Couleur du carton',exact=True).select_option('red')
  assert not row.get_by_label('Joueur concerné',exact=True).count()
  assert page.evaluate("reportEventDescription(currentReport.events[2])")=='Carton rouge'
- page.locator('#report-quick-validate').click();assert page.evaluate("document.body.classList.contains('home-mode')")
+ page.locator('#report-next').click();assert page.evaluate("document.body.classList.contains('home-mode')")
  assert page.evaluate("playerStatsSeasonSnapshot(2026).players.get('rules-a').totals.minutes")==90
  assert page.evaluate("playerStatsSeasonSnapshot(2026).players.get('rules-a').totals.goals")==1
  assert page.evaluate("playerStatsSeasonSnapshot(2026).players.get('rules-b').totals.assists")==1

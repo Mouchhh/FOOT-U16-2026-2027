@@ -202,7 +202,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function candidates(kind, context) {
     const live = current(kind),
-      saved = kind === "report" ? reportLibrary : saves.map((s) => s.state),
+      saved =
+        kind === "report"
+          ? reportLibrary.filter((r) => !reportIsRecoveryCopy(r))
+          : saves.map((s) => s.state),
       rows = saved.map((payload) => ({
         payload,
         label: "Document enregistré",
@@ -668,13 +671,7 @@ document.addEventListener("DOMContentLoaded", () => {
       state.phase = "choice";
       return true;
     }
-    dialog.append(
-      head,
-      description,
-      versions,
-      actions,
-      status,
-    );
+    dialog.append(head, description, versions, actions, status);
     document.body.append(dialog);
     pending = dialog;
     state.phase = "choice";
