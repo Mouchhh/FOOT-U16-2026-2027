@@ -76,8 +76,8 @@ function reportRenderAnalysis(root) {
     else {const tags = el('div', 'report-workshop-tags');for (const label of labels) tags.append(el('span', '', label));suggestions.append(tags);}
   }
   view.addEventListener('input', suggest);suggest();progress.append(suggestions);grid.append(animations, progress);view.append(grid);
-  const extra = el('details', 'report-analysis-disclosure report-analysis-extras');
-  extra.append(el('summary', '', 'Compléments et évaluations sportives'));
+  const extra = reportSection('Compléments et évaluations sportives');
+  extra.classList.add('report-analysis-card', 'report-analysis-extras');
   const ratings = el('div', 'report-analysis-quick-ratings');
   for (const [key, title] of Object.entries(reportSport)) {
     const rating = currentReport.ratings[key], row = el('div', 'report-analysis-quick-rating'),heading = el('div', 'report-analysis-rating-heading'), value = el('output');
@@ -86,7 +86,7 @@ function reportRenderAnalysis(root) {
     const paint = () => {value.textContent = rating.score ? rating.score + ' / 5' : 'Non évalué';choices.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.score === rating.score)));};
     for (const score of ['', '1', '2', '3', '4', '5']) {const b = el('button', '', score || '—');b.type = 'button';b.dataset.score = score;b.setAttribute('aria-label', score ? title + ' : ' + score + ' sur 5' : title + ' : non évalué');b.onclick = () => {rating.score = score;paint();reportAutosave();};choices.append(b);}
     paint();row.append(choices);
-    const note = el('details', 'report-analysis-rating-note');note.append(el('summary', '', rating.note.trim() ? 'Observation renseignée' : 'Ajouter une observation'),field('Observation', rating.note, v => rating.note = v, 'rating-' + key, 'Un exemple observable…'));row.append(note);ratings.append(row);
+    const note = field('Observation', rating.note, v => rating.note = v, 'rating-' + key, 'Observation facultative…');note.classList.add('report-analysis-rating-note');row.append(note);ratings.append(row);
   }
   extra.append(ratings);
   grid.append(extra);

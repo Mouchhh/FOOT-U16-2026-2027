@@ -40,3 +40,7 @@
 .report-analysis-ball-fields{display:flex;flex-direction:column}
 @media(max-width:1100px){.report-analysis-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:850px){.report-analysis-cards{grid-template-columns:1fr}}
+#report-content .report-analysis-cards section.report-analysis-extras{padding:26px}
+#report-content .report-analysis-extras>h2{margin:0 0 24px;font-size:18px;line-height:1.4}
+#report-content .report-analysis-extras .report-analysis-quick-ratings{margin-bottom:0}
+@media(max-width:550px){#report-content .report-analysis-cards section.report-analysis-extras{padding:20px}}
