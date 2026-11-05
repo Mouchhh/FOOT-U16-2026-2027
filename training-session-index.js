@@ -9,7 +9,7 @@ function trainingSessionIndex(session){
  for(const block of indexedBlocks){let axis='',objective='';
   if(block.exerciseId==='custom'){
    const imported=typeof suppliedExerciseEngine!=='undefined'?suppliedExerciseEngine.getExercise(block.custom?.importedExerciseId,block.custom?.importedExerciseView||0):null;
-   if(imported){axis=suppliedMomentAxes[imported.moment];objective=suppliedObjective(imported);}
+   if(imported){const c=typeof clubExerciseClassification==='function'?clubExerciseClassification(imported):{axis:suppliedMomentAxes[imported.moment],objective:suppliedObjective(imported)};axis=c.axis;objective=c.objective;}
   }else{const exercise=trainingExercises.find(e=>e.id===block.exerciseId);if(exercise){axis=bmfExerciseCategory(exercise);objective=bmfExerciseObjective(exercise);}}
   if(!declared&&axis)axes.add(axis);
   if(!session.bmfObjective&&objective&&(!declared||axis===declared))objectives.add(objective);

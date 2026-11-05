@@ -9,7 +9,7 @@ const suppliedMomentAxes = {
 };
 const suppliedSections = {
   warm: "Échauffement",
-  physical: "Physique",
+  physical: "Préparation motrice",
   ludic: "Ludique",
   finish: "Finition",
   tactical: "Jeu et tactique",
@@ -57,7 +57,7 @@ function ensureSuppliedLibraries() {
     original = el(
       "a",
       "supplied-original-download",
-      "Fichier original MyCoach",
+      "Document de référence",
     );
   select.id = "supplied-source";
   select.setAttribute("aria-label", "Bibliothèque d’exercices");
@@ -68,15 +68,15 @@ function ensureSuppliedLibraries() {
     coach: "Séances du coach",
     circuit: "Circuits",
     games: "Jeux et défis",
-    physical: "Physique",
-    finishing: "Finition",
-    mycoach: "MyCoach",
+    physical: "Préparation motrice",
+    finishing: "Situations de conclusion",
+    mycoach: "Références du club",
   };
   select.append(new Option("Toutes les bibliothèques", ""));
   for (const source of suppliedExerciseEngine.libraries)
     select.append(new Option(names[source.key] || source.source, source.key));
   original.href = "assets/exercises/mycoach-original.html";
-  original.download = "Exos foot - MyCoach.html";
+  original.download = "Exercices - Stade Mayennais.html";
   original.hidden = true;
   select.onchange = () => {
     select.dataset.filtered = String(!!select.value);

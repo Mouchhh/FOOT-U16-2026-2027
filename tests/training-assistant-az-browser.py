@@ -13,8 +13,9 @@ with sync_playwright() as p:
  return true;
  }''');assert result
  page.locator('#view-training').click();page.locator('#task-training-assistant').click()
- form=page.locator('.training-assistant-form');assert form.locator('input,select').count()==4
- form.get_by_label('Thème / Objectif à travailler',exact=True).fill('Sortie de balle')
+ form=page.locator('.training-assistant-form');assert form.locator('.training-assistant-objectives input[type=checkbox]').count()>=12
+ form.locator('[data-intention=ball]').evaluate('(node)=>node.open=true')
+ form.locator('input[value=ball-build]').check()
  form.get_by_label('Niveau du groupe',exact=True).fill('U17 Régional')
  form.get_by_label('Joueurs de champ + gardiens',exact=True).fill('14 + 2')
  form.get_by_role('button',name='Générer la séance avec l’Assistant',exact=True).click()

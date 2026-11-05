@@ -132,7 +132,7 @@ function ensureBibleCatalogue(){
 function renderBibleCatalogue(){
  ensureBibleCatalogue();
  const categoryKey=$('bible-bmf-category').value,themeFilter=$('training-filter'),selectedTheme=themeFilter.value;
- bmfSubcategorySelect(themeFilter,categoryKey,selectedTheme);$('bible-objective-filter-label').hidden=categoryKey==='ludic';
+ bmfSubcategorySelect(themeFilter,categoryKey,selectedTheme);$('bible-objective-filter-label').hidden=false;
  const query=$('training-search').value.trim(),theme=$('training-filter').value,phase=$('bible-phase').value,method=$('bible-method').value,fit=$('bible-fit-only').checked,category=$('bible-bmf-category').value,reviewed=$('bible-five-only').checked;
  const signature=JSON.stringify([query,theme,phase,method,fit,category,reviewed,currentTraining.players,currentTraining.keepers,currentTraining.space,currentTraining.spaceWidth,currentTraining.spaceLength,currentTraining.level,currentTraining.age,currentTraining.category]);if(signature!==bibleCatalogueSignature){bibleCataloguePage=0;bibleCatalogueSignature=signature;}
  const all=trainingAvailableExercises().filter(e=>bibleKnowledge[e.id]&&(!reviewed||Boolean(exerciseFiveReview[e.id]))&&(!category||bmfExerciseCategory(e)===category)&&(!theme||bmfExerciseObjective(e)===theme)&&(!phase||bibleKnowledge[e.id].phase===phase)&&(!method||e.method===method)&&bibleSearchMatches(e,query));

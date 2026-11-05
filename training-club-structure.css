@@ -1,0 +1,180 @@
+.training-assistant-objectives {
+  grid-column: 1/-1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 18px;
+}
+.training-assistant-objectives > legend {
+  font-size: 14px;
+  font-weight: 650;
+  color: #17385d;
+  margin-bottom: 12px;
+}
+.training-assistant-intention {
+  min-width: 0;
+  border: 1px solid #dce5ef;
+  border-left: 3px solid #2855a2;
+  border-radius: 9px;
+  background: #fff;
+  padding: 12px 14px;
+}
+.training-assistant-intention[data-intention="loss"] {
+  border-left-color: #b45309;
+}
+.training-assistant-intention[data-intention="win"] {
+  border-left-color: #247342;
+}
+.training-assistant-intention[data-intention="off"] {
+  border-left-color: #b92635;
+}
+.training-assistant-intention summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #17385d;
+}
+.training-assistant-form .training-assistant-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  line-height: 1.5;
+  font-size: 12px;
+  color: #536d8e;
+}
+.training-assistant-form .training-assistant-choice input {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  flex: 0 0 18px;
+  accent-color: #2855a2;
+}
+.training-club-sequence {
+  padding: 18px 20px;
+  margin: 12px 0;
+  border: 1px solid #e1e8f1;
+  border-left: 3px solid #2855a2;
+  border-radius: 10px;
+  background: #fff;
+}
+.training-club-sequence .training-sequence-number {
+  display: block;
+  color: #6c819b;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.training-club-sequence h3 {
+  font-size: 16px;
+  margin: 0 0 10px;
+  color: #17385d;
+}
+.training-sequence-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+.training-sequence-facts > span {
+  font-size: 11px;
+  color: #2855a2;
+  background: #eff4fc;
+  padding: 5px 8px;
+  border-radius: 5px;
+}
+.training-club-sequence .training-sequence-goal {
+  font-size: 13px;
+  margin: 10px 0;
+  color: #536d8e;
+  line-height: 1.6;
+  white-space: normal;
+}
+.training-sequence-rules {
+  padding-left: 18px;
+  color: #304c70;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 10px 0;
+}
+.training-club-sequence .training-sequence-timing {
+  font-size: 12px;
+  color: #6c819b;
+  white-space: normal;
+  margin: 12px 0 0;
+}
+.training-sequence-timing strong {
+  color: #2855a2;
+}
+.training-sequence-more {
+  margin-top: 12px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+.training-sequence-more > summary {
+  font-size: 12px;
+  color: #6c819b;
+  cursor: pointer;
+}
+.training-sequence-more p {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.exercise-reference-navigation > label {
+  display: grid;
+  gap: 7px;
+  max-width: 430px;
+  font-size: 12px;
+  color: #536d8e;
+}
+.exercise-reference-navigation select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px;
+  border: 1px solid #dce5ef;
+  border-radius: 8px;
+  background: #fff;
+  color: #17385d;
+}
+@media (max-width: 650px) {
+  .training-assistant-objectives {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .training-club-sequence {
+    padding: 16px;
+  }
+  .training-assistant-form .training-assistant-choice {
+    min-height: 44px;
+  }
+  .training-assistant-objectives input {
+    font-size: 16px;
+  }
+}
+@media print {
+  body.training-assistant-printing .training-club-sequence {
+    break-inside: avoid;
+    border: 1px solid #dce5ef;
+    padding: 4mm;
+    margin: 3mm 0;
+  }
+  .training-sequence-more {
+    display: none !important;
+  }
+  .training-club-sequence p,
+  .training-sequence-rules {
+    font-size: 10pt;
+  }
+}
+.club-exercise-location {
+  padding: 10px 0;
+  border-bottom: 1px solid #dce5ef;
+  color: #2855a2;
+  font-size: 13px;
+  line-height: 1.6;
+}

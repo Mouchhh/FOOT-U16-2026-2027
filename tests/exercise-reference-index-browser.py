@@ -17,13 +17,13 @@ with sync_playwright() as p:
  assert not page.evaluate('exerciseReferenceIndex.recommend({effectif:1}).length')
  assert page.evaluate('exerciseReferenceIndex.recommend({intention:"conservation",effectif:16,gardiens:0,surface:"quarter",niveau:"U17"}).every(e=>e.gardiens===0&&e.effectif_min<=16&&e.effectif_max>=16&&Math.max(...e.dimensions)<=52&&Math.min(...e.dimensions)<=34)')
  page.locator('#view-training').evaluate('e=>e.click()');page.locator('#task-training-bible').click()
- for intention in ['conservation','finition','transition','defense']:
-  page.locator('[data-intention='+intention+']').click()
+ for intention in ['ball','loss','win','off','ludic']:
+  page.locator('.exercise-reference-intentions [data-intention='+intention+']').click()
   cards=page.locator('#training-catalogue [data-exercise]');assert cards.count()>0
-  assert cards.evaluate_all('(cards)=>cards.every(c=>exerciseReferenceIndex.forExercise(suppliedExerciseEngine.getExercise(c.dataset.exercise,+c.dataset.view)).intention===document.querySelector(".exercise-reference-intentions [aria-pressed=true]").dataset.intention)')
- page.locator('[data-intention=""]').click();page.locator('[data-phase=activation]').click();assert page.locator('#training-catalogue [data-exercise]').count()>0
+  assert cards.evaluate_all('(cards)=>cards.every(c=>clubExerciseClassification(suppliedExerciseEngine.getExercise(c.dataset.exercise,+c.dataset.view)).axis===document.querySelector(".exercise-reference-intentions [aria-pressed=true]").dataset.intention)')
+ page.locator('.exercise-reference-intentions [data-intention=ludic]').click();page.get_by_label('Sous-partie des exercices',exact=True).select_option('ludic-activation');assert page.locator('#training-catalogue [data-exercise]').count()>0
  assert not page.locator('#training-catalogue').inner_text().find('EXO-CONS-')>=0
- page.locator('#bible-reset').click();assert page.locator('[data-phase=""]').get_attribute('aria-pressed')=='true'
+ page.locator('#bible-reset').click();assert page.locator('.exercise-reference-intentions [data-intention=""]').get_attribute('aria-pressed')=='true'
  for width in [1440,390]:
   page.set_viewport_size({'width':width,'height':1000})
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
@@ -37,9 +37,9 @@ with sync_playwright() as p:
  page.evaluate('saveTrainingDraft()');page.reload(wait_until='domcontentloaded');page.wait_for_function('!!window.exerciseReferenceLibrary')
  assert page.evaluate('currentTraining.blocks[0].custom.importedExerciseId')=='mc-taureau-deux-equipes'
  page.locator('#view-training').evaluate('e=>e.click()');page.locator('#task-training-assistant').click();form=page.locator('.training-assistant-form')
- form.get_by_label('Thème / Objectif à travailler',exact=True).fill('Conservation');form.get_by_label('Niveau du groupe',exact=True).fill('U17 Régional');form.get_by_label('Joueurs de champ + gardiens',exact=True).fill('14 + 2');form.get_by_role('button',name='Générer la séance avec l’Assistant',exact=True).click()
+ form.locator('[data-intention=ball]').evaluate('(node)=>node.open=true');form.locator('input[value=ball-control]').check();form.get_by_label('Niveau du groupe',exact=True).fill('U17 Régional');form.get_by_label('Joueurs de champ + gardiens',exact=True).fill('14 + 2');form.get_by_role('button',name='Générer la séance avec l’Assistant',exact=True).click()
  assert page.locator('.training-assistant-reference-row').count()>0
- page.locator('.training-assistant-reference-row').first.get_by_role('button',name='Utiliser dans l’atelier principal',exact=True).click()
+ page.locator('.training-assistant-reference-row').first.get_by_role('button',name='Utiliser dans l’atelier correspondant',exact=True).click()
  assert page.locator('.training-assistant-reference-row button:disabled').count()==1
  page.get_by_role('button',name='Ajuster dans l’éditeur',exact=True).click();assert page.evaluate('currentTraining.blocks.length')==4
  assert page.evaluate('!!currentTraining.blocks[1].custom.importedExerciseId&&trainingValid(currentTraining)')

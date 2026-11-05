@@ -16,6 +16,11 @@ const bmfExerciseGroups={
  ludic:["warm","cool","freegame"]
 };
 const bmfSubcategories={
+ 'ludic-activation':{axis:'ludic',label:'Échauffement / Activation',ids:['warm']},
+ 'ludic-situation':{axis:'ludic',label:'Situations réduites ludiques',ids:[]},
+ 'ludic-motor':{axis:'ludic',label:'Coordination & motricité',ids:[]},
+ 'ludic-game':{axis:'ludic',label:'Jeux & défis',ids:['freegame']},
+ 'ludic-cool':{axis:'ludic',label:'Retour au calme',ids:['cool']},
  'ball-build':{axis:'ball',label:'Zone 1 · Construire le jeu',ids:['passes','build','keeper-feet','touch','scan-receive','wall-pass','receive-back','escape-turn','build-three','build-pivot','build-switch','throw-progression','freekick-restart']},
  'ball-control':{axis:'ball',label:'Zone 2 · Maîtriser et déstabiliser',ids:['rondo','triangle','support','rondo-direction','possession-neutral','possession-endzones','break-lines','attract-release','rondo-expand','possession-quadrants','switch','overlap','thirdman-depth','forward-runs','wide-isolate','underlap','video-bounce-2v2']},
  'ball-finish':{axis:'ball',label:'Zone 3 / Box · Finition',ids:['finish','cutback','duel','cpa-attack','box-combine','finish-opposition','far-post','finish-rebound','corner-secondball','video-coordination-shot']},

@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  let libraryCoachId=activeCoach.id;
  function renderSaved(){
   if(libraryCoachId!==activeCoach.id){libraryCoachId=activeCoach.id;search.value=themeFilter.value=objectiveFilter.value='';}
-  if(!Object.hasOwn(bmfCategories,themeFilter.value))themeFilter.value='';bmfSubcategorySelect(objectiveFilter,themeFilter.value,objectiveFilter.value);objectiveLabel.hidden=themeFilter.value==='ludic';
+  if(!Object.hasOwn(bmfCategories,themeFilter.value))themeFilter.value='';bmfSubcategorySelect(objectiveFilter,themeFilter.value,objectiveFilter.value);objectiveLabel.hidden=false;
   const query=search.value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();list.replaceChildren();const indexed=trainingLibrary.map(session=>({session,index:trainingSessionIndex(session)}));
   const sessions=indexed.filter(({index})=>index.text.includes(query)&&(!themeFilter.value||index.axes.includes(themeFilter.value))&&(!objectiveFilter.value||index.objectives.includes(objectiveFilter.value))).sort((a,b)=>(b.session.date+b.session.time).localeCompare(a.session.date+a.session.time));
   results.textContent=sessions.length+' séance'+(sessions.length===1?'':'s')+' trouvée'+(sessions.length===1?'':'s')+' sur '+trainingLibrary.length;
