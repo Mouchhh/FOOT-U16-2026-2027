@@ -1,0 +1,9 @@
+/* L'effectif défile avec le document, pas dans un cadre de terrain limité à l'écran. */
+@media screen {
+ body.squad-mode:not(.workspace-panel-open){height:auto;min-height:100vh;min-height:100dvh;max-height:none;overflow-y:auto!important;overflow-x:hidden}
+ html:has(body.squad-mode:not(.workspace-panel-open)){overflow-y:auto;scrollbar-gutter:stable}
+ body.squad-mode>main{height:auto!important;max-height:none!important;min-height:0;overflow:visible!important}
+ body.squad-mode #coach-squad-dialog{position:static;height:auto!important;max-height:none!important;overflow:visible!important;padding-bottom:32px}
+ body.squad-mode #coach-squad-dialog .squad-list{height:auto;max-height:none;overflow:visible}
+ @media(max-width:1099px),(hover:none),(pointer:coarse){body.squad-mode #coach-squad-dialog{padding-bottom:calc(100px + env(safe-area-inset-bottom,0px))}}
+}

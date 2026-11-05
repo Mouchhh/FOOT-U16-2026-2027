@@ -58,9 +58,9 @@ document.addEventListener('DOMContentLoaded',()=>{
  // Tous les éléments préexistants restent attachés au document, avec leur identifiant unique.
  const missing=beforeIds.filter(id=>!document.getElementById(id));if(missing.length)throw Error('Éléments de travail manquants : '+missing.join(', '));
  const resize=new ResizeObserver(measure);for(const node of [document.querySelector('header'),document.querySelector('.app-navigation'),$('club-profile')])resize.observe(node);
- new MutationObserver(()=>{const isTerrain=!['resources-mode','home-mode','training-mode','reports-mode','coach-agenda-mode','club-network-mode'].some(mode=>document.body.classList.contains(mode));if(document.body.classList.contains('terrain-workflow-active')!==isTerrain)document.body.classList.toggle('terrain-workflow-active',isTerrain);educatorHint.hidden=clubNetworkBound();rosterToggle.hidden=terrainFlow.index()!==0||document.body.classList.contains('simple-mode')||document.body.classList.contains('focus-mode');measure();}).observe(document.body,{attributes:true,attributeFilter:['class']});
+ new MutationObserver(()=>{const isTerrain=!['resources-mode','home-mode','training-mode','reports-mode','coach-agenda-mode','club-network-mode','squad-mode'].some(mode=>document.body.classList.contains(mode));if(document.body.classList.contains('terrain-workflow-active')!==isTerrain)document.body.classList.toggle('terrain-workflow-active',isTerrain);educatorHint.hidden=clubNetworkBound();rosterToggle.hidden=terrainFlow.index()!==0||document.body.classList.contains('simple-mode')||document.body.classList.contains('focus-mode');measure();}).observe(document.body,{attributes:true,attributeFilter:['class']});
  // L’observateur ne réécrit pas une classe inchangée.
  window.addEventListener('resize',measure);
  const routes={terrain:terrainFlow,agenda:agendaFlow,club:clubFlow,home:homeFlow};window.workspaceFlows=routes;
- document.body.classList.toggle('terrain-workflow-active',!['resources-mode','home-mode','training-mode','reports-mode','coach-agenda-mode','club-network-mode'].some(mode=>document.body.classList.contains(mode)));measure();
+ document.body.classList.toggle('terrain-workflow-active',!['resources-mode','home-mode','training-mode','reports-mode','coach-agenda-mode','club-network-mode','squad-mode'].some(mode=>document.body.classList.contains(mode)));measure();
 });
