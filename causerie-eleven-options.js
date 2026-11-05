@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     el(
       "p",
       "hint",
-      "Piochez dans vos animations et exercices enregistrés dans Mon Club. Les quatre phases restent sur les slides 6 à 9 ; privilégiez 1 à 4 schémas par slide pour la lisibilité.",
+      "Piochez dans vos animations et exercices enregistrés dans Mon Club. Les quatre phases restent sur les slides 6 à 9 ; 4 situations maximum par phase pour la lisibilité.",
     ),
     assignments,
     status,
@@ -135,6 +135,23 @@ document.addEventListener("DOMContentLoaded", () => {
           []
         ).some((e) => e.id === entry.id);
         check.onchange = () => {
+          const chosen =
+            board.causerieSlideAnimations?.[key] ||
+            (!board.causerieSlideAnimations && key === "defensive"
+              ? board.causerieAnimations
+              : []) ||
+            [];
+          if (
+            check.checked &&
+            chosen.length +
+              (board.causerieSlideExercises?.[key]?.length || 0) >=
+              4
+          ) {
+            check.checked = false;
+            status.textContent =
+              "4 situations maximum par phase pour des schémas lisibles.";
+            return;
+          }
           save((target) => {
             const map = structuredClone(
               target.causerieSlideAnimations ||
@@ -172,10 +189,18 @@ document.addEventListener("DOMContentLoaded", () => {
         );
         check.onchange = () => {
           const selected = board.causerieSlideExercises?.[key] || [];
-          if (check.checked && selected.length >= 4) {
+          if (
+            check.checked &&
+            selected.length +
+              (board.causerieSlideAnimations?.[key]?.length ||
+                (!board.causerieSlideAnimations && key === "defensive"
+                  ? board.causerieAnimations?.length || 0
+                  : 0)) >=
+              4
+          ) {
             check.checked = false;
             status.textContent =
-              "4 exercices maximum par phase pour conserver une slide lisible.";
+              "4 situations maximum par phase pour des schémas lisibles.";
             return;
           }
           save((target) => {

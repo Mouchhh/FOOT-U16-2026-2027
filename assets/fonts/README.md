@@ -1,9 +1,9 @@
 # Fonts for the causerie presentation
 
 These unmodified font files are loaded locally and only when exporting a
-presentation. They match the families identified in the coach's Canva reference:
-Calistoga for the body, Montserrat bold italic for headings. They do not change
-the site's normal typography.
+presentation. The current eleven-slide club template uses Montserrat bold italic for headings
+and Arial for body text. Calistoga remains available for the earlier reference
+template. These exports do not change the site's normal typography.
 
 - `calistoga/Calistoga-Regular.ttf`: https://github.com/google/fonts/tree/main/ofl/calistoga
 - `montserrat/Montserrat-Italic.ttf`: the variable `Montserrat-Italic[wght].ttf`

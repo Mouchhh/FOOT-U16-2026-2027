@@ -155,7 +155,7 @@
       const box = host.box || { x: 0.7, y: 1.3, w: 8, h: 5.7 };
       slide.addShape(pptx.ShapeType.rect, {
         ...box,
-        fill: { color: host.slide ? "112C48" : "294D37" },
+        fill: { color: host.slide ? (host.palette?.navy||"112C48") : "294D37" },
         line: { color: "FFFFFF", width: 1 },
       });
       slide.addShape(pptx.ShapeType.line, {
@@ -178,7 +178,7 @@
         line: { color: "FFFFFF" },
         fill: { color: "294D37", transparency: 100 },
       });
-      const diameter = host.slide ? Math.max(.08, Math.min(.36, box.w / 18, box.h / 10)) : .36;
+      const diameter = host.slide ? Math.max(.18, Math.min(.38, box.w / 14, box.h / 8)) : .36;
       const tokens = [
         ...model.initial.tokens.filter(
           (t) => t.side !== "away" || model.initial.showOpponents !== false,
@@ -200,15 +200,15 @@
           margin: 0,
           align: "center",
           valign: "mid",
-          fontSize: host.slide ? Math.max(4,diameter*30) : t.label.length > 4 ? 7 : 11,
+          fontSize: host.slide ? Math.min(14,Math.max(8,diameter*40)) : t.label.length > 4 ? 7 : 11,
           color: t.id === "ball" ? "1B2D52" : "FFFFFF",
           fill: {
             color:
               t.id === "ball"
                 ? (host.slide ? "FFFFFF" : "E8B85F")
                 : t.side === "away"
-                  ? "E41F28"
-                  : "2855A2",
+                  ? (host.palette?.red||"E41F28")
+                  : (host.palette?.blue||"2855A2"),
           },
           line: { color: "FFFFFF", width: 1 },
         });
