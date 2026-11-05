@@ -64,3 +64,9 @@ body.reports-mode #after-match #report-tabs{grid-template-columns:repeat(4,minma
 .report-summary-scores{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0}
 .report-summary-halftime{font-size:12px;color:#7086a2;white-space:nowrap}
 @media print{#report-summary-print .report-summary-halftime{font-size:9pt}}
+.report-summary-player-metrics{display:flex;align-items:center;justify-content:flex-end;gap:8px;white-space:nowrap}
+.report-summary-player-contribution{display:inline-flex;align-items:center;gap:3px;font-size:12px;color:#526d8c}
+.report-summary-compact .report-summary-roster .report-summary-player-contribution strong{display:inline;font-size:11px;font-weight:650;overflow:visible;color:#2855a2}
+.report-summary-player-contribution>span{font-size:12px;line-height:1}
+@media(max-width:1100px) and (min-width:701px){.report-summary-player-metrics{gap:5px}.report-summary-player-contribution{gap:2px}.report-summary-compact .report-summary-minutes{font-size:10px}}
+@media print{#report-summary-print .report-summary-player-metrics{gap:5px}#report-summary-print .report-summary-player-contribution{font-size:9pt}#report-summary-print .report-summary-roster li{grid-template-columns:16px minmax(0,1fr) auto}}

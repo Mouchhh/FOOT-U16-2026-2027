@@ -25,3 +25,7 @@ La zone principale reprend les repères renseignés du match (organisation, dur�
 La saisie du score à la mi-temps est rétablie juste sous le score final dans Le match. Les valeurs existantes `halfFor` / `halfAgainst` sont utilisées sans conversion (zéro conservé). La Synthèse les affiche aussi sous le score final, en retirant le doublon dans les repères du match.
 
 La grille des sous-onglets est corrigée à sa source : quatre colonnes égales, boutons centrés et largeur complète ; deux colonnes sur mobile. Test : `python3 tests/report-halftime-tabs-browser.py`.
+
+## Contributions individuelles 254
+
+Chaque ligne du groupe affiche, à côté des minutes, ⚽ et le nombre de buts, puis 👟 et le nombre de passes décisives du bilan. Les valeurs viennent des propriétés statistiques de la ligne, avec les statistiques d’événements comme repli, sans additionner deux fois les sources. Zéro est affiché explicitement ; une valeur inconnue reste « — ». Les icônes possèdent un libellé accessible et une infobulle, restent compactes et sont reprises dans le PDF.

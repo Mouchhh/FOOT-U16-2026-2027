@@ -24,7 +24,20 @@ function reportSummaryDashboard(report){
  const grid=el('div','report-summary-grid');
  const card=title=>{const c=el('section','report-summary-card');c.append(el('h3','',title));grid.append(c);return c;};
  const group=card('Groupe'),roster=reportSummaryRoster(report),numbered=roster.filter(p=>/^\d+$/.test(String(p.number))&&Number(p.number)>=1&&Number(p.number)<=14),other=roster.filter(p=>!numbered.includes(p));
- const playerList=players=>{const list=el('ol','report-summary-roster');for(const p of players){const row=el('li'),identity=el('div');row.dataset.summaryNumber=p.number||'';row.append(el('span','report-summary-number',p.number||'—'));identity.append(el('strong','',p.name),el('small','',p.role==='sub'?'Impacteur / Finisseur':p.role==='starter'?'Titulaire':p.role||'Statut à préciser'));row.title=p.name+' · '+(p.role||'Statut à préciser');row.append(identity,el('span','report-summary-minutes',p.minutes!==undefined&&p.minutes!==''?p.minutes+' min':'—'));list.append(row);}return list;};
+ const playerList=players=>{
+  const list=el('ol','report-summary-roster');
+  for(const p of players){
+   const row=el('li'),identity=el('div');row.dataset.summaryNumber=p.number||'';row.append(el('span','report-summary-number',p.number||'—'));
+   identity.append(el('strong','',p.name),el('small','',p.role==='sub'?'Impacteur / Finisseur':p.role==='starter'?'Titulaire':p.role||'Statut à préciser'));row.title=p.name+' · '+(p.role||'Statut à préciser');
+   const metrics=el('span','report-summary-player-metrics');metrics.append(el('span','report-summary-minutes',p.minutes!==undefined&&p.minutes!==''?p.minutes+' min':'—'));
+   for(const [key,emoji,label]of [['goals','⚽','Buts'],['assists','👟','Passes décisives']]){
+    const raw=p[key],value=raw!==''&&raw!==undefined&&raw!==null&&Number.isInteger(Number(raw))&&Number(raw)>=0?Number(raw):Number.isInteger(p.eventStats?.[key])?p.eventStats[key]:null;
+    const stat=el('span','report-summary-player-contribution');stat.dataset.contribution=key;stat.title=label+' dans ce bilan';stat.setAttribute('aria-label',label+' : '+(value===null?'non renseigné':value));
+    const icon=el('span','',emoji);icon.setAttribute('aria-hidden','true');stat.append(icon,el('strong','',value===null?'—':String(value)));metrics.append(stat);
+   }
+   row.append(identity,metrics);list.append(row);
+  }return list;
+ };
  group.append(el('p','report-summary-caption',roster.length+' joueur(s) mémorisé(s) · classement par numéro'));
  if(numbered.length)group.append(playerList(numbered));
  if(other.length)group.append(el('h4','','Numéros à préciser ou hors 1–14'),playerList(other));

@@ -8,7 +8,7 @@ with sync_playwright() as p:
  currentReport.players=[14,2,1,11].map(n=>({id:'p'+n,name:'Joueur '+n,number:String(n),role:n>11?'Impacteur / Finisseur':'Titulaire',minutes:'45',score:'',note:'',objective:''}));
  currentReport.events=[{minute:'70',type:'Changement',detail:'Changement décisif'},{minute:'12',type:'But pour',detail:'Buteur test'},{minute:'',type:'Carton',card:'red',detail:'Expulsion test'},{minute:'8',type:'But contre',detail:'But adverse test'}];
  currentReport.analysis.withBall='Circulation rapide';currentReport.analysis.withoutBall='Bloc resserré';currentReport.analysis.transitions='Réagir ensemble à la perte';currentReport.analysis.setPieces='Défendre les corners';currentReport.analysis.improveDefence='Protéger la profondeur';currentReport.plan.priority='Travailler le repli';currentReport.plan.sessionObjective='Réagir à la perte';currentReport.plan.summary='Solidarité collective';currentReport.ratings.physical.score='4';
- window.originalPlayers=JSON.stringify(currentReport.players);reportTab='preview';renderReportTabs();renderReportContent();}''')
+ currentReport.players[0].goals='2';currentReport.players[0].assists='1';currentReport.players[1].goals='0';currentReport.players[1].assists='0';window.originalPlayers=JSON.stringify(currentReport.players);reportTab='preview';renderReportTabs();renderReportContent();}''')
  assert page.locator('.report-summary-card').count()==2
  assert page.locator('#report-tabs [data-report-tab=plan]').count()==0
  assert page.locator('.report-summary-match-banner').is_visible()
@@ -22,6 +22,11 @@ with sync_playwright() as p:
  assert page.locator('.report-summary-roster li').evaluate_all('els=>els.map(e=>e.dataset.summaryNumber)')==['1','2','5','11','14']
  assert page.locator('.report-summary-event time').all_inner_texts()==['8′','12′','70′','—']
  assert page.locator('.report-summary-event.is-goal').count()==1
+ player14=page.locator('[data-summary-number="14"]')
+ assert player14.locator('[data-contribution=goals]').text_content()=='⚽2'
+ assert player14.locator('[data-contribution=assists]').text_content()=='👟1'
+ assert page.locator('[data-summary-number="2"] [data-contribution=goals]').get_attribute('aria-label')=='Buts : 0'
+ assert page.locator('[data-summary-number="5"] [data-contribution=assists]').get_attribute('aria-label')=='Passes décisives : non renseigné'
  for text in ['Circulation rapide','Protéger la profondeur','Travailler le repli','Solidarité collective']:
   assert text in page.locator('.report-summary-dashboard').inner_text()
  assert page.evaluate('JSON.stringify(currentReport.players)===originalPlayers')
