@@ -23,7 +23,7 @@ function reportSummaryDashboard(report){
  header.append(identity,scores);view.append(header);
  const grid=el('div','report-summary-grid');
  const card=title=>{const c=el('section','report-summary-card');c.append(el('h3','',title));grid.append(c);return c;};
- const group=card('Groupe'),roster=reportSummaryRoster(report),numbered=roster.filter(p=>/^\d+$/.test(String(p.number))&&Number(p.number)>=1&&Number(p.number)<=14),other=roster.filter(p=>!numbered.includes(p));
+ const group=card('Groupe');group.classList.add('report-summary-group');const roster=reportSummaryRoster(report),numbered=roster.filter(p=>/^\d+$/.test(String(p.number))&&Number(p.number)>=1&&Number(p.number)<=14),other=roster.filter(p=>!numbered.includes(p));
  const playerList=players=>{
   const list=el('ol','report-summary-roster');
   for(const p of players){
@@ -67,12 +67,8 @@ function reportSummaryDashboard(report){
  if(excerpts.children.length&&!analysis.contains(excerpts))analysis.replaceChildren(analysis.querySelector('h3'),excerpts);
  if(ratings.children.length)analysis.append(ratings);
  main.append(matchRecap,analysis,facts);grid.append(main);view.append(grid);
- const conclusion=el('section','report-summary-conclusion');conclusion.append(el('h3','','Ce qu’on retient'));
- const notes=el('div','report-summary-takeaways');
- for(const [label,value]of [['Message au groupe',plan.summary]])if(value?.trim()){const item=el('p');item.append(el('strong','',label+' · '),document.createTextNode(brief(value)));notes.append(item);}
- if(!notes.children.length)conclusion.querySelector('h3').textContent='Pour la suite';
- conclusion.append(notes);const priority=el('div','report-summary-priority');priority.append(el('h4','','Pour la prochaine séance'),el('p','',plan.priority?.trim()||'Priorité à définir'));
- if(plan.sessionExercise?.trim())priority.append(el('small','','Exercice envisagé · '+brief(plan.sessionExercise)));conclusion.append(priority);view.append(conclusion);return view;
+ if(plan.summary?.trim()){const message=el('p','report-summary-message');message.append(el('strong','','Message au groupe · '),document.createTextNode(brief(plan.summary)));view.append(message);}
+ return view;
 }
 document.addEventListener('DOMContentLoaded',()=>{
  const pdf=$('report-pdf'),originalPrint=pdf.onclick;

@@ -12,7 +12,8 @@ with sync_playwright() as p:
  assert page.locator('.report-summary-card').count()==2
  assert page.locator('#report-tabs [data-report-tab=plan]').count()==0
  assert page.locator('.report-summary-match-banner').is_visible()
- assert page.locator('.report-summary-conclusion').count()==1
+ assert page.locator('.report-summary-conclusion').count()==0
+ assert page.locator('.report-summary-priority').count()==0
  assert '90 min' in page.locator('.report-summary-match-recap').inner_text()
  assert 'Terrain humide' in page.locator('.report-summary-match-recap').inner_text()
  for value in ['Circulation rapide','Bloc resserré','Réagir ensemble à la perte','Défendre les corners','4 / 5']:
@@ -27,7 +28,7 @@ with sync_playwright() as p:
  assert player14.locator('[data-contribution=assists]').text_content()=='👟1'
  assert page.locator('[data-summary-number="2"] [data-contribution=goals]').get_attribute('aria-label')=='Buts : 0'
  assert page.locator('[data-summary-number="5"] [data-contribution=assists]').get_attribute('aria-label')=='Passes décisives : non renseigné'
- for text in ['Circulation rapide','Protéger la profondeur','Travailler le repli','Solidarité collective']:
+ for text in ['Circulation rapide','Protéger la profondeur','Solidarité collective']:
   assert text in page.locator('.report-summary-dashboard').inner_text()
  assert page.evaluate('JSON.stringify(currentReport.players)===originalPlayers')
  assert page.evaluate('reportValid(currentReport)')
@@ -48,6 +49,6 @@ with sync_playwright() as p:
  assert page.evaluate('currentReport.plan.sessionObjective')=='Réagir à la perte'
  assert 'Réagir à la perte' in page.locator('.report-next-session .report-previous-notes').evaluate('e=>e.textContent')
  page.evaluate("reportTab='preview';renderReportContent()")
- assert 'Nouvelle priorité' in page.locator('.report-summary-priority').inner_text()
- assert 'Jeu de repli collectif' in page.locator('.report-summary-priority').inner_text()
+ assert page.locator('.report-summary-priority').count()==0
+ assert page.evaluate('currentReport.plan.sessionExercise')=='Jeu de repli collectif'
  assert not errors,errors;b.close();print('PASS: compact summary, removed Plan tab, next-session fields, preserved historical data, numeric roster, chronology, PDF and mobile.')

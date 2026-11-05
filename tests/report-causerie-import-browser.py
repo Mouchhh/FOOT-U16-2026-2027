@@ -14,7 +14,7 @@ with sync_playwright() as p:
   const different=structuredClone(source);different.documentId='wrong-match';different.matchPreparation.date='2026-12-05';saves.unshift({date:new Date().toISOString(),state:different});
   currentReport.info.date='2026-11-01';currentReport.info.opponent='Adversaire';currentReport.players=[{id:'already',squadPlayerId:'import-a',name:'Alex',number:'9',role:'Titulaire',minutes:'75',score:'',note:'',objective:'',goals:'2'}];currentReport.analysis.topAttack='Observation conservée';currentReport.plan.priority='Priorité déjà saisie';currentReport.events=[{minute:'10',type:'Autre',detail:'À garder'}];renderReportContent();
  }''')
- source=page.locator('#report-causerie-source');assert source.locator('option').count()==2
+ source=page.locator('#report-causerie-source');assert source.locator('option').count()==3
  assert 'Causerie dimanche' in source.inner_text()
  page.locator('#report-causerie-import-button').click()
  assert page.evaluate('currentReport.players.length')==2
@@ -45,7 +45,7 @@ with sync_playwright() as p:
     assert page.locator('#report-next').is_visible()
     assert page.locator('.report-actions-dock').evaluate("e=>Math.abs(e.getBoundingClientRect().bottom-(innerHeight-parseFloat(getComputedStyle(document.body).getPropertyValue('--navigation-bottom-space')||'0')))<3")
     assert page.locator('.report-actions-dock').evaluate('e=>e.getBoundingClientRect().left>=0 && e.getBoundingClientRect().right<=innerWidth+1')
-   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
+   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'),(width,tab,scroll,page.evaluate('Array.from(document.querySelectorAll("body *")).filter(e=>e.getClientRects().length&&e.getBoundingClientRect().right>innerWidth+2).slice(-12).map(e=>[e.tagName,e.id,e.className,Math.round(e.getBoundingClientRect().right)])'))
   page.screenshot(path=f'/tmp/report-import-actions-{width}.png')
  page.locator('#view-home').click();assert not page.locator('.report-actions-dock').is_visible()
  assert not errors,errors

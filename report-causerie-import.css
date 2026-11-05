@@ -109,3 +109,7 @@
     display: none !important;
   }
 }
+.report-causerie-import > label{flex:1 1 260px;min-width:0;max-width:100%;display:grid;gap:7px}
+.report-causerie-import > label select{width:100%;min-width:0}
+.report-causerie-import > button{white-space:normal;max-width:100%;font-size:12px}
+.report-causerie-import .report-causerie-status{flex-basis:100%;overflow-wrap:anywhere}
