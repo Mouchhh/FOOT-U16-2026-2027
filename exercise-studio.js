@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  const mayDiscard=()=>signature()===baseline||confirm('Fermer sans valider les modifications de cet exercice ? La version déjà enregistrée reste conservée.');
  $('custom-training-close').addEventListener('click',event=>{if(!mayDiscard()){event.preventDefault();event.stopImmediatePropagation();}},true);
  dialog.addEventListener('cancel',event=>{if(!mayDiscard())event.preventDefault();});
- const original=openCustomTrainingExercise;openCustomTrainingExercise=function(block=null){original(block);if(dialog.open){activate('sheet');baseline=signature();}};activate('sheet');
+ const original=openCustomTrainingExercise;openCustomTrainingExercise=function(block=null){original(block);if(dialog.open){activate('board');baseline=signature();}};activate('sheet');
  // Retour visuel bref à l’ajout, sans bloquer les déplacements sur le terrain.
  palette.addEventListener('click',event=>{const button=event.target.closest('button');if(!button)return;button.classList.remove('studio-added');void button.offsetWidth;button.classList.add('studio-added');setTimeout(()=>button.classList.remove('studio-added'),350);});
 });
