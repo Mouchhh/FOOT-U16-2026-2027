@@ -14,7 +14,7 @@ with sync_playwright() as p:
  assert Image.open('/tmp/exercice-hd.png').size==(2400,1500)
  with page.expect_download() as download:page.locator('#exercise-video').click()
  video=download.value;video.save_as('/tmp/exercice-video.'+video.suggested_filename.split('.')[-1]);assert video.failure() is None
- page.locator('#custom-training-form button[type=submit]').click();assert page.evaluate('trainingValid(currentTraining)');assert page.evaluate('currentTraining.blocks[0].custom.board.frames.length')==2;assert page.locator('#training-blocks .exercise-board-preview canvas').count()==1;assert page.evaluate('JSON.stringify(state)')==before
+ page.locator('#studio-tab-sheet').click();page.locator('#custom-training-form button[type=submit]').click();assert page.evaluate('trainingValid(currentTraining)');assert page.evaluate('currentTraining.blocks[0].custom.board.frames.length')==2;assert page.locator('#training-blocks .exercise-board-preview canvas').count()==1;assert page.evaluate('JSON.stringify(state)')==before
  page.locator('#training-save').click();saved=page.evaluate('structuredClone(currentTraining.blocks[0].custom.board)');page.reload();page.locator('#view-training').evaluate('e=>e.click()');assert page.evaluate('currentTraining.blocks[0].custom.board')==saved
  assert page.evaluate('trainingDocument(currentTraining).querySelectorAll(".exercise-board-preview canvas").length')==1
  assert not page.evaluate('validExerciseBoard({...currentTraining.blocks[0].custom.board,seconds:-1})');assert not page.evaluate('validExerciseBoard({version:1,lines:true,seconds:2,frames:[null]})')

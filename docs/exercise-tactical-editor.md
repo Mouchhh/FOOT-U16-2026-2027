@@ -9,3 +9,11 @@ Les options Vue, Découpage et Revêtement sont enregistrées avec le schéma pe
 Fichiers : exercise-tactical-editor.js/css, avec les contrats existants exercise-board.js et exercise-studio.js. Rouge d’action : #e41f28 ; fond : #0b192c.
 
 Vérification : `python3 tests/exercise-tactical-editor-browser.py` et `python3 tests/exercise-board-browser.py`.
+
+## Palette et cadrage (239)
+
+Le matériel complet est accessible dans la colonne de gauche : buts mobiles, mini-buts, cônes, coupelles, piquets, mannequins, échelles, haies, cerceaux et gardiens. Sélectionner un outil puis cliquer sur le terrain, ou glisser son icône sur le terrain (souris). Les éléments ajoutés restent déplaçables et réglables avec les commandes existantes.
+
+Le cadre de travail est fixe, sans défilement de la page ni déplacement du terrain. La taille du terrain s’adapte à l’espace réellement disponible via ResizeObserver. Seules les listes d’outils/réglages défilent en interne sur les petits écrans ; les champs pédagogiques restent consultables dans l’onglet L’exercice. Sur mobile, Options du terrain ouvre les réglages sans déplacer la surface de travail.
+
+Suivant → reste en bas à droite : Terrain → Animation → L’exercice, où Enregistrer l’exercice conserve le circuit de validation existant.

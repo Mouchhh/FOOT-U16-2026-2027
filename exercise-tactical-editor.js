@@ -38,7 +38,11 @@
   }
   const textField=el('label','','Texte à placer'),textInput=document.createElement('input');textInput.id='exercise-drawing-text';textInput.maxLength=120;textInput.placeholder='Votre annotation';textField.append(textInput);right.append(textField);
   const oldInspector=form.querySelector('.studio-inspector'),inspector=el('section','studio-inspector');for(const child of [...oldInspector.children])inspector.append(child);oldInspector.remove();right.append(inspector);
-  const palette=form.querySelector('.studio-tools');palette.querySelector('summary').textContent='Autre matériel';right.append(palette);
+  const oldPalette=form.querySelector('.studio-tools'),palette=el('section','studio-tools');for(const child of [...oldPalette.children])palette.append(child);oldPalette.remove();palette.querySelector('summary').textContent='Matériel';left.append(palette);palette.open=true;
+  const equipmentActions=new Map();
+  for(const [i,button] of [...palette.querySelectorAll('button')].entries()){
+   const key=Object.keys(exerciseEquipment)[i];equipmentActions.set(key,button.onclick);button.dataset.tool=key;button.title=key==='goal'?'Grand but mobile':exerciseEquipment[key];button.draggable=true;button.onclick=()=>choose(key);button.addEventListener('dragstart',e=>{e.dataTransfer.setData('application/x-exercise-equipment',key);e.dataTransfer.effectAllowed='copy';});
+  }
   layout.prepend(left);layout.append(right);
   let tool='select',start=null;
   function choose(next){tool=next;left.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===tool)));canvas.style.cursor=tool==='select'?'default':'crosshair';}
@@ -47,10 +51,18 @@
    b.innerHTML='<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="'+paths[key]+'"/></svg>';
    b.type='button';b.dataset.tool=key;b.title=label;b.setAttribute('aria-label',label);b.onclick=()=>{if(key==='delete'){if(exerciseSelected)$('exercise-delete').click();else if(exerciseDraft.drawings?.length){exerciseDraft.drawings.pop();exerciseEditorRefresh();}return;}choose(key);};left.append(b);
   }choose('select');
+  function placeEquipment(key,p){
+   if(exerciseDraft.frames[0].objects.length>=100)return notify('100 éléments maximum.');
+   equipmentActions.get(key)();
+   for(const f of exerciseDraft.frames){const o=f.objects.find(o=>o.id===exerciseSelected);o.x=p.x;o.y=p.y;if(key==='red')o.color='#e41f28';}
+   exerciseEditorRefresh();
+  }
+  canvas.addEventListener('dragover',e=>{if([...e.dataTransfer.types].includes('application/x-exercise-equipment')){e.preventDefault();e.dataTransfer.dropEffect='copy';}});
+  canvas.addEventListener('drop',e=>{const key=e.dataTransfer.getData('application/x-exercise-equipment');if(!equipmentActions.has(key))return;e.preventDefault();placeEquipment(key,point(e));choose('select');});
   const point=e=>{const r=canvas.getBoundingClientRect(),start=exerciseDraft.view==='half'?50:exerciseDraft.view==='area'?73:0;return{x:Math.max(0,Math.min(100,start+(e.clientX-r.left)/r.width*(100-start))),y:Math.max(0,Math.min(100,(e.clientY-r.top)/r.height*100))};};
   canvas.addEventListener('pointerdown',e=>{
    if(tool==='select')return;e.preventDefault();e.stopImmediatePropagation();exercisePlayback++;const p=point(e);canvas.setPointerCapture(e.pointerId);
-   if(['blue','red','ball'].includes(tool)){const buttons=[...$('exercise-palette').querySelectorAll('button')];buttons.find(b=>b.getAttribute('aria-label')==='Ajouter : '+exerciseEquipment[tool]).click();for(const f of exerciseDraft.frames){const o=f.objects.find(o=>o.id===exerciseSelected);o.x=p.x;o.y=p.y;if(tool==='red')o.color='#e41f28';}exerciseEditorRefresh();choose('select');return;}
+   if(equipmentActions.has(tool)){placeEquipment(tool,p);choose('select');return;}
    if(tool==='text'){const text=textInput.value;if(!text.trim()){textInput.focus();return;}if(text.trim())addDrawing({...p,xx:p.x,yy:p.y,type:'text',text:text.trim().slice(0,120)});return;}
    start={...p,type:tool};
   },true);
@@ -61,5 +73,14 @@
   const clear=$('exercise-clear').onclick;$('exercise-clear').onclick=()=>{const before=exerciseDraft.frames;clear();if(before!==exerciseDraft.frames){exerciseDraft.drawings=[];exerciseEditorRefresh();}};
   const open=openCustomTrainingExercise;openCustomTrainingExercise=function(block=null){open(block);if(!dialog.open)return;choose('select');start=null;for(const key of ['view','zoning','surface'])$('exercise-field-'+key).value=exerciseDraft[key]||({view:'full',zoning:'none',surface:'grass'}[key]);exerciseEditorRefresh();};
   form.querySelector('button[type=submit]').textContent='Enregistrer l’exercice';
+  const next=el('button','primary','Suivant →');next.id='exercise-studio-next';next.type='button';form.querySelector('.studio-footer').append(next);
+  next.onclick=()=>$(form.dataset.studioMode==='board'?'studio-tab-animation':'studio-tab-sheet').click();
+  const options=el('button','export','Options du terrain');options.type='button';options.classList.add('tactical-options-toggle');options.setAttribute('aria-expanded','false');toolbar.prepend(options);
+  options.onclick=()=>{const expanded=dialog.classList.toggle('tactical-options-open');options.setAttribute('aria-expanded',String(expanded));};
+  function fit(){const stage=form.querySelector('.studio-stage'),r=stage.getBoundingClientRect();if(!r.width||!r.height)return;const width=Math.min(r.width,r.height*1.6);canvas.style.width=width+'px';canvas.style.height=width/1.6+'px';}
+  new ResizeObserver(fit).observe(layout);new ResizeObserver(fit).observe(form.querySelector('.studio-stage'));
+  const updateStep=()=>{next.hidden=form.dataset.studioMode==='sheet';requestAnimationFrame(fit);};
+  new MutationObserver(updateStep).observe(form,{attributes:true,attributeFilter:['data-studio-mode']});updateStep();
+  dialog.addEventListener('wheel',e=>{if(e.target===canvas||e.target.closest('.studio-stage'))e.preventDefault();},{passive:false});
  });
 })();

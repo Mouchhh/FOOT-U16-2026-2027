@@ -36,3 +36,54 @@
  .tactical-options{grid-template-columns:1fr}
  #custom-training-form .tactical-options select{font-size:16px}
 }
+/* Cadre stable : seul le contenu des réglages peut défiler si nécessaire. */
+@media screen {
+ dialog#custom-training-dialog.tactical-exercise-workspace.workspace-sheet{overflow:hidden!important;overscroll-behavior:none;scrollbar-gutter:auto;padding:74px 14px 10px!important}
+ #custom-training-form{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box}
+ #custom-training-form>.section-heading,#custom-training-form>.studio-tabs,#custom-training-form>.studio-footer{flex-shrink:0}
+ #custom-training-form>.section-heading{padding:0 12px!important;min-height:34px}
+ #custom-training-form .studio-intro{margin:0}
+ #custom-training-form .studio-kicker{display:none}
+ #custom-training-form .studio-tabs{padding:2px 12px 5px!important}
+ #custom-training-form .exercise-editor{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:8px;gap:8px}
+ #custom-training-form .exercise-editor[hidden]{display:none!important}
+ #custom-training-form .studio-board-layout{flex:1;min-height:0;grid-template-columns:112px minmax(0,1fr) 220px;align-items:stretch;gap:12px;overflow:hidden}
+ #custom-training-form .studio-stage{height:100%;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;overflow:hidden;grid-row:auto;grid-column:auto}
+ #custom-training-form .studio-stage canvas{max-width:100%;max-height:100%;margin:0;flex:none;touch-action:none;overscroll-behavior:none}
+ #custom-training-form .tactical-tools{display:flex;flex-direction:row;align-content:start;flex-wrap:wrap;gap:5px;overflow:auto;scrollbar-width:thin;min-height:0}
+ #custom-training-form .tactical-tools>button{width:48px;height:38px;min-height:38px}
+ #custom-training-form .tactical-tools .studio-tools{width:100%;border:0;padding:0;background:transparent}
+ #custom-training-form .tactical-tools .studio-tools summary{display:none}
+ #custom-training-form .tactical-tools #exercise-palette{position:static;display:grid;grid-template-columns:1fr 1fr;gap:5px;width:100%;max-height:none;overflow:visible;padding:0;margin:5px 0 0;border:0;box-shadow:none;background:transparent}
+ #custom-training-form .tactical-tools .exercise-equipment-button{width:48px;min-height:38px;height:38px;padding:0;border:1px solid #ffffff26;background:transparent;border-radius:8px}
+ #custom-training-form .tactical-tools .exercise-equipment-button canvas{width:40px!important;height:30px!important}
+ #custom-training-form .tactical-tools .exercise-equipment-button span{display:none}
+ #custom-training-form .tactical-tools button[aria-pressed=true]{background:#e41f28!important;border-color:#e41f28}
+ #custom-training-form .tactical-options{display:flex;flex-direction:column;gap:10px;overflow:auto;min-height:0;scrollbar-width:thin;grid-column:auto}
+ #custom-training-form .tactical-options h3{font-size:14px}
+ #custom-training-form .tactical-options label{font-size:12px}
+ #custom-training-form .tactical-options select{padding:7px}
+ #custom-training-form .studio-footer{position:static;display:flex;justify-content:flex-end;gap:10px;padding:8px;min-height:52px}
+ #custom-training-form .studio-footer>span{margin-right:auto;font-size:11px}
+ #exercise-studio-next{background:#e41f28;color:white;border:0;white-space:nowrap}
+ #custom-training-form:not([data-studio-mode=sheet]) .studio-footer>button[type=submit]{display:none}
+ #exercise-studio-sheet{flex:1;min-height:0;overflow:auto}
+ #custom-training-form .studio-animation{flex-shrink:0;padding:6px;gap:6px;max-height:120px;overflow:auto}
+ #custom-training-form .tactical-options-toggle{display:none}
+ @media(max-width:850px){
+  #custom-training-form .studio-board-layout{grid-template-columns:104px minmax(0,1fr)}
+  #custom-training-form .tactical-options-toggle{display:inline-flex}
+  #custom-training-form .tactical-options{display:none}
+  #custom-training-dialog.tactical-options-open .tactical-options{display:flex;position:absolute;right:12px;top:180px;bottom:80px;width:min(280px,calc(100% - 36px));padding:16px;background:#14243a;border:1px solid #ffffff32;border-radius:10px;z-index:10}
+  #custom-training-form .studio-footer>span{display:none}
+ }
+ @media(max-height:700px){
+  #custom-training-form .tactical-tools>button,#custom-training-form .tactical-tools .exercise-equipment-button{height:32px;min-height:32px}
+  #custom-training-form .studio-toolbar{gap:4px}
+ }
+}
+@media screen {
+ #custom-training-form .studio-footer>button{width:auto!important;flex:0 0 auto;min-width:120px}
+ #custom-training-form .tactical-tools{scrollbar-width:none}
+ #custom-training-form .tactical-tools::-webkit-scrollbar{display:none}
+}
