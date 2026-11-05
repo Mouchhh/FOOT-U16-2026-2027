@@ -27,3 +27,37 @@
 body.reports-mode #after-match #report-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
 .report-summary-match-banner{height:auto;min-height:0}
 @media(max-width:600px){body.reports-mode #after-match #report-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* Effectif latéral compact, repères et analyse réunis dans la zone principale. */
+.report-summary-compact .report-summary-grid{grid-template-columns:minmax(230px,.7fr) minmax(0,2fr);gap:22px}
+.report-summary-main{display:flex;flex-direction:column;gap:20px;min-width:0}
+.report-summary-main>.report-summary-card{margin:0}
+.report-summary-match-recap,.report-summary-analysis{padding:20px 24px;background:#fff;border:1px solid #e1e8f1;border-radius:14px;min-width:0}
+.report-summary-match-recap h3,.report-summary-analysis h3{font-size:16px;color:#0b192c;margin:0 0 16px}
+.report-summary-match-data{display:grid;grid-template-columns:auto minmax(0,1fr);gap:9px 18px;font-size:12px;margin:0}
+.report-summary-match-data dt{color:#7c8da3}.report-summary-match-data dd{color:#365273;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.report-summary-analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 24px}
+.report-summary-analysis-item{min-width:0}
+.report-summary-analysis-item h4{margin:0 0 6px;color:#536d8e;font-size:11px}
+.report-summary-analysis-item p{margin:4px 0;font-size:12px;line-height:1.7;color:#385371;white-space:pre-wrap;overflow-wrap:anywhere}
+.report-summary-rating-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px;padding-top:14px;border-top:1px solid #edf1f6}
+.report-summary-rating-chips span{font-size:10px;color:#536d8e;background:#f2f6fb;border-radius:6px;padding:5px 8px}
+.report-summary-compact .report-summary-roster li{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f0f3f7}
+.report-summary-compact .report-summary-number{background:none;min-width:0;height:auto;border-radius:0;font-size:11px;color:#8b9bb0;font-weight:500}
+.report-summary-compact .report-summary-roster li>div{display:block;min-width:0}
+.report-summary-compact .report-summary-roster strong{display:block;font-size:12px;font-weight:500;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.report-summary-compact .report-summary-roster small{display:none}
+.report-summary-compact .report-summary-minutes{font-size:11px;font-weight:500;padding:0;color:#647c99}
+.report-summary-compact .report-summary-caption{font-size:10px;line-height:1.5}
+@media(max-width:950px){.report-summary-compact .report-summary-grid{grid-template-columns:minmax(210px,.8fr) minmax(0,1.5fr)}.report-summary-analysis-grid{grid-template-columns:1fr}}
+@media(max-width:700px){.report-summary-compact .report-summary-grid{grid-template-columns:1fr}.report-summary-match-recap,.report-summary-analysis{padding:18px}.report-summary-match-data{gap:8px 12px;font-size:11px}}
+@media print{#report-summary-print.report-summary-compact .report-summary-grid{grid-template-columns:minmax(170px,.7fr) minmax(0,2fr)}#report-summary-print .report-summary-roster strong{white-space:normal;overflow:visible}#report-summary-print .report-summary-analysis-grid{grid-template-columns:1fr 1fr}#report-summary-print .report-summary-match-recap,#report-summary-print .report-summary-analysis{padding:4mm;break-inside:auto}#report-summary-print .report-summary-analysis-item{break-inside:avoid}#report-summary-print .report-summary-main{gap:4mm}}
+@media(min-width:1150px){
+ .report-summary-main{display:grid;grid-template-columns:1.1fr 1fr;align-items:start}
+ .report-summary-match-recap{grid-column:1/-1}
+ .report-summary-match-data{grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);gap:8px 16px}
+ .report-summary-main .report-summary-analysis-grid{grid-template-columns:1fr}
+}
+@media print{
+ #report-summary-print .report-summary-main{display:block}
+ #report-summary-print .report-summary-match-recap,#report-summary-print .report-summary-analysis,#report-summary-print .report-summary-main>.report-summary-card{margin-bottom:4mm}
+}

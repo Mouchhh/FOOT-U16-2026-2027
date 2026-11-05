@@ -13,3 +13,9 @@ Fichiers : `report-summary-dashboard.js/css`. Test : `python3 tests/report-summa
 ## Version courte 251
 
 La synthèse adopte un bandeau adversaire/date/score, deux cartes Groupe & Temps de jeu et Faits marquants, puis une conclusion compacte en bas. Elle n’affiche plus toutes les notes détaillées ni toutes les évaluations. Les conclusions reprennent des extraits des textes déjà saisis (240 caractères maximum par repère, sans réécriture ni modification des données). L’exercice envisagé et la priorité figurent dans la conclusion. Les observations intégrales restent dans Analyse et les anciennes informations de plan sont consultables dans son bloc de données conservées. L’impression dédiée reprend cette présentation courte à deux colonnes.
+
+## Repères Match / Analyse et effectif latéral 252
+
+Le groupe devient une colonne latérale étroite avec une ligne unique par joueur : numéro, nom et minutes. Les statuts ne sont plus répétés visuellement ; ils restent dans l’infobulle de la ligne et dans les données. Les noms restent complets dans le PDF.
+
+La zone principale reprend les repères renseignés du match (organisation, durée, score à la pause, lieu, conditions, buteurs/passeurs manuels), puis la synthèse des six axes de l’Analyse et les évaluations renseignées. Les observations sont reprises sous forme d’extraits de 240 caractères maximum sans modifier leurs valeurs sources. Les faits marquants gardent leur chronologie. La conclusion ne répète plus les observations tactiques déjà affichées : elle conserve le message au groupe et la priorité/exercice suivant.
