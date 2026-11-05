@@ -31,61 +31,69 @@ function reportPreviousNotes(title, entries) {
   }
   return details;
 }
+function reportAnalysisWorkshopSuggestions(analysis, priority = '') {
+  const text = [priority, analysis.improveAttack, analysis.improveDefence, analysis.transitions, analysis.setPieces].filter(Boolean).join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const rules = [
+    [/fini|frapp|\btirs?\b|\bbuts?\b|efficac/, 'Finition'],
+    [/conserv|pression|maitris|possess/, 'Conservation sous pression'],
+    [/transition|recuper|perte|repli|contre/, 'Transitions'],
+    [/\bpressing\b|harcel|bloc haut/, 'Pressing collectif'],
+    [/relanc|sortie de balle|construct/, 'Sortie de balle'],
+    [/defen|couvr|bloc|profondeur/, 'Organisation défensive'],
+    [/cpa|arret|corner|coup franc/, 'Coups de pied arrêtés'],
+    [/duel|impact/, 'Duels'],
+    [/largeur|couloir|debord/, 'Occupation de la largeur'],
+  ];
+  return rules.filter(([pattern]) => pattern.test(text)).map(([, label]) => label).slice(0, 4);
+}
 function reportRenderAnalysis(root) {
-  const blocks = el("div", "report-tactical-blocks");
-  for (const [title, top, improve] of [
-    ["Top Offensif (Avec le ballon)", "topAttack", "improveAttack"],
-    ["Top Défensif (Sans le ballon)", "topDefence", "improveDefence"],
-  ]) {
-    const panel = reportSection(title);
-    panel.dataset.reportAnalysis = top;
-    panel.append(
-      reportGrowingField(
-        "Points forts",
-        currentReport.analysis[top],
-        (v) => (currentReport.analysis[top] = v),
-        { placeholder: "Les points forts et les faits qui les illustrent…" },
-      ),
-      reportGrowingField(
-        "À améliorer",
-        currentReport.analysis[improve],
-        (v) => (currentReport.analysis[improve] = v),
-        { placeholder: "Une ou deux pistes de progrès concrètes…" },
-      ),
-    );
-    blocks.append(panel);
+  const view = el('div', 'report-analysis-modern');
+  const grid = el('div', 'report-analysis-cards');
+  const field = (label, value, setter, key, placeholder) => {
+    const wrap = reportField(label, value || '', setter, { area: true, rows: 2, placeholder });
+    const input = wrap.querySelector('textarea');input.dataset.analysisField = key;
+    const resize = () => {input.style.height = 'auto';input.style.height = Math.max(48, Math.min(input.scrollHeight, 180)) + 'px';};
+    input.addEventListener('input', resize);requestAnimationFrame(resize);return wrap;
+  };
+  const animations = reportSection('Animations & Transitions');animations.classList.add('report-analysis-card');
+  animations.append(el('p', 'report-analysis-subtitle', 'Ce qui a fait basculer le match.'));
+  animations.append(field('Transitions · récupération / perte', currentReport.analysis.transitions, v => currentReport.analysis.transitions = v, 'transitions', 'À la récupération… À la perte…'));
+  animations.append(field('Phases arrêtées · pour / contre', currentReport.analysis.setPieces, v => currentReport.analysis.setPieces = v, 'setPieces', 'CPA offensifs et défensifs : les faits à retenir…'));
+  const strengths = el('details', 'report-analysis-disclosure');strengths.append(el('summary', '', 'Points forts avec et sans ballon'));
+  for (const [key, label] of [['topAttack', 'Avec le ballon'], ['topDefence', 'Sans le ballon']]) strengths.append(field(label, currentReport.analysis[key], v => currentReport.analysis[key] = v, key, 'Un point fort concret…'));
+  animations.append(strengths);
+  const progress = reportSection('Pistes de progrès & Axes de travail');progress.classList.add('report-analysis-card');
+  progress.append(el('p', 'report-analysis-subtitle', 'Les priorités à travailler cette semaine.'));
+  progress.append(field('Priorité de la semaine', currentReport.plan.priority, v => currentReport.plan.priority = v, 'priority', 'La priorité à retenir…'));
+  const axes = el('div', 'report-analysis-axes');
+  for (const [key, label] of [['improveAttack', 'Avec le ballon'], ['improveDefence', 'Sans le ballon']]) axes.append(field(label, currentReport.analysis[key], v => currentReport.analysis[key] = v, key, 'Une piste de progrès…'));
+  progress.append(axes);
+  const suggestions = el('div', 'report-workshop-suggestions');suggestions.setAttribute('aria-live', 'polite');
+  function suggest() {
+    suggestions.replaceChildren(el('span', 'report-workshop-label', 'Ateliers suggérés'));
+    const labels = reportAnalysisWorkshopSuggestions(currentReport.analysis, currentReport.plan.priority);
+    if (!labels.length) suggestions.append(el('small', '', 'Renseignez un axe de travail pour obtenir des suggestions.'));
+    else {const tags = el('div', 'report-workshop-tags');for (const label of labels) tags.append(el('span', '', label));suggestions.append(tags);}
   }
-  for (const [title, key, label] of [
-    ["Transitions", "transitions", "À la récupération et à la perte"],
-    ["Phases arrêtées", "setPieces", "Pour et contre"],
-  ]) {
-    const panel = reportSection(title);
-    panel.dataset.reportAnalysis = key;
-    panel.append(reportGrowingField(label, currentReport.analysis[key], value => currentReport.analysis[key] = value));
-    blocks.append(panel);
+  view.addEventListener('input', suggest);suggest();progress.append(suggestions);grid.append(animations, progress);view.append(grid);
+  const extra = el('details', 'report-analysis-disclosure report-analysis-extras');
+  extra.append(el('summary', '', 'Compléments et évaluations sportives'));
+  const ratings = el('div', 'report-analysis-quick-ratings');
+  for (const [key, title] of Object.entries(reportSport)) {
+    const rating = currentReport.ratings[key], row = el('div', 'report-analysis-quick-rating'),heading = el('div', 'report-analysis-rating-heading'), value = el('output');
+    heading.append(el('span', '', key === 'physical' ? 'Intensité / état physique' : title), value);row.append(heading);
+    const choices = el('div', 'report-analysis-scores');choices.setAttribute('role', 'group');choices.setAttribute('aria-label', title + ' · note sur 5');
+    const paint = () => {value.textContent = rating.score ? rating.score + ' / 5' : 'Non évalué';choices.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.score === rating.score)));};
+    for (const score of ['', '1', '2', '3', '4', '5']) {const b = el('button', '', score || '—');b.type = 'button';b.dataset.score = score;b.setAttribute('aria-label', score ? title + ' : ' + score + ' sur 5' : title + ' : non évalué');b.onclick = () => {rating.score = score;paint();reportAutosave();};choices.append(b);}
+    paint();row.append(choices);
+    const note = el('details', 'report-analysis-rating-note');note.append(el('summary', '', rating.note.trim() ? 'Observation renseignée' : 'Ajouter une observation'),field('Observation', rating.note, v => rating.note = v, 'rating-' + key, 'Un exemple observable…'));row.append(note);ratings.append(row);
   }
-  root.append(blocks);
-  const extra = el("details", "report-analysis-details");
-  extra.append(el("summary", "", "Compléments et évaluations sportives"));
-  const ratings = reportSection("Évaluations sportives");
-  reportRatings(ratings, reportSport);
   extra.append(ratings);
-  const fields = el("div", "report-grid");
-  for (const key of ["withBall", "withoutBall"])
-    fields.append(
-      reportGrowingField(
-        reportAnalysis[key],
-        currentReport.analysis[key],
-        (v) => (currentReport.analysis[key] = v),
-      ),
-    );
-  extra.append(fields);
-  root.append(extra);
-  const previous = reportPreviousNotes("Notes conservées des anciens bilans", [
-    ["Première période", currentReport.analysis.firstHalf],
-    ["Seconde période", currentReport.analysis.secondHalf],
-  ]);
-  if (previous) root.append(previous);
+  const other = el('div', 'report-analysis-axes');
+  for (const key of ['withBall', 'withoutBall']) other.append(field(reportAnalysis[key], currentReport.analysis[key], v => currentReport.analysis[key] = v, key, 'Complément facultatif…'));
+  extra.append(other);view.append(extra);
+  const previous = reportPreviousNotes('Notes conservées des anciens bilans', [['Première période', currentReport.analysis.firstHalf], ['Seconde période', currentReport.analysis.secondHalf]]);
+  if (previous) view.append(previous);root.append(view);
 }
 function reportGroupMessagePanel() {
   const panel = reportSection("Message à transmettre au groupe");
