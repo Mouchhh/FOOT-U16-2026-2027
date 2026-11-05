@@ -7,18 +7,30 @@
   validMatchPreparation=function(plan){return beforeValid(plan)&&(!plan||Object.keys(fields).every(k=>plan[k]===undefined||typeof plan[k]==='string'&&plan[k].length<=4000));};
   async function build(pptx,snapshot,style,{pitchImage}) {
     const board=snapshot.board,p=board.matchPreparation||{},S=pptx.ShapeType;
+    const photos=window.causerieExportPhotos?await causerieExportPhotos.resolve(snapshot.photos):{};
     pptx.theme={headFontFace:'Montserrat',bodyFontFace:'Montserrat',lang:'fr-FR'};
     const slides=[],hosts=[];
     const text=(s,value,x,y,w,h,size=18,extra={})=>s.addText(value||'À compléter',{x,y,w,h,fontFace:'Montserrat',fontSize:size,color:NAVY,margin:0,valign:'top',fit:'shrink',breakLine:false,paraSpaceAfterPt:8,...extra});
     const rect=(s,x,y,w,h,color)=>s.addShape(S.rect,{x,y,w,h,line:{transparency:100},fill:{color}});
-    function base(title,n,dark=false){const s=pptx.addSlide();slides.push(s);s.background={color:dark?NAVY:WHITE};if(!dark){rect(s,.65,.55,.45,.045,RED);text(s,title,.65,.8,11.9,.7,27,{bold:true});}text(s,'STADE MAYENNAIS',.65,7.06,9,.18,9,{color:dark?'BBC8DA':MUTED});text(s,String(n).padStart(2,'0')+' / 11',11.65,7.06,1,.18,9,{align:'right',color:dark?'BBC8DA':MUTED});return s;}
+    function base(title,n,dark=false){
+      const s=pptx.addSlide();slides.push(s);s.background={color:dark?NAVY:WHITE};
+      const photo=photos[n];
+      if(photo){
+        if(dark){s.addImage({data:photo.portrait,x:8.9,y:0,w:4.433333,h:7.5});rect(s,8.85,0,.05,7.5,RED);}
+        else s.addImage({data:photo.landscape,x:10.3,y:.35,w:2.4,h:1.3});
+      }
+      if(!dark){rect(s,.65,.55,.45,.045,RED);text(s,title,.65,.8,photo?9.2:11.9,.7,27,{bold:true});}
+      text(s,'STADE MAYENNAIS',.65,7.06,8,.18,9,{color:dark?'BBC8DA':MUTED});
+      text(s,String(n).padStart(2,'0')+' / 11',dark&&photo?7.1:11.65,7.06,1,.18,9,{align:'right',color:dark?'BBC8DA':MUTED});
+      return s;
+    }
     function card(s,title,value,x,y,w,h){rect(s,x,y,.025,h,RED);text(s,title,x+.18,y,w-.32,.38,15,{bold:true});text(s,value,x+.18,y+.62,w-.34,h-.7,18);}
     function notes(s,content){s.addNotes(content||'Aucune note complémentaire.');}
     let s=base('Infos match',1,true);
-    text(s,p.title||'CAUSERIE D’AVANT-MATCH',1.1,1.7,11.1,.45,14,{align:'center',color:RED,bold:true});
-    text(s,p.match||board.title||[board.team,p.opponent?.split('\n')[0]].filter(Boolean).join(' / '),.8,2.5,11.7,1.3,34,{align:'center',bold:true,color:WHITE});
+    text(s,p.title||'CAUSERIE D’AVANT-MATCH',.8,1.7,photos[1]?7.3:11.7,.45,14,{align:'center',color:RED,bold:true});
+    text(s,p.match||board.title||[board.team,p.opponent?.split('\n')[0]].filter(Boolean).join(' / '),.8,2.5,photos[1]?7.3:11.7,1.3,34,{align:'center',bold:true,color:WHITE});
     const dateLabel=p.date?new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(p.date+'T12:00:00Z')):'';
-    text(s,[p.round,dateLabel,p.venue].filter(Boolean).join(' · ')||'Date et lieu à renseigner',1.1,4.15,11.1,.8,17,{align:'center',color:'BBC8DA'});rect(s,6.25,5.35,.8,.045,RED);
+    text(s,[p.round,dateLabel,p.venue].filter(Boolean).join(' · ')||'Date et lieu à renseigner',.8,4.15,photos[1]?7.3:11.7,.8,17,{align:'center',color:'BBC8DA'});rect(s,photos[1]?4:6.25,5.35,.8,.045,RED);
     notes(s,[...causerieExport.collect(board).map(field=>field.label+' : '+field.value),...Object.entries(fields).filter(([key])=>p[key]).map(([key,label])=>label+' : '+p[key])].join('\n\n'));
     s=base('La composition d’équipe',2);const image=await pitchImage({...board,benchVisible:true,lanes:false},true,{nameScale:1.8});
     s.addImage({data:image.data,x:.65,y:1.75,w:9,h:5.05});text(s,board.formation,10,1.8,2.5,.5,24,{bold:true,color:BLUE});
@@ -53,7 +65,7 @@
     s=base('CPA · Coups de pied arrêtés',10);card(s,'Offensifs',p.setPiecesFor,.65,2,5.8,3.5);card(s,'Défensifs',p.setPiecesAgainst,6.85,2,5.8,3.5);
     if(p.specific)text(s,p.specific,.85,5.85,11.6,.85,14);
     notes(s,[p.setPiecesFor,p.setPiecesAgainst,p.specific].filter(Boolean).join('\n\n'));
-    s=base('Fin de causerie',11,true);text(s,'ENSEMBLE',1,1.5,11.3,.5,15,{align:'center',color:RED,bold:true});text(s,p.closingMessage,1.2,2.6,10.9,2.8,35,{align:'center',color:WHITE,bold:true});rect(s,6.25,6,.8,.045,RED);
+    s=base('Fin de causerie',11,true);text(s,'ENSEMBLE',.8,1.5,photos[11]?7.3:11.7,.5,15,{align:'center',color:RED,bold:true});text(s,p.closingMessage,.8,2.6,photos[11]?7.3:11.7,2.8,35,{align:'center',color:WHITE,bold:true});rect(s,photos[11]?4:6.25,6,.8,.045,RED);
     notes(s,[p.closingMessage,board.notes].filter(Boolean).join('\n\n'));
     if(slides.length!==11)throw Error('La présentation doit comporter exactement 11 slides.');
     return causerieAnimations.append(pptx,{sequences:hosts.filter(h=>h.entry).map(h=>h.entry),media:hosts.filter(h=>h.media).map(h=>h.media)},{hosts,variant:board.causerieAnimationVariant||'native'});

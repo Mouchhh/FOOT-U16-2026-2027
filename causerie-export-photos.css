@@ -1,0 +1,10 @@
+.causerie-photo-export { color: #142d50; margin: 18px 0; padding: 20px 0; border-top: 2px solid var(--club-logo-red,#e41f28); scroll-margin-top: 80px; }
+.causerie-photo-export[hidden],.causerie-photo-row img[hidden] { display: none !important; }
+.causerie-photo-rows { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px 24px; margin: 20px 0; }
+.causerie-photo-row { display: grid; grid-template-columns: minmax(0,1fr) 80px; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #e5eaf1; }
+.causerie-photo-row label { min-width: 0; margin: 0; }
+.causerie-photo-row select { width: 100%; max-width: 100%; min-height: 44px; font: inherit; padding: 8px; background: white; color: #142d50; border: 1px solid #dce5ef; border-radius: 8px; }
+.causerie-photo-row img { width: 80px; height: 60px; object-fit: contain; border-radius: 6px; }
+.causerie-photo-export .primary { min-height: 44px; background: var(--club-logo-red,#e41f28); border-color: var(--club-logo-red,#e41f28); color: white; }
+@media(max-width:650px){.causerie-photo-rows { grid-template-columns: minmax(0,1fr); }.causerie-photo-row select{font-size:16px;}}
+.causerie-photo-export input[type="file"] { max-width: 100%; width: 100%; box-sizing: border-box; min-height: 44px; font-size: 13px; }

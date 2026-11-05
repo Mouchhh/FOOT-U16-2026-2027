@@ -80,7 +80,7 @@
  function capture(){
   const board=structuredClone(getCompositionBoard()),candidate=getGamePlanBoard();
   const linked=board.boardKind!=='plan'&&board.documentId&&candidate?.sourceCompositionId===board.documentId?structuredClone(candidate):null;
-  return {board,linked,demonstrations:window.causerieAnimations?.capture(),landscape:document.body.classList.contains('landscape-mode')};
+  return {board,linked,demonstrations:window.causerieAnimations?.capture(),photos:window.causerieExportPhotos?.capture(),landscape:document.body.classList.contains('landscape-mode')};
  }
  async function pitchImage(board,landscape,{nameScale=1}={}){
   const options={nameScale,bench:board.benchVisible!==false,opponents:!!board.opponents?.visible,arrows:true,lanes:!!board.lanes};
