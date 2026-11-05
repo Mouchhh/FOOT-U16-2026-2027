@@ -107,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const [key, phase] of Object.entries(phases)) {
       const section = el("section"),
         heading = el("h4", "", "Slide " + phase.slide + " · " + phase.title);
+      section.dataset.phase = key;
       section.append(heading);
       const search = el("input"),
         filter = el("select"),
@@ -217,6 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       assignments.append(section);
     }
+    document.dispatchEvent(new CustomEvent("causerie:options-rendered"));
   }
   const before = renderMatchPreparation;
   renderMatchPreparation = function (...args) {

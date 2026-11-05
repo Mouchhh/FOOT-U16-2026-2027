@@ -16,7 +16,7 @@ with sync_playwright() as p:
  window.sourceBefore=JSON.stringify({personal:trainingStoredPersonalExercises(),animations:simpleLibrary});renderMatchPreparation();
  }''')
  assert page.evaluate('causerieClubSituations.exercises().length')==1
- page.locator('#task-match-causerie').click();page.locator('#causerie-eleven-options > summary').click()
+ page.locator('#task-match-causerie').click();page.locator('.causerie-clean-library > summary').evaluate_all('(rows)=>rows.forEach(row=>row.parentElement.open=true)')
  page.get_by_label('Type de contenu · Animation Offensive',exact=True).select_option('exercise')
  assert page.get_by_label('Animation Offensive · Animation du coach',exact=True).is_hidden()
  page.get_by_label('Animation Offensive · Exercice · Sortie de balle du coach',exact=True).check()

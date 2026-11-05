@@ -12,7 +12,7 @@ with sync_playwright() as p:
  const entry=(id,title,x)=>{const initial={tokens:[{id:'p1',label:'6',side:'own',x:20,y:40}],ball:{x:30,y:50}};return {id,title,updatedAt:new Date().toISOString(),speed:'1',choice:'forward',state:{sequenceId:id,sequenceTitle:title,scenario:'custom',step:0,tokens:structuredClone(initial.tokens),ball:{...initial.ball},customBase:initial,customSteps:[[{id:'p1',x,y:30,type:'move'},{id:'ball',x,y:30,type:'pass'}]]}}};
  simpleCommitLibrary([entry('eleven-a','Schéma A · exemple',50),entry('eleven-b','Schéma B · exemple',65)]);
  }''')
- page.locator('#task-match-causerie').click();page.locator('#causerie-eleven-options > summary').click()
+ page.locator('#task-match-causerie').click();page.locator('.causerie-clean-library > summary').evaluate_all('(rows)=>rows.forEach(row=>row.parentElement.open=true)')
  page.get_by_label('Animation Défensive · Schéma A · exemple',exact=True).check();page.get_by_label('Animation Défensive · Schéma B · exemple',exact=True).check()
  for phase in ['Transition OFF / DEF','Animation Offensive','Transition DEF / OFF']:page.get_by_label(phase+' · Schéma A · exemple',exact=True).check()
  assert page.evaluate('valid(getCompositionBoard())')

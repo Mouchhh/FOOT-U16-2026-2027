@@ -1,0 +1,182 @@
+#task-causerie.causerie-clean-editor {
+  --causerie-navy: #0b192c;
+  --causerie-red: #e31b23;
+  color: var(--causerie-navy);
+}
+.causerie-clean-editor #match-plan-form > .section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5eaf1;
+}
+.causerie-clean-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.causerie-clean-actions button {
+  min-height: 42px;
+  padding: 10px 15px;
+  border-radius: 9px;
+  font-size: 13px;
+  white-space: normal;
+}
+.causerie-clean-actions .causerie-canva-badge {
+  background: #eef3fb;
+  color: #2855a2;
+  border: 1px solid #dbe5f5;
+  border-radius: 30px;
+  padding: 7px 12px;
+  min-height: 34px;
+}
+.causerie-clean-body {
+  display: grid;
+  gap: 24px;
+  padding: 24px 0;
+}
+.causerie-clean-match {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) 2fr;
+  gap: 18px;
+}
+.causerie-clean-editor label {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #53677e;
+}
+.causerie-clean-editor input,
+.causerie-clean-editor textarea,
+.causerie-clean-editor select {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  border: 1px solid #d8e2ef;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--causerie-navy);
+  padding: 11px 13px;
+  font-size: 14px;
+  font-weight: 400;
+}
+.causerie-clean-editor textarea {
+  min-height: 96px;
+  resize: vertical;
+  line-height: 1.6;
+}
+.causerie-clean-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.causerie-clean-card {
+  min-width: 0;
+  padding: 0 0 20px;
+  border-bottom: 1px solid #e5eaf1;
+  background: transparent;
+}
+.causerie-clean-card h3 {
+  font-size: 17px;
+  color: var(--causerie-navy);
+  margin: 0 0 14px;
+  font-weight: 650;
+}
+.causerie-clean-card[data-phase="closingMessage"] {
+  grid-column: 1/-1;
+}
+.causerie-clean-library {
+  margin-top: 12px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+.causerie-clean-library > summary {
+  cursor: pointer;
+  color: #2855a2;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 0;
+}
+.causerie-clean-library > section {
+  padding: 12px 0 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 140px;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+}
+.causerie-clean-library .causerie-situation-choices {
+  grid-column: 1/-1;
+  max-height: 210px;
+  padding: 0 3px;
+}
+.causerie-clean-library .causerie-phase-choice {
+  display: flex;
+  gap: 10px;
+  font-weight: 400;
+  font-size: 13px;
+  padding: 9px 0;
+}
+.causerie-clean-library input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: #2855a2;
+  flex-shrink: 0;
+}
+.causerie-clean-library p {
+  grid-column: 1/-1;
+}
+.causerie-clean-format {
+  max-width: 340px;
+}
+.causerie-clean-editor [hidden],
+#personal-canva-download[hidden] {
+  display: none !important;
+}
+.causerie-clean-editor #match-plan-status:empty,
+.causerie-clean-editor [role="status"]:empty {
+  display: none;
+}
+@media (max-width: 650px) {
+  .causerie-clean-grid,
+  .causerie-clean-match {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .causerie-clean-actions {
+    width: 100%;
+    gap: 8px;
+  }
+  .causerie-clean-actions button {
+    flex: 1 1 auto;
+  }
+  .causerie-clean-library > section {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .causerie-clean-body {
+    gap: 20px;
+    padding-top: 18px;
+  }
+  .causerie-clean-grid {
+    gap: 20px;
+  }
+}
+/* The causerie has its own actions: suppress the parallel save/export bars. */
+body.match-clean-mode:has(#terrain-flow[data-step="1"]) #save,
+body.match-clean-mode #terrain-flow[data-step="1"] > .flow-footer,
+.causerie-clean-editor > .task-causerie-summary {
+  display: none !important;
+}
+.causerie-clean-editor #match-plan-dialog-title {
+  font-size: 23px;
+  line-height: 1.3;
+  margin-top: 4px;
+  color: var(--causerie-navy);
+}
+.causerie-clean-editor #match-plan-form > .section-heading .eyebrow {
+  color: #53677e;
+}
