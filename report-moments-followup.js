@@ -26,10 +26,6 @@ renderReportPlayers = function(root) {
       else if(option.value==='But contre')option.textContent='But adverse';
     }
   }
-  const notes = el('details','report-moments-notes');
-  notes.append(el('summary','','Notes complémentaires'));
-  for (const [key,label] of Object.entries(reportMomentFields)) notes.append(reportGrowingField(label,currentReport.analysis[key] || '',value => currentReport.analysis[key]=value));
-  section.append(notes);
   root.append(section);
 };
 const reportMomentsDocument = buildReportDocument;

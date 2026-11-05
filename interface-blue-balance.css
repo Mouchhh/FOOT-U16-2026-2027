@@ -1,0 +1,24 @@
+/* Bleu = navigation et travail courant. Rouge = danger, alertes et fermeture. */
+@media screen {
+ html body :is(#match-new,#training-assistant-generate,#training-assistant-save,#simple-sequence-save,#exercise-studio-next,#custom-training-form .studio-footer button[type=submit],.training-assistant-controls .primary,.causerie-photo-export .primary,#report-next.report-clean-validate,#report-quick-validate,#agenda-overview-export){background:#2855a2!important;border-color:#2855a2!important;color:#fff!important}
+ html body :is(#training-create-session,#training-custom-add,#report-new,#agenda-week-template-open,#composition-copy,#report-causerie-import-button,#report-group-message-copy,#match-plan-form .causerie-ppt-direct){border-color:#b7cbe8!important;color:#2855a2!important;background:#fff!important}
+ html body :is(#training-create-session,#training-custom-add,#report-new,#agenda-week-template-open,#composition-copy,#report-causerie-import-button,#report-group-message-copy):hover{background:#eef4fc!important;color:#173d77!important}
+ html body :is(.team-space-trigger,.coach-team-picker select,.squad-team-filter select,.squad-category-filter select,.educator-profile select,.report-entry-banner,.report-attendance-inline,.recurring-intro,.document-completion-card,.training-assistant-phase,.causerie-photo-export,.causerie-eleven-phases section){border-left-color:#2855a2!important;border-top-color:#dce5ef}
+ html body .team-space-chevron,html body .team-space-add{color:#2855a2}
+ html body :is(.team-space-card[aria-pressed=true],.team-space-active,.account-team-active,.educator-team-list button[aria-pressed=true],.educator-profile-tabs button[aria-selected=true],.account-tabs button[aria-selected=true],.squad-followup-tabs button[aria-pressed=true],.squad-primary-category){color:#2855a2!important;border-color:#b7cbe8!important;background:#eef4fc!important}
+ html body :is(.agenda-week-dropdown button:hover,.agenda-week-dropdown button:focus-visible,.settings-navigation-footer #coach-account-open:hover,.settings-navigation-footer #coach-account-open[aria-expanded=true],#settings-menu-options>button:not(.settings-logout):hover){color:#2855a2;background:#eef4fc}
+ html body :is(.agenda-overview-event.is-match,.causerie-validated-status,.resource-card .eyebrow svg){border-color:#b7cbe8;color:#2855a2}
+ html body .agenda-overview-event.is-match{border-left-color:#2855a2}
+ html body .report-analysis-disclosure>summary::after{color:#2855a2}
+ html body #report-content .report-analysis-scores button[aria-pressed=true]{background:#edf4ff;border-color:#2855a2;color:#2855a2}
+ html body #report-moments-panel .report-actions button:first-child{background:#2855a2;border-color:#2855a2;color:#fff}
+ html body #custom-training-form .tactical-tools button[aria-pressed=true]{background:#2855a2!important;border-color:#2855a2!important;color:#fff;box-shadow:0 0 0 1px #2855a2}
+ html body #custom-training-form .tactical-tools .exercise-equipment-button[aria-pressed=true]{background:#edf4ff!important}
+ html body #custom-training-form .tactical-tools .exercise-equipment-button[aria-pressed=true] span{color:#2855a2}
+ html body .causerie-phase-choice input,html body .attendance-session-confirm input{accent-color:#2855a2}
+ html body .monthly-agenda-reminder{border-color:#b7cbe8;color:#2855a2;background:#f2f6fc}
+ html body .report-presence-badge:focus-visible,html body .player-empty-slot:focus-visible{outline-color:#2855a2}
+}
+@media screen {
+ html body.reports-mode #report-next.report-clean-validate,html body #coach-agenda #agenda-overview-export{background:#2855a2!important;border-color:#2855a2!important;color:white!important}
+}

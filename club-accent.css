@@ -1,8 +1,8 @@
 /* Tertiary accent only: primary actions, pitches and semantic exercise colors stay blue/white or retain their own meanings. */
 @media screen {
   :root {
-    --club-accent: var(--club-logo-red, #e41f28);
-    --club-red: var(--club-accent);
+    --club-accent: #2855a2;
+    --club-red: var(--club-logo-red, #e41f28);
   }
 
   /* A narrow active marker, never a red navigation background. */
@@ -19,7 +19,7 @@
       0 2px 5px #18345510 !important;
   }
 
-  /* Selected secondary creation/configuration actions use red outlines. */
+  /* Selected secondary creation/configuration actions use blue outlines. */
   body.task-navigation
     :is(
       #training-create-session,

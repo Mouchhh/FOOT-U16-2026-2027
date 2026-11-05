@@ -20,7 +20,7 @@ with sync_playwright() as p:
  s=page.evaluate('(()=>{const s=agendaOverviewReports.snapshot(testMonth);return {rate:s.rate,elapsed:s.elapsed.length,done:s.done.length,rows:s.rows.length,volume:s.documentedMinutes,planned:s.plannedMinutes}})()')
  assert s=={'rate':67,'elapsed':3,'done':2,'rows':3,'volume':90,'planned':180},s
  assert page.locator('.agenda-overview-event').count()==3
- assert page.locator('#agenda-overview-export').evaluate('e=>getComputedStyle(e).backgroundColor')=='rgb(228, 31, 40)'
+ assert page.locator('#agenda-overview-export').evaluate('e=>getComputedStyle(e).backgroundColor')=='rgb(40, 85, 162)'
  page.evaluate('window.savedCompletion=reportLibrary[0].documentCompletion;delete reportLibrary[0].documentCompletion;')
  assert page.evaluate('agendaOverviewReports.snapshot(testMonth).rate')==33
  page.evaluate('reportLibrary[0].documentCompletion=savedCompletion')

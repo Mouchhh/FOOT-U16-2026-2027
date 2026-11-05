@@ -32,7 +32,7 @@ with sync_playwright() as p:
  for w in [1440,390]:
   page.set_viewport_size({'width':w,'height':1000});page.wait_for_timeout(100)
   assert page.locator('.report-analysis-modern').evaluate('e=>e.scrollWidth<=e.clientWidth')
-  assert page.locator('#report-next').evaluate('e=>getComputedStyle(e).backgroundColor')=='rgb(228, 31, 40)'
+  assert page.locator('#report-next').evaluate('e=>getComputedStyle(e).backgroundColor')=='rgb(40, 85, 162)'
   page.screenshot(path=f'/tmp/report-analysis-modern-{w}.png')
  page.reload(wait_until='domcontentloaded');page.wait_for_function('typeof reportAnalysisWorkshopSuggestions === "function"')
  assert page.evaluate('currentReport.analysis.improveAttack')=='Finition et conservation sous pression'
