@@ -7,7 +7,7 @@ with sync_playwright() as p:
  for label in ['Temps forts','Temps faibles','Faits de jeu majeurs et événements clés de l’adversaire']:
   assert page.get_by_label(label,exact=True).count()==0
  assert 'Ancien temps fort' in page.evaluate('buildReportDocument().textContent')
- assert page.get_by_role('button',name='+ But pour nous',exact=True).is_visible()
+ assert page.get_by_role('button',name='+ Fait de jeu de notre équipe',exact=True).is_visible()
  assert page.locator('#report-next').evaluate('e=>getComputedStyle(e).backgroundColor')=='rgb(40, 85, 162)'
  assert page.locator('#report-delete').evaluate('e=>getComputedStyle(e).backgroundColor')=='rgb(228, 31, 40)'
  page.evaluate("reportTab='sport';renderReportTabs();renderReportContent()")

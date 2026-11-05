@@ -10,7 +10,7 @@ renderReportPlayers = function(root) {
   renderReportEvents(section);
   const tools = section.querySelector('.report-actions');
   tools.replaceChildren();
-  for (const [label, type, card] of [['+ But pour nous','But pour',''],['+ But adverse','But contre',''],['+ Carton jaune','Carton','yellow'],['+ Carton rouge','Carton','red']]) {
+  for (const [label, type, card] of [['+ Fait de jeu de notre équipe','But pour',''],['+ Fait de jeu de l’adversaire','But contre',''],['+ Carton jaune','Carton','yellow'],['+ Carton rouge','Carton','red']]) {
     const button=el('button','export',label);button.type='button';
     button.onclick=()=>{
       if(currentReport.events.length>=100)return notify('100 faits maximum.');
@@ -22,8 +22,8 @@ renderReportPlayers = function(root) {
     const selected=select.value;
     for (const option of [...select.options]) {
       if(!['But pour','But contre','Carton','Carton adverse',selected].includes(option.value))option.remove();
-      else if(option.value==='But pour')option.textContent='But pour nous';
-      else if(option.value==='But contre')option.textContent='But adverse';
+      else if(option.value==='But pour')option.textContent='But marqué';
+      else if(option.value==='But contre')option.textContent='But encaissé';
     }
   }
   root.append(section);
