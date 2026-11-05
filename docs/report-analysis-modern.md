@@ -17,3 +17,7 @@ La carte est renommée Animations et reçoit directement les champs existants `w
 ## Carte ouverte 247
 
 Compléments et évaluations sportives est une section ouverte identique aux deux autres cartes. Notes sur 5 et observations sont visibles directement ; aucun volet déroulant dans cette carte. Les valeurs enregistrées sont inchangées.
+
+## Parcours simplifié 251
+
+L’onglet Plan d’action est retiré des navigations. Les anciennes routes `plan` sont redirigées vers Analyse. Deux champs uniquement sont proposés dans le bloc Pour la prochaine séance en bas d’Analyse : priorité (`plan.priority`) et exercice envisagé facultatif (`plan.sessionExercise`). La priorité n’est plus dupliquée dans la carte Pistes de progrès. Les autres propriétés de l’ancien plan ne sont pas effacées ; si elles sont renseignées, un volet Informations conservées permet de les relire. Les anciennes clés de navigation sont gardées pour ne pas décaler les index des parcours mémorisés.

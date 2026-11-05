@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   }else if(parent==='view-coach-agenda'){
    add('task-agenda-calendar','Calendrier',()=>workspaceFlows.agenda.go(1),workspaceFlows.agenda.index()===1);add('task-agenda-overview','Vue d’ensemble & Rapports',()=>workspaceFlows.agenda.go(0),workspaceFlows.agenda.index()===0);
   }else if(parent==='view-reports'){
-   for(const [id,label]of Object.entries({general:'Le match',sport:'Analyse',players:'Moments marquants',plan:'Plan d’action',preview:'Synthèse'}))add('task-report-'+id,label,()=>report(id),reportTab===id||id==='sport'&&reportTab==='human');
+   for(const [id,label]of Object.entries({general:'Le match',sport:'Analyse',players:'Moments marquants',preview:'Synthèse'}))add('task-report-'+id,label,()=>report(id),reportTab===id||id==='sport'&&reportTab==='human');
   }else if(parent==='view-club-network'){
    for(const [i,label]of [[0,'Éducateurs']])add('task-club-'+i,label,()=>{document.body.classList.remove('club-animations-mode');if(clubNetworkBound())workspaceFlows.club.go(i);},!document.body.classList.contains('club-animations-mode'));add('task-club-animations','Animations',()=>window.clubAnimationsOpen?.(),document.body.classList.contains('club-animations-mode'));
   }

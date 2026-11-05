@@ -9,3 +9,7 @@ Le sous-onglet Synthèse affiche un tableau de bord à trois colonnes, en lectur
 Le bouton Imprimer / Exporter la Synthèse Complète (PDF) utilise une feuille indépendante A4 paysage reprenant les trois cartes. L’impression historique est neutralisée pour cet export afin d’éviter le double rapport. Nettoyage après `afterprint` (impression asynchrone comprise). Choisir Enregistrer au format PDF dans le navigateur.
 
 Fichiers : `report-summary-dashboard.js/css`. Test : `python3 tests/report-summary-dashboard-browser.py` (tri numérique, effectif de causerie, événements, tactique/action, absence de mutation, export réel PDF, mobile et actualisation).
+
+## Version courte 251
+
+La synthèse adopte un bandeau adversaire/date/score, deux cartes Groupe & Temps de jeu et Faits marquants, puis une conclusion compacte en bas. Elle n’affiche plus toutes les notes détaillées ni toutes les évaluations. Les conclusions reprennent des extraits des textes déjà saisis (240 caractères maximum par repère, sans réécriture ni modification des données). L’exercice envisagé et la priorité figurent dans la conclusion. Les observations intégrales restent dans Analyse et les anciennes informations de plan sont consultables dans son bloc de données conservées. L’impression dédiée reprend cette présentation courte à deux colonnes.

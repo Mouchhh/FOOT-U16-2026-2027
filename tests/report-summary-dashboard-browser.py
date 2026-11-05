@@ -1,4 +1,4 @@
-"""Three-column summary: remembered roster, chronological facts, all sections and print."""
+"""Compact summary: remembered roster, chronological facts, all sections and print."""
 from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':1000});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
@@ -9,12 +9,15 @@ with sync_playwright() as p:
  currentReport.events=[{minute:'70',type:'Changement',detail:'Changement décisif'},{minute:'12',type:'But pour',detail:'Buteur test'},{minute:'',type:'Carton',card:'red',detail:'Expulsion test'},{minute:'8',type:'But contre',detail:'But adverse test'}];
  currentReport.analysis.withBall='Circulation rapide';currentReport.analysis.improveDefence='Protéger la profondeur';currentReport.plan.priority='Travailler le repli';currentReport.plan.sessionObjective='Réagir à la perte';currentReport.plan.summary='Solidarité collective';currentReport.ratings.physical.score='4';
  window.originalPlayers=JSON.stringify(currentReport.players);reportTab='preview';renderReportTabs();renderReportContent();}''')
- assert page.locator('.report-summary-card').count()==3
+ assert page.locator('.report-summary-card').count()==2
+ assert page.locator('#report-tabs [data-report-tab=plan]').count()==0
+ assert page.locator('.report-summary-match-banner').is_visible()
+ assert page.locator('.report-summary-conclusion').count()==1
  assert page.locator('.report-summary-score').inner_text()=='2 – 1'
  assert page.locator('.report-summary-roster li').evaluate_all('els=>els.map(e=>e.dataset.summaryNumber)')==['1','2','5','11','14']
  assert page.locator('.report-summary-event time').all_inner_texts()==['8′','12′','70′','—']
  assert page.locator('.report-summary-event.is-goal').count()==1
- for text in ['Circulation rapide','Protéger la profondeur','Travailler le repli','Réagir à la perte','Solidarité collective']:
+ for text in ['Circulation rapide','Protéger la profondeur','Travailler le repli','Solidarité collective']:
   assert text in page.locator('.report-summary-dashboard').inner_text()
  assert page.evaluate('JSON.stringify(currentReport.players)===originalPlayers')
  assert page.evaluate('reportValid(currentReport)')
@@ -27,6 +30,14 @@ with sync_playwright() as p:
   page.set_viewport_size({'width':w,'height':1000});page.wait_for_timeout(100)
   assert page.locator('.report-summary-dashboard').evaluate('e=>e.scrollWidth<=e.clientWidth')
   page.screenshot(path=f'/tmp/report-summary-{w}.png')
- page.evaluate("currentReport.plan.priority='Nouvelle priorité';reportTab='plan';renderReportContent();reportTab='preview';renderReportContent()")
+ page.evaluate("currentReport.plan.priority='Nouvelle priorité';reportTab='plan';renderReportTabs();renderReportContent()")
+ assert page.evaluate('reportTab')=='sport'
+ assert page.locator('.report-next-session').is_visible()
+ assert page.locator('.report-next-session-fields textarea').count()==2
+ page.locator('[data-analysis-field=sessionExercise]').fill('Jeu de repli collectif')
+ assert page.evaluate('currentReport.plan.sessionObjective')=='Réagir à la perte'
+ assert 'Réagir à la perte' in page.locator('.report-next-session .report-previous-notes').evaluate('e=>e.textContent')
+ page.evaluate("reportTab='preview';renderReportContent()")
  assert 'Nouvelle priorité' in page.locator('.report-summary-priority').inner_text()
- assert not errors,errors;b.close();print('PASS: three-column summary, numeric roster incl. remembered substitutes, chronology, tactics/action, read-only rendering, PDF and mobile.')
+ assert 'Jeu de repli collectif' in page.locator('.report-summary-priority').inner_text()
+ assert not errors,errors;b.close();print('PASS: compact summary, removed Plan tab, next-session fields, preserved historical data, numeric roster, chronology, PDF and mobile.')

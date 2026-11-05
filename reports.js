@@ -46,9 +46,11 @@ function reportRatings(parent,labels){
  Object.entries(labels).forEach(([key,label])=>{const row=el('div','report-rating');const rating=currentReport.ratings[key];const wrap=el('label','report-field');wrap.append(el('span','',label));const select=el('select');const empty=el('option','','Non évalué');empty.value='';select.append(empty);for(let n=.5;n<=5;n+=.5){const o=el('option','',String(n).replace('.',',')+' / 5');o.value=String(n);select.append(o);}select.value=rating.score;select.onchange=()=>{rating.score=select.value;reportAutosave();};wrap.append(select);row.append(wrap,reportField('Observations',rating.note,v=>rating.note=v,{area:true,rows:2}));parent.append(row);});
 }
 function renderReportTabs(){
- $('report-tabs').replaceChildren();Object.entries({general:'1 · Le match',sport:'2 · Analyse',players:'3 · Moments marquants',plan:'4 · Plan d’action',preview:'5 · Synthèse'}).forEach(([id,label])=>{const selected=reportTab===id||id==='sport'&&reportTab==='human',b=el('button',selected?'active':'',label);b.type='button';b.dataset.reportTab=id;b.setAttribute('aria-pressed',String(selected));b.onclick=()=>{reportTab=id;renderReportTabs();renderReportContent();};$('report-tabs').append(b);});
+ if(reportTab==='plan')reportTab='sport';
+ $('report-tabs').replaceChildren();Object.entries({general:'1 · Le match',sport:'2 · Analyse',players:'3 · Moments marquants',preview:'4 · Synthèse'}).forEach(([id,label])=>{const selected=reportTab===id||id==='sport'&&reportTab==='human',b=el('button',selected?'active':'',label);b.type='button';b.dataset.reportTab=id;b.setAttribute('aria-pressed',String(selected));b.onclick=()=>{reportTab=id;renderReportTabs();renderReportContent();};$('report-tabs').append(b);});
 }
 function renderReportContent(){
+ if(reportTab==='plan')reportTab='sport';
  $('report-title').value=currentReport.title||'';const root=$('report-content');root.replaceChildren();
  if(reportTab==='general'){
  const panel=reportSection('Informations générales','Préparez le contexte, le résultat et les principaux repères du match.');const result=el('div','report-result',reportResult());result.id='report-result';panel.append(result);const grid=el('div','report-grid');

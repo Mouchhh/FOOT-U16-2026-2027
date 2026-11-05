@@ -44,3 +44,9 @@
 #report-content .report-analysis-extras>h2{margin:0 0 24px;font-size:18px;line-height:1.4}
 #report-content .report-analysis-extras .report-analysis-quick-ratings{margin-bottom:0}
 @media(max-width:550px){#report-content .report-analysis-cards section.report-analysis-extras{padding:20px}}
+#report-content .report-next-session{margin:20px 0 0;padding:22px 26px;background:#fff;border:1px solid #e3e9f1;border-radius:14px}
+#report-content .report-next-session h2{font-size:17px;color:#0b192c;margin:0 0 18px}
+.report-next-session-fields{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+#report-content .report-next-session-fields .report-field{margin-bottom:0}
+.report-next-session .report-previous-notes{margin-top:18px}
+@media(max-width:600px){.report-next-session-fields{grid-template-columns:1fr}#report-content .report-next-session{padding:20px}}

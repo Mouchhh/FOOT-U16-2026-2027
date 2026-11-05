@@ -64,7 +64,6 @@ function reportRenderAnalysis(root) {
   animations.prepend(ball);animations.insertBefore(animations.querySelector('h2'),ball);animations.insertBefore(animations.querySelector('.report-analysis-subtitle'),ball);
   const progress = reportSection('Pistes de progrès & Axes de travail');progress.classList.add('report-analysis-card');
   progress.append(el('p', 'report-analysis-subtitle', 'Les priorités à travailler cette semaine.'));
-  progress.append(field('Priorité de la semaine', currentReport.plan.priority, v => currentReport.plan.priority = v, 'priority', 'La priorité à retenir…'));
   const axes = el('div', 'report-analysis-axes');
   for (const [key, label] of [['improveAttack', 'Avec le ballon'], ['improveDefence', 'Sans le ballon']]) axes.append(field(label, currentReport.analysis[key], v => currentReport.analysis[key] = v, key, 'Une piste de progrès…'));
   progress.append(axes);
@@ -90,6 +89,12 @@ function reportRenderAnalysis(root) {
   }
   extra.append(ratings);
   grid.append(extra);
+  const nextSession = reportSection('Pour la prochaine séance');nextSession.classList.add('report-next-session');
+  const nextFields = el('div', 'report-next-session-fields');
+  nextFields.append(field('Priorité à travailler', currentReport.plan.priority, v => currentReport.plan.priority = v, 'priority', 'Une priorité concrète…'),field('Exercice envisagé · facultatif', currentReport.plan.sessionExercise, v => currentReport.plan.sessionExercise = v, 'sessionExercise', 'Un exercice ou une situation à envisager…'));
+  nextSession.append(nextFields);
+  const savedPlan = reportPreviousNotes('Informations conservées de l’ancien plan', [['Objectif de séance', currentReport.plan.sessionObjective],['Message au groupe', currentReport.plan.summary],['Point de suivi', currentReport.plan.reviewDate],['Séance antérieure 1',currentReport.plan.session1],['Séance antérieure 2',currentReport.plan.session2],['Séance antérieure 3',currentReport.plan.session3],['Ancien repère',currentReport.plan.success],['Ancienne attribution',currentReport.plan.owner]]);
+  if(savedPlan)nextSession.append(savedPlan);view.append(nextSession);
   const previous = reportPreviousNotes('Notes conservées des anciens bilans', [['Première période', currentReport.analysis.firstHalf], ['Seconde période', currentReport.analysis.secondHalf]]);
   if (previous) view.append(previous);root.append(view);
 }

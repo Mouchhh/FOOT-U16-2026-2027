@@ -7,3 +7,23 @@
 @media print{html:has(body.report-summary-printing),html body.report-summary-printing{height:auto!important;min-height:0!important;overflow:visible!important}html body.report-summary-printing{margin:0!important;padding:0!important}#report-summary-print{min-height:0!important;height:auto!important}}
 @media print{html body.report-summary-printing{display:block!important;width:auto!important;gap:0!important}}
 @media print{#report-summary-print .report-summary-roster li{padding:6px 0}#report-summary-print .report-summary-card h3{margin-bottom:12px}#report-summary-print .report-summary-score{font-size:32px}#report-summary-print .report-summary-event{padding:10px 0}}
+/* Synthèse courte : match, deux cartes, conclusion. */
+.report-summary-match-banner{display:flex;justify-content:space-between;align-items:center;gap:24px;background:#fff;border:1px solid #e1e8f1;border-radius:14px;padding:22px 26px;margin-bottom:22px}
+.report-summary-match-banner h2{font-size:22px;color:#0b192c;margin:8px 0}
+.report-summary-match-banner .eyebrow{font-size:10px;letter-spacing:.1em;color:#7c8da3}
+.report-summary-match-banner .report-summary-score{margin:0;white-space:nowrap;font-size:38px}
+.report-summary-match-meta{color:#6d819b;font-size:12px;margin:9px 0 0}
+.report-summary-compact .report-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.report-summary-compact .report-summary-card:last-child{grid-column:auto}
+.report-summary-caption{color:#7c8da3;font-size:11px;margin:-8px 0 10px}
+.report-summary-minutes{margin-left:auto;white-space:nowrap;color:#2855a2;font-size:12px;font-weight:650;padding-top:4px}
+.report-summary-conclusion{margin-top:22px;padding:22px 26px;background:#fff;border:1px solid #e1e8f1;border-radius:14px}
+.report-summary-conclusion h3{color:#0b192c;font-size:17px;margin:0 0 14px}
+.report-summary-takeaways p{font-size:13px;line-height:1.7;color:#4d6581;margin:8px 0}
+.report-summary-takeaways strong{color:#244567;font-size:12px}
+.report-summary-priority small{display:block;margin-top:8px;color:#6b82a0;font-size:12px;line-height:1.6}
+@media(max-width:700px){.report-summary-compact .report-summary-grid{grid-template-columns:1fr}.report-summary-match-banner{align-items:start;padding:18px;gap:16px}.report-summary-match-banner .report-summary-score{font-size:26px}.report-summary-conclusion{padding:18px}}
+@media print{#report-summary-print.report-summary-compact .report-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7mm}#report-summary-print .report-summary-match-banner{padding:4mm;margin-bottom:5mm;break-inside:avoid}#report-summary-print .report-summary-conclusion{padding:4mm;margin-top:5mm;break-inside:avoid}#report-summary-print .report-summary-match-meta{font-size:9pt}#report-summary-print .report-summary-minutes{font-size:9pt}}
+body.reports-mode #after-match #report-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+.report-summary-match-banner{height:auto;min-height:0}
+@media(max-width:600px){body.reports-mode #after-match #report-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
