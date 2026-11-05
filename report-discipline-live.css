@@ -1,0 +1,10 @@
+.report-discipline-live{display:grid;gap:8px;margin:14px 0}
+.report-discipline-live-item{display:flex;align-items:start;gap:10px;padding:12px 14px;border:1px solid #dfe8f4;border-left:3px solid #2855a2;border-radius:8px;background:#f4f8fd;color:#2855a2}
+.report-discipline-live-item>.player-stat-card-symbol{flex-shrink:0;margin-top:3px}
+.report-discipline-live-item>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.report-discipline-live-item strong{font-size:12px;line-height:1.5}
+.report-discipline-live-item small{font-size:11px;line-height:1.6;color:#647c98}
+.report-discipline-live-item.is-critical{border-color:#f0d4d7;border-left-color:#e41f28;background:#fff6f7;color:#b61e27}
+.report-discipline-live-item.is-critical small{color:#9b525a}
+.report-discipline-live-note{font-size:10px;color:#7e8fa6;line-height:1.6;margin:0}
+@media print{.report-discipline-live-item{break-inside:avoid}.report-discipline-live-note{display:none}}
