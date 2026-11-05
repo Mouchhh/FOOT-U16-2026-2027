@@ -1,9 +1,12 @@
 {
-  "file": "Exos foot - MyCoach.html",
-  "sha256": "c87d0b42ee3fdc1b6d4d05fa42f113870379fae11c34b03cb0da313dc8728244",
-  "exercises": 249,
-  "pedagogicalViews": 337,
+  "file": "Exos foot - MyCoach (1).html",
+  "sha256": "0fed83fe0d3c590ee27f892524cb68ac6b5069ba8e50afd5f899817261ff2283",
+  "exercises": 1000,
+  "pedagogicalViews": 1107,
   "existingExercisesPreserved": 84,
-  "totalExercises": 333,
-  "integration": "Exact script prefix before standalone autostart; original CSS; unchanged archived upload. Classification reads original moment/sub/also."
+  "totalExercises": 1084,
+  "integration": "Exact script prefix before standalone autostart; original CSS; unchanged archived upload. Classification reads original moment/sub/also.",
+  "previousSha256": "c87d0b42ee3fdc1b6d4d05fa42f113870379fae11c34b03cb0da313dc8728244",
+  "existingMyCoachPreserved": 249,
+  "addedExercises": 751
 }

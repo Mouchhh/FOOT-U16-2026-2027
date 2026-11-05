@@ -276,25 +276,12 @@ function suppliedBoardSnapshot(model) {
     })),
   };
 }
-function addSuppliedExercise(e) {
-  if (!applyTrainingForm())
-    return notify("Vérifiez les paramètres de la séance.");
-  if (currentTraining.blocks.length >= 20) return notify("20 blocs maximum.");
-  const plan = suppliedExerciseEngine.adapt(e, suppliedSessionContext());
-  if (
-    plan.warn.length &&
-    !confirm(
-      plan.warn.join("\n") +
-        "\n\nAjouter cet exercice pour l’ajuster dans la séance ?",
-    )
-  )
-    return;
+function suppliedExerciseBlock(e, context) {
+  const plan = suppliedExerciseEngine.adapt(e, context);
   const model = suppliedExerciseEngine.buildExerciseModel(plan),
     groups = plan.groups.map((g) => ({ players: g.n, keepers: g.k }));
   if (groups.some((g) => g.keepers > g.players - 2))
-    return notify(
-      "Gardez au moins deux joueurs de champ par groupe avant ajout.",
-    );
+    throw Error('Gardez au moins deux joueurs de champ par groupe avant ajout.');
   const custom = {
     importedExerciseId: e.id,
     importedExerciseView: suppliedExerciseEngine.viewIndex(e),
@@ -346,27 +333,25 @@ function addSuppliedExercise(e) {
     board: suppliedBoardSnapshot(model),
     adaptation: {
       version: 1,
-      players: currentTraining.players,
-      keepers: currentTraining.keepers,
+      players: context.players,
+      keepers: context.keepers,
       source:
         suppliedExerciseEngine.presentationFor(e).source + " · " + e.title,
       rotations: e.rules.join("\n"),
       groups,
     },
   };
-  if (!trainingCustomValid(custom))
-    return notify(
-      "Cette adaptation ne peut pas être enregistrée. Vérifiez les paramètres.",
-    );
-  return trainingCommitBlocks((blocks) =>
-    blocks.push({
-      id: crypto.randomUUID(),
-      exerciseId: "custom",
-      custom,
-      duration: e.duration,
-      notes: "",
-    }),
-  );
+  if (!trainingCustomValid(custom)) throw Error('Cette fiche ne peut pas être ajoutée avec ces paramètres. Son contenu original est conservé.');
+  return {warnings: plan.warn, block: {id: crypto.randomUUID(), exerciseId: 'custom', custom, duration: e.duration, notes: ''}};
+}
+function addSuppliedExercise(e) {
+  if (!applyTrainingForm()) return notify('Vérifiez les paramètres de la séance.');
+  if (currentTraining.blocks.length >= 20) return notify('20 blocs maximum.');
+  try {
+    const result = suppliedExerciseBlock(e, suppliedSessionContext());
+    if(result.warnings.length&&!confirm(result.warnings.join('\n')+'\n\nAjouter cet exercice pour l’ajuster dans la séance ?'))return;
+    return trainingCommitBlocks(blocks=>blocks.push(result.block));
+  } catch(error) {notify(error.message);}
 }
 renderBibleCatalogue = function () {
   ensureBibleCatalogue();
@@ -413,12 +398,12 @@ renderBibleCatalogue = function () {
   }
   const size =
       innerWidth >= 1500
-        ? 4
+        ? 12
         : innerWidth >= 1100
-          ? 3
+          ? 12
           : innerWidth >= 650
-            ? 2
-            : 1,
+            ? 8
+            : 6,
     total = Math.max(1, Math.ceil(exercises.length / size));
   bibleCataloguePage = Math.min(bibleCataloguePage, total - 1);
   bibleDisposeDiagrams(root);

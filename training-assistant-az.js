@@ -84,6 +84,25 @@ document.addEventListener('DOMContentLoaded',()=>{
   function paint(){
     preview.replaceChildren();preview.append(el('h3','',session.title),el('p','hint',session.players+' présents dont '+session.keepers+' gardien(s) · '+session.duration+' min · '+trainingSpaceLabels[session.space]));
     for(const block of session.blocks){const section=el('section','training-assistant-phase');section.append(el('h3','',block.custom.title+' · '+(block.duration+(block.setupMinutes||0))+' min'),el('p','training-assistant-organisation',block.custom.organisation),el('p','',block.custom.instructions));preview.append(section);}
+    if(window.exerciseReferenceIndex){
+      const n=trainingAssistantNeeds({goal:goal.value,level:level.value,players:players.value,space:space.value});
+      const intention=n.focus==='Finition'?'finition':n.focus==='Transitions'?'transition':['Défense','Pressing'].includes(n.focus)?'defense':'conservation';
+      const suggestions=exerciseReferenceIndex.recommend({intention,effectif:n.total,gardiens:n.keepers,surface:n.space,niveau:n.level,limit:50}).filter(e=>['situation','jeu'].includes(e.phase)).slice(0,3);
+      const references=el('section','training-assistant-references');references.append(el('h3','','Exercices de référence compatibles'));
+      if(!suggestions.length)references.append(el('p','hint','Aucune fiche ne correspond exactement à cet effectif, ces gardiens et cet espace. Ajustez les critères ou conservez l’atelier proposé.'));
+      for(const ref of suggestions){const row=el('div','training-assistant-reference-row'),info=el('div'),actions=el('div','report-actions');info.append(el('strong','',ref.titre),el('small','',ref.effectif_min+'–'+ref.effectif_max+' joueurs · '+ref.duree+' min · '+ref.surface));
+        const view=el('button','export','Voir l’exercice'),use=el('button','export','Utiliser dans l’atelier principal');view.type=use.type='button';view.onclick=()=>openSuppliedSheet(exerciseReferenceIndex.resolve(ref.id));
+        use.disabled=session.blocks[1]?.custom.importedExerciseId===ref.source_id;
+        use.onclick=()=>{if(!ready())return;try{
+          const result=suppliedExerciseBlock(exerciseReferenceIndex.resolve(ref.id),{players:n.total,keepers:n.keepers,category:n.level,level:n.technical==='advanced'?'confirme':'dev',moment:'libre',space:n.bounds});
+          if(result.warnings.length&&!confirm(result.warnings.join('\n')))return;
+          const blocks=session.blocks.map((b,i)=>i===1?result.block:b),duration=blocks.reduce((total,b)=>total+b.duration+(b.setupMinutes||0),0),next={...session,blocks,duration};
+          if(!trainingValid(next))throw Error('Cette fiche ne peut pas être intégrée dans la durée de cette séance.');session=next;paint();
+        }catch(error){status.textContent=error.message;}};
+        actions.append(view,use);row.append(info,actions);references.append(row);
+      }preview.append(references);
+    }
+
   }
   form.onsubmit=event=>{
     event.preventDefault();if(!form.reportValidity())return;

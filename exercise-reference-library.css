@@ -1,0 +1,15 @@
+.exercise-reference-navigation{display:grid;gap:12px;margin:16px 0 22px}
+.exercise-reference-intentions,.exercise-reference-phases{display:flex;flex-wrap:wrap;gap:8px}
+.exercise-reference-intentions button{font-size:12px;border:1px solid #dce5ef;border-radius:9px;padding:11px 14px;background:white;color:#3f5f85}
+.exercise-reference-intentions button[aria-pressed=true]{background:#2855a2;border-color:#2855a2;color:white}
+.exercise-reference-phases button{font-size:11px;padding:8px 12px;background:#f5f8fc;color:#6e829d;border:1px solid transparent;border-radius:20px}
+.exercise-reference-phases button[aria-pressed=true]{border-color:#b8cceb;background:#eaf2ff;color:#2855a2}
+.exercise-reference-badge{display:inline-block;background:#f1f5fb;color:#536e92;border-radius:5px;padding:4px 7px;font-size:10px;margin-right:6px;margin-bottom:5px}
+#training-catalogue .bible-card-actions button.primary{background:#e41f28!important;border-color:#e41f28!important;color:white!important}
+.exercise-reference-navigation~#training-catalogue{align-items:start}
+#training-catalogue-drawer:has(.exercise-reference-navigation) .supplied-section-filters,
+#training-catalogue-drawer:has(.exercise-reference-navigation) #bible-phase-shortcuts{display:none}
+.training-assistant-references{border-top:1px solid #dce5ef;margin-top:20px;padding-top:18px}
+.training-assistant-reference-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid #edf1f6}
+.training-assistant-reference-row>div{display:flex;flex-direction:column;gap:5px;font-size:12px;color:#355678}.training-assistant-reference-row small{font-size:10px;color:#8192a8}.training-assistant-reference-row button{font-size:11px}
+@media(max-width:600px){.exercise-reference-intentions{display:grid;grid-template-columns:1fr 1fr}.exercise-reference-intentions button{padding:10px;font-size:11px}.exercise-reference-phases{flex-wrap:nowrap;overflow:auto}.exercise-reference-phases button{white-space:nowrap;flex-shrink:0}.training-assistant-reference-row{align-items:start;flex-direction:column}}

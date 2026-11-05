@@ -11,9 +11,9 @@ with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1366,'height':900},reduced_motion='reduce');errors=[]
  page.on('pageerror',lambda e:errors.append(str(e)));page.on('dialog',lambda d:d.accept())
  page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function('window.suppliedMyCoachExerciseEngine && typeof suppliedCatalogueExercises==="function"')
- assert page.evaluate('suppliedMyCoachExerciseEngine.exercises.length')==249
- assert page.evaluate('suppliedMyCoachExerciseEngine.exercises.flatMap(suppliedMyCoachExerciseEngine.viewsOf).length')==337
- assert page.evaluate('suppliedExerciseEngine.exercises.length')==333
+ assert page.evaluate('suppliedMyCoachExerciseEngine.exercises.length')==manifest['exercises']
+ assert page.evaluate('suppliedMyCoachExerciseEngine.exercises.flatMap(suppliedMyCoachExerciseEngine.viewsOf).length')==manifest['pedagogicalViews']
+ assert page.evaluate('suppliedExerciseEngine.exercises.length')==manifest['totalExercises']
  # Exact original functions and object content, not a rewritten transcription.
  page.evaluate("core=>{window.originalMyCoach=new Function(core+';return {exercises:EXOS,viewsOf,adapt,buildExerciseModel};')();}",core)
  assert page.evaluate('''()=>{
@@ -30,8 +30,9 @@ with sync_playwright() as p:
  }''')
  page.locator('#view-training').click();page.locator('#task-training-bible').click()
  family=page.get_by_label('Bibliothèque d’exercices',exact=True);family.select_option('mycoach')
- assert page.locator('#bible-results').inner_text()=='249 exercice(s) trouvé(s)'
+ assert page.locator('#bible-results').inner_text()==str(manifest['exercises'])+' exercice(s) trouvé(s)'
  assert page.locator('.supplied-original-download').is_visible()
+ page.locator('.bible-search-options').evaluate('e=>e.open=true')
  for axis in ['ball','loss','win','off','ludic']:
   page.locator('#bible-bmf-category').select_option(axis)
   expected=page.evaluate('axis=>suppliedCatalogueExercises({source:"mycoach",axis}).length',axis)
@@ -59,4 +60,4 @@ with sync_playwright() as p:
  family.select_option('banide');assert page.locator('#bible-results').inner_text()=='7 exercice(s) trouvé(s)'
  assert not errors,errors
  b.close()
-print('249 untouched MyCoach exercises/337 native views, original source/CSS/functions/models, intentions, sections, family filter, native animation, valid session copy and mobile passed')
+print('1000 untouched MyCoach exercises with native views, original source/CSS/functions/models, intentions, sections, family filter, native animation, valid session copy and mobile passed')
