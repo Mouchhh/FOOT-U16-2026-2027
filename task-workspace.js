@@ -32,14 +32,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('terrain-next').textContent=index===0?(simple?'Consignes de l’animation →':'Ouvrir la causerie →'):index===1?'Enregistrer / exporter →':'Enregistrer';
   $('terrain-previous').textContent=index===2?(simple?'← Consignes de l’animation':'← Causerie'):'← Retour au tableau';
   const focusId=strip.contains(document.activeElement)?document.activeElement.id:null;
-  const key=JSON.stringify([parent,index,simple,kind,trainingPanel,trainingWizard.step(),reportTab,workspaceFlows.home.index(),workspaceFlows.agenda.index(),workspaceFlows.club.index()]);if(key===last)return;last=key;strip.replaceChildren();strip.setAttribute('aria-label','Rubriques · '+labels[parent]);
+  const key=JSON.stringify([parent,index,simple,kind,trainingPanel,trainingWizard.step(),reportTab,workspaceFlows.home.index(),workspaceFlows.agenda.index(),workspaceFlows.club.index(),$('training-space').classList.contains('training-assistant-open')]);if(key===last)return;last=key;strip.replaceChildren();strip.setAttribute('aria-label','Rubriques · '+labels[parent]);
   const items=[];const add=(id,label,action,selected)=>items.push({id,label,action,selected});
   if(parent==='view-pitch'){
    add('task-match-composition','Composition',composition,index!==1&&!simple&&kind==='composition');
    add('task-match-tactics','Tactique',tactical,simple||index!==1&&kind==='plan');
    add('task-match-causerie','Causerie',talk,index===1&&!simple);
   }else if(parent==='view-training'){
-   add('task-training-library','Séances',()=>trainingWizard.openLibrary(),trainingPanel!=='bible');add('task-training-bible','Exercices',()=>trainingWizard.openCatalogue(),trainingPanel==='bible');
+   add('task-training-library','Séances',()=>trainingWizard.openLibrary(),trainingPanel!=='bible'&&!$('training-space').classList.contains('training-assistant-open'));add('task-training-bible','Exercices',()=>trainingWizard.openCatalogue(),trainingPanel==='bible');add('task-training-assistant','Assistant A à Z',()=>window.trainingAssistantAZ?.open(),$('training-space').classList.contains('training-assistant-open'));
   }else if(parent==='view-home'){
    add('task-home-dashboard','Tableau de bord',()=>workspaceFlows.home.go(0),workspaceFlows.home.index()===0);add('task-home-coaches','Éducateurs',()=>workspaceFlows.home.go(1),workspaceFlows.home.index()===1);
   }else if(parent==='view-coach-agenda'){

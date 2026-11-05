@@ -250,7 +250,7 @@ function playerStatsSeasonSnapshot(
   // One validated roll call per actual date/time; copies never inflate attendance.
   const occurrences = new Map();
   for (const session of playerStatsUnique(
-    trainings.filter((s) => trainingValid(s) && playerStatsOwns(s)),
+    trainings.filter((s) => trainingValid(s) && !s.libraryOnly && playerStatsOwns(s)),
   )) {
     const a = session.attendance;
     if (
@@ -305,6 +305,7 @@ function playerStatsSeasonSnapshot(
   for (const s of trainings)
     if (
       trainingValid(s) &&
+      !s.libraryOnly &&
       playerStatsOwns(s) &&
       playerStatsInSeason(s.date, year) &&
       s.date + "T" + s.time <= now.day + "T" + now.time
@@ -339,7 +340,7 @@ function playerStatsAvailableSeasons() {
       if (year !== null) years.add(year);
     }
   for (const s of trainingLibrary)
-    if (playerStatsOwns(s)) {
+    if (playerStatsOwns(s) && !s.libraryOnly) {
       const year = playerStatsSeason(s.date);
       if (year !== null) years.add(year);
     }

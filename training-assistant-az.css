@@ -1,0 +1,27 @@
+.training-assistant-panel[hidden],.training-assistant-controls[hidden] { display: none !important; }
+.training-assistant-open .training-progress,.training-assistant-open .training-step,.training-assistant-open .training-step-footer,.training-assistant-open #training-library-page,.training-assistant-open #training-exercises-page { display: none !important; }
+.training-assistant-panel { color: #142d50; padding: 20px 0; }
+.training-assistant-form { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px 24px; margin: 24px 0; }
+.training-assistant-form input,.training-assistant-form select { min-height: 44px; width: 100%; padding: 10px 12px; border: 1px solid #d3dfed; border-radius: 8px; background: white; color: #142d50; font: inherit; box-sizing: border-box; }
+#training-assistant-generate,.training-assistant-controls .primary { background: var(--club-logo-red,#e41f28); border-color: var(--club-logo-red,#e41f28); color: white; min-height: 44px; }
+.training-assistant-form > button { grid-column: 1/-1; justify-self: start; }
+.training-assistant-phase { padding: 20px 0 20px 16px; border-bottom: 1px solid #e5eaf1; border-left: 2px solid var(--club-logo-red,#e41f28); margin: 18px 0; }
+.training-assistant-phase h3 { font-size: 17px; }
+.training-assistant-phase p { white-space: pre-line; font-size: 14px; line-height: 1.7; }
+.training-assistant-organisation { color: #526b88; }
+.training-assistant-controls .report-actions { flex-wrap: wrap; gap: 12px; margin: 18px 0; }
+.training-assistant-controls summary { min-height: 44px; align-content: center; cursor: pointer; }
+.training-assistant-controls input { min-height: 44px; }
+#training-assistant-print { display: none; }
+@media(max-width:650px) { .training-assistant-form { grid-template-columns: minmax(0,1fr); } .training-assistant-form input,.training-assistant-form select { font-size: 16px; } }
+@media print {
+ body.training-assistant-printing > :not(#training-assistant-print) { display: none !important; }
+ body.training-assistant-printing #training-assistant-print { display: block !important; position: static !important; background: white; color: black; }
+}
+
+@media(min-width:1000px) and (min-height:650px) { #training-space.training-assistant-open > .training-assistant-panel { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 8px; } }
+.training-assistant-controls details[open] { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.training-assistant-controls details > summary { grid-column: 1/-1; }
+
+body.training-mode #club-assistant-open,
+body.training-mode:has(#training-space.training-assistant-open) #workspace-save-open { display: none !important; }

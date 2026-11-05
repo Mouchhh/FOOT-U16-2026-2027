@@ -8,6 +8,7 @@
       .filter(
         (s) =>
           trainingValid(s) &&
+          !s.libraryOnly &&
           playerStatsOwns(s) &&
           occurrenceKey(s) === occurrenceKey(event),
       )
