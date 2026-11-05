@@ -185,6 +185,7 @@
     coachStorageSet("vestiaire-report-draft", JSON.stringify(next));
     clearTimeout(reportAutosaveTimer);
     currentReport = next;
+    window.documentEntry?.accept('report');
     documentCompletionBeginEdit("report", next);
     return next;
   }

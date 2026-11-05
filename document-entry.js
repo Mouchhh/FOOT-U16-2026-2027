@@ -131,6 +131,31 @@ document.addEventListener("DOMContentLoaded", () => {
   let bypass = 0,
     pending = null;
   const accepted = { causerie: null, report: null };
+  const acceptedStorageKey =
+    "vestiaire-document-entry-active:" +
+    activeCoach.id +
+    ":" +
+    activeCoachTeam.id;
+  try {
+    const saved = JSON.parse(
+      sessionStorage.getItem(acceptedStorageKey) || "{}",
+    );
+    for (const kind of ["causerie", "report"])
+      if (typeof saved[kind] === "string" && saved[kind].length < 500)
+        accepted[kind] = saved[kind];
+  } catch {}
+  function rememberAccepted() {
+    try {
+      sessionStorage.setItem(acceptedStorageKey, JSON.stringify(accepted));
+    } catch {}
+  }
+  document.addEventListener("document-completed", (event) => {
+    const kind = event.detail?.kind;
+    if (Object.hasOwn(accepted, kind)) {
+      accepted[kind] = null;
+      rememberAccepted();
+    }
+  });
   const state = { phase: "idle", kind: null, context: null, error: "" };
   const perform = (fn) => {
     bypass++;
@@ -144,6 +169,8 @@ document.addEventListener("DOMContentLoaded", () => {
     kind === "report" ? currentReport : getCompositionBoard();
   const key = (kind, payload) =>
     activeCoach.id +
+    ":" +
+    activeCoachTeam.id +
     ":" +
     kind +
     ":" +
@@ -319,6 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }),
       );
     accepted[kind] = key(kind, current(kind));
+    rememberAccepted();
     state.kind = kind;
     state.context = documentEntryContext(kind, current(kind));
     state.error = "";
@@ -338,12 +366,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (pending) return false;
     if (kind === "report" && reportAutosaveTimer) flushReportDraft();
     if (!workspaceNavigationCanLeave()) return false;
-    if (
-      !options.force &&
-      inside(kind) &&
-      accepted[kind] === key(kind, current(kind))
-    )
-      return perform(continuation);
     const matchContext = documentEntryContext(
         "causerie",
         getCompositionBoard(),
@@ -374,9 +396,20 @@ document.addEventListener("DOMContentLoaded", () => {
       matchContext.opponent
         ? matchContext
         : documentEntryContext(kind, current(kind)));
+    // Acceptance belongs to the document, not the page currently displayed.
+    if (
+      !options.force &&
+      !options.newDocument &&
+      !options.managesContext &&
+      accepted[kind] === key(kind, current(kind)) &&
+      documentEntrySameContext(
+        context,
+        documentEntryContext(kind, current(kind)),
+      )
+    )
+      return perform(continuation);
     // Completed documents stay quiet on passive module entry, including after reload.
     if (
-      (kind !== "report" || reportEntryBanner.dismissed()) &&
       typeof documentCompletionIsCompleted === "function" &&
       documentCompletionIsCompleted(kind, current(kind)) &&
       !documentCompletionIsEditing(kind, current(kind)) &&
@@ -450,32 +483,9 @@ document.addEventListener("DOMContentLoaded", () => {
       generation = clubNetworkGeneration,
       initial = documentEntrySignature(current(kind));
     const isReport = kind === "report";
-    const noticeKey = isReport ? reportEntryBanner.key() : null;
-    const dialog = el(
-      isReport ? "section" : "dialog",
-      isReport ? "report-entry-banner" : "document-entry-dialog",
-    );
-    dialog.id = isReport ? "report-entry-banner" : "document-entry-dialog";
-    if (isReport) {
-      dialog.open = true;
-      dialog.close = () => {
-        dialog.open = false;
-        reportEntryBanner.dismiss(noticeKey);
-        dialog.remove();
-        dialog.dispatchEvent(new Event("close"));
-        if (
-          state.kind === "report" &&
-          ["choice", "error"].includes(state.phase)
-        )
-          state.phase = "idle";
-      };
-      dialog.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-          event.preventDefault();
-          dialog.close();
-        }
-      });
-    }
+    const dialog = el("dialog", "document-entry-dialog");
+    dialog.id = "document-entry-dialog";
+    dialog.dataset.entryKind = kind;
     dialog.setAttribute("aria-labelledby", "document-entry-title");
     const head = el("div", "section-heading"),
       cancel = el("button", "export", "Retour");
@@ -632,46 +642,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     resume.onclick = () => choose(false);
     create.onclick = () => choose(true);
-    if (isReport) {
-      // Deliberate creation or an acknowledged notice never opens another decision window.
-      if (options.newDocument || reportEntryBanner.dismissed()) {
-        choose(!!options.newDocument);
-        if (state.phase === "error") notify(state.error);
-        return state.phase !== "error";
-      }
-      $("report-entry-banner")?.remove();
-      const text = el(
-        "button",
-        "report-entry-label",
-        "Bilan du match · " + description.textContent,
-      );
-      text.type = "button";
-      text.onclick = () => choose(false);
-      text.id = "report-entry-label";
-      text.title = text.textContent;
-      dialog.setAttribute("aria-labelledby", text.id);
-      resume.className = "report-entry-open";
-      resume.textContent = "Ouvrir le bilan";
-      resume.setAttribute(
-        "aria-label",
-        "Remplir ou consulter le bilan · " + description.textContent,
-      );
-      cancel.className = "report-entry-close";
-      cancel.textContent = "×";
-      cancel.setAttribute("aria-label", "Fermer la notification du bilan");
-      status.className = "report-entry-error";
-      dialog.append(text, resume, cancel, status);
-      perform(() =>
-        navigation("view-reports", () => {
-          renderReportTabs();
-          renderReportContent();
-        }),
-      );
-      $("after-match").querySelector(".reports-heading").after(dialog);
-      state.phase = "choice";
-      return true;
-    }
     dialog.append(head, description, versions, actions, status);
+    const backdrop = el("div", "document-entry-backdrop");
+    backdrop.setAttribute("aria-hidden", "true");
+    document.body.append(backdrop);
+    dialog.addEventListener("close", () => backdrop.remove(), { once: true });
     document.body.append(dialog);
     pending = dialog;
     state.phase = "choice";
@@ -800,7 +775,7 @@ document.addEventListener("DOMContentLoaded", () => {
           navigation("view-reports", () =>
             window.taskWorkspace?.enter("view-reports"),
           ),
-        { force: true },
+        {},
       );
     },
     true,
@@ -929,16 +904,13 @@ document.addEventListener("DOMContentLoaded", () => {
         }),
       { force: true, newDocument: true },
     );
-  new MutationObserver(() => {
-    if (!inside("causerie")) accepted.causerie = null;
-    if (!inside("report")) accepted.report = null;
-  }).observe(document.body, { attributes: true, attributeFilter: ["class"] });
   const clear = clubNetworkClear;
   clubNetworkClear = function () {
     pending?.close();
     $("report-entry-banner")?.remove();
     $("document-version-history")?.close();
     accepted.causerie = accepted.report = null;
+    rememberAccepted();
     state.phase = "idle";
     clear();
     refreshHistory();
@@ -947,6 +919,7 @@ document.addEventListener("DOMContentLoaded", () => {
     request,
     accept: (kind) => {
       accepted[kind] = key(kind, current(kind));
+      rememberAccepted();
       state.kind = kind;
       state.context = documentEntryContext(kind, current(kind));
       state.phase = "idle";
@@ -958,7 +931,15 @@ document.addEventListener("DOMContentLoaded", () => {
     refresh: refreshHistory,
   };
   refreshHistory();
+  let reloadHomeApplied = false;
   function checkRestoredEntry(initial = false) {
+    if (
+      initial &&
+      performance.getEntriesByType("navigation")[0]?.type === "reload"
+    ) {
+      if(!reloadHomeApplied){reloadHomeApplied=true;perform(() => navigation("view-home", () => workspaceFlows.home.go(0)));}
+      return;
+    }
     if (pending || (accountCoachBinding && !clubNetworkBound())) return;
     if (inside("report") && accepted.report !== key("report", currentReport))
       request("report", () => {
