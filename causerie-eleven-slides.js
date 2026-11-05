@@ -9,7 +9,7 @@
     const board=snapshot.board,p=board.matchPreparation||{},S=pptx.ShapeType;
     const photos=window.causerieExportPhotos?await causerieExportPhotos.resolve(snapshot.photos):{};
     pptx.theme={headFontFace:'Montserrat',bodyFontFace:'Montserrat',lang:'fr-FR'};
-    const slides=[],hosts=[];
+    const slides=[],hosts=[],exerciseHosts=[];
     const text=(s,value,x,y,w,h,size=18,extra={})=>s.addText(value||'À compléter',{x,y,w,h,fontFace:'Montserrat',fontSize:size,color:NAVY,margin:0,valign:'top',fit:'shrink',breakLine:false,paraSpaceAfterPt:8,...extra});
     const rect=(s,x,y,w,h,color)=>s.addShape(S.rect,{x,y,w,h,line:{transparency:100},fill:{color}});
     function base(title,n,dark=false){
@@ -46,7 +46,7 @@
       const assigned=board.causerieSlideAnimations;
       const sequences=assigned ? assigned[key]||[] : key==='defensive'?snapshot.demonstrations?.sequences||[]:[];
       const media=key==='defensive'?snapshot.demonstrations?.media||[]:[];
-      const choices=[...sequences.map(entry=>({entry})),...media.map(media=>({media}))];
+      const choices=[...sequences.map(entry=>({entry})),...media.map(media=>({media})),...(board.causerieSlideExercises?.[key]||[]).map(exercise=>({exercise}))];
       const body=p[phase.field]||'';
       if(!choices.length) {text(s,body,.85,1.95,11.6,4.7,22);text(s,'Aucune animation sélectionnée pour cette phase',.85,6.65,11,.2,10,{color:MUTED});}
       else {
@@ -54,9 +54,9 @@
         const cols=choices.length===1?1:2, rows=Math.ceil(choices.length/cols),gap=.22,w=(8.1-gap*(cols-1))/cols,h=(4.95-gap*(rows-1))/rows;
         choices.forEach((choice,i)=>{
           const x=4.45+(i%cols)*(w+gap),y=1.85+Math.floor(i/cols)*(h+gap);
-          text(s,choice.entry?.title||choice.media?.name,x,y,w,.35,choices.length>4?10:13,{bold:true});
+          text(s,choice.entry?.title||choice.media?.name||choice.exercise?.title,x,y,w,.35,choices.length>4?10:13,{bold:true});
           const available=Math.max(.1,h-.45),pw=Math.min(w,available*16/9),ph=pw*9/16;
-          hosts.push({...choice,slide:s,box:{x:x+(w-pw)/2,y:y+.42,w:pw,h:ph}});
+          (choice.exercise?exerciseHosts:hosts).push({...choice,slide:s,box:{x:x+(w-pw)/2,y:y+.42,w:pw,h:ph}});
         });
       }
       if(choices.length) text(s,board.causerieAnimationVariant==='gif'?'Démonstrations animées · GIF':'Cliquer pour lancer les animations',4.45,6.8,8.1,.18,9,{color:MUTED});
@@ -68,6 +68,7 @@
     s=base('Fin de causerie',11,true);text(s,'ENSEMBLE',.8,1.5,photos[11]?7.3:11.7,.5,15,{align:'center',color:RED,bold:true});text(s,p.closingMessage,.8,2.6,photos[11]?7.3:11.7,2.8,35,{align:'center',color:WHITE,bold:true});rect(s,photos[11]?4:6.25,6,.8,.045,RED);
     notes(s,[p.closingMessage,board.notes].filter(Boolean).join('\n\n'));
     if(slides.length!==11)throw Error('La présentation doit comporter exactement 11 slides.');
+    if(exerciseHosts.length)await causerieClubSituations.append(pptx,exerciseHosts);
     return causerieAnimations.append(pptx,{sequences:hosts.filter(h=>h.entry).map(h=>h.entry),media:hosts.filter(h=>h.media).map(h=>h.media)},{hosts,variant:board.causerieAnimationVariant||'native'});
   }
   window.causerieEleven={build,fields,phases};

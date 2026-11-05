@@ -1,0 +1,107 @@
+.causerie-visual-library {
+  color: #17385d;
+  background: #f8fafc;
+}
+.causerie-visual-library .section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.causerie-visual-library .external-modal-close {
+  color: var(--club-logo-red, #e41f28);
+}
+.causerie-visual-drop {
+  display: grid;
+  gap: 14px;
+  border: 2px dashed #b6c8e2;
+  border-radius: 14px;
+  padding: 26px;
+  background: #fff;
+  color: #2855a2;
+  cursor: pointer;
+  margin: 18px 0;
+}
+.causerie-visual-drop.drag-over {
+  border-color: #2855a2;
+  background: #edf4ff;
+}
+.causerie-visual-drop input {
+  max-width: 100%;
+}
+.causerie-visual-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.causerie-visual-item {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #dce5ef;
+  border-radius: 14px;
+  min-width: 0;
+}
+.causerie-visual-item img {
+  width: 100%;
+  height: 150px;
+  object-fit: contain;
+  background: #eef2f6;
+  border-radius: 8px;
+}
+.causerie-visual-item strong {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+}
+.causerie-visual-item select {
+  max-width: 100%;
+  min-width: 0;
+  min-height: 44px;
+}
+.causerie-visual-item button {
+  justify-self: start;
+  color: var(--club-logo-red, #e41f28);
+}
+#causerie-visual-settings {
+  margin-top: 14px;
+  white-space: normal;
+}
+.causerie-eleven-phases section {
+  min-width: 0;
+}
+.causerie-eleven-phases section > input,
+.causerie-eleven-phases section > select {
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 10px;
+}
+.causerie-situation-choices {
+  max-height: 260px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 4px;
+}
+.causerie-situation-choices label[hidden] {
+  display: none !important;
+}
+.causerie-situation-choices .causerie-phase-choice {
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid #e7edf5;
+  overflow-wrap: anywhere;
+}
+.club-causerie-exercises {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #dce5ef;
+}
+@media (max-width: 650px) {
+  .causerie-visual-grid {
+    grid-template-columns: 1fr;
+  }
+  .causerie-visual-drop {
+    padding: 18px;
+  }
+}

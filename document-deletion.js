@@ -18,6 +18,7 @@
       old = next.matchPreparation || {};
     delete next.causerieAnimations;
     delete next.causerieSlideAnimations;
+    delete next.causerieSlideExercises;
     delete next.causerieAnimationVariant;
     next.matchPreparation = {
       ...newMatchPreparation(),

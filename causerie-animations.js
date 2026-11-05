@@ -507,6 +507,7 @@
       media.delete(key());
       delete getCompositionBoard().causerieAnimations;
       delete getCompositionBoard().causerieSlideAnimations;
+      delete getCompositionBoard().causerieSlideExercises;
     },
   };
 })();
