@@ -1,0 +1,121 @@
+/* A single quiet row per player; keep the original interactive controls. */
+#report-players-panel.report-player-rows .report-minute-line {
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid #edf1f6;
+  background: transparent;
+}
+#report-players-panel.report-player-rows
+  .report-minute-line
+  > span:first-child {
+  font-size: 13px;
+  font-weight: 600;
+  color: #17385d;
+  flex: 1 1 140px;
+  min-width: 100px;
+}
+#report-players-panel.report-player-rows .report-minute-line > label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  width: auto;
+  font-size: 10px;
+  color: #70839b;
+}
+#report-players-panel.report-player-rows .report-minute-line input {
+  width: 56px;
+  min-height: 38px;
+  padding: 7px 6px;
+  border: 1px solid #dce5ef;
+  border-radius: 7px;
+  background: #fff;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+#report-players-panel.report-player-rows
+  .report-minute-line
+  label:has(input[aria-label^="Cartons"])
+  input {
+  width: 40px;
+}
+#report-players-panel.report-player-rows
+  .report-minute-line
+  label:has(input[aria-label^="Cartons"])
+  > span {
+  font-size: 0;
+}
+#report-players-panel.report-player-rows
+  .report-minute-line
+  label:has(input[aria-label^="Cartons"])
+  > span::before {
+  width: 9px;
+  height: 13px;
+  margin-right: 0;
+}
+#report-players-panel .report-row-attendance {
+  gap: 5px;
+}
+#report-players-panel .report-presence-badge {
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 9px;
+  font-size: 12px;
+  padding: 6px;
+  background: #f8faff;
+  border-color: #e1e8f2;
+}
+#report-players-panel .report-presence-badge[data-status="present"] {
+  background: #edf4ff;
+  border-color: #8ba9d9;
+  color: #2855a2;
+}
+#report-players-panel .report-presence-badge[data-status="absent"] {
+  background: #fff5f6;
+  border-color: #e8b9bf;
+  color: #b92635;
+}
+#report-players-panel .player-match-presence select {
+  font-size: 12px;
+  min-height: 38px;
+  max-width: 90px;
+}
+#report-players-panel .report-row-period {
+  font-size: 11px;
+  color: #71859c;
+  margin-bottom: 14px;
+}
+#report-players-panel > h2 {
+  font-size: 17px;
+}
+.report-venue-badge {
+  display: inline-block;
+  margin: 0 0 12px;
+  padding: 4px 9px;
+  background: #eff4fc;
+  color: #2855a2;
+  font-size: 11px;
+  font-weight: 650;
+  border-radius: 5px;
+}
+@media (max-width: 700px) {
+  #report-players-panel.report-player-rows .report-minute-line {
+    gap: 10px;
+    padding: 12px 0;
+  }
+  #report-players-panel.report-player-rows
+    .report-minute-line
+    > span:first-child {
+    flex-basis: 100%;
+  }
+  #report-players-panel.report-player-rows .report-minute-line input,
+  #report-players-panel .player-match-presence select {
+    font-size: 16px;
+  }
+  #report-players-panel .report-presence-badge {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

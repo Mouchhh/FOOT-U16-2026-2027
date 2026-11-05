@@ -65,6 +65,9 @@
     next.info.formation = source.formation || next.info.formation;
     next.info.date = source.matchPreparation.date;
     next.info.opponent = source.matchPreparation.opponent;
+    const location=reportMatchLocation(next,source);next.info.venue=location.venue;
+    if(!next.info.stadium)next.info.stadium=location.stadium;
+    if(location.fixture){if(!next.info.time)next.info.time=location.fixture.time||'';if(!next.info.competition)next.info.competition=location.fixture.competition||'';if(!next.agendaSourceKey)next.agendaSourceKey=location.fixture.key;}
     if (!next.title?.trim())
       next.title = (
         "Bilan · " + (source.title || source.matchPreparation.match || "Match")
@@ -174,7 +177,7 @@
       report.players = [];
       delete report.preparation;
       report.plan.priority = "";
-      report.info.conditions = "";
+      report.info.conditions = "";delete report.matchVenueOverride;report.info.venue="";report.info.stadium="";
       report.title = "";
     }
     const next = merge(source, report);

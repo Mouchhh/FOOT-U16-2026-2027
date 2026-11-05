@@ -17,16 +17,15 @@ with sync_playwright() as p:
  line.locator('.report-row-day select').first.select_option('present')
  assert page.evaluate("playerStatsSeasonSnapshot(2026).players.get('row-a').attendance.rate")==100
  page.evaluate("()=>{reportTab='players';renderReportContent()}")
- card=page.locator('[data-report-player]').first
- assert card.get_by_label('Minutes jouées',exact=True).is_visible()
- assert card.get_by_label('Cartons jaunes',exact=True).is_visible()
- assert not card.get_by_label('Fiche dans votre effectif',exact=True).is_visible()
- assert card.locator('.report-row-attendance select').first.input_value()=='present'
- card.locator('.report-row-attendance select').nth(1).select_option('absent')
+ assert page.locator('#report-moments-panel').is_visible()
+ assert page.locator('#report-content .report-minute-line').count()==0
+ page.evaluate("()=>{reportTab='general';renderReportContent()}")
+ line=page.locator('.report-minute-line').first
+ assert line.get_by_label('Minutes jouées · Alex',exact=True).input_value()=='75'
+ assert line.get_by_label('Cartons jaunes · Alex',exact=True).input_value()=='1'
+ assert line.locator('.report-row-attendance select').first.input_value()=='present'
+ line.locator('.report-row-attendance select').nth(1).select_option('absent')
  assert page.evaluate("playerStatsSeasonSnapshot(2026).players.get('row-a').attendance.rate")==50
- card.locator('.report-row-details > summary').click()
- assert card.get_by_label('Fiche dans votre effectif',exact=True).is_visible()
- card.locator('.report-row-details > summary').click()
  for width in [390,320]:
   page.set_viewport_size({'width':width,'height':900});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'),width
  assert not errors,errors

@@ -69,15 +69,25 @@ function renderReportQuick() {
   const layout = el("div", "report-match-columns");
   const result = reportSection("Score");
   const board = el("div", "report-scoreboard");
+  const location = reportMatchLocation(currentReport);
+  currentReport.info.venue = location.venue;
+  const isAway = location.venue === "Extérieur";
   const awayName = el(
     "strong",
     "",
     currentReport.info.opponent || "Adversaire",
   );
-  for (const [key, name] of [
-    ["goalsFor", el("strong", "", currentReport.info.team || "Notre équipe")],
-    ["goalsAgainst", awayName],
-  ]) {
+  const ownName = el("strong", "", currentReport.info.team || "Notre équipe");
+  const sides = isAway
+    ? [
+        ["goalsAgainst", awayName],
+        ["goalsFor", ownName],
+      ]
+    : [
+        ["goalsFor", ownName],
+        ["goalsAgainst", awayName],
+      ];
+  for (const [key, name] of sides) {
     const side = el("div", "report-score-side");
     side.append(
       name,
@@ -95,12 +105,29 @@ function renderReportQuick() {
   const score = el("p", "report-quick-result", reportResult());
   score.id = "report-quick-result";
   score.setAttribute("role", "status");
-  const halftime=el('fieldset','report-halftime-score');halftime.append(el('legend','','Mi-temps'));
-  for(const key of ['halfFor','halfAgainst']){
-    if(key==='halfAgainst')halftime.append(el('span','report-halftime-separator','–'));
-    halftime.append(reportField(reportInfo[key],currentReport.info[key],v=>currentReport.info[key]=v,{type:'number'}));
+  const halftime = el("fieldset", "report-halftime-score");
+  halftime.append(el("legend", "", "Mi-temps"));
+  for (const [index, key] of (isAway
+    ? ["halfAgainst", "halfFor"]
+    : ["halfFor", "halfAgainst"]
+  ).entries()) {
+    if (index === 1)
+      halftime.append(el("span", "report-halftime-separator", "–"));
+    halftime.append(
+      reportField(
+        reportInfo[key],
+        currentReport.info[key],
+        (v) => (currentReport.info[key] = v),
+        { type: "number" },
+      ),
+    );
   }
-  result.append(board, halftime, score);
+  result.append(
+    el("p", "report-venue-badge", location.venue),
+    board,
+    halftime,
+    score,
+  );
   const context = reportSection("Match"),
     grid = el("div", "report-grid");
   grid.append(
@@ -115,11 +142,22 @@ function renderReportQuick() {
       { type: "date" },
     ),
   );
+  const venue = reportField(
+    "Lieu du match",
+    location.venue,
+    (value) => {
+      currentReport.matchVenueOverride = value;
+      currentReport.info.venue = value;
+      renderReportContent();
+    },
+    { choices: ["Domicile", "Extérieur", "Terrain neutre"] },
+  );
+  venue.querySelector("select").setAttribute("aria-label", "Lieu du match");
+  grid.append(venue);
   context.append(grid);
   layout.append(result, context);
   panel.append(layout);
   root.replaceChildren(panel);
-  renderReportEvents(panel);
   renderReportQuickMinutes(panel);
   const actions = el("div", "report-actions");
   const validate = el("button", "primary", "Valider le bilan");
