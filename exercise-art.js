@@ -9,12 +9,12 @@ function exerciseEquipmentArt(c,o){
  const shade=(x,y,xx,yy,a,b)=>{const g=c.createLinearGradient(x,y,xx,yy);g.addColorStop(0,a);g.addColorStop(1,b);return g;};
  if(o.type!=='zone'){ellipse(2,30,25,5,'#102a3610');ellipse(2,29,18,3,'#102a3614');}
  if(['blue','red','keeper'].includes(o.type)){
-  const fabric=shade(-28,-26,25,29,o.type==='blue'?'#4d7ed2':o.type==='red'?'#f34d55':'#ffe181',color);
-  path([[-13,-24],[-25,-19],[-35,-5],[-24,4],[-18,-3],[-18,26],[18,26],[18,-3],[24,4],[35,-5],[25,-19],[13,-24],[8,-18],[-8,-18]],fabric);
-  path([[-13,-24],[-8,-18],[0,-14],[8,-18],[13,-24],[7,-24],[0,-20],[-7,-24]],'#fff',null);
-  line(-31,-8,-24,-3,'#fff',3);line(24,-3,31,-8,'#fff',3);
-  path([[-17,-9],[-12,-5],[-12,23],[-17,23]],'#ffffff24',null);
-  line(-16,23,16,23,'#ffffffa0',2);rect(7,-8,6,7,1,'#fff',null);line(-13,-12,-13,17,'#ffffff40',1.2);
+  // Pion tactique circulaire, partagé par la palette, le terrain et les exports.
+  ellipse(1,7,28,27,'#102a3630');
+  const face=c.createRadialGradient(-10,-12,2,0,0,28);face.addColorStop(0,color);face.addColorStop(1,color);
+  ellipse(0,0,27,27,face,'#ffffff');
+  c.lineWidth=1;ellipse(0,0,23.5,23.5,null,'#ffffff50');
+  c.beginPath();c.arc(0,0,20,Math.PI*1.13,Math.PI*1.65);c.strokeStyle='#ffffff65';c.lineWidth=2.5;c.stroke();
  }else if(o.type==='ball'){
   const g=c.createRadialGradient(-7,-9,1,1,1,21);g.addColorStop(0,'#fff');g.addColorStop(.55,'#f4f8fc');g.addColorStop(1,'#91a8ba');ellipse(0,0,21,21,g,ink);
   const pent=[];for(let i=0;i<5;i++){const a=i*Math.PI*2/5-Math.PI/2;pent.push([Math.cos(a)*8,Math.sin(a)*8]);}path(pent,ink,null);

@@ -29,3 +29,9 @@ Test dédié : `python3 tests/exercise-clean-canvas-browser.py` (1440×900, 1366
 ## Icônes de matériel redessinées (241)
 
 Les dessins partagés de `exercise-art.js` ont été repris : maillots lisibles, ballon sphérique ombré, buts à filets avec cadre contrasté sur fond blanc, cône rayé, coupelle profilée, jalon violet sur socle, mannequin, échelle et haie. La palette recadre automatiquement chaque dessin selon ses pixels visibles, pour éviter les grands espaces vides qui rendaient les anciens pictogrammes minuscules. Chaque bouton affiche un libellé court et conserve son nom accessible ainsi que le placement au clic/glisser-déposer. Le même dessin vectoriel est utilisé sur le terrain et dans les exports.
+
+## Pions ronds et couleurs directes (243)
+
+Les joueurs bleu/rouge/joker sont des pions circulaires avec contour blanc, conservant leur numéro et leur identité. Cliquer/toucher un pion sur le terrain ouvre un nuancier ancré à côté : bleu, rouge club, jaune, blanc, marine, violet ou couleur personnalisée. La couleur est appliquée au même ID dans toutes les étapes, sauvegardée dans le schéma et utilisée dans les exports. Déplacer le pion reste possible sans afficher le nuancier à la fin d’un glissement. Entrée sur le terrain ouvre le nuancier du pion sélectionné ; Échap le masque.
+
+Test : `python3 tests/exercise-token-colors-browser.py`.

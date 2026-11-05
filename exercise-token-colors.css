@@ -1,0 +1,10 @@
+.exercise-token-colors{position:fixed;z-index:30;display:flex;align-items:center;flex-wrap:wrap;gap:7px;width:260px;padding:12px;background:#fff;border:1px solid #dce4ef;border-radius:14px;box-shadow:0 8px 28px #0b192c26;color:#0b192c;box-sizing:border-box}
+.exercise-token-colors[hidden]{display:none!important}
+.exercise-token-colors-title{width:100%;font-size:12px;font-weight:700;padding-right:22px}
+.exercise-token-colors .exercise-token-swatch{width:28px;height:28px;min-height:28px;padding:0;border-radius:50%;background:var(--token-color);border:2px solid white;box-shadow:0 0 0 1px #d4deeb}
+.exercise-token-colors .exercise-token-swatch[aria-pressed=true]{box-shadow:0 0 0 2px #0b192c}
+.exercise-token-custom{display:flex;align-items:center;gap:6px;font-size:11px}
+.exercise-token-custom input{width:28px;height:28px;padding:0;border:0;background:none;cursor:pointer}
+.exercise-token-colors .exercise-token-color-close{position:absolute;top:5px;right:6px;width:26px;height:26px;min-height:26px;padding:0;border:0;background:transparent;color:#e41f28;font-size:22px}
+.exercise-token-colors button:focus-visible{outline:2px solid #2855a2;outline-offset:3px}
+.exercise-token-color-close::before{content:'×'}
