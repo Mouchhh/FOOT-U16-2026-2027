@@ -18,7 +18,9 @@ function reportSummaryDashboard(report){
  identity.append(el('span','eyebrow','STADE MAYENNAIS · SYNTHÈSE'),el('h2','',report.title||'Bilan du match'),el('strong','report-summary-fixture',[info.team,report.eventType==='training'?'':info.opponent].filter(Boolean).join(' / ')));
  identity.append(el('p','report-summary-match-meta',[info.date,info.time,info.competition,info.round,info.stadium||info.venue,info.category].filter(Boolean).join(' · ')));
  const score=report.eventType==='training'?'Bilan de séance':info.goalsFor!==''&&info.goalsAgainst!==''?info.goalsFor+' – '+info.goalsAgainst:'Score à renseigner';
- header.append(identity,el('div','report-summary-score',score));view.append(header);
+ const scores=el('div','report-summary-scores');scores.append(el('div','report-summary-score',score));
+ if(report.eventType!=='training'&&(info.halfFor!==''||info.halfAgainst!==''))scores.append(el('small','report-summary-halftime','Mi-temps : '+(info.halfFor||'—')+' – '+(info.halfAgainst||'—')));
+ header.append(identity,scores);view.append(header);
  const grid=el('div','report-summary-grid');
  const card=title=>{const c=el('section','report-summary-card');c.append(el('h3','',title));grid.append(c);return c;};
  const group=card('Groupe'),roster=reportSummaryRoster(report),numbered=roster.filter(p=>/^\d+$/.test(String(p.number))&&Number(p.number)>=1&&Number(p.number)<=14),other=roster.filter(p=>!numbered.includes(p));
@@ -37,7 +39,7 @@ function reportSummaryDashboard(report){
  const main=el('div','report-summary-main');
  const matchRecap=el('section','report-summary-match-recap');matchRecap.append(el('h3','','Repères du match'));
  const context=el('dl','report-summary-match-data');
- for(const [label,value]of [['Organisation',info.formation||report.preparation?.formation],['Durée',info.duration?info.duration+' min':''],['Score à la pause',info.halfFor!==''&&info.halfAgainst!==''?info.halfFor+' – '+info.halfAgainst:''],['Lieu de rencontre',info.venue],['Conditions',info.conditions],['Buteurs / passeurs renseignés',info.scorers]])if(value?.trim()){context.append(el('dt','',label),el('dd','',value));}
+ for(const [label,value]of [['Organisation',info.formation||report.preparation?.formation],['Durée',info.duration?info.duration+' min':''],['Lieu de rencontre',info.venue],['Conditions',info.conditions],['Buteurs / passeurs renseignés',info.scorers]])if(value?.trim()){context.append(el('dt','',label),el('dd','',value));}
  matchRecap.append(context.children.length?context:el('p','report-summary-empty','Les repères apparaîtront après la saisie du match.'));
  const analysis=el('section','report-summary-analysis');analysis.append(el('h3','','Synthèse de l’analyse'));
  const excerpts=el('div','report-summary-analysis-grid');

@@ -61,3 +61,6 @@ body.reports-mode #after-match #report-tabs{grid-template-columns:repeat(4,minma
  #report-summary-print .report-summary-main{display:block}
  #report-summary-print .report-summary-match-recap,#report-summary-print .report-summary-analysis,#report-summary-print .report-summary-main>.report-summary-card{margin-bottom:4mm}
 }
+.report-summary-scores{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0}
+.report-summary-halftime{font-size:12px;color:#7086a2;white-space:nowrap}
+@media print{#report-summary-print .report-summary-halftime{font-size:9pt}}

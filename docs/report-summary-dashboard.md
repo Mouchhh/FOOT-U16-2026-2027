@@ -19,3 +19,9 @@ La synthèse adopte un bandeau adversaire/date/score, deux cartes Groupe & Temps
 Le groupe devient une colonne latérale étroite avec une ligne unique par joueur : numéro, nom et minutes. Les statuts ne sont plus répétés visuellement ; ils restent dans l’infobulle de la ligne et dans les données. Les noms restent complets dans le PDF.
 
 La zone principale reprend les repères renseignés du match (organisation, durée, score à la pause, lieu, conditions, buteurs/passeurs manuels), puis la synthèse des six axes de l’Analyse et les évaluations renseignées. Les observations sont reprises sous forme d’extraits de 240 caractères maximum sans modifier leurs valeurs sources. Les faits marquants gardent leur chronologie. La conclusion ne répète plus les observations tactiques déjà affichées : elle conserve le message au groupe et la priorité/exercice suivant.
+
+## Mi-temps et sous-onglets 253
+
+La saisie du score à la mi-temps est rétablie juste sous le score final dans Le match. Les valeurs existantes `halfFor` / `halfAgainst` sont utilisées sans conversion (zéro conservé). La Synthèse les affiche aussi sous le score final, en retirant le doublon dans les repères du match.
+
+La grille des sous-onglets est corrigée à sa source : quatre colonnes égales, boutons centrés et largeur complète ; deux colonnes sur mobile. Test : `python3 tests/report-halftime-tabs-browser.py`.

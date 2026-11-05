@@ -1,6 +1,6 @@
 @media screen{
  body.reports-mode .task-section-tabs{display:none!important}
- .task-navigation.reports-mode #after-match>#report-tabs{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:5px;border:0;border-radius:12px;background:#e2eaf4;margin:0 0 18px;overflow:visible}
+ .task-navigation.reports-mode #after-match>#report-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:5px;border:0;border-radius:12px;background:#e2eaf4;margin:0 0 18px;overflow:visible}
  #after-match #report-tabs>button{min-width:0;min-height:48px;background:transparent;border:1px solid transparent;border-radius:9px!important;color:#526b88;font-size:14px;font-weight:650;padding:10px 8px;white-space:normal}
  #after-match #report-tabs>button.active{background:#fff;border-color:#cedceb;color:#2855a2;box-shadow:0 2px 5px #18345510}
  #after-match>.document-title-field{display:none}
@@ -40,4 +40,16 @@
 @media screen{
  #after-match #report-quick-result{display:block;width:100%;text-align:center;font-size:14px}
  #after-match .reports-heading .eyebrow{color:#2855a2}
+}
+/* Quatre étapes de même largeur, réparties sur toute la barre. */
+@media screen{
+ body.task-navigation.reports-mode #after-match>#report-tabs{width:100%;box-sizing:border-box;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:6px;justify-items:stretch;align-items:stretch}
+ body.task-navigation.reports-mode #after-match>#report-tabs>button{display:flex;align-items:center;justify-content:center;width:100%;margin:0;min-width:0;text-align:center;box-sizing:border-box;line-height:1.4}
+ .report-halftime-score{display:flex;justify-content:center;align-items:center;gap:12px;border:0;padding:12px 0 0;margin:12px 0 0;min-width:0}
+ .report-halftime-score legend{float:none;text-align:center;width:100%;padding:0;font-size:12px;font-weight:650;color:#627b9a}
+ .report-halftime-score .report-field{margin:0}
+ .report-halftime-score .report-field>span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+ #report-content .report-halftime-score input{width:64px;min-height:42px;height:42px;text-align:center;padding:6px;border:1px solid #d4dfef;border-radius:8px;background:#f8fafd;color:#2855a2;font-size:18px;font-weight:650;box-sizing:border-box}
+ .report-halftime-separator{color:#8296ae}
+ @media(max-width:700px){body.task-navigation.reports-mode #after-match>#report-tabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}body.task-navigation.reports-mode #after-match>#report-tabs>button{min-height:44px;padding:9px 6px}}
 }

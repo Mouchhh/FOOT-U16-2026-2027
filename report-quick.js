@@ -95,7 +95,12 @@ function renderReportQuick() {
   const score = el("p", "report-quick-result", reportResult());
   score.id = "report-quick-result";
   score.setAttribute("role", "status");
-  result.append(board, score);
+  const halftime=el('fieldset','report-halftime-score');halftime.append(el('legend','','Mi-temps'));
+  for(const key of ['halfFor','halfAgainst']){
+    if(key==='halfAgainst')halftime.append(el('span','report-halftime-separator','–'));
+    halftime.append(reportField(reportInfo[key],currentReport.info[key],v=>currentReport.info[key]=v,{type:'number'}));
+  }
+  result.append(board, halftime, score);
   const context = reportSection("Match"),
     grid = el("div", "report-grid");
   grid.append(
