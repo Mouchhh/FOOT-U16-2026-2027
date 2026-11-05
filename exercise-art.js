@@ -1,6 +1,6 @@
 // Dessins vectoriels partagés par la palette, le terrain et les exports HD.
 function exerciseEquipmentArt(c,o){
- const color=o.color;c.save();c.lineJoin='round';c.lineCap='round';c.lineWidth=2;
+ const color=o.type==='pole'?'#8655c5':o.color;c.save();c.lineJoin='round';c.lineCap='round';c.lineWidth=2;
  const path=(points,fill,stroke)=>{c.beginPath();points.forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}};
  const ellipse=(x,y,rx,ry,fill,stroke)=>{c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.stroke();}};
  const line=(x,y,xx,yy,stroke,width=2)=>{c.strokeStyle=stroke;c.lineWidth=width;c.beginPath();c.moveTo(x,y);c.lineTo(xx,yy);c.stroke();};
@@ -16,10 +16,10 @@ function exerciseEquipmentArt(c,o){
  }else if(o.type==='cone'){
   path([[-24,17],[-15,25],[25,20],[18,12]],'#b95c22','#fff8');path([[-17,17],[0,-29],[17,17]],color,'#fff9');path([[-11,0],[-7,-11],[7,-11],[11,0]],'#fff5df');line(0,-24,8,13,'#ffffff55',3);
  }else if(o.type==='goal'||o.type==='mini'){
-  const z=o.type==='mini'?33:57,d=o.type==='mini'?22:32;
+  const z=o.type==='mini'?33:57,d=o.type==='mini'?22:32,frame=o.type==='mini'?'#ff982e':'#f2f7fa';
   path([[-z,17],[z,17],[z-10,-d],[-z+10,-d]],'#e5f6ff16','#b9d6e0');
   c.save();c.beginPath();c.moveTo(-z,17);c.lineTo(z,17);c.lineTo(z-10,-d);c.lineTo(-z+10,-d);c.closePath();c.clip();for(let x=-z;x<=z;x+=9)line(x,20,x,-d,'#e4f4ff99',1);for(let y=-d;y<=17;y+=8)line(-z,y,z,y,'#e4f4ff99',1);c.restore();
-  line(-z,17,-z,-5,'#d9e7eb',5);line(z,17,z,-5,'#d9e7eb',5);line(-z,-5,z,-5,'#fff',6);line(-z,-5,-z+10,-d,'#d9e7eb',3);line(z,-5,z-10,-d,'#d9e7eb',3);line(-z+10,-d,z-10,-d,'#d9e7eb',3);ellipse(-z+7,20,5,5,'#253942');ellipse(z-7,20,5,5,'#253942');
+  line(-z,17,-z,-5,frame,5);line(z,17,z,-5,frame,5);line(-z,-5,z,-5,frame,6);line(-z,-5,-z+10,-d,frame,3);line(z,-5,z-10,-d,frame,3);line(-z+10,-d,z-10,-d,frame,3);ellipse(-z+7,20,5,5,'#253942');ellipse(z-7,20,5,5,'#253942');
  }else if(o.type==='dummy'){
   ellipse(0,-33,10,10,color,'#fff9');path([[-9,-20],[-20,-13],[-20,15],[-11,21],[-11,32],[11,32],[11,21],[20,15],[20,-13],[9,-20]],color,'#fff9');for(let x=-10;x<=10;x+=10)line(x,-12,x,15,'#4b351a88',2);line(-18,-6,18,-6,'#fff7',2);line(-14,34,14,34,'#dce7ec',4);
  }else if(o.type==='pole'){

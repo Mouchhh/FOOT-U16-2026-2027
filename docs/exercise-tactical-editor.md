@@ -17,3 +17,11 @@ Le matériel complet est accessible dans la colonne de gauche : buts mobiles, mi
 Le cadre de travail est fixe, sans défilement de la page ni déplacement du terrain. La taille du terrain s’adapte à l’espace réellement disponible via ResizeObserver. Seules les listes d’outils/réglages défilent en interne sur les petits écrans ; les champs pédagogiques restent consultables dans l’onglet L’exercice. Sur mobile, Options du terrain ouvre les réglages sans déplacer la surface de travail.
 
 Suivant → reste en bas à droite : Terrain → Animation → L’exercice, où Enregistrer l’exercice conserve le circuit de validation existant.
+
+## Vue épurée et claire (240)
+
+`exercise-clean-canvas.css` remplace le fond sombre par un fond clair et une palette blanche. La colonne droite, les onglets numérotés, l’exemple et le bouton de remise à zéro sont retirés de l’affichage. L’en-tête ne conserve que le titre et Lignes du terrain. Suivant ouvre directement la fiche pédagogique, dont le bouton Enregistrer conserve la validation existante. Les anciens contrôles sont conservés dans le DOM pour lire les données enregistrées sans migration destructrice.
+
+Le terrain garde ses proportions et utilise toute la hauteur/largeur disponible. Bandes de pelouse plus nettes, maillots bleu/rouge/jaune, mini-buts orange et jalons violets sont dessinés en vectoriel dans la palette et sur le terrain. Les anciens schémas enregistrés ne sont pas effacés à l’ouverture.
+
+Test dédié : `python3 tests/exercise-clean-canvas-browser.py` (1440×900, 1366×768 et 390×844, placement du matériel, lignes, Suivant et enregistrement).

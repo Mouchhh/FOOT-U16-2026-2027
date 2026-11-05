@@ -31,21 +31,25 @@
  document.addEventListener('DOMContentLoaded',()=>{
   const form=$('custom-training-form'),dialog=$('custom-training-dialog'),layout=form.querySelector('.studio-board-layout'),toolbar=form.querySelector('.studio-toolbar'),canvas=$('exercise-board-canvas');
   dialog.classList.add('tactical-exercise-workspace');
+  const lines=$('exercise-lines').closest('label');lines.classList.add('exercise-lines-compact');form.querySelector(':scope>.section-heading').append(lines);
+
   const left=el('nav','tactical-tools');left.setAttribute('aria-label','Outils de dessin');
   const right=el('aside','tactical-options');right.append(el('h3','','Options du terrain'));
   for(const [key,label,options]of [['view','Vue du terrain',[['full','Terrain complet'],['half','Demi-terrain'],['area','Surface']]],['zoning','Découpage',[['none','Aucun'],['corridors','Couloirs'],['halfspaces','Demi-espaces'],['thirds','3 zones']]],['surface','Revêtement',[['grass','Gazon naturel'],['synthetic','Synthétique'],['indoor','Salle']]]]){
    const field=el('label','',label),select=document.createElement('select');select.id='exercise-field-'+key;for(const [v,t]of options)select.add(new Option(t,v));field.append(select);right.append(field);select.onchange=()=>{exerciseDraft[key]=select.value;exerciseEnabled=true;exerciseEditorRefresh();};
   }
-  const textField=el('label','','Texte à placer'),textInput=document.createElement('input');textInput.id='exercise-drawing-text';textInput.maxLength=120;textInput.placeholder='Votre annotation';textField.append(textInput);right.append(textField);
+  const textField=el('label','','Texte à placer'),textInput=document.createElement('input');textInput.id='exercise-drawing-text';textInput.maxLength=120;textInput.placeholder='Votre annotation';textField.append(textInput);textField.classList.add('exercise-inline-text');textField.hidden=true;toolbar.append(textField);
   const oldInspector=form.querySelector('.studio-inspector'),inspector=el('section','studio-inspector');for(const child of [...oldInspector.children])inspector.append(child);oldInspector.remove();right.append(inspector);
   const oldPalette=form.querySelector('.studio-tools'),palette=el('section','studio-tools');for(const child of [...oldPalette.children])palette.append(child);oldPalette.remove();palette.querySelector('summary').textContent='Matériel';left.append(palette);palette.open=true;
   const equipmentActions=new Map();
   for(const [i,button] of [...palette.querySelectorAll('button')].entries()){
-   const key=Object.keys(exerciseEquipment)[i];equipmentActions.set(key,button.onclick);button.dataset.tool=key;button.title=key==='goal'?'Grand but mobile':exerciseEquipment[key];button.draggable=true;button.onclick=()=>choose(key);button.addEventListener('dragstart',e=>{e.dataTransfer.setData('application/x-exercise-equipment',key);e.dataTransfer.effectAllowed='copy';});
+   const key=Object.keys(exerciseEquipment)[i];
+   const icon=button.querySelector('canvas'),ctx=icon.getContext('2d');ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,icon.width,icon.height);ctx.translate(80,56);const size=key==='ladder'?.9:key==='goal'?1.15:1.5;ctx.scale(size,size);exerciseEquipmentArt(ctx,{type:key,color:({blue:'#2855a2',red:'#e41f28',keeper:'#edc641',pole:'#8655c5'}[key]||'#ffb23e')});
+   equipmentActions.set(key,button.onclick);button.dataset.tool=key;button.title=key==='goal'?'Grand but mobile':exerciseEquipment[key];button.draggable=true;button.onclick=()=>choose(key);button.addEventListener('dragstart',e=>{e.dataTransfer.setData('application/x-exercise-equipment',key);e.dataTransfer.effectAllowed='copy';});
   }
   layout.prepend(left);layout.append(right);
   let tool='select',start=null;
-  function choose(next){tool=next;left.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===tool)));canvas.style.cursor=tool==='select'?'default':'crosshair';}
+  function choose(next){tool=next;textField.hidden=next!=='text';left.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===tool)));canvas.style.cursor=tool==='select'?'default':'crosshair';}
   for(const [key,icon,label]of [['select','↖','Sélection / déplacer'],['blue','●','Joueur bleu'],['red','●','Joueur rouge'],['ball','◉','Ballon'],['pass','↗','Passe'],['run','⇢','Course'],['zone','▱','Zone'],['text','T','Texte'],['delete','⌫','Supprimer la sélection']]){
    const b=el('button','',icon);const paths={select:'M5 3v17l5-6 6-2Z',blue:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18',red:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18',ball:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18 M12 8l5 4-2 5H9l-2-5Z',pass:'M4 20 20 4M9 4h11v11',run:'M4 18h3m3-4 3-3m3-3 4-4M12 4h8v8',zone:'M4 5h16v14H4Z',text:'M5 5h14M12 5v15M8 20h8',delete:'M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7'};
    b.innerHTML='<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="'+paths[key]+'"/></svg>';
@@ -54,7 +58,7 @@
   function placeEquipment(key,p){
    if(exerciseDraft.frames[0].objects.length>=100)return notify('100 éléments maximum.');
    equipmentActions.get(key)();
-   for(const f of exerciseDraft.frames){const o=f.objects.find(o=>o.id===exerciseSelected);o.x=p.x;o.y=p.y;if(key==='red')o.color='#e41f28';}
+   for(const f of exerciseDraft.frames){const o=f.objects.find(o=>o.id===exerciseSelected);o.x=p.x;o.y=p.y;o.color=({blue:'#2855a2',red:'#e41f28',keeper:'#edc641',pole:'#8655c5',mini:'#ff982e'}[key]||o.color);}
    exerciseEditorRefresh();
   }
   canvas.addEventListener('dragover',e=>{if([...e.dataTransfer.types].includes('application/x-exercise-equipment')){e.preventDefault();e.dataTransfer.dropEffect='copy';}});
@@ -71,10 +75,10 @@
   canvas.addEventListener('pointercancel',()=>{start=null;exerciseEditorRefresh();});
   function addDrawing(d){exerciseDraft.drawings||=[];if(exerciseDraft.drawings.length>=200)return notify('200 tracés maximum.');exerciseDraft.drawings.push(d);exerciseEnabled=true;exerciseEditorRefresh();}
   const clear=$('exercise-clear').onclick;$('exercise-clear').onclick=()=>{const before=exerciseDraft.frames;clear();if(before!==exerciseDraft.frames){exerciseDraft.drawings=[];exerciseEditorRefresh();}};
-  const open=openCustomTrainingExercise;openCustomTrainingExercise=function(block=null){open(block);if(!dialog.open)return;choose('select');start=null;for(const key of ['view','zoning','surface'])$('exercise-field-'+key).value=exerciseDraft[key]||({view:'full',zoning:'none',surface:'grass'}[key]);exerciseEditorRefresh();};
+  const open=openCustomTrainingExercise;openCustomTrainingExercise=function(block=null){open(block);if(!dialog.open)return;form.querySelector('h2').textContent='Créer mon exercice';choose('select');start=null;for(const key of ['view','zoning','surface'])$('exercise-field-'+key).value=exerciseDraft[key]||({view:'full',zoning:'none',surface:'grass'}[key]);exerciseEditorRefresh();};
   form.querySelector('button[type=submit]').textContent='Enregistrer l’exercice';
   const next=el('button','primary','Suivant →');next.id='exercise-studio-next';next.type='button';form.querySelector('.studio-footer').append(next);
-  next.onclick=()=>$(form.dataset.studioMode==='board'?'studio-tab-animation':'studio-tab-sheet').click();
+  next.onclick=()=>$('studio-tab-sheet').click();
   const options=el('button','export','Options du terrain');options.type='button';options.classList.add('tactical-options-toggle');options.setAttribute('aria-expanded','false');toolbar.prepend(options);
   options.onclick=()=>{const expanded=dialog.classList.toggle('tactical-options-open');options.setAttribute('aria-expanded',String(expanded));};
   function fit(){const stage=form.querySelector('.studio-stage'),r=stage.getBoundingClientRect();if(!r.width||!r.height)return;const width=Math.min(r.width,r.height*1.6);canvas.style.width=width+'px';canvas.style.height=width/1.6+'px';}

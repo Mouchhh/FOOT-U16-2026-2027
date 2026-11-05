@@ -8,7 +8,7 @@ function drawExerciseBoard(canvas,board,objects=board.frames[0].objects,previous
  c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,cw,ch);
  if(portrait)c.setTransform(0,-2,2,0,0,2400);else c.setTransform(2,0,0,2,0,0);
  const turf=c.createLinearGradient(0,0,w,h);turf.addColorStop(0,'#235f49');turf.addColorStop(.5,'#347e57');turf.addColorStop(1,'#215e48');c.fillStyle=turf;c.fillRect(0,0,w,h);
- for(let i=0;i<10;i++){c.fillStyle=i%2?'#ffffff05':'#001c1409';c.fillRect(30+i*114,30,114,690);}
+ for(let i=0;i<10;i++){c.fillStyle=i%2?'#ffffff0e':'#001c141a';c.fillRect(30+i*114,30,114,690);}
  c.strokeStyle='#eef9f0cc';c.lineWidth=2.5;c.strokeRect(30,30,1140,690);
  if(board.lines){
   c.beginPath();c.moveTo(600,30);c.lineTo(600,720);c.stroke();c.beginPath();c.arc(600,375,90,0,Math.PI*2);c.stroke();
