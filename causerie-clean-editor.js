@@ -26,10 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
       "aria-label",
       "Mon Canva · créer ou ouvrir ma présentation",
     );
-    actions.append(canva);
+    header.append(canva);
   }
   actions.append(ppt, submit, close);
-  header.append(actions);
+  actions.setAttribute("aria-label", "Actions de la causerie");
+  actions.setAttribute("role", "group");
   const info = el("div", "causerie-clean-match");
   for (const [id, title] of [
     ["match-plan-date", "Date du match"],
@@ -43,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const opponent = el("section", "causerie-clean-opponent"),
     opponentLabel = $("match-plan-opponent").closest("label");
   opponentLabel.firstChild.textContent = "Information adversaire";
-  $("match-plan-opponent").rows = 3;
+  $("match-plan-opponent").rows = 7;
   $("match-plan-opponent").placeholder =
     "Organisation, forces et points à exploiter…";
   opponent.append(opponentLabel);
@@ -86,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     card.append(el("h3", "", title));
     const label = input.closest("label");
     label.firstChild.textContent = "Consignes";
-    input.rows = 3;
+    input.rows = 8;
     input.setAttribute("aria-label", title + " · Consignes");
     input.placeholder =
       key === "closingMessage"
@@ -112,11 +113,14 @@ document.addEventListener("DOMContentLoaded", () => {
     .closest("label");
   format.classList.add("causerie-clean-format");
   const body = el("div", "causerie-clean-body");
-  body.append(info, opponent, grid, format);
+  const exportOptions = el("details", "causerie-export-options");
+  exportOptions.append(el("summary", "", "Options d’export"), format);
+  header.append(exportOptions);
+  body.append(info, opponent, grid, actions);
   header.after(body);
   form.append(legacy);
   const status = $("causerie-ppt-status");
-  if (status) body.prepend(status);
+  if (status) actions.before(status);
   for (const button of root.querySelectorAll("button"))
     if (button.textContent.trim() === "Gérer mes visuels") button.remove();
   $("causerie-demos-open")?.remove();
@@ -161,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
   integrate();
   // Preserve the options module status even though its old container is hidden.
   const optionStatus = options.querySelector("[role=status]");
-  if (optionStatus) body.append(optionStatus);
+  if (optionStatus) actions.before(optionStatus);
   const leftovers = form.querySelector(":scope>.report-actions");
   if (leftovers && !leftovers.querySelector("button")) leftovers.hidden = true;
 });

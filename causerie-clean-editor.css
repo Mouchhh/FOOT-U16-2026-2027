@@ -25,7 +25,7 @@
   font-size: 13px;
   white-space: normal;
 }
-.causerie-clean-actions .causerie-canva-badge {
+.causerie-clean-editor .causerie-canva-badge {
   background: #eef3fb;
   color: #2855a2;
   border: 1px solid #dbe5f5;
@@ -65,9 +65,11 @@
   font-weight: 400;
 }
 .causerie-clean-editor textarea {
-  min-height: 96px;
+  min-height: 200px;
+  width: 100%;
+  font-size: 16px;
   resize: vertical;
-  line-height: 1.6;
+  line-height: 1.75;
 }
 .causerie-clean-grid {
   display: grid;
@@ -179,4 +181,54 @@ body.match-clean-mode #terrain-flow[data-step="1"] > .flow-footer,
 }
 .causerie-clean-editor #match-plan-form > .section-heading .eyebrow {
   color: #53677e;
+}
+
+/* Writing space first; the final actions follow the coach's last message. */
+.causerie-clean-editor #match-plan-form > .section-heading {
+  justify-content: flex-start;
+  padding: 20px;
+  border: 0;
+  border-left: 4px solid #2855a2;
+  border-radius: 10px;
+  background: linear-gradient(100deg, #edf4ff, #fff);
+}
+.causerie-clean-editor #match-plan-dialog-title { color: #2855a2; font-size: 26px; }
+.causerie-clean-editor .causerie-canva-badge { margin-left: auto; }
+.causerie-clean-editor .causerie-clean-actions {
+  justify-content: flex-end;
+  padding: 20px 0 4px;
+  border-top: 1px solid #dde7f3;
+  background: transparent;
+  position: static;
+}
+.causerie-clean-card { --phase-color: #2855a2; border-bottom: 0; padding-bottom: 12px; }
+.causerie-clean-card h3 { border-left: 3px solid var(--phase-color); padding: 5px 0 5px 12px; }
+.causerie-clean-card[data-phase="defensive"] { --phase-color: #e31b23; }
+.causerie-clean-card[data-phase="offDef"],
+.causerie-clean-card[data-phase="defOff"] { --phase-color: #5532a8; }
+.causerie-clean-card[data-phase="setPiecesAgainst"],
+.causerie-clean-card[data-phase="setPiecesFor"] { --phase-color: #17385d; }
+.causerie-clean-opponent > label { border-top: 3px solid #2855a2; padding-top: 12px; color: #2855a2; font-size: 14px; }
+.causerie-clean-editor textarea { border-color: #bfcfe5; padding: 16px; background: linear-gradient(#fff, #fbfdff); }
+.causerie-clean-editor textarea:focus { outline: 2px solid #2855a2; outline-offset: 2px; }
+.causerie-clean-grid { column-gap: 30px; row-gap: 28px; }
+.causerie-export-options { font-size: 12px; color: #53677e; border: 0; background: transparent; padding: 0; }
+.causerie-export-options > summary { cursor: pointer; padding: 8px 0; }
+.causerie-export-options[open] { flex-basis: 100%; }
+.causerie-export-options .causerie-clean-format { margin-top: 12px; }
+@media(max-width:650px) {
+ .causerie-clean-editor #match-plan-form > .section-heading { padding: 16px; gap: 12px; }
+ .causerie-clean-editor textarea { min-height: 200px; font-size: 16px; }
+ .causerie-clean-editor .causerie-clean-actions { justify-content: flex-end; }
+ .causerie-clean-editor .causerie-clean-actions button { flex: 1 1 140px; }
+}
+/* Override the compact sizing inherited from the original match form. */
+#task-causerie.causerie-clean-editor #match-plan-form textarea {
+  min-height: 200px;
+  height: auto;
+  width: 100%;
+  font-size: 16px;
+  line-height: 1.75;
+  padding: 16px;
+  resize: vertical;
 }

@@ -6,9 +6,11 @@ with sync_playwright() as p:
  page.wait_for_function('document.querySelector(".causerie-clean-editor")')
  page.locator('#view-pitch').click();page.locator('#match-new').click();page.locator('#task-match-causerie').click()
  root=page.locator('#task-causerie')
- assert root.locator('.causerie-clean-actions button').all_text_contents()==['Mon Canva ↗','Télécharger en PPT','Valider','Fermer la causerie']
+ assert root.locator('.causerie-clean-actions button').all_text_contents()==['Télécharger en PPT','Valider','Fermer la causerie']
  assert not page.locator('#save').is_visible()
  assert not page.locator('#terrain-flow > .flow-footer').is_visible()
+ assert root.locator('#match-plan-form > .section-heading .causerie-canva-badge').is_visible()
+ assert root.locator('#match-plan-form > .section-heading .causerie-clean-actions').count()==0
  assert root.locator('.causerie-clean-card').count()==7
  assert root.locator('.causerie-clean-library').count()==4
  assert not root.locator('#match-plan-context').is_visible()
@@ -24,6 +26,8 @@ with sync_playwright() as p:
  assert page.evaluate('valid(getCompositionBoard())')
  for w in [1440,820,390,320]:
   page.set_viewport_size({'width':w,'height':1000});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'),w
+  assert root.locator('textarea:visible').evaluate_all('(rows)=>rows.every(r=>r.getBoundingClientRect().height>=200&&parseFloat(getComputedStyle(r).fontSize)>=16)')
+  assert page.evaluate('(()=>{const actions=document.querySelector(".causerie-clean-actions"),last=document.querySelector("[data-phase=closingMessage]");return actions.getBoundingClientRect().top>=last.getBoundingClientRect().bottom})()')
   page.screenshot(path=f'/tmp/causerie-clean-{w}.png',full_page=True)
  page.get_by_label('Mot d’ordre final · Consignes',exact=True).scroll_into_view_if_needed()
  assert page.get_by_label('Mot d’ordre final · Consignes',exact=True).is_visible()
@@ -37,4 +41,4 @@ with sync_playwright() as p:
  assert page.evaluate('saves.some(s=>s.state.matchPreparation.defensive==="Protéger l’axe")')
  assert page.evaluate('getCompositionBoard().matchPreparation.context')=='Contexte archivé'
  assert not errors,errors;b.close()
-print('PASS: four header controls including discreet Canva, seven sections, four integrated pickers, removed redundant UI, canonical fields/save, close and responsive widths.')
+print('PASS: bottom actions, discreet header Canva, enlarged readable fields, seven sections, four integrated pickers, removed redundant UI, canonical fields/save, close and responsive widths.')

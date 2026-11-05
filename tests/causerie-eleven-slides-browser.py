@@ -18,6 +18,7 @@ with sync_playwright() as p:
  assert page.evaluate('valid(getCompositionBoard())')
  original=page.evaluate('JSON.stringify({state,saves,simpleState})')
  for mode in ['native','gif']:
+  page.locator('.causerie-export-options').evaluate('(node)=>node.open=true')
   page.get_by_label('Format des animations des 11 slides',exact=True).select_option(mode)
   source_before=page.evaluate('JSON.stringify({state,saves,simpleState})')
   with page.expect_download(timeout=120000) as dl:
