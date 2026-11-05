@@ -32,3 +32,21 @@
   #custom-training-form .studio-footer>span{font-size:10px;max-width:180px}
  }
 }
+/* Vrais aperçus de matériel, cadrés individuellement et légendés. */
+@media screen {
+ #custom-training-form .studio-board-layout{grid-template-columns:136px minmax(0,1fr)}
+ #custom-training-form .tactical-tools{gap:6px;padding:7px;align-content:start}
+ #custom-training-form .tactical-tools .exercise-equipment-button{display:flex;flex-direction:column;align-items:center;justify-content:center;width:55px;height:60px;min-height:60px;gap:3px;padding:3px;background:#f5f8fc}
+ #custom-training-form .tactical-tools .exercise-equipment-button canvas{width:49px!important;height:35px!important;pointer-events:none}
+ #custom-training-form .tactical-tools .exercise-equipment-button span{display:block;color:#334967;font-size:9px;font-weight:600;line-height:1.2;white-space:nowrap;pointer-events:none}
+ #custom-training-form .tactical-tools .exercise-equipment-button[aria-pressed=true] span{color:white}
+ #custom-training-form .tactical-tools>button{width:55px}
+ @media(max-width:600px){
+  #custom-training-form .studio-board-layout{grid-template-columns:112px minmax(0,1fr)}
+  #custom-training-form .tactical-tools{gap:4px;padding:4px}
+  #custom-training-form .tactical-tools .exercise-equipment-button{width:46px;height:54px;min-height:54px}
+  #custom-training-form .tactical-tools .exercise-equipment-button canvas{width:41px!important;height:30px!important}
+  #custom-training-form .tactical-tools .exercise-equipment-button span{font-size:8px}
+  #custom-training-form .tactical-tools>button{width:46px}
+ }
+}

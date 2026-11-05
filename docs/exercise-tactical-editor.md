@@ -25,3 +25,7 @@ Suivant → reste en bas à droite : Terrain → Animation → L’exercice, où
 Le terrain garde ses proportions et utilise toute la hauteur/largeur disponible. Bandes de pelouse plus nettes, maillots bleu/rouge/jaune, mini-buts orange et jalons violets sont dessinés en vectoriel dans la palette et sur le terrain. Les anciens schémas enregistrés ne sont pas effacés à l’ouverture.
 
 Test dédié : `python3 tests/exercise-clean-canvas-browser.py` (1440×900, 1366×768 et 390×844, placement du matériel, lignes, Suivant et enregistrement).
+
+## Icônes de matériel redessinées (241)
+
+Les dessins partagés de `exercise-art.js` ont été repris : maillots lisibles, ballon sphérique ombré, buts à filets avec cadre contrasté sur fond blanc, cône rayé, coupelle profilée, jalon violet sur socle, mannequin, échelle et haie. La palette recadre automatiquement chaque dessin selon ses pixels visibles, pour éviter les grands espaces vides qui rendaient les anciens pictogrammes minuscules. Chaque bouton affiche un libellé court et conserve son nom accessible ainsi que le placement au clic/glisser-déposer. Le même dessin vectoriel est utilisé sur le terrain et dans les exports.

@@ -44,7 +44,11 @@
   const equipmentActions=new Map();
   for(const [i,button] of [...palette.querySelectorAll('button')].entries()){
    const key=Object.keys(exerciseEquipment)[i];
-   const icon=button.querySelector('canvas'),ctx=icon.getContext('2d');ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,icon.width,icon.height);ctx.translate(80,56);const size=key==='ladder'?.9:key==='goal'?1.15:1.5;ctx.scale(size,size);exerciseEquipmentArt(ctx,{type:key,color:({blue:'#2855a2',red:'#e41f28',keeper:'#edc641',pole:'#8655c5'}[key]||'#ffb23e')});
+   const icon=button.querySelector('canvas'),ctx=icon.getContext('2d'),art=document.createElement('canvas');art.width=240;art.height=240;const a=art.getContext('2d');a.translate(120,120);exerciseEquipmentArt(a,{type:key,color:({blue:'#2855a2',red:'#e41f28',keeper:'#edc641',pole:'#8655c5'}[key]||'#ffb23e')});
+   const pixels=a.getImageData(0,0,240,240).data;let x0=240,y0=240,x1=0,y1=0;
+   for(let y=0;y<240;y++)for(let x=0;x<240;x++)if(pixels[(y*240+x)*4+3]>40){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);}
+   const w=x1-x0+1,h=y1-y0+1,scale=Math.min(144/w,96/h);ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,160,112);ctx.drawImage(art,x0,y0,w,h,(160-w*scale)/2,(112-h*scale)/2,w*scale,h*scale);
+   const labels={blue:'Bleu club',red:'Adversaire',keeper:'Joker',ball:'Ballon',goal:'Grand but',mini:'Mini-but',disc:'Coupelle',cone:'Cône',pole:'Jalon',dummy:'Mannequin',ladder:'Échelle',hurdle:'Haie',hoop:'Cerceau',zone:'Zone'};button.querySelector('span').textContent=labels[key];
    equipmentActions.set(key,button.onclick);button.dataset.tool=key;button.title=key==='goal'?'Grand but mobile':exerciseEquipment[key];button.draggable=true;button.onclick=()=>choose(key);button.addEventListener('dragstart',e=>{e.dataTransfer.setData('application/x-exercise-equipment',key);e.dataTransfer.effectAllowed='copy';});
   }
   layout.prepend(left);layout.append(right);
