@@ -6,10 +6,11 @@ with sync_playwright() as p:
  page.wait_for_function('document.querySelector(".causerie-clean-editor")')
  page.locator('#view-pitch').click();page.locator('#match-new').click();page.locator('#task-match-causerie').click()
  root=page.locator('#task-causerie')
- assert root.locator('.causerie-clean-actions button').all_text_contents()==['Télécharger en PPT','Valider','Fermer la causerie']
+ assert root.locator('.causerie-clean-actions button').all_text_contents()==['Créer / voir ma causerie dans Canva ↗','Télécharger en PPT','Valider','Fermer la causerie']
  assert not page.locator('#save').is_visible()
  assert not page.locator('#terrain-flow > .flow-footer').is_visible()
- assert root.locator('#match-plan-form > .section-heading .causerie-canva-badge').is_visible()
+ assert root.locator('.causerie-clean-actions .causerie-canva-badge').is_visible()
+ assert not page.locator('#personal-canva').is_visible()
  assert root.locator('#match-plan-form > .section-heading .causerie-clean-actions').count()==0
  assert root.locator('.causerie-clean-card').count()==7
  assert root.locator('.causerie-clean-library').count()==4
@@ -26,7 +27,8 @@ with sync_playwright() as p:
  assert page.evaluate('valid(getCompositionBoard())')
  for w in [1440,820,390,320]:
   page.set_viewport_size({'width':w,'height':1000});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'),w
-  assert root.locator('textarea:visible').evaluate_all('(rows)=>rows.every(r=>r.getBoundingClientRect().height>=200&&parseFloat(getComputedStyle(r).fontSize)>=16)')
+  assert root.locator('textarea:visible').evaluate_all('(rows)=>rows.every(r=>r.getBoundingClientRect().height>=90&&r.getBoundingClientRect().height<=140&&parseFloat(getComputedStyle(r).fontSize)>=15)')
+  assert root.locator('[data-phase=closingMessage] textarea').evaluate('(r)=>r.getBoundingClientRect().height')==90
   assert page.evaluate('(()=>{const actions=document.querySelector(".causerie-clean-actions"),last=document.querySelector("[data-phase=closingMessage]");return actions.getBoundingClientRect().top>=last.getBoundingClientRect().bottom})()')
   page.screenshot(path=f'/tmp/causerie-clean-{w}.png',full_page=True)
  page.get_by_label('Mot d’ordre final · Consignes',exact=True).scroll_into_view_if_needed()
@@ -40,5 +42,8 @@ with sync_playwright() as p:
  page.wait_for_function('documentCompletionIsCompleted("causerie",getCompositionBoard())')
  assert page.evaluate('saves.some(s=>s.state.matchPreparation.defensive==="Protéger l’axe")')
  assert page.evaluate('getCompositionBoard().matchPreparation.context')=='Contexte archivé'
+ assert page.evaluate('(()=>{const board=getCompositionBoard();return [...document.querySelector("#causerie-archive-select").options].find(o=>o.value===board.documentId)?.textContent===board.title})()')
+ assert page.evaluate('getComputedStyle(document.querySelector("[data-phase=offDef] h3")).color')=='rgb(180, 83, 9)'
+ assert page.evaluate('getComputedStyle(document.querySelector("[data-phase=defOff] h3")).color')=='rgb(36, 115, 66)'
  assert not errors,errors;b.close()
-print('PASS: bottom actions, discreet header Canva, enlarged readable fields, seven sections, four integrated pickers, removed redundant UI, canonical fields/save, close and responsive widths.')
+print('PASS: bottom Canva and actions, balanced fields, smaller closing message, seven sections, four integrated pickers, removed redundant UI, canonical fields/save, close and responsive widths.')

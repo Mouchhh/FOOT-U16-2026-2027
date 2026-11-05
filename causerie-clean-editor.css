@@ -232,3 +232,32 @@ body.match-clean-mode #terrain-flow[data-step="1"] > .flow-footer,
   padding: 16px;
   resize: vertical;
 }
+/* Balanced overview: readable writing fields without oversized cards. */
+#task-causerie.causerie-clean-editor #match-plan-form textarea {
+ min-height: 132px;
+ height: 132px;
+ font-size: 15px;
+ line-height: 1.55;
+ padding: 12px 14px;
+}
+#task-causerie.causerie-clean-editor #match-plan-opponent { height: 110px; min-height: 110px; }
+#task-causerie.causerie-clean-editor [data-phase="closingMessage"] textarea { height: 90px; min-height: 90px; }
+.causerie-clean-editor .causerie-clean-body { gap: 18px; padding: 18px 0; }
+.causerie-clean-editor .causerie-clean-grid { gap: 18px 26px; }
+.causerie-clean-editor .causerie-clean-card { padding-bottom: 4px; }
+.causerie-clean-editor .causerie-clean-card h3 { font-size: 16px; margin-bottom: 10px; color: var(--phase-color); }
+.causerie-clean-editor .causerie-clean-card[data-phase="defensive"] { --phase-color: #e31b23; }
+.causerie-clean-editor .causerie-clean-card[data-phase="offensive"] { --phase-color: #2855a2; }
+.causerie-clean-editor .causerie-clean-card[data-phase="offDef"] { --phase-color: #b45309; }
+.causerie-clean-editor .causerie-clean-card[data-phase="defOff"] { --phase-color: #247342; }
+.causerie-clean-editor .causerie-clean-card[data-phase="closingMessage"] h3 { font-size: 15px; }
+.causerie-clean-editor .causerie-canva-badge { margin-left: 0; border: 0; border-radius: 8px; background: transparent; padding: 10px 12px; }
+#personal-canva[hidden] { display: none!important; }
+@media(max-width:650px) {
+ #task-causerie.causerie-clean-editor #match-plan-form textarea { font-size:16px; }
+ .causerie-clean-editor .causerie-clean-actions .causerie-canva-badge { flex-basis:100%; }
+}
+.causerie-clean-editor #match-plan-form > .section-heading { padding: 14px 18px; }
+.causerie-clean-editor #match-plan-dialog-title { font-size: 23px; }
+#task-causerie.causerie-clean-editor #match-plan-form #match-plan-opponent { height:110px; min-height:110px; }
+#task-causerie.causerie-clean-editor #match-plan-form [data-phase="closingMessage"] textarea { height:90px; min-height:90px; }

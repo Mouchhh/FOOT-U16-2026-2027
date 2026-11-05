@@ -20,13 +20,13 @@ document.addEventListener("DOMContentLoaded", () => {
   close.textContent = "Fermer la causerie";
   close.setAttribute("aria-label", "Fermer la causerie");
   if (canva) {
-    canva.textContent = "Mon Canva ↗";
+    canva.textContent = "Créer / voir ma causerie dans Canva ↗";
     canva.className = "causerie-canva-badge";
     canva.setAttribute(
       "aria-label",
-      "Mon Canva · créer ou ouvrir ma présentation",
+      "Créer ou voir ma causerie dans Canva",
     );
-    header.append(canva);
+    actions.append(canva);
   }
   actions.append(ppt, submit, close);
   actions.setAttribute("aria-label", "Actions de la causerie");
@@ -126,6 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("causerie-demos-open")?.remove();
   $("workflow-match-links")?.remove();
   $("personal-canva-download")?.setAttribute("hidden", "");
+  $("personal-canva")?.setAttribute("hidden", "");
   root.querySelector(".tactical-animation-attach")?.setAttribute("hidden", "");
   options.hidden = true;
   function integrate() {
@@ -154,8 +155,8 @@ document.addEventListener("DOMContentLoaded", () => {
             (n > 1 ? "s" : "") +
             " sélectionné" +
             (n > 1 ? "s" : "") +
-            " · Mon Club"
-          : "Choisir dans Mon Club";
+            " · animations et exercices"
+          : "Choisir une animation déjà créée";
       };
       section.addEventListener("change", count);
       count();

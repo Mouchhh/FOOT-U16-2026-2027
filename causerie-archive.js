@@ -62,13 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ...rows.map(
         (p) =>
           new Option(
-            [
-              p.matchPreparation.date,
-              p.matchPreparation.opponent,
-              p.title || p.formation,
-            ]
-              .filter(Boolean)
-              .join(" · "),
+            p.title?.trim() || p.matchPreparation.match?.trim() || "Causerie sans nom",
             p.documentId,
           ),
       ),
