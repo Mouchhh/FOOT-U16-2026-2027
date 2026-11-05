@@ -55,13 +55,13 @@ function reportRenderAnalysis(root) {
     const resize = () => {input.style.height = 'auto';input.style.height = Math.max(48, Math.min(input.scrollHeight, 180)) + 'px';};
     input.addEventListener('input', resize);requestAnimationFrame(resize);return wrap;
   };
-  const animations = reportSection('Animations & Transitions');animations.classList.add('report-analysis-card');
+  const animations = reportSection('Animations');animations.classList.add('report-analysis-card');
   animations.append(el('p', 'report-analysis-subtitle', 'Ce qui a fait basculer le match.'));
-  animations.append(field('Transitions · récupération / perte', currentReport.analysis.transitions, v => currentReport.analysis.transitions = v, 'transitions', 'À la récupération… À la perte…'));
+  animations.append(field('Récupération / perte', currentReport.analysis.transitions, v => currentReport.analysis.transitions = v, 'transitions', 'À la récupération… À la perte…'));
   animations.append(field('Phases arrêtées · pour / contre', currentReport.analysis.setPieces, v => currentReport.analysis.setPieces = v, 'setPieces', 'CPA offensifs et défensifs : les faits à retenir…'));
-  const strengths = el('details', 'report-analysis-disclosure');strengths.append(el('summary', '', 'Points forts avec et sans ballon'));
-  for (const [key, label] of [['topAttack', 'Avec le ballon'], ['topDefence', 'Sans le ballon']]) strengths.append(field(label, currentReport.analysis[key], v => currentReport.analysis[key] = v, key, 'Un point fort concret…'));
-  animations.append(strengths);
+  const ball = el('div', 'report-analysis-ball-fields');
+  for (const key of ['withBall', 'withoutBall']) ball.append(field(reportAnalysis[key], currentReport.analysis[key], v => currentReport.analysis[key] = v, key, 'Complément facultatif…'));
+  animations.prepend(ball);animations.insertBefore(animations.querySelector('h2'),ball);animations.insertBefore(animations.querySelector('.report-analysis-subtitle'),ball);
   const progress = reportSection('Pistes de progrès & Axes de travail');progress.classList.add('report-analysis-card');
   progress.append(el('p', 'report-analysis-subtitle', 'Les priorités à travailler cette semaine.'));
   progress.append(field('Priorité de la semaine', currentReport.plan.priority, v => currentReport.plan.priority = v, 'priority', 'La priorité à retenir…'));
@@ -89,9 +89,7 @@ function reportRenderAnalysis(root) {
     const note = el('details', 'report-analysis-rating-note');note.append(el('summary', '', rating.note.trim() ? 'Observation renseignée' : 'Ajouter une observation'),field('Observation', rating.note, v => rating.note = v, 'rating-' + key, 'Un exemple observable…'));row.append(note);ratings.append(row);
   }
   extra.append(ratings);
-  const other = el('div', 'report-analysis-axes');
-  for (const key of ['withBall', 'withoutBall']) other.append(field(reportAnalysis[key], currentReport.analysis[key], v => currentReport.analysis[key] = v, key, 'Complément facultatif…'));
-  extra.append(other);view.append(extra);
+  grid.append(extra);
   const previous = reportPreviousNotes('Notes conservées des anciens bilans', [['Première période', currentReport.analysis.firstHalf], ['Seconde période', currentReport.analysis.secondHalf]]);
   if (previous) view.append(previous);root.append(view);
 }

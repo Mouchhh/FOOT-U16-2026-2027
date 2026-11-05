@@ -9,3 +9,7 @@ Les ateliers suggérés sont des étiquettes déterministes, calculées localeme
 CSS dédié `report-analysis-modern.css`, rendu dans `report-structure.js`. Fond #f8fafc, cartes blanches, validation rouge #e41f28. Grille à deux colonnes sur grand écran, une sur mobile.
 
 Test : `python3 tests/report-analysis-modern-browser.py` — deux cartes, édition, suggestions en direct, conservation des notes historiques/demi-notes, sauvegarde et rechargement, format mobile et action de validation rouge.
+
+## Ajustement 246
+
+La carte est renommée Animations et reçoit directement les champs existants `withBall` / `withoutBall`, déplacés depuis les compléments. Le volet Points forts est retiré de l’interface ; ses anciennes valeurs `topAttack` / `topDefence` restent stockées et exportables. Le libellé Transitions devient Récupération / perte, sans changer la propriété enregistrée. Les compléments occupent désormais la troisième place de la même grille, repliés par défaut, avec adaptation sur les écrans plus étroits.

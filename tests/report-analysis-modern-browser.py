@@ -5,6 +5,13 @@ with sync_playwright() as p:
  page.goto('http://localhost:3016/?mode=local',wait_until='domcontentloaded');page.wait_for_function('typeof reportAnalysisWorkshopSuggestions === "function"');page.evaluate("workspaceNavigation.run('view-reports')")
  page.evaluate('''()=>{currentReport=newReport();currentReport.title='Analyse moderne';currentReport.analysis.topAttack='Point fort conservé';currentReport.analysis.firstHalf='Note ancienne intacte';currentReport.ratings.physical.score='2.5';currentReport.ratings.physical.note='Observation conservée';reportTab='sport';renderReportTabs();renderReportContent();}''')
  assert page.locator('.report-analysis-card').count()==2
+ assert page.locator('.report-analysis-cards>.report-analysis-extras').count()==1
+ assert page.get_by_text('Points forts avec et sans ballon',exact=True).count()==0
+ assert page.get_by_role('heading',name='Animations',exact=True).is_visible()
+ assert page.locator('.report-analysis-card').first.locator('[data-analysis-field=withBall]').is_visible()
+ assert page.locator('.report-analysis-extras [data-analysis-field=withBall]').count()==0
+ page.locator('[data-analysis-field=withBall]').fill('Circulation rapide conservée')
+ page.locator('[data-analysis-field=withoutBall]').fill('Bloc compact conservé')
  assert not page.locator('.report-analysis-extras').get_attribute('open')
  assert page.locator('[data-analysis-field=transitions]').is_visible()
  page.locator('[data-analysis-field=transitions]').fill('Réagir à la perte et récupérer ensemble')
@@ -30,4 +37,6 @@ with sync_playwright() as p:
  page.reload(wait_until='domcontentloaded');page.wait_for_function('typeof reportAnalysisWorkshopSuggestions === "function"')
  assert page.evaluate('currentReport.analysis.improveAttack')=='Finition et conservation sous pression'
  assert page.evaluate('currentReport.ratings.physical.score')=='4'
+ assert page.evaluate('currentReport.analysis.withBall')=='Circulation rapide conservée'
+ assert page.evaluate('currentReport.analysis.withoutBall')=='Bloc compact conservé'
  assert not errors,errors;b.close();print('PASS: two cards, live suggestions, no automatic plan edits, legacy values/half ratings, save/reload and mobile.')
