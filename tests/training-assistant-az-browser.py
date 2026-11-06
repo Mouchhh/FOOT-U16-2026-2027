@@ -23,9 +23,21 @@ with sync_playwright() as p:
  page.get_by_role('button',name='Enregistrer dans Mes séances',exact=True).click()
  assert page.evaluate('trainingLibrary.length')==1 and page.evaluate('trainingLibrary[0].libraryOnly')
  assert not page.evaluate("agendaCalendarAllEvents({from:trainingLibrary[0].date,to:trainingLibrary[0].date}).some(e=>e.session?.id===trainingLibrary[0].id)")
+ assert page.evaluate('currentTraining.blocks.length')==0 and page.evaluate('trainingWizard.step()')==0
+ assert not page.locator('#training-assistant-az').is_visible()
+ def generate():
+  page.locator('#task-training-assistant').click()
+  form.locator('[data-intention=ball]').evaluate('(node)=>node.open=true')
+  form.locator('input[value=ball-build]').check()
+  form.get_by_label('Niveau du groupe',exact=True).fill('U17 Régional')
+  form.get_by_label('Joueurs de champ + gardiens',exact=True).fill('14 + 2')
+  form.get_by_role('button',name='Générer la séance avec l’Assistant',exact=True).click()
+ generate()
  page.get_by_role('button',name='Enregistrer dans l’agenda',exact=True).click()
- assert page.evaluate('trainingLibrary.length')==1 and not page.evaluate('trainingLibrary[0].libraryOnly')
+ assert page.evaluate('trainingLibrary.length')==2 and not page.evaluate('trainingLibrary[0].libraryOnly')
  assert page.evaluate("agendaCalendarAllEvents({from:trainingLibrary[0].date,to:trainingLibrary[0].date}).some(e=>e.session?.id===trainingLibrary[0].id)")
+ assert not page.locator('#training-assistant-az').is_visible()
+ generate()
  # PDF uses the same four generated blocks without replacing the current editor.
  previous=page.evaluate('currentTraining.id');page.evaluate('window.print=()=>{}')
  page.get_by_role('button',name='Exporter en PDF',exact=True).click()

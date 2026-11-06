@@ -22,6 +22,8 @@ function trainingAssistantNeeds({
   players,
   space,
   objective = "",
+  availableBounds,
+  singleWorkshop = false,
 }) {
   const clean = (s) =>
     String(s || "")
@@ -63,7 +65,7 @@ function trainingAssistantNeeds({
     );
   if (!["quarter", "half", "full"].includes(space))
     throw Error("Choisissez la surface disponible.");
-  const bounds = trainingSpaces[space];
+  const bounds = availableBounds || trainingSpaces[space];
   if ((bounds[0] * bounds[1]) / (field + keepers) < 30)
     throw Error(
       "Cet espace est trop réduit pour cet effectif. Choisissez une surface plus grande ou travaillez avec un groupe plus petit.",
@@ -108,6 +110,7 @@ function trainingAssistantNeeds({
                 ? "Défense"
                 : "Conservation";
   return {
+    singleWorkshop,
     goal: goal.trim(),
     level: level.trim(),
     field,
@@ -125,7 +128,7 @@ function trainingAssistantNeeds({
   };
 }
 function trainingAssistantGroups(needs, limit, area) {
-  const count = Math.max(1, Math.ceil(needs.field / limit)),
+  const count = needs.singleWorkshop ? 1 : Math.max(1, Math.ceil(needs.field / limit)),
     cols = Math.ceil(Math.sqrt(count)),
     rows = Math.ceil(count / cols);
   return Array.from({ length: count }, (_, i) => {
@@ -392,7 +395,44 @@ function trainingAssistantGenerateBase(input) {
     );
   return session;
 }
+function trainingAssistantGenerateTwo(input) {
+  const needs = trainingAssistantNeeds({ ...input, goal: input.goal || "Ateliers ciblés" });
+  if (needs.field < 8)
+    throw Error("Deux ateliers nécessitent au moins 8 joueurs de champ (4 par atelier).");
+  if (needs.field > 36)
+    throw Error("Au-delà de 36 joueurs de champ, choisissez la répartition automatique pour garder des ateliers actifs.");
+  const counts = [0, 1].map(i => ({
+    field: Math.floor(needs.field / 2) + (i < needs.field % 2 ? 1 : 0),
+    keepers: Math.floor(needs.keepers / 2) + (i < needs.keepers % 2 ? 1 : 0),
+  }));
+  // Two distinct zones, with a 3 m passage and outer clearances supplied by Groups.
+  const availableBounds = [Math.floor((needs.bounds[0] - 3) / 2), needs.bounds[1]];
+  const parts = counts.map((count, group) => trainingAssistantGenerate({
+    ...input, organisation: "auto", singleWorkshop: true, availableBounds,
+    ...(input.objectives ? { objectives: group ? [...input.objectives].reverse() : input.objectives } : {}),
+    players: count.field + " + " + count.keepers,
+  }));
+  const session = parts[0];
+  session.players = needs.total;
+  session.keepers = needs.keepers;
+  session.blocks = parts[0].blocks.flatMap((first, index) => {
+    const parallelId = crypto.randomUUID();
+    return parts.map((part, group) => {
+      const block = part.blocks[index];
+      block.parallelId = parallelId;
+      block.workshopPlayers = counts[group].field + counts[group].keepers;
+      block.workshopKeepers = counts[group].keepers;
+      block.custom.title = "Atelier " + (group === 0 ? "A" : "B") + " · " + block.custom.title;
+      return block;
+    });
+  });
+  session.notes += "\nDeux ateliers simultanés, groupes distincts ; passage de 3 m entre les zones.";
+  if (!trainingValid(session) || trainingSessionStages(session).some(stage => trainingStageReview(stage, session).warnings.length))
+    throw Error("Ces deux ateliers ne tiennent pas dans l’espace disponible. Choisissez un terrain plus grand ou la répartition automatique.");
+  return session;
+}
 function trainingAssistantGenerate(input) {
+  if (input.organisation === "two") return trainingAssistantGenerateTwo(input);
   if (!input.objectives) return trainingAssistantGenerateBase(input); // Legacy stored/API callers remain readable.
   const selected = clubTrainingObjectives(input),
     labels = selected.map((k) => bmfObjectiveLabel(k)),
@@ -578,6 +618,8 @@ document.addEventListener("DOMContentLoaded", () => {
     new Option("Terrain complet", "full"),
     new Option("Quart de terrain", "quarter"),
   );
+  const organisation = field("Organisation du groupe", el("select"));
+  organisation.append(new Option("Répartition automatique", "auto"), new Option("Deux ateliers séparés", "two"));
   const generate = el(
     "button",
     "primary",
@@ -656,6 +698,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   const context = () => activeCoach.id + ":" + activeCoachTeam.id;
+  function renderStages(target) {
+    for (const [index, stage] of trainingSessionStages(session).entries()) {
+      const row = el("section", "training-assistant-stage");
+      if (stage.parallel) {
+        row.classList.add("training-assistant-stage-parallel");
+        row.append(el("h3", "training-assistant-stage-title", "Séquence " + (index + 1) + " · Deux ateliers simultanés · " + stage.minutes + " min"));
+      }
+      stage.blocks.forEach((block, group) => {
+        const card = clubTrainingBlockCard(block, index, { details: false });
+        if (stage.parallel) card.querySelector(".training-sequence-number").textContent = "Groupe " + (group === 0 ? "A" : "B");
+        const allocation = block.custom.adaptation;
+        if (allocation) {
+          const info = el("p", "training-assistant-allocation", allocation.groups.map((g, i) =>
+            (allocation.groups.length > 1 ? "Groupe " + (i + 1) + " : " : "") +
+            (g.players - g.keepers) + " joueurs de champ" + (g.keepers ? " + " + g.keepers + " G" : " · sans gardien")
+          ).join(" · "));
+          card.querySelector(".training-sequence-facts").after(info);
+        }
+        row.append(card);
+      });
+      target.append(row);
+    }
+  }
   function paint() {
     preview.replaceChildren();
     preview.append(
@@ -672,9 +737,7 @@ document.addEventListener("DOMContentLoaded", () => {
           trainingSpaceLabels[session.space],
       ),
     );
-    session.blocks.forEach((block, index) =>
-      preview.append(clubTrainingBlockCard(block, index)),
-    );
+    renderStages(preview);
     if (window.exerciseReferenceIndex) {
       const n = trainingAssistantNeeds({
         goal: goal.value,
@@ -682,7 +745,15 @@ document.addEventListener("DOMContentLoaded", () => {
         level: level.value,
         players: players.value,
         space: space.value,
+        organisation: organisation.value,
       });
+      const firstWorkshop = session.blocks.find(b => b.parallelId);
+      if (firstWorkshop) {
+        n.total = firstWorkshop.workshopPlayers;
+        n.keepers = firstWorkshop.workshopKeepers;
+        n.field = n.total - n.keepers;
+        n.bounds = [Math.floor((n.bounds[0] - 3) / 2), n.bounds[1]];
+      }
       const suggestions = clubExerciseRecommendations(
         selectedObjectives(),
         n,
@@ -734,8 +805,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const result = suppliedExerciseBlock(
               exerciseReferenceIndex.resolve(ref.id),
               {
-                players: n.total,
-                keepers: n.keepers,
+                players: session.blocks.find(b => b.clubObjective === targetObjective)?.workshopPlayers ?? n.total,
+                keepers: session.blocks.find(b => b.clubObjective === targetObjective)?.workshopKeepers ?? n.keepers,
                 category: n.level,
                 level: n.technical === "advanced" ? "confirme" : "dev",
                 moment: "libre",
@@ -752,13 +823,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 "Cet exercice ne correspond pas à un atelier sélectionné.",
               );
             result.block.clubObjective = targetObjective;
+            const original = session.blocks[target];
+            if (original.parallelId) {
+              // Keep a coherent common clock; the source exercise remains intact.
+              result.block.parallelId = original.parallelId;
+              result.block.workshopPlayers = original.workshopPlayers;
+              result.block.workshopKeepers = original.workshopKeepers;
+              result.block.duration = original.duration;
+              result.block.setupMinutes = original.setupMinutes;
+              result.block.recoveryMinutes = original.recoveryMinutes;
+            }
             const blocks = session.blocks.map((b, i) =>
                 i === target ? result.block : b,
               ),
-              duration = blocks.reduce(
-                (total, b) => total + b.duration + (b.setupMinutes || 0),
-                0,
-              ),
+              duration = trainingSessionStages({ ...session, blocks }).at(-1)?.end || 0,
               next = { ...session, blocks, duration };
             if (!trainingValid(next))
               throw Error(
@@ -788,6 +866,7 @@ document.addEventListener("DOMContentLoaded", () => {
         level: level.value,
         players: players.value,
         space: space.value,
+        organisation: organisation.value,
       });
       owner = context();
       stale = false;
@@ -855,14 +934,12 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       coachStorageSet("vestiaire-training-library", JSON.stringify(library));
       trainingLibrary = library;
-      session = structuredClone(next);
       renderTrainingLibrary();
       renderCoachAgenda();
-      status.textContent = scheduled
+      const message = scheduled
         ? "Séance enregistrée dans Mes séances et dans l’agenda."
-        : next.libraryOnly
-          ? "Séance enregistrée dans Mes séances, sans rendez-vous dans l’agenda."
-          : "Séance mise à jour ; son rendez-vous dans l’agenda est conservé.";
+        : "Séance enregistrée dans Mes séances.";
+      if (trainingResetAfterSave()) notify(message);
     } catch (error) {
       status.textContent =
         "Enregistrement impossible : la séance proposée reste disponible. " +
@@ -897,9 +974,7 @@ document.addEventListener("DOMContentLoaded", () => {
           session.players + " joueurs · " + session.duration + " min",
         ),
       );
-      session.blocks.forEach((block, index) =>
-        print.append(clubTrainingBlockCard(block, index, { details: false })),
-      );
+      renderStages(print);
     } finally {
       currentTraining = before;
     }
@@ -938,5 +1013,14 @@ document.addEventListener("DOMContentLoaded", () => {
       status.textContent = "";
     }
   });
-  window.trainingAssistantAZ = { open: () => tab.click() };
+  function reset() {
+    session = null; owner = ""; stale = true;
+    form.reset(); goal.value = ""; level.value = activeCoachTeam.category || "";
+    preview.replaceChildren(); print.replaceChildren();
+    date.value = time.value = ""; schedule.open = false;
+    controls.hidden = true; status.textContent = "";
+    for (const b of [edit, save, plan, pdf]) b.disabled = true;
+    hide(); panel.scrollTop = 0;
+  }
+  window.trainingAssistantAZ = { open: () => tab.click(), reset };
 });

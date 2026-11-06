@@ -25,3 +25,14 @@
 
 body.training-mode #club-assistant-open,
 body.training-mode:has(#training-space.training-assistant-open) #workspace-save-open { display: none !important; }
+
+.training-assistant-stage-parallel { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:24px 0; }
+.training-assistant-stage-title { grid-column:1/-1; margin:0; font-size:15px; color:#0055a5; }
+.training-assistant-stage-parallel .training-assistant-phase { margin:0; }
+.training-assistant-allocation { color:#526b88; font-size:13px; }
+@media(max-width:700px) { .training-assistant-stage-parallel { grid-template-columns:minmax(0,1fr); } }
+/* The assistant has its own save/export controls and must not expose the editor draft actions. */
+body.training-mode #training-space.training-assistant-open > .reports-heading > .report-actions,
+body.training-mode #training-space.training-assistant-open > .training-progress,
+body.training-mode #training-space.training-assistant-open > .training-step-footer,
+body.training-mode #training-space.training-assistant-open > #training-status { display:none !important; }

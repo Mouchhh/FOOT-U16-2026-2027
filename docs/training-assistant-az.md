@@ -18,3 +18,12 @@ Le drapeau facultatif `libraryOnly` est ignoré pour les anciennes séances sans
 Les sauvegardes utilisent la bibliothèque canonique et sa synchronisation existante, dans le contexte de l’éducateur et de l’équipe active. Un changement de critères impose une nouvelle génération. La planification refuse de créer un doublon d’une séance déjà enregistrée au même horaire pour l’équipe. Une erreur de stockage garde la proposition visible ; un changement de compte empêche la sauvegarde et efface l’ancien aperçu à la nouvelle connexion.
 
 Vérifications navigateur : plusieurs thèmes et effectifs pairs/impairs, avec/sans gardiens, trois surfaces, conservation des participants et durées, absence de mutation des exercices de référence, distinction bibliothèque/agenda, document imprimable, ouverture dans l’éditeur et mobile.
+
+
+## Deux ateliers et fin de préparation
+
+L’assistant propose « Répartition automatique » ou « Deux ateliers séparés ». Le second choix répartit les joueurs de champ et gardiens en deux groupes distincts (4 à 18 joueurs de champ par groupe), dans deux zones séparées par un passage de 3 m. Chaque phase comporte deux blocs simultanés, avec `parallelId`, `workshopPlayers` et `workshopKeepers` ; sa durée n’est comptée qu’une seule fois. Avec plusieurs objectifs, le groupe B les aborde dans l’ordre inverse. Les effectifs, gardiens et dimensions sont adaptés à chaque groupe. Les deux cartes s’affichent côte à côte sur ordinateur et à la suite sur téléphone. Le récapitulatif et le PDF montrent les répartitions sans développer les consignes longues. Les exercices de référence gardent leur contenu source.
+
+Après un enregistrement réussi (bibliothèque, agenda ou éditeur), le document enregistré reste dans Mes séances ; l’application crée un nouveau brouillon vide et revient à la première étape de Séances. La proposition de l’assistant, les critères, les dates et l’aperçu sont effacés. Si l’enregistrement échoue, aucune réinitialisation n’a lieu. Si seul le nouveau brouillon ne peut pas être écrit, le coach reçoit un message explicite et la saisie reste accessible.
+
+Vérification : `tests/training-assistant-two-reset-browser.py` couvre les groupes pairs/impairs, gardiens, emprise au sol, durée simultanée, PDF, stockage indisponible, sauvegarde, réouverture du formulaire, éditeur, rechargement et petit écran.
