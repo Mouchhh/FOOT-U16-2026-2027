@@ -24,7 +24,7 @@ with sync_playwright() as p:
  for width in [390,320]:
   page.set_viewport_size({'width':width,'height':1000});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
  # Automatic login refresh uses the authenticated relay and preserves last good data.
- page.evaluate("""()=>{window.fffCalls=0;window.fffResponseHTML='<table><tr><th>Rg</th><th>Equipe</th><th>Pts</th></tr><tr><td>1</td><td>Club automatique</td><td>17</td></tr></table>';clubNetworkBound=()=>true;clubNetworkRequest=async(path,options)=>{window.fffCalls++;window.fffPath=path;await new Promise(r=>setTimeout(r,50));return {sourceURL:options.body.sourceURL,html:fffResponseHTML,fetchedAt:'2026-11-06T12:00:00.000Z'}};document.dispatchEvent(new Event('club-session-ready'));homeFFFRefresh()}""")
+ page.evaluate("""()=>{coachFFFEnsure=async()=>true;window.fffCalls=0;window.fffResponseHTML='<table><tr><th>Rg</th><th>Equipe</th><th>Pts</th></tr><tr><td>1</td><td>Club automatique</td><td>17</td></tr></table>';clubNetworkBound=()=>true;clubNetworkRequest=async(path,options)=>{window.fffCalls++;window.fffPath=path;await new Promise(r=>setTimeout(r,50));return {sourceURL:options.body.sourceURL,html:fffResponseHTML,fetchedAt:'2026-11-06T12:00:00.000Z'}};document.dispatchEvent(new Event('club-session-ready'));homeFFFRefresh()}""")
  page.wait_for_function('homeFFFRead()?.acquisition==="automatic"')
  assert page.evaluate('fffCalls')==1
  assert page.evaluate('fffPath')=='/functions/v1/fff-standings'
