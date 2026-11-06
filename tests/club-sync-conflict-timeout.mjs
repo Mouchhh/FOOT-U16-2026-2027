@@ -5,7 +5,7 @@ const source=fs.readFileSync('club-network.js','utf8');
 const flush=source.slice(source.indexOf('async function clubNetworkFlushPending(){'),source.indexOf('function clubNetworkQueueSync(){'));
 let job,remote=[],failRead=true,writes=0;
 const payload={id:'document',title:'Local preserved'};
-const ctx=vm.createContext({
+const ctx=vm.createContext({URLSearchParams,
  clubNetworkGeneration:0,clubNetworkBound:()=>true,clubNetworkPendingJobs:()=>job?[structuredClone(job)]:[],
  clubNetworkPending:()=>job?structuredClone(job):null,clubNetworkPendingKey:()=> 'job',
  localStorage:{setItem:(key,value)=>job=JSON.parse(value),removeItem:()=>job=null},
