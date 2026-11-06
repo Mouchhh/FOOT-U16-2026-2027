@@ -3,16 +3,19 @@ const homeFFFKey='vestiaire-fff-standings';coachTeamWorkspaceKeys.add(homeFFFKey
 function homeFFFSource(value) {
   try{const u=new URL(value);return u.protocol==='https:'&&(u.hostname==='fff.fr'||u.hostname.endsWith('.fff.fr'))&&!u.username&&!u.password?u.href:'';}catch{return '';}
 }
+function homeFFFStandingsURL(value){const source=homeFFFSource(value);return /\/competition\/club\/[^/]+\/equipe\/[^/]+\/saison\/?$/.test(source)?source.replace(/\/saison\/?$/,'/classement'):source;}
 function homeFFFDefaultURL(){return activeCoachTeam.fffProfile?(typeof coachFFFSource==='function'?coachFFFSource():''):agendaFFFRead().url||'';}
 function homeFFFCompetition(){return activeCoachTeam.fffProfile?activeCoachTeam.label+' · '+activeCoachTeam.fffProfile.level:activeCoachTeam.category||'FFF';}
 function homeFFFNormalize(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');}
 function homeFFFValidate(data){
   return data?.version===1&&Number.isFinite(Date.parse(data.importedAt))&&homeFFFSource(data.sourceURL)&&typeof data.competition==='string'&&data.competition.length<=200&&typeof data.teamName==='string'&&data.teamName.length<=150&&Array.isArray(data.rows)&&data.rows.length>0&&data.rows.length<=80&&new Set(data.rows.map(r=>r.rank)).size===data.rows.length&&data.rows.every(r=>r&&Number.isInteger(r.rank)&&r.rank>0&&r.rank<=100&&typeof r.name==='string'&&r.name.trim()&&r.name.length<=150&&['points','played','wins','draws','losses','goalsFor','goalsAgainst','goalDifference'].every(k=>r[k]===null||Number.isInteger(r[k])&&Math.abs(r[k])<=10000)&&(!r.logo||homeFFFSource(r.logo))&&['played','wins','draws','losses','goalsFor','goalsAgainst'].every(k=>r[k]===null||r[k]>=0))&&Array.isArray(data.matches)&&data.matches.length<=1000&&data.matches.every(m=>trainingDateValid(m.date)&&typeof m.home==='string'&&m.home.length<=150&&typeof m.away==='string'&&m.away.length<=150&&Number.isInteger(m.goalsHome)&&m.goalsHome>=0&&m.goalsHome<100&&Number.isInteger(m.goalsAway)&&m.goalsAway>=0&&m.goalsAway<100);
 }
-function homeFFFRead(){try{const data=JSON.parse(coachStorageGet(homeFFFKey)||'null');const source=typeof coachFFFSource==='function'?coachFFFSource():'';return homeFFFValidate(data)&&(!activeCoachTeam.fffProfile||source&&data.sourceURL===source)?data:null;}catch{return null;}}
+function homeFFFRead(){try{const data=JSON.parse(coachStorageGet(homeFFFKey)||'null');const source=typeof coachFFFSource==='function'?coachFFFSource():'';return homeFFFValidate(data)&&(!activeCoachTeam.fffProfile||source&&homeFFFStandingsURL(data.sourceURL)===homeFFFStandingsURL(source))?data:null;}catch{return null;}}
 function homeFFFParse(text,{sourceURL,teamName,competition}) {
   if(text.length>4000000)throw Error('Page trop volumineuse (4 Mo maximum).');
   if(!homeFFFSource(sourceURL))throw Error('Indiquez le lien officiel FFF de cette équipe ou de son championnat.');
+  const clean=node=>{if(!node?.cloneNode)return node?.textContent?.trim().replace(/\s+/g,' ')||'';const copy=node.cloneNode(true);copy.querySelectorAll('svg,script,style,[aria-hidden="true"]').forEach(n=>n.remove());return copy.textContent.trim().replace(/\s+/g,' ');};
+  const column=node=>[...(node?.classList||[])].filter(v=>v.startsWith('cdk-column-')||v.startsWith('mat-column-')).map(v=>homeFFFNormalize(v.replace(/^(cdk|mat)-column-/,'')));
   const number=value=>/^[-+]?\d+$/.test(String(value??'').trim())?Number(value):null;
   let rows=[],matches=[];
   if(text.trim().startsWith('{')) {
@@ -20,19 +23,19 @@ function homeFFFParse(text,{sourceURL,teamName,competition}) {
     if(!Array.isArray(rows))throw Error('Le fichier doit contenir le classement dans « rows ».');
   } else {
     const document=new DOMParser().parseFromString(text,'text/html');
-    const table=[...document.querySelectorAll('table')].find(t=>/pts|points/i.test(t.textContent)&&/quipe|club/i.test(t.textContent));
+    const table=[...document.querySelectorAll('table')].find(t=>(/pts|points/i.test(t.textContent)||t.querySelector('.cdk-column-points'))&&(/quipe|club/i.test(t.textContent)||t.querySelector('a.team')));
     const lines=table?[...table.rows].map(row=>[...row.cells]):text.trim().split(/\r?\n/).map(line=>line.split(line.includes('\t')?'\t':';').map(textContent=>({textContent})));
-    const headerIndex=lines.findIndex(line=>line.some(cell=>['pts','points'].includes(homeFFFNormalize(cell.textContent))));
+    const headerIndex=lines.findIndex(line=>line.some(cell=>['pts','points'].includes(homeFFFNormalize(clean(cell)))||column(cell).includes('points')));
     if(headerIndex<0)throw Error('Classement non reconnu. Importez la page HTML FFF enregistrée ou collez son tableau avec les en-têtes.');
-    const headers=lines[headerIndex].map(c=>homeFFFNormalize(c.textContent));
-    const aliases={rank:['rg','rang','rangclassement','pl','place','position','classement'],name:['equipe','equipes','club','clubs'],points:['pts','points'],played:['j','joues','joue','mj','matchsjoues'],wins:['g','victoires','gagnes'],draws:['n','nuls'],losses:['p','perdus','defaites'],goalsFor:['bp','butsmarques','butspour'],goalsAgainst:['bc','butsencaisses','butscontre'],goalDifference:['diff','dif','difference','diffbuts','db']};
-    const position=Object.fromEntries(Object.entries(aliases).map(([key,values])=>[key,headers.findIndex(v=>values.includes(v))]));
+    const headers=lines[headerIndex].map(c=>homeFFFNormalize(clean(c)));
+    const aliases={rank:['rank','ranking','rg','rang','rangclassement','pl','place','position','classement'],name:['team','equipe','equipes','club','clubs'],points:['pts','points'],played:['played','playedmatches','j','joues','joue','mj','matchsjoues'],wins:['wins','g','victoires','gagnes'],draws:['draws','n','nuls'],losses:['losses','p','perdus','defaites'],goalsFor:['goalsfor','bp','butsmarques','butspour'],goalsAgainst:['goalsagainst','bc','butsencaisses','butscontre'],goalDifference:['goaldifference','diff','dif','difference','diffbuts','db']};
+    const position=Object.fromEntries(Object.entries(aliases).map(([key,values])=>[key,headers.findIndex((v,i)=>values.includes(v)||column(lines[headerIndex][i]).some(c=>values.includes(c)))]));
     if(position.name<0||position.points<0)throw Error('Colonnes Équipe et Points introuvables.');
     rows=lines.slice(headerIndex+1).filter(line=>line.length>=headers.length).map(line=>{
-      const cell=key=>line[position[key]],value=key=>cell(key)?.textContent.trim().replace(/\s+/g,' ')||'';
+      const cell=key=>line[position[key]],value=key=>clean(cell(key));
       const team=cell('name'),image=team?.querySelector?.('img');let logo='';
-      try{logo=homeFFFSource(new URL(image?.getAttribute('src')||image?.getAttribute('data-src')||'',sourceURL).href);}catch{}
-      return {rank:number(value('rank')||line[0]?.textContent),name:value('name'),logo:image?logo:'',...Object.fromEntries(Object.keys(aliases).filter(k=>!['rank','name'].includes(k)).map(k=>[k,number(value(k))]))};
+      if(image)for(const candidate of [image.getAttribute('src'),image.getAttribute('data-src'),image.getAttribute('ngsrc'),...(image.getAttribute('srcset')||'').split(',').map(v=>v.trim().split(/\s+/)[0])].filter(Boolean)){try{logo=homeFFFSource(new URL(candidate,sourceURL).href);if(logo)break;}catch{}}
+      return {rank:number(value('rank')||clean(line[0])),name:value('name'),logo:image?logo:'',...Object.fromEntries(Object.keys(aliases).filter(k=>!['rank','name'].includes(k)).map(k=>[k,number(value(k))]))};
     }).filter(row=>row.rank&&row.name);
   }
   rows=rows.map(row=>({...row,logo:homeFFFSource(row.logo)||'',...Object.fromEntries(['points','played','wins','draws','losses','goalsFor','goalsAgainst','goalDifference'].map(k=>[k,number(row[k])]))}));
@@ -113,7 +116,7 @@ function homeFFFErrorMessage(error){
 }
 async function homeFFFRefresh(){
  if(typeof clubNetworkBound!=='function'||!clubNetworkBound())return;
- const owner=trainingAgendaIdentity(),current=homeFFFRead(),sourceURL=current?.sourceURL||homeFFFDefaultURL();
+ const owner=trainingAgendaIdentity(),current=homeFFFRead(),sourceURL=homeFFFStandingsURL(current?.sourceURL||homeFFFDefaultURL());
  if(!sourceURL)return;
  if(homeFFFRefreshes.has(owner))return homeFFFRefreshes.get(owner);
  const initial=coachStorageGet(homeFFFKey);

@@ -4,6 +4,17 @@ with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':1000},reduced_motion='reduce');errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  page.goto('http://localhost:3016/?mode=local');page.wait_for_function('typeof homeFFFParse==="function"');page.wait_for_selector('.home-fff-ranking')
  assert 'à importer' in page.locator('.home-fff-ranking').inner_text()
+ # Synthetic markup follows the CDK table structure visible in the coach's source captures.
+ cdk='<table><tr><th></th><th>Pr.</th><th class="cdk-column-team">Équipe</th><th class="cdk-column-points"><svg><title>Trier</title></svg>Pts</th><th>J.</th><th>G.</th><th>N.</th><th>P.</th><th>BP</th><th>BC</th></tr><tr><td>1</td><td><svg><title>Progression</title></svg>2</td><td><a class="team"><app-logo-team><img src="data:image/gif;base64,AAAA" srcset="https://media.fff.fr/test-logo.svg 1x"></app-logo-team> Club test CDK</a></td><td>13</td><td>5</td><td>4</td><td>1</td><td>0</td><td>12</td><td>3</td></tr></table>'
+ parsed=page.evaluate("html=>homeFFFParse(html,{sourceURL:agendaFFFDefault,teamName:'Club test CDK',competition:'Test'})",cdk)
+ assert parsed['rows'][0]['rank']==1
+ assert parsed['rows'][0]['name']=='Club test CDK'
+ assert parsed['rows'][0]['points']==13
+ assert parsed['rows'][0]['played']==5
+ assert parsed['rows'][0]['goalDifference']==9
+ assert parsed['rows'][0]['logo']=='https://media.fff.fr/test-logo.svg'
+ assert page.evaluate('homeFFFStandingsURL(agendaFFFDefault)')=='https://epreuves.fff.fr/competition/club/548126-st-mayennais-f-c/equipe/2026_25254_U17_7/classement'
+
  assert page.locator('.home-live-group-strip').evaluate('(n)=>getComputedStyle(n).gridArea')=='group'
  table='<table><tr><th>Rg</th><th>Équipe</th><th>Pts</th><th>J</th><th>G</th><th>N</th><th>P</th><th>BP</th><th>BC</th><th>Diff.</th></tr><tr><td>1</td><td>Club test A</td><td>12</td><td>4</td><td>4</td><td>0</td><td>0</td><td>12</td><td>2</td><td>10</td></tr><tr><td>2</td><td>MAYENNE STADE FC 2</td><td>8</td><td>4</td><td>3</td><td>0</td><td>1</td><td>10</td><td>3</td><td>7</td></tr><tr><td>3</td><td>Club test B</td><td>3</td><td>4</td><td>1</td><td>0</td><td>3</td><td>2</td><td>11</td><td>-9</td></tr></table>'
  page.locator('.home-fff-actions button').click();form=page.locator('#home-fff-import')
@@ -24,9 +35,10 @@ with sync_playwright() as p:
  for width in [390,320]:
   page.set_viewport_size({'width':width,'height':1000});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
  # Automatic login refresh uses the authenticated relay and preserves last good data.
- page.evaluate("""()=>{coachFFFEnsure=async()=>true;window.fffCalls=0;window.fffResponseHTML='<table><tr><th>Rg</th><th>Equipe</th><th>Pts</th></tr><tr><td>1</td><td>Club automatique</td><td>17</td></tr></table>';clubNetworkBound=()=>true;clubNetworkRequest=async(path,options)=>{window.fffCalls++;window.fffPath=path;await new Promise(r=>setTimeout(r,50));return {sourceURL:options.body.sourceURL,html:fffResponseHTML,fetchedAt:'2026-11-06T12:00:00.000Z'}};document.dispatchEvent(new Event('club-session-ready'));homeFFFRefresh()}""")
+ page.evaluate("""()=>{coachFFFEnsure=async()=>true;window.fffCalls=0;window.fffResponseHTML='<table><tr><th>Rg</th><th>Equipe</th><th>Pts</th></tr><tr><td>1</td><td>Club automatique</td><td>17</td></tr></table>';clubNetworkBound=()=>true;clubNetworkRequest=async(path,options)=>{window.fffCalls++;window.fffPath=path;window.requestedFFFURL=options.body.sourceURL;await new Promise(r=>setTimeout(r,50));return {sourceURL:options.body.sourceURL,html:fffResponseHTML,fetchedAt:'2026-11-06T12:00:00.000Z'}};document.dispatchEvent(new Event('club-session-ready'));homeFFFRefresh()}""")
  page.wait_for_function('homeFFFRead()?.acquisition==="automatic"')
  assert page.evaluate('fffCalls')==1
+ assert page.evaluate('requestedFFFURL.endsWith("/classement")')
  assert page.evaluate('fffPath')=='/functions/v1/fff-standings'
  assert page.evaluate('homeFFFRead().rows[0].points')==17
  assert 'FFF vérifiée le' in page.locator('.home-fff-ranking').inner_text()
