@@ -116,3 +116,33 @@ test('invalid refresh grants, foreign edit URLs and failed revocation do not exp
   assert.throws(()=>createCanvaGateway({...config,publicURL:'http://public.example',development:false}));
  }finally{await new Promise(resolve=>app.server.close(resolve));fs.rmSync(directory,{recursive:true,force:true});}
 });
+
+test('large animated imports: advertise 100MB, forward above 20MB intact, bound concurrency and reject above cap',async()=>{
+ const {MAX_IMPORT_BYTES}=await import('../server.mjs');
+ const http=await import('node:http');
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'canva-large-'));
+ let imports=0,lastLength=0,hold=false,started,release;
+ const config={publicURL:'http://127.0.0.1:3001',development:true,clientId:'client',clientSecret:'secret',encryptionKey:key,directory,origins:[origin]};
+ const app=createCanvaGateway(config,{auth:async token=>token==='b'?B:A,fetcher:async(url,options)=>{
+  assert.ok(url.endsWith('/imports'));imports++;lastLength=options.body.length;
+  assert.equal(options.body.readUInt32LE(0),0x04034b50);
+  if(hold){started();await new Promise(resolve=>{release=resolve;});}
+  return Response.json({job:{id:'large-'+imports,status:'in_progress'}});
+ }});
+ await new Promise(resolve=>app.server.listen(0,'127.0.0.1',resolve));
+ const base='http://127.0.0.1:'+app.server.address().port;
+ const headers={Origin:origin,Authorization:'Bearer a','Content-Type':'application/vnd.openxmlformats-officedocument.presentationml.presentation','X-Design-Title':Buffer.from('Causerie avec toutes les animations').toString('base64')};
+ const record=()=>({tokens:{access:'access',refresh:'refresh',expires:Date.now()+3600000},jobs:[]});app.vault.write(A,record());app.vault.write(B,record());
+ try{
+  const status=await (await fetch(base+'/api/status',{headers})).json();assert.equal(status.max_import_bytes,100*1024*1024);
+  const payload=Buffer.alloc(21*1024*1024);payload.writeUInt32LE(0x04034b50);payload[payload.length-1]=42;
+  const response=await fetch(base+'/api/imports',{method:'POST',headers,body:payload});assert.equal(response.status,200);assert.equal(lastLength,payload.length);assert.equal(imports,1);
+  const tiny=Buffer.from([80,75,3,4]);hold=true;let ready=new Promise(resolve=>{started=resolve;});
+  const first=fetch(base+'/api/imports',{method:'POST',headers,body:tiny});await ready;
+  const busy=await fetch(base+'/api/imports',{method:'POST',headers:{...headers,Authorization:'Bearer b'},body:tiny});assert.equal(busy.status,503);release();assert.equal((await first).status,200);hold=false;
+  const oversized=await new Promise((resolve,reject)=>{
+   const req=http.request(base+'/api/imports',{method:'POST',headers:{...headers,'Content-Length':MAX_IMPORT_BYTES+1}},res=>{let text='';res.setEncoding('utf8');res.on('data',chunk=>text+=chunk);res.on('end',()=>{resolve({status:res.statusCode,body:JSON.parse(text)});req.destroy();});});
+   req.on('error',reject);req.end(tiny);
+  });assert.equal(oversized.status,413);assert.match(oversized.body.error,/100 Mo/);assert.equal(imports,2);
+ }finally{await new Promise(resolve=>app.server.close(resolve));fs.rmSync(directory,{recursive:true,force:true});}
+});

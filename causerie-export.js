@@ -101,7 +101,7 @@
  }
  window.causerieExport={textPages,collect,capture,build};
  document.addEventListener('DOMContentLoaded',()=>{
-  let snapshot=null,busy=false,ownerAtOpen=null,connectionPoll=null,viewVersion=0,createAfterConnection=false;
+  let snapshot=null,busy=false,ownerAtOpen=null,connectionPoll=null,viewVersion=0,createAfterConnection=false,importLimit=20*1024*1024;
   const configured=!!window.CLUB_CANVA_GATEWAY;
   let gateway=null;
   try{if(configured){const url=new URL(window.CLUB_CANVA_GATEWAY);if(url.protocol!=='https:'||url.username||url.password||url.pathname!=='/'||url.search||url.hash)throw Error();gateway=url.origin;}}catch{}
@@ -135,8 +135,9 @@
     if(version!==viewVersion||!dialog.open)throw Error('Demande annulée. Rouvrez la préparation si nécessaire.');
     const credential=clubToken();
     try{
-     const res=await fetch(gateway+route,{...options,credentials:'omit',headers:{Authorization:'Bearer '+credential,...options.headers},signal:AbortSignal.timeout(sending?120000:30000)});
+     const res=await fetch(gateway+route,{...options,credentials:'omit',headers:{Authorization:'Bearer '+credential,...options.headers},signal:AbortSignal.timeout(sending?300000:30000)});
      const value=await res.json().catch(()=>null);
+     if(version!==viewVersion||!dialog.open)throw Error('Demande annulée. Rouvrez la préparation si nécessaire.');
      if(waking&&[502,503,504].includes(res.status)&&attempt+1<attempts){await new Promise(resolve=>setTimeout(resolve,4000));continue;}
      if(!res.ok||!value)throw Error(value?.error||'Le service Canva est indisponible ou en cours de réveil. Réessayez dans un instant.');
      return value;
@@ -168,6 +169,7 @@
   }
   async function checkConnection(checkJob=false){
    const value=await request('/api/status');
+   importLimit=Number.isInteger(value.max_import_bytes)&&value.max_import_bytes>0?Math.min(value.max_import_bytes,100*1024*1024):20*1024*1024;
    account.textContent=value.connected?'Votre compte Canva est connecté. Le clic de création envoie cette préparation à Canva.':'Votre compte Canva n’est pas connecté. Autorisez la connexion pour créer votre présentation directement dans votre compte.';
    upload.disabled=!value.connected||busy;disconnect.disabled=!value.connected||busy;connect.textContent=value.connected?'Reconnecter Canva':'Connecter Canva';
    if(checkJob&&value.latest_job_id){
@@ -229,8 +231,8 @@
     const pptx=await build(canvaSnapshot,include.checked,{onProgress:progress});
     status.textContent='Assemblage de la causerie animée…';
     const blob=await pptx.write({outputType:'blob',compression:true});prepared=blob;
-    if(blob.size>20*1024*1024)throw Error('La causerie animée dépasse la limite de 20 Mo du service Canva. Téléchargez le PowerPoint animé ci-dessous pour la présenter sans perdre les animations.');
-    status.textContent='Envoi de la causerie animée à Canva · '+(blob.size/1024/1024).toFixed(1)+' Mo · cet envoi peut prendre jusqu’à deux minutes…';
+    if(blob.size>importLimit)throw Error(importLimit<100*1024*1024&&blob.size<=100*1024*1024?'Le service Render utilise encore l’ancienne limite. Déployez le dernier commit sur Render pour accepter les causeries jusqu’à 100 Mo.':'La causerie animée dépasse la limite de 100 Mo du service du club. Le PowerPoint animé reste téléchargeable ci-dessous.');
+    status.textContent='Envoi de la causerie animée à Canva · '+(blob.size/1024/1024).toFixed(1)+' Mo · cet envoi peut prendre jusqu’à cinq minutes…';
     const title=snapshot.board.title||snapshot.board.team,title64=btoa(Array.from(new TextEncoder().encode(title),byte=>String.fromCharCode(byte)).join(''));
     let job=await request('/api/imports',{method:'POST',headers:{'Content-Type':'application/vnd.openxmlformats-officedocument.presentationml.presentation','X-Design-Title':title64},body:blob});
     for(let attempt=0;attempt<45;attempt++){
@@ -298,7 +300,7 @@
   };
   include.onchange=refresh;close.onclick=()=>{if(!busy)dialog.close();};
   dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
-  dialog.addEventListener('close',()=>{viewVersion++;stopConnectionPoll();});
+  dialog.addEventListener('close',()=>{if(dialog.open)return;viewVersion++;stopConnectionPoll();});
   const pptStatus=el('p','hint causerie-ppt-status');pptStatus.id='causerie-ppt-status';pptStatus.setAttribute('role','status');
   download.textContent='Télécharger en PPT (Animé)';download.className='export causerie-ppt-direct';
   window.causerieExport.downloadCurrent=async()=>{

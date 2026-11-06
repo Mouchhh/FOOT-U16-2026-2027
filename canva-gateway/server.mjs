@@ -9,6 +9,7 @@ const random=()=>crypto.randomBytes(32).toString('base64url');
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const jobPattern=/^[a-zA-Z0-9_-]{1,80}$/;
 const API='https://api.canva.com/rest/v1';
+export const MAX_IMPORT_BYTES=100*1024*1024;
 export async function authorize(token,config,fetcher=fetch){
  if(!token||token.length>8000)throw error('Connectez-vous au club.',401);
  const headers={apikey:config.publishableKey,Authorization:'Bearer '+token};
@@ -49,11 +50,12 @@ export function createCanvaGateway(config,{fetcher=fetch,auth=token=>authorize(t
  if(base.pathname!=='/'||base.username||base.password||base.search||base.hash)throw error('PUBLIC_URL doit être une origine sans chemin.');
  if(!config.clientId||!config.clientSecret||!Array.isArray(config.origins)||!config.origins.length)throw error('Configuration Canva incomplète.');
  const vault=new Vault(config.directory,config.encryptionKey),states=new Map(),locks=new Map(),rates=new Map(),epochs=new Map();
+ let activeImports=0;
  const callback=base.origin+'/oauth/callback',basic='Basic '+Buffer.from(config.clientId+':'+config.clientSecret).toString('base64');
  async function serial(owner,fn){const previous=locks.get(owner)||Promise.resolve(),next=previous.catch(()=>{}).then(fn);locks.set(owner,next);try{return await next;}finally{if(locks.get(owner)===next)locks.delete(owner);}}
  function prune(){for(const map of [states,rates])for(const [key,item] of map)if(item.until<now())map.delete(key);}
  async function canva(route,options){
-  const result=await fetcher(API+route,{...options,redirect:'error',signal:AbortSignal.timeout(route==='/imports'?90000:30000)});
+  const result=await fetcher(API+route,{...options,redirect:'error',signal:AbortSignal.timeout(route==='/imports'?180000:30000)});
   if(!result.ok&&route==='/oauth/token'&&result.status===400){
    const reason=await result.json().catch(()=>({}));
    if(reason.error==='invalid_grant')throw error('Autorisation Canva expirée. Reconnectez Canva.',409);
@@ -86,8 +88,10 @@ export function createCanvaGateway(config,{fetcher=fetch,auth=token=>authorize(t
   return result;
  }
  async function body(req,max){
+  const tooLarge=()=>error(max===MAX_IMPORT_BYTES?'Présentation trop volumineuse (100 Mo maximum).':'Requête trop volumineuse.',413);
+  if(Number(req.headers['content-length'])>max){req.resume();throw tooLarge();}
   const chunks=[];let size=0;
-  for await(const chunk of req){size+=chunk.length;if(size>max)throw error('Présentation trop volumineuse (20 Mo maximum).',413);chunks.push(chunk);}
+  for await(const chunk of req){size+=chunk.length;if(size>max)throw tooLarge();chunks.push(chunk);}
   return Buffer.concat(chunks);
  }
  const server=http.createServer(async(req,res)=>{
@@ -144,7 +148,7 @@ export function createCanvaGateway(config,{fetcher=fetch,auth=token=>authorize(t
    const rate=rates.get(owner)||{count:0,until:now()+60000};if(++rate.count>60)throw error('Trop de demandes. Réessayez dans une minute.',429);rates.set(owner,rate);
    return await serial(owner,async()=>{
     const record=vault.read(owner);
-    if(route.pathname==='/api/status'&&req.method==='GET')return send(200,{connected:!!record,latest_job_id:record?.jobs.at(-1)?.id||null});
+    if(route.pathname==='/api/status'&&req.method==='GET')return send(200,{connected:!!record,latest_job_id:record?.jobs.at(-1)?.id||null,max_import_bytes:MAX_IMPORT_BYTES});
     if(route.pathname==='/api/connection'&&req.method==='DELETE'){
      let revoked=true;
      try{if(record)await canva('/oauth/revoke',{method:'POST',headers:{Authorization:basic,'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({token:record.tokens.refresh})});}catch{revoked=false;}
@@ -154,11 +158,15 @@ export function createCanvaGateway(config,{fetcher=fetch,auth=token=>authorize(t
     if(!record)throw error('Connectez votre compte Canva.',409);
     if(route.pathname==='/api/imports'&&req.method==='POST'){
      if(req.headers['content-type']!=='application/vnd.openxmlformats-officedocument.presentationml.presentation')throw error('Un fichier PowerPoint est requis.',415);
-     const data=await body(req,20*1024*1024);if(data.length<4||data.readUInt32LE(0)!==0x04034b50)throw error('Fichier PowerPoint invalide.');
+     if(activeImports)throw error('Un autre envoi de causerie est en cours. Réessayez après sa fin.',503);
+     activeImports++;
+     try{
+     const data=await body(req,MAX_IMPORT_BYTES);if(data.length<4||data.readUInt32LE(0)!==0x04034b50)throw error('Fichier PowerPoint invalide.');
      const title=Buffer.from(String(req.headers['x-design-title']||''),'base64').toString('utf8');if(!title||title.length>1000)throw error('Titre invalide.');
      const access=await token(owner,record),meta={title_base64:Buffer.from([...title].slice(0,50).join('')).toString('base64'),mime_type:req.headers['content-type']};
      const response=await canva('/imports',{method:'POST',headers:{Authorization:'Bearer '+access,'Content-Type':'application/octet-stream','Import-Metadata':JSON.stringify(meta)},body:data});
      const job=sanitizeJob(await response.json());record.jobs=record.jobs.filter(j=>j.until>now()).slice(-19);record.jobs.push({id:job.id,until:now()+86400000});vault.write(owner,record);return send(200,job);
+     }finally{activeImports--;}
     }
     const match=route.pathname.match(/^\/api\/imports\/([a-zA-Z0-9_-]{1,80})$/);
     if(match&&req.method==='GET'){
@@ -170,7 +178,7 @@ export function createCanvaGateway(config,{fetcher=fetch,auth=token=>authorize(t
    });
   }catch(e){if(!res.headersSent)send(e.status||500,{error:e.status?e.message:'Service Canva temporairement indisponible.'});else res.end();}
  });
- server.requestTimeout=120000;server.headersTimeout=10000;
+ server.requestTimeout=300000;server.headersTimeout=10000;
  return {server,vault};
 }
 export function runtimeConfig(environment=process.env){
