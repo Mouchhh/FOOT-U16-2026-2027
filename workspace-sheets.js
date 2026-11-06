@@ -6,7 +6,7 @@
     nativeClose = HTMLDialogElement.prototype.close;
   const context = new WeakMap(),
     inerted = new Set();
-  let order = 0;
+  let order = 0, priorityRoot = null;
   const owner = () =>
     [
       typeof activeCoach !== "undefined" ? activeCoach.id : "",
@@ -33,8 +33,9 @@
   }
   function refresh() {
     restoreBackground();
+    if (priorityRoot && !priorityRoot.isConnected) priorityRoot = null;
     const panels = sheets(),
-      active = panels
+      active = priorityRoot || panels
         .filter(
           (p) => !context.get(p)?.owner || context.get(p).owner === owner(),
         )
@@ -47,6 +48,7 @@
     }
     document.body.classList.toggle("workspace-panel-open", !!active);
     if (active) isolate(document.body, active);
+    if (priorityRoot && !priorityRoot.contains(document.activeElement)) focusables(priorityRoot)[0]?.focus({ preventScroll: true });
     return active;
   }
   function focusables(panel) {
@@ -115,7 +117,7 @@
   };
   document.addEventListener("keydown", (event) => {
     if (event.defaultPrevented) return;
-    const panel = sheets()
+    const panel = (priorityRoot?.isConnected ? priorityRoot : null) || sheets()
       .filter((p) => !p.classList.contains("workspace-sheet-suspended"))
       .at(-1);
     if (!panel) return;
@@ -172,6 +174,11 @@
     refresh();
   });
   window.workspaceSheets = {
+    prioritize: (root) => {
+      if (root && root.ownerDocument !== document) throw Error("Panneau hors de cette page.");
+      priorityRoot = root;
+      refresh();
+    },
     register,
     open: (panel) => panel.showModal(),
     close: (panel) => panel.close(),

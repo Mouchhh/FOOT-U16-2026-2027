@@ -73,11 +73,11 @@ function coachFFFOpen({add=false}={}){
  const urlLabel=el('label','','Lien de l’équipe FFF'),url=el('input');url.type='url';url.value=previous?.sourceURL||'';url.setAttribute('aria-label','Lien de l’équipe FFF');url.placeholder='https://epreuves.fff.fr/competition/club/…/equipe/…/saison';urlLabel.append(url);
  const nameLabel=el('label','','Nom exact de l’équipe sur la FFF'),officialName=el('input');officialName.maxLength=150;officialName.value=previous?.officialName||'';officialName.setAttribute('aria-label','Nom exact de l’équipe sur la FFF');nameLabel.append(officialName);
  fallback.append(el('p','hint','La liaison FFF est facultative pour enregistrer votre équipe. Vous pourrez l’ajouter ensuite depuis « Mon équipe FFF ».'),urlLabel,nameLabel);
- const save=el('button','primary','Confirmer et ouvrir mon équipe');save.type='submit';
+ const save=el('button','primary','Confirmer et ouvrir mon équipe');save.type='submit';save.id='coach-fff-save';
  const queue=el('section','coach-fff-queue');queue.setAttribute('aria-label','Équipes à enregistrer');
  const another=el('button','export','+ Ajouter une autre équipe');another.type='button';
  const footer=el('div','coach-fff-footer');footer.append(another,save);
- form.append(queue,search,results,fallback,status,footer);panel.append(form);document.body.append(panel);category.focus();
+ form.append(queue,search,results,fallback,status,footer);panel.append(form);document.body.append(panel);window.workspaceSheets?.prioritize(panel);category.focus();
  let chosen=null,run=0,pending=[],selectedId='',canEditActive=!add,draftId='team-'+crypto.randomUUID();
  const context=()=>JSON.stringify([category.value,gender.value,number.value,format.value,level.value,season.value]);
  const isOwner=()=>clubNetworkBound()&&clubNetworkSession.user.id===userId&&trainingAgendaIdentity()===owner;
@@ -135,7 +135,7 @@ function coachFFFOpen({add=false}={}){
   pending.push(entry);if(!selectedId)selectedId=entry.id;renderQueue();clearEntry();status.textContent='Équipe ajoutée à votre sélection. Renseignez la suivante ou enregistrez vos équipes.';
  };
  renderQueue();
- form.onsubmit=async event=>{
+ const submit=async event=>{
   event.preventDefault();if(!checkOwner())return;
   let entries=[...pending];
   // The blank form after adding an entry does not block completing the batch.
@@ -154,6 +154,7 @@ function coachFFFOpen({add=false}={}){
    coachFFFApplyProfiles(profiles);sessionStorage.setItem(coachTeamSelectionKey,activeId);location.reload();
   }catch(error){status.textContent=error.message?.startsWith('Cette équipe')?error.message:error.status?'Équipes non enregistrées · HTTP '+error.status+(error.code?' · '+error.code:'')+' : '+clubNetworkMessage(error):['QuotaExceededError','SecurityError'].includes(error.name)?'Équipes sauvegardées dans le compte, mais stockage de cet appareil indisponible. Libérez de l’espace puis rechargez.':'Équipes non enregistrées. Vérifiez la connexion puis réessayez.';for(const control of form.querySelectorAll('input,select,button'))control.disabled=false;}
  };
+ save.onclick=submit;form.onsubmit=submit;
 }
 document.addEventListener('DOMContentLoaded',()=>{
  const clear=clubNetworkClear;clubNetworkClear=function(...args){document.getElementById('coach-fff-setup')?.remove();return clear.apply(this,args);};
