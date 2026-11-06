@@ -51,6 +51,9 @@ function clubNetworkMessage(error){
  if(error?.code==='otp_expired')return 'Ce lien est expiré ou déjà utilisé. Demandez un nouveau lien.';
  if(error?.code==='signup_disabled')return 'La création des comptes doit être activée par le responsable après installation de la liste des adresses autorisées.';
  if(error?.code==='PGRST202')return 'La mise à jour des inscriptions privées doit être installée par le responsable dans Supabase.';
+ if(error?.status>=500)return 'Le service Supabase est indisponible — '+(error.diagnostic||('HTTP '+error.status))+'. Vérifiez l’état du projet dans Supabase puis réessayez. Vos données locales sont conservées.';
+ if(error?.code==='network_unreachable'||error?.code==='request_timeout')return (error.code==='request_timeout'?'Le service de connexion ne répond pas dans le délai prévu':'Impossible de joindre le service de connexion')+' — '+error.diagnostic+'. Vérifiez votre accès Internet et l’état du projet Supabase. Vos données locales sont conservées.';
+ if(error?.code==='invalid_response')return 'Le service a renvoyé une réponse illisible — '+error.diagnostic+'. Réessayez puis transmettez cette référence si le problème persiste.';
  if(error?.code==='signup_not_allowed'||error?.code==='unexpected_failure')return 'Création du compte refusée : vérifiez que le responsable a installé les inscriptions privées et autorisé votre adresse, puis fourni un code d’invitation valide. Si le compte existe déjà, utilisez « Se connecter ».';
  if(error?.code==='email_not_confirmed')return 'Votre adresse doit être confirmée. Consultez votre messagerie ou contactez le responsable du club.';
  if(error?.status===401)return 'Connexion expirée. Reconnectez-vous ; vos brouillons locaux sont conservés.';
@@ -69,9 +72,20 @@ async function clubNetworkRequest(path,{method='GET',body,auth=true,retry=true}=
  if(auth){if(!clubNetworkSession)throw clubNetworkError('Connexion requise',401);if(clubNetworkSession.expires_at*1000<Date.now()+30000)await clubNetworkRefreshSession();}
  const headers={apikey:clubNetworkConfig.publishableKey,'Content-Type':'application/json'};
  if(auth)headers.Authorization='Bearer '+clubNetworkSession.access_token;
- const response=await fetch(clubNetworkBase+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body),credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store',signal:AbortSignal.timeout(20000)});
+ const operation=path.startsWith('/auth/v1/token?grant_type=password')?'identification':path.startsWith('/auth/')?'authentification':path.startsWith('/rest/v1/club_members?')?'profil du club':path.startsWith('/rest/')?'données du club':'service';
+ const diagnose=(error,label)=>{error.diagnostic='auth-181 / '+operation+' / '+label;return error;};
+ let response,text;
+ try{
+  const signal=AbortSignal.timeout(20000);
+  response=await fetch(clubNetworkBase+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body),credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store',signal});
+  text=await response.text();
+ }catch(cause){
+  if(generation!==clubNetworkGeneration)throw Error('Session terminée.');
+  const timeout=cause?.name==='TimeoutError';
+  throw diagnose(clubNetworkError('Service injoignable',0,timeout?'request_timeout':'network_unreachable'),timeout?'délai dépassé':'réseau inaccessible');
+ }
  if(generation!==clubNetworkGeneration)throw Error('Session terminée.');
- const text=await response.text();if(generation!==clubNetworkGeneration)throw Error('Session terminée.');let result=null;try{result=text?JSON.parse(text):null;}catch{throw Error('Réponse serveur invalide.');}
+ let result=null;try{result=text?JSON.parse(text):null;}catch{if(response.ok)throw diagnose(clubNetworkError('Réponse serveur invalide',response.status,'invalid_response'),'HTTP '+response.status+' / réponse illisible');}
  if(!response.ok){
   if(auth&&response.status===401&&retry){await clubNetworkRefreshSession();return clubNetworkRequest(path,{method,body,auth,retry:false});}
   // Auth versions use either error_code, textual code, or legacy OAuth error.
@@ -83,7 +97,6 @@ async function clubNetworkRequest(path,{method='GET',body,auth=true,retry=true}=
    if(legacy==='Invalid login credentials')code='invalid_credentials';
    else if(legacy==='Email not confirmed')code='email_not_confirmed';
   }
-  const operation=path.startsWith('/auth/v1/token?grant_type=password')?'identification':path.startsWith('/auth/')?'authentification':path.startsWith('/rest/v1/club_members?')?'profil du club':path.startsWith('/rest/')?'données du club':'service';
   const error=clubNetworkError('Requête refusée',response.status,code);
   if(path==='/functions/v1/fff-standings'){if(Number.isInteger(result?.upstreamStatus)&&result.upstreamStatus>=100&&result.upstreamStatus<=599)error.upstreamStatus=result.upstreamStatus;if(typeof result?.reference==='string'&&/^[a-f0-9-]{36}$/.test(result.reference))error.reference=result.reference;}
   error.diagnostic='auth-181 / '+operation+' / HTTP '+response.status+' / '+(/^[a-zA-Z0-9_]{1,64}$/.test(code)?code:'sans code');
@@ -408,7 +421,7 @@ async function clubNetworkRun(action){
 }
 async function clubNetworkAfterLogin(session){
  clubNetworkStoreSession(session);if(!await clubNetworkLoadMember())return;
- await clubNetworkSync();clearInterval(clubNetworkTimer);clubNetworkTimer=setInterval(()=>{if(!document.hidden)clubNetworkQueueSync();},10000);
+ await clubNetworkSync();if(!clubNetworkBound())return;clearInterval(clubNetworkTimer);clubNetworkTimer=setInterval(()=>{if(!document.hidden)clubNetworkQueueSync();},10000);
  const url=new URL(location.href);url.searchParams.delete('auth');history.replaceState(history.state,'',url.href);if(typeof showClubHome==='function')showClubHome();else clubNetworkShowView();document.dispatchEvent(new CustomEvent('club-session-ready'));
 }
 async function clubNetworkLogout(){
