@@ -89,13 +89,13 @@
   compositionPitch(canvas.getContext('2d'),{x:0,y:0,w:canvas.width,h:canvas.height},landscape,board,images,options);
   return {data:canvas.toDataURL('image/png'),width:canvas.width,height:canvas.height};
  }
- async function build(snapshot,includeLinked){
+ async function build(snapshot,includeLinked,options={}){
   if(!window.causerieLayout?.build)throw Error('La présentation ne peut pas être préparée. Actualisez le site, puis réessayez.');
   const [,style]=await Promise.all([loadLibrary(),window.causerieEleven?Promise.resolve(null):loadStyle()]);
   const pptx=new window.PptxGenJS();pptx.layout='LAYOUT_WIDE';pptx.author='Stade Mayennais';
   pptx.subject='Causerie du coach';pptx.title=snapshot.board.title||snapshot.board.team;pptx.lang='fr-FR';
   pptx.theme={headFontFace:'Montserrat',bodyFontFace:'Calistoga',lang:'fr-FR'};
-  if(window.causerieEleven) return window.causerieEleven.build(pptx,snapshot,style,{pitchImage});
+  if(window.causerieEleven) return window.causerieEleven.build(pptx,snapshot,style,{pitchImage,...options});
   await window.causerieLayout.build(pptx,snapshot,includeLinked,style,{textPages,pitchImage});
   return window.causerieAnimations?.append(pptx,snapshot.demonstrations)||pptx;
  }
@@ -130,19 +130,19 @@
   }
   async function request(route,options={}){
    if(!gateway)throw Error('Service Canva non configuré.');
-   const version=viewVersion,waking=route==='/api/status'&&(!options.method||options.method==='GET'),attempts=waking?3:1;
+   const version=viewVersion,waking=route==='/api/status'&&(!options.method||options.method==='GET'),sending=route==='/api/imports'&&options.method==='POST',attempts=waking?3:1;
    for(let attempt=0;attempt<attempts;attempt++){
     if(version!==viewVersion||!dialog.open)throw Error('Demande annulée. Rouvrez la préparation si nécessaire.');
     const credential=clubToken();
     try{
-     const res=await fetch(gateway+route,{...options,credentials:'omit',headers:{Authorization:'Bearer '+credential,...options.headers},signal:AbortSignal.timeout(30000)});
+     const res=await fetch(gateway+route,{...options,credentials:'omit',headers:{Authorization:'Bearer '+credential,...options.headers},signal:AbortSignal.timeout(sending?120000:30000)});
      const value=await res.json().catch(()=>null);
      if(waking&&[502,503,504].includes(res.status)&&attempt+1<attempts){await new Promise(resolve=>setTimeout(resolve,4000));continue;}
      if(!res.ok||!value)throw Error(value?.error||'Le service Canva est indisponible ou en cours de réveil. Réessayez dans un instant.');
      return value;
     }catch(error){
      if(waking&&['TimeoutError','AbortError','TypeError'].includes(error.name)&&attempt+1<attempts){await new Promise(resolve=>setTimeout(resolve,4000));continue;}
-     if(['TimeoutError','AbortError','TypeError'].includes(error.name))throw Error('Le service Canva ne répond pas encore. Il peut se réveiller après une mise en veille. Réessayez dans un instant.');
+     if(['TimeoutError','AbortError','TypeError'].includes(error.name))throw Error(sending?'L’envoi de la présentation animée à Canva a été interrompu ou a dépassé le délai. Vérifiez le dernier import avant de renvoyer le fichier.':'Le service Canva ne répond pas encore. Il peut se réveiller après une mise en veille. Réessayez dans un instant.');
      throw error;
     }
    }
@@ -221,10 +221,16 @@
   };
   async function createPresentation(popup=null){
    if(busy)return;stopConnectionPoll();lock(true);results.replaceChildren();
+   let prepared=null;const exportOwner=currentUser(),exportCoach=activeCoach.id,exportTeam=activeCoachTeam.id;
+   const progress=message=>{status.textContent=message;};
    try{
     status.textContent='Création des vidéos pour Canva · gardez cet onglet visible jusqu’à la fin…';
     const canvaSnapshot=structuredClone(snapshot);if(window.causerieEleven)canvaSnapshot.board.causerieAnimationVariant='video';
-    const pptx=await build(canvaSnapshot,include.checked),blob=await pptx.write({outputType:'blob',compression:true});
+    const pptx=await build(canvaSnapshot,include.checked,{onProgress:progress});
+    status.textContent='Assemblage de la causerie animée…';
+    const blob=await pptx.write({outputType:'blob',compression:true});prepared=blob;
+    if(blob.size>20*1024*1024)throw Error('La causerie animée dépasse la limite de 20 Mo du service Canva. Téléchargez le PowerPoint animé ci-dessous pour la présenter sans perdre les animations.');
+    status.textContent='Envoi de la causerie animée à Canva · '+(blob.size/1024/1024).toFixed(1)+' Mo · cet envoi peut prendre jusqu’à deux minutes…';
     const title=snapshot.board.title||snapshot.board.team,title64=btoa(Array.from(new TextEncoder().encode(title),byte=>String.fromCharCode(byte)).join(''));
     let job=await request('/api/imports',{method:'POST',headers:{'Content-Type':'application/vnd.openxmlformats-officedocument.presentationml.presentation','X-Design-Title':title64},body:blob});
     for(let attempt=0;attempt<45;attempt++){
@@ -239,7 +245,8 @@
      await new Promise(resolve=>setTimeout(resolve,2000));job=await request('/api/imports/'+job.id);
     }
     status.textContent='Canva traite encore votre présentation. Utilisez « Vérifier la connexion » pour retrouver le résultat, sans créer de doublon.';
-   }catch(error){if(popup&&!popup.closed)popup.close();status.textContent=error.message+' Votre brouillon reste conservé. Vérifiez le dernier import avant de réessayer.';}
+   }catch(error){if(popup&&!popup.closed)popup.close();status.textContent=error.message+' Votre brouillon reste conservé.';
+    if(prepared){const backup=el('button','primary','Télécharger cette causerie animée (.pptx)');backup.type='button';backup.id='causerie-animated-backup';backup.onclick=()=>{if(currentUser()!==exportOwner||activeCoach.id!==exportCoach||activeCoachTeam.id!==exportTeam)return;mediaDownload(prepared,namedDocumentFilename(snapshot.board.title||snapshot.board.team,'pptx'));};results.append(backup,el('p','hint','Ce fichier conserve les animations préparées. Il est utilisable dans PowerPoint pendant que la connexion Canva est indisponible.'));}}
    finally{lock(false);checkConnection().catch(()=>{});}
   }
   upload.onclick=()=>createPresentation();

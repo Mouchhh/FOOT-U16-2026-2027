@@ -129,14 +129,14 @@
       const entry = host.entry, model = frames(entry), slide = host.slide || pptx.addSlide();
       hostNumber++;
       if (host.slide && options.variant === 'video') {
-        const { recordPitch } = await import('./causerie-video.js');
+        const { recordPitch } = await import('./causerie-video.js?v=292');
         const initial = frames(entry).initial, segments = exportSegments(initial, entry.choice);
         const source = createMediaCanvas(), perStep = 2400 / Number(entry.speed);source.width=1008;source.height=816;
         if (!segments.length) {
           renderMedia(source,initial,true,'',{pitchOnly:true,phaseColor:host.palette?.accent?'#'+host.palette.accent:null});
           slide.addImage({data:source.toDataURL('image/png'),...host.box});continue;
         }
-        const video = await recordPitch({ duration: Math.max(500, segments.length * perStep), width:1008, height:816, render(canvas, elapsed) {
+        const video = await recordPitch({ onProgress:percent=>options.onProgress?.('Vidéo tactique '+hostNumber+' / '+sequenceHosts.length+' · '+entry.title+' · '+percent+' % · gardez cet onglet visible'), duration: Math.max(500, segments.length * perStep), width:1008, height:816, render(canvas, elapsed) {
           const index=Math.min(segments.length-1,Math.floor(elapsed/perStep));
           const ratio=Math.min(1,(elapsed-index*perStep)/perStep);
           renderMedia(source, interpolateMedia(segments[index],ratio), true, '', {pitchOnly:true,phaseColor:host.palette?.accent?'#'+host.palette.accent:null});

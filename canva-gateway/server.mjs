@@ -53,7 +53,7 @@ export function createCanvaGateway(config,{fetcher=fetch,auth=token=>authorize(t
  async function serial(owner,fn){const previous=locks.get(owner)||Promise.resolve(),next=previous.catch(()=>{}).then(fn);locks.set(owner,next);try{return await next;}finally{if(locks.get(owner)===next)locks.delete(owner);}}
  function prune(){for(const map of [states,rates])for(const [key,item] of map)if(item.until<now())map.delete(key);}
  async function canva(route,options){
-  const result=await fetcher(API+route,{...options,redirect:'error',signal:AbortSignal.timeout(30000)});
+  const result=await fetcher(API+route,{...options,redirect:'error',signal:AbortSignal.timeout(route==='/imports'?90000:30000)});
   if(!result.ok&&route==='/oauth/token'&&result.status===400){
    const reason=await result.json().catch(()=>({}));
    if(reason.error==='invalid_grant')throw error('Autorisation Canva expirée. Reconnectez Canva.',409);
@@ -170,7 +170,7 @@ export function createCanvaGateway(config,{fetcher=fetch,auth=token=>authorize(t
    });
   }catch(e){if(!res.headersSent)send(e.status||500,{error:e.status?e.message:'Service Canva temporairement indisponible.'});else res.end();}
  });
- server.requestTimeout=45000;server.headersTimeout=10000;
+ server.requestTimeout=120000;server.headersTimeout=10000;
  return {server,vault};
 }
 export function runtimeConfig(environment=process.env){

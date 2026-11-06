@@ -134,13 +134,13 @@
     for (const byte of gif.bytes()) binary += String.fromCharCode(byte);
     return "data:image/gif;base64," + btoa(binary);
   }
-  async function append(pptx, hosts, { variant = "gif" } = {}) {
+  async function append(pptx, hosts, { variant = "gif", onProgress } = {}) {
     for (const host of hosts) {
       const custom = host.exercise.custom, box = host.box;
       if (variant === 'video' && custom.board?.frames.length > 1) {
-        const { recordPitch } = await import('./causerie-video.js');
+        const { recordPitch } = await import('./causerie-video.js?v=292');
         const board=structuredClone(custom.board),source=document.createElement('canvas');
-        const video=await recordPitch({duration:(board.frames.length-1)*board.seconds*1000,width:1152,height:720,render(canvas,elapsed){
+        const video=await recordPitch({onProgress:percent=>onProgress?.('Vidéo exercice '+(hosts.indexOf(host)+1)+' / '+hosts.length+' · '+custom.title+' · '+percent+' % · gardez cet onglet visible'),duration:(board.frames.length-1)*board.seconds*1000,width:1152,height:720,render(canvas,elapsed){
           drawExerciseBoard(source,board,exerciseInterpolated(board,elapsed/(board.seconds*1000)));
           canvas.getContext('2d').drawImage(source,0,0,canvas.width,canvas.height);
         }});

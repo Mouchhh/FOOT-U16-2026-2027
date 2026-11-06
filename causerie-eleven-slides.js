@@ -92,7 +92,7 @@
       .slice(0, max)
       .map((s) => excerpt(s.replace(/^[-•]\s*/, ""), limit));
   }
-  async function build(pptx, snapshot, style, { pitchImage }) {
+  async function build(pptx, snapshot, style, { pitchImage, onProgress }) {
     await presentationFonts();
     const board = snapshot.board,
       p = board.matchPreparation || {},
@@ -544,14 +544,14 @@
     if (slides.length !== 11)
       throw Error("La présentation doit comporter exactement 11 slides.");
     if (exerciseHosts.length)
-      await causerieClubSituations.append(pptx, exerciseHosts, { variant: board.causerieAnimationVariant || "video" });
+      await causerieClubSituations.append(pptx, exerciseHosts, { variant: board.causerieAnimationVariant || "video", onProgress });
     return causerieAnimations.append(
       pptx,
       {
         sequences: hosts.filter((h) => h.entry).map((h) => h.entry),
         media: hosts.filter((h) => h.media).map((h) => h.media),
       },
-      { hosts, variant: board.causerieAnimationVariant || "video" },
+      { hosts, variant: board.causerieAnimationVariant || "video", onProgress },
     );
   }
   window.causerieEleven = {
