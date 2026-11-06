@@ -31,8 +31,13 @@ Vérification : `tests/training-assistant-two-reset-browser.py` couvre les group
 
 ## Lecture directe des ateliers (272)
 
-La proposition de l’assistant, son PDF et les exercices personnalisés du déroulé dans l’éditeur affichent pour chaque atelier le schéma, la durée, les dimensions, l’organisation et deux consignes courtes extraites du contenu. Un schéma enregistré est repris tel quel ; sans schéma enregistré, un placement indicatif est dessiné pour le premier groupe, avec le nombre réel de joueurs et gardiens. Ce placement ne prétend pas interpréter les consignes ni remplacer le dessin source.
+La proposition de l’assistant, son PDF et les exercices personnalisés du déroulé dans l’éditeur affichent pour chaque atelier le schéma, la durée, les dimensions, l’organisation et deux consignes courtes extraites du contenu. Le schéma de bibliothèque ou le dessin personnel est repris tel quel. Sans schéma associé, aucun placement de substitution n’est dessiné.
 
 Les adaptations d’effectif, surface et niveau sont dans un bloc distinct. Le niveau saisi est conservé dans `assistantLevel` pour éviter de reprendre par erreur la catégorie héritée du contexte d’équipe. Les fiches importées affichent leurs règles de référence ; leur schéma adapté est conservé et le bouton « Voir la fiche d’origine » reste disponible. Les ateliers générés donnent accès à leurs textes complets via un bouton d’expansion directe. Aucune fiche source ni aucun contenu sauvegardé n’est réécrit par cet affichage.
 
 `tests/training-assistant-workshop-cards-browser.py` vérifie les schémas, extraits, adaptations, accès au texte complet, intégrité des sources, export PDF et affichage mobile.
+
+
+## Schémas d’origine (273)
+
+Les exercices importés réutilisent `suppliedReferenceBoard`, exactement le même moteur, les mêmes paramètres de référence et le même SVG que la miniature de la bibliothèque. Le passage par le convertisseur de l’atelier libre n’est plus utilisé pour leur aperçu. Le schéma de référence reste distinct des adaptations d’effectif et de dimensions. Les dessins personnels sont conservés. Les ateliers générés sans exercice associé n’affichent plus de placement générique : ils invitent à associer une fiche de la bibliothèque. Aucun schéma de remplacement n’est inventé.

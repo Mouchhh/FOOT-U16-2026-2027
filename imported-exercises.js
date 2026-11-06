@@ -165,6 +165,15 @@ function suppliedSessionContext() {
     space: [space.width, space.length],
   };
 }
+// One reference renderer shared by the library and session summaries.
+function suppliedReferenceBoard(e) {
+  const reference = {
+    players: e.players[1], keepers: e.keepers || 0,
+    category: e.refCategory || "Seniors", level: "dev", moment: "libre", space: [68, 105],
+  };
+  const model = suppliedExerciseEngine.buildExerciseModel(suppliedExerciseEngine.adapt(e, reference));
+  return suppliedExerciseEngine.createBoard(model, { editable: false, viewer: true, title: e.title });
+}
 function suppliedSheet(e) {
   const host = el("div", "supplied-original-sheet"),
     shadow = host.attachShadow({ mode: "open" });
@@ -450,22 +459,7 @@ renderBibleCatalogue = function () {
     picture.type = "button";
     picture.setAttribute("aria-label", "Voir le schéma : " + e.title);
     picture.onclick = () => openSuppliedSheet(e);
-    const reference = {
-        players: e.players[1],
-        keepers: e.keepers || 0,
-        category: e.refCategory || "Seniors",
-        level: "dev",
-        moment: "libre",
-        space: [68, 105],
-      },
-      model = suppliedExerciseEngine.buildExerciseModel(
-        suppliedExerciseEngine.adapt(e, reference),
-      ),
-      svg = suppliedExerciseEngine.createBoard(model, {
-        editable: false,
-        viewer: true,
-        title: e.title,
-      }).svg;
+    const svg = suppliedReferenceBoard(e).svg;
     svg.setAttribute("aria-hidden", "true");
     picture.append(
       svg,

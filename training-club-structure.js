@@ -163,7 +163,11 @@ function clubTrainingBlockCard(block, index, { details = true, session = null } 
   const body = el("div", "training-workshop-body"),
     figure = el("figure", "training-workshop-diagram"),
     content = el("div", "training-workshop-content");
-  if (custom.board) {
+  if (source) {
+    const reference = suppliedReferenceBoard(source);
+    reference.svg.setAttribute("aria-label", "Schéma d’origine · " + source.title);
+    figure.append(reference.svg, el("figcaption", "", "Schéma identique à la bibliothèque · adaptations séparées"));
+  } else if (custom.board) {
     const canvas = document.createElement("canvas");
     canvas.setAttribute("aria-label", "Schéma enregistré · " + custom.title);
     drawExerciseBoard(canvas, custom.board);
@@ -173,11 +177,8 @@ function clubTrainingBlockCard(block, index, { details = true, session = null } 
       play.type = "button";play.onclick = () => playExerciseBoard(canvas, custom.board);figure.append(play);
     }
   } else {
-    const g = groups[0], field = g.players - g.keepers, side = Math.floor(field / 2);
-    figure.append(trainingDiagramSVG({ id: "assistant-placement", title: custom.title, kind: custom.kind }, {
-      index: 1, players: g.players, keepers: g.keepers,
-      width: custom.width, length: custom.length, allocation: [side, side, field % 2],
-    }), el("figcaption", "", "Placement indicatif · " + g.players + " joueurs" + (groups.length > 1 ? " · groupe 1" : "")));
+    figure.classList.add("training-workshop-no-diagram");
+    figure.append(el("p", "", "Aucun schéma associé"), el("figcaption", "", "Choisissez un exercice de la bibliothèque pour reprendre son schéma d’origine."));
   }
   const label = (title, value, className = "") => {
     content.append(el("h4", "", title), el("p", className, short(value, 120)));

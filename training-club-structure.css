@@ -203,3 +203,5 @@
 }
 
 .training-block > .training-workshop { border:0; padding:0; margin:14px 0; box-shadow:none; }
+.training-workshop-no-diagram { display:grid; place-content:center; min-height:140px; padding:16px; background:#f2f6fc; border:1px dashed #cbd8e9; border-radius:8px; text-align:center; }
+.training-workshop-no-diagram p { font-size:13px; margin:0; color:#526780; }
