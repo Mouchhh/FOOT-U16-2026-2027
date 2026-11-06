@@ -278,11 +278,13 @@
         }).format(new Date(p.date + "T12:00:00Z"))
       : "";
     line(slide, 0.8, 4.55, 1.1, RED);
+    if (p.round || dateLabel) rect(slide, 0.8, 4.8, 7.3, 0.75, NAVY);
+    if (p.venue) rect(slide, 0.8, 5.65, 7.3, 0.62, NAVY);
     text(
       slide,
       [p.round, dateLabel].filter(Boolean).join(" · "),
       0.8,
-      4.9,
+      4.95,
       7.3,
       0.65,
       18,
@@ -361,61 +363,75 @@
           player.name,
       ),
     );
-    slide = base("Le contexte", 3, {
-      kicker: "COMPRENDRE LE RENDEZ-VOUS",
-      photo: true,
-    });
-    const cw = photoBodyWidth(3),
-      contextColumn = (cw - 0.5) / 2;
-    block(
-      slide,
-      "Nos objectifs",
-      p.contextObjective,
-      0.65,
-      2,
-      contextColumn,
-      2.5,
-    );
-    block(
-      slide,
-      "Notre dynamique",
-      p.contextDynamics,
-      1.15 + contextColumn,
-      2,
-      contextColumn,
-      2.5,
-    );
-    line(slide, 0.65, 4.85, cw);
-    bullets(slide, p.context, 0.65, 5.15, cw, 1.35, {
-      count: 2,
-      chars: 180,
-      size: 18,
-    });
-    notes(slide, [p.contextObjective, p.contextDynamics, p.context]);
-    slide = base("L’adversaire", 4, {
-      kicker: "CE QU’IL FAUT SAVOIR",
-      photo: true,
-    });
-    const aw = photoBodyWidth(4);
-    heading(slide, excerpt(p.opponent, 100), 0.65, 1.8, aw, 0.7, 23);
-    const ac = (aw - 0.7) / 3;
-    for (const [i, label, value] of [
-      [0, "Leurs forces", p.opponentStrengths],
-      [1, "À exploiter", p.opponentWeaknesses],
-      [
-        2,
-        "Leur organisation",
-        p.opponentAnimation || board.opponents?.formation,
-      ],
-    ])
-      block(slide, label, value, 0.65 + i * (ac + 0.35), 2.85, ac, 3.65, {
-        accent: i === 1 ? RED : BLUE,
+    // Context and opponent are authored prose, not names or two-bullet excerpts.
+    // Keep every supplied point in the exported slide, not only in presenter notes.
+    function informationPage(title, n, kicker, sections) {
+      const filled = sections.filter(section => String(section.value || "").trim());
+      const count = filled.reduce((sum, section) => sum + String(section.value).length, 0);
+      const withPhoto = !!photos[n] && count <= 650;
+      const page = base(title, n, { kicker, photo: withPhoto });
+      const width = withPhoto ? 8.7 : 12.03;
+      const primary = filled.find(section => section.primary);
+      const secondary = filled.filter(section => section !== primary);
+      const panel = (section, x, y, w, h) => {
+        rect(page, x, y, w, 0.42, section.accent || BLUE);
+        text(page, section.label.toUpperCase(), x + 0.13, y + 0.08, w - 0.26, 0.28, 10, {
+          bold: true, charSpacing: 1.1, color: WHITE,
+        });
+        text(page, String(section.value).trim(), x + 0.04, y + 0.65, w - 0.08, h - 0.65,
+          String(section.value).length > 500 ? 16 : 20, { breakLine: false, paraSpaceAfterPt: 10 });
+      };
+      if (primary && secondary.length) {
+        const primaryWidth = width * 0.6 - 0.2;
+        panel(primary, 0.65, 1.85, primaryWidth, 4.95);
+        const slot = (4.95 - (secondary.length - 1) * 0.22) / secondary.length;
+        secondary.forEach((section, index) => panel(section, 1.05 + primaryWidth, 1.85 + index * (slot + 0.22), width - primaryWidth - 0.4, slot));
+      } else {
+        const columns = Math.max(1, filled.length), gap = 0.35, w = (width - gap * (columns - 1)) / columns;
+        filled.forEach((section, index) => panel(section, 0.65 + index * (w + gap), 1.85, w, 4.95));
+      }
+      notes(page, sections.map(section => section.value));
+      return page;
+    }
+    slide = base("La dynamique du groupe", 3, { kicker: "LE CONTEXTE DU MATCH" });
+    const dynamicText = String(p.contextDynamics || p.context || "").trim();
+    const dynamicPoints = dynamicText.split(/\n+|(?<=\.)\s+/)
+      .map(value => value.trim()).filter(Boolean);
+    const hasContext = !!(p.contextDynamics && String(p.context || "").trim());
+    if (hasContext) {
+      rect(slide, 0.65, 1.8, 0.055, 1.05, BLUE);
+      text(slide, String(p.context).trim(), 0.87, 1.82, 11.5, 1.08, 16, { color: MUTED });
+    }
+    const dynamicTop = hasContext ? 3.12 : 1.85;
+    const columns = dynamicPoints.length === 1 ? 1 : 2;
+    const rows = Math.max(1, Math.ceil(dynamicPoints.length / columns));
+    const gap = 0.28, cardWidth = (12.03 - gap * (columns - 1)) / columns;
+    const cardHeight = (6.85 - dynamicTop - gap * (rows - 1)) / rows;
+    dynamicPoints.forEach((point, index) => {
+      const x = 0.65 + (index % columns) * (cardWidth + gap);
+      const y = dynamicTop + Math.floor(index / columns) * (cardHeight + gap);
+      slide.addShape(S.roundRect, {
+        x, y, w: cardWidth, h: cardHeight, radius: 0.12,
+        rectRadius: 0.12, fill: { color: "F2F6FB" },
+        line: { color: "DCE5EF", width: 0.6 },
+        objectName: "group-dynamic-point-" + (index + 1),
       });
-    notes(slide, [
-      p.opponent,
-      p.opponentStrengths,
-      p.opponentWeaknesses,
-      p.opponentAnimation,
+      slide.addShape(S.ellipse, {
+        x: x + 0.22, y: y + 0.22, w: 0.43, h: 0.43,
+        fill: { color: index === 0 ? NAVY : BLUE }, line: { transparency: 100 },
+      });
+      text(slide, String(index + 1).padStart(2, "0"), x + 0.22, y + 0.3, 0.43, 0.23, 10,
+        { color: WHITE, bold: true, align: "center" });
+      text(slide, point, x + 0.88, y + 0.25, cardWidth - 1.12, cardHeight - 0.46,
+        point.length > 170 || rows > 2 ? 16 : 21, { bold: true, color: NAVY });
+    });
+    // Historical objectives remain in notes only, never in the projected slide.
+    notes(slide, [p.contextDynamics, p.context, p.contextObjective]);
+    slide = informationPage("Informations adversaire", 4, "LES INFORMATIONS DU COACH", [
+      { label: "Informations", value: p.opponent, primary: true },
+      { label: "Forces", value: p.opponentStrengths },
+      { label: "Points à exploiter", value: p.opponentWeaknesses },
+      { label: "Organisation", value: p.opponentAnimation, accent: NAVY },
     ]);
     slide = base("Nos idées fortes", 5, {
       kicker: "TROIS REPÈRES POUR JOUER ENSEMBLE",
@@ -676,7 +692,7 @@
     build,
     fields,
     phases,
-    templateVersion: "club-premium-270",
+    templateVersion: "club-premium-274",
     theme: {
       navy: NAVY,
       blue: BLUE,

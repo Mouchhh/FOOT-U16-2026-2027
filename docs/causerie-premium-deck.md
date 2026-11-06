@@ -49,7 +49,7 @@ Les champs non renseignés ne déclenchent pas de slogans ni de paragraphes fict
 - **PowerPoint** : garde le format d’animation choisi, natif ou GIF.
 - **Création dans Canva** : utilise une copie de l’instantané avec animations GIF. Cela ne change ni la causerie ni la préférence PowerPoint du coach. Le même modèle de onze slides est transmis au service configuré.
 
-`causerieEleven.theme` expose la charte, et `causerieEleven.templateVersion` vaut `club-premium-270`.
+`causerieEleven.theme` expose la charte, et `causerieEleven.templateVersion` vaut `club-premium-274`.
 
 ## Vérification et aperçus
 
@@ -68,3 +68,12 @@ Le script rend la géométrie du XML du PPTX avec Pillow, les images et les prem
 ## Ajustements visuels 270
 
 Les onze slides ne portent plus de bandeau inférieur, de signature répétée ni de compteur. La composition utilise des noms Arial en graisse normale et une taille légèrement réduite, sans changer les joueurs ni les positions. Le contexte utilise par défaut la photo « Échange entre joueurs » ; les photos personnelles affectées au contexte restent prioritaires. Les slides 6 à 9 affichent uniquement les consignes et les schémas/animations sélectionnés, sans photo décorative, pour conserver toute la place aux situations tactiques.
+
+
+## Slide 3 — dynamique complète (274)
+
+Le bloc « Nos objectifs » est retiré de la projection. Les anciennes valeurs de `contextObjective` restent conservées dans les notes, sans toucher à la causerie enregistrée. Les points de `contextDynamics` sont tous affichés, sans limite aux deux premiers ni troncature par caractère, dans une grille de cartes numérotées (deux colonnes, quatre cartes pour quatre points). Les retours à la ligne et fins de phrase délimitent les points. Un contexte distinct reste intégralement affiché au-dessus ; sans dynamique explicite, le texte de contexte constitue les points de la grille.
+
+Titre Montserrat gras, texte Arial gras de 21 pt (16 pt pour les contenus denses), repères blancs sur pastilles marine/bleues, cartes bleu très clair à bordure fine. La photo n’empiète pas sur la grille. La slide 11 est conservée. La slide 1 reçoit des aplats marine pour sa date et son lieu.
+
+La slide 4 porte le titre « Informations adversaire » et exporte le texte libre entier ; il n’est plus assimilé à un simple nom. Les forces, points à exploiter et l’organisation des anciennes causeries apparaissent seulement s’ils sont renseignés. Aucun système de jeu adverse n’est inventé comme valeur de remplacement. Le contexte et les informations adverses restent sur les mêmes slides du modèle de onze pages ; les textes très longs utilisent l’ajustement à la zone disponible du lecteur PowerPoint.
