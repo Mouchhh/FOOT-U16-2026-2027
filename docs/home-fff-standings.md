@@ -97,3 +97,7 @@ Les tests utilisent un tableau synthétique reproduisant les caractéristiques v
 Le classement, ses boutons et ses messages d'erreur sont retirés du rendu de l'accueil. La grille répartit les deux cartes Agenda/Séance et Forme sur une ligne, puis garde l'assiduité en bandeau en dessous ; sur mobile, les trois éléments s'empilent. L'événement de connexion conserve la configuration des équipes mais ne lance plus la récupération du classement. Les profils et les données déjà enregistrés restent conservés. Les confrontations connues et les autres widgets sont inchangés.
 
 Validation : le test `home-live-widgets-browser.py` attend trois cartes, vérifie l'absence du classement et conserve les vérifications des données, de l'ouverture de séance et du responsive. Les anciens scénarios d'affichage ou d'actualisation automatique du widget FFF décrivent une fonctionnalité désormais retirée et ne constituent plus les critères de l'accueil.
+
+## Retour du widget de présence en carte (289)
+
+À la demande du coach, le widget Dynamique du Groupe / présence aux séances reprend sa carte d'origine en première position : pourcentage, jauge, joueurs présents, évolution mensuelle et pointages à confirmer restent visibles. Le mode bandeau et les règles de grille introduites pour le classement sont retirés. La grille d'origine place les trois cartes côte à côte sur PC, puis les répartit sur tablette et mobile. Le classement reste supprimé. Le test existant des widgets vérifie la première position, l'absence de bandeau, les données dynamiques et les formats PC/tablette/mobile.

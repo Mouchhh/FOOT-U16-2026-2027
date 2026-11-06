@@ -10,6 +10,9 @@ with sync_playwright() as p:
  page.evaluate('workspaceNavigation.run("view-home")')
  page.wait_for_selector('#home-live-widgets .home-live-card')
  assert page.locator('#home-live-widgets .home-live-card').count()==3
+ assert page.locator('#home-live-widgets > article').first.evaluate('(node)=>node.classList.contains("home-live-group")')
+ assert page.locator('.home-live-group-strip').count()==0
+ assert page.locator('.home-live-group .home-live-caption').first.is_visible()
  assert page.locator('.home-fff-ranking').count()==0
  assert 'Classement' not in page.locator('#home-live-widgets').inner_text()
  assert '92%' not in page.locator('#home-live-widgets').inner_text()

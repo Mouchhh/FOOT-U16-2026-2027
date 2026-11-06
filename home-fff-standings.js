@@ -79,7 +79,6 @@ function homeFFFImporter(card) {
 }
 function renderHomeFFF(snapshot) {
   const root=$('home-live-widgets');if(!root)return;
-  const group=root.querySelector('.home-live-group');if(group){group.classList.add('home-live-group-strip');root.append(group);}
   const data=homeFFFRead();
   const opponent=homeFFFOpponent(snapshot?.match),form=root.querySelector('.home-live-form');
   if(form){form.append(el('h3','','Face à '+(opponent||'l’adversaire à venir')));const history=homeFFFHistory(opponent,data);
