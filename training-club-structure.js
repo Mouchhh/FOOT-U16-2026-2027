@@ -133,62 +133,99 @@ const clubTrainingDocument = trainingDocument;
 trainingDocument = function (...args) {
   return clubCleanExerciseLabels(clubTrainingDocument(...args));
 };
-function clubTrainingBlockCard(block, index, { details = true } = {}) {
+// Read-only projection: brief extracts and a separate adaptation strip.
+function clubTrainingBlockCard(block, index, { details = true, session = null } = {}) {
   const custom = block.custom,
-    card = el("article", "training-assistant-phase training-club-sequence"),
-    short = (s, n = 165) => {
-      const value = clubExerciseText(s).replace(/\s+/g, " ").trim();
-      return value.length > n ? value.slice(0, n - 1).trimEnd() + "…" : value;
-    };
+    card = el("article", "training-assistant-phase training-club-sequence training-workshop"),
+    short = (value, length = 155) => {
+      const text = clubExerciseText(value || "").replace(/\s+/g, " ").trim();
+      return text.length > length ? text.slice(0, length - 1).trimEnd() + "…" : text;
+    },
+    source = custom.importedExerciseId
+      ? suppliedExerciseEngine.getExercise(custom.importedExerciseId, custom.importedExerciseView || 0)
+      : null,
+    setup = block.setupMinutes || 0,
+    recovery = block.recoveryMinutes || 0,
+    groups = custom.adaptation?.groups || [{
+      players: block.workshopPlayers ?? session?.players ?? 2,
+      keepers: block.workshopKeepers ?? session?.keepers ?? 0,
+    }];
   card.append(
     el("span", "training-sequence-number", "Séquence " + (index + 1)),
     el("h3", "", clubExerciseText(custom.title).replace(/^\d+\.\s*/, "")),
   );
-  const badges = el("div", "training-sequence-facts"),
-    setup = block.setupMinutes || 0,
-    recovery = block.recoveryMinutes || 0;
-  for (const text of [
-    custom.width + " × " + custom.length + " m",
-    block.duration + setup + " min",
-    custom.adaptation?.groups.length > 1
-      ? custom.adaptation.groups.length + " ateliers en parallèle"
-      : "Atelier collectif",
-  ])
-    badges.append(el("span", "", text));
-  card.append(badges, el("p", "training-sequence-goal", short(custom.goal)));
-  const list = el("ul", "training-sequence-rules");
-  for (const line of custom.instructions
-    .split(/\n|(?<=\.)\s+/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .slice(0, 2))
-    list.append(el("li", "", short(line)));
-  card.append(list);
-  const timing = el("p", "training-sequence-timing");
-  timing.append(
-    el(
-      "strong",
-      "",
-      "Travail " + Math.max(0, block.duration - recovery) + " min",
-    ),
-    document.createTextNode(
-      " · Repos " +
-        recovery +
-        " min" +
-        (setup ? " · Installation " + setup + " min" : ""),
-    ),
-  );
-  card.append(timing);
-  if (details) {
-    const more = el("details", "training-sequence-more");
-    more.append(
-      el("summary", "", "Consignes complètes"),
-      el("p", "", clubExerciseText(custom.organisation)),
-      el("p", "", clubExerciseText(custom.instructions)),
-      el("p", "", clubExerciseText(custom.material)),
-    );
-    card.append(more);
+  const facts = el("div", "training-sequence-facts");
+  for (const label of [
+    (block.duration + setup) + " min",
+    custom.width + " × " + custom.length + " m" + (groups.length > 1 ? " / atelier" : ""),
+  ]) facts.append(el("span", "", label));
+  card.append(facts);
+  const body = el("div", "training-workshop-body"),
+    figure = el("figure", "training-workshop-diagram"),
+    content = el("div", "training-workshop-content");
+  if (custom.board) {
+    const canvas = document.createElement("canvas");
+    canvas.setAttribute("aria-label", "Schéma enregistré · " + custom.title);
+    drawExerciseBoard(canvas, custom.board);
+    figure.append(canvas, el("figcaption", "", source ? "Schéma adapté · fiche d’origine conservée" : "Schéma enregistré · atelier illustré"));
+    if (custom.board.frames.length > 1) {
+      const play = el("button", "export training-workshop-play", "Lire l’animation");
+      play.type = "button";play.onclick = () => playExerciseBoard(canvas, custom.board);figure.append(play);
+    }
+  } else {
+    const g = groups[0], field = g.players - g.keepers, side = Math.floor(field / 2);
+    figure.append(trainingDiagramSVG({ id: "assistant-placement", title: custom.title, kind: custom.kind }, {
+      index: 1, players: g.players, keepers: g.keepers,
+      width: custom.width, length: custom.length, allocation: [side, side, field % 2],
+    }), el("figcaption", "", "Placement indicatif · " + g.players + " joueurs" + (groups.length > 1 ? " · groupe 1" : "")));
   }
+  const label = (title, value, className = "") => {
+    content.append(el("h4", "", title), el("p", className, short(value, 120)));
+  };
+  label("Objectif", source?.goal || custom.goal, "training-sequence-goal");
+  label(source ? "Organisation de référence" : "Organisation", source
+    ? source.game + " · " + Math.min(...source.players) + "–" + Math.max(...source.players) + " joueurs · " + source.keepers + " G · " + source.size.join(" × ") + " m"
+    : custom.organisation);
+  content.append(el("h4", "", "Consignes clés"));
+  const list = el("ul", "training-sequence-rules"),
+    rules = source?.rules || custom.instructions.split(/\n|(?<=\.)\s+/).filter(Boolean);
+  rules.slice(0, 2).forEach(rule => list.append(el("li", "", short(rule, 130))));
+  content.append(list);
+  body.append(figure, content);card.append(body);
+  const timing = el("p", "training-sequence-timing");
+  timing.append(el("strong", "", "Travail " + Math.max(0, block.duration - recovery) + " min"),
+    document.createTextNode(" · Repos " + recovery + " min" + (setup ? " · Installation " + setup + " min" : "")));
+  card.append(timing);
+  const adaptation = el("aside", "training-workshop-adaptation");
+  adaptation.append(el("strong", "", "Adaptations pour ce groupe"), el("p", "", groups.map((g, i) =>
+    (groups.length > 1 ? "G" + (i + 1) + " : " : "") + (g.players - g.keepers) + " joueurs de champ" +
+    (g.keepers ? " + " + g.keepers + " G" : " · sans gardien")
+  ).join(" · ")));
+  if (session) adaptation.append(el("p", "", [
+    session.assistantLevel || session.category || "U" + session.age,
+    trainingLevels[session.level],
+    custom.width + " × " + custom.length + " m par zone",
+  ].filter(Boolean).join(" · ")));
+  if (session) adaptation.append(el("p", "", "Repère de niveau : " +
+    (session.level === "advanced"
+      ? "touches libres, puis réduire le temps de décision si la qualité reste stable."
+      : "touches libres et opposition progressive ; une seule contrainte à la fois.")));
+  if (session && custom.adaptation && (custom.adaptation.players !== session.players || custom.adaptation.keepers !== session.keepers))
+    adaptation.append(el("p", "training-alert", "L’effectif a changé : réadaptez cet atelier avant utilisation."));
+  card.append(adaptation);
+  const more = el("button", "export training-workshop-source", source ? "Voir la fiche d’origine" : "Lire toutes les consignes");
+  more.type = "button";
+  if (source) more.onclick = () => openSuppliedSheet(source);
+  else {
+    const full = el("section", "training-workshop-full");
+    full.hidden = true;
+    for (const key of ["goal", "organisation", "instructions", "material", "success"])
+      full.append(el("h4", "", customTrainingLabels[key]), el("p", "", clubExerciseText(custom[key])));
+    more.setAttribute("aria-expanded", "false");
+    more.onclick = () => { full.hidden = !full.hidden; more.setAttribute("aria-expanded", String(!full.hidden)); };
+    card.append(full);
+  }
+  card.append(more);
   return card;
 }
 const clubSessionIndex = trainingSessionIndex;

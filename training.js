@@ -96,7 +96,11 @@ function renderTrainingBlocks(){
  const replace=el('button','export','Remplacer');replace.type='button';replace.onclick=()=>trainingReplaceBlock(block.id);controls.append(replace);
  const remove=el('button','export training-remove-exercise','Retirer l’exercice');remove.type='button';remove.onclick=()=>removeBlock(block);controls.append(remove);card.append(controls,el('p','hint training-block-budget',trainingBudgetText(trainingBlockBudget(block))));
  const overviewRow=el('div','training-overview-row'),jump=el('button','training-overview-jump',(index+1)+'. '+exercise.title),quickRemove=el('button','training-overview-remove','×');jump.type=quickRemove.type='button';jump.onclick=()=>card.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});quickRemove.setAttribute('aria-label','Retirer '+exercise.title+' de la séance');quickRemove.onclick=()=>removeBlock(block);overviewRow.append(jump,el('span','',stage.parallel?stage.start+'′–'+stage.end+'′ · en parallèle':trainingBlockMinutes(block)+' min'),quickRemove);overview.append(overviewRow);
- const detail=el('details');detail.open=true;detail.append(el('summary','','Organisation, consignes et adaptations'),trainingExerciseDetail(exercise,trainingSessionForBlock(block,currentTraining),{duration:block.duration,variant:block.bibleVariant,blockId:block.id}),trainingFieldNote(block));card.append(detail);const illustration=trainingIllustration(exercise);if(illustration)card.append(illustration);$('training-blocks').append(card);
+ if(block.exerciseId==='custom'&&typeof clubTrainingBlockCard==='function'){
+  const workshop=clubTrainingBlockCard(block,index,{session:trainingSessionForBlock(block,currentTraining)});
+  workshop.querySelector('h3').remove();workshop.querySelector('.training-sequence-number').remove();card.append(workshop,trainingFieldNote(block));
+ }else{const detail=el('details');detail.open=true;detail.append(el('summary','','Organisation, consignes et adaptations'),trainingExerciseDetail(exercise,trainingSessionForBlock(block,currentTraining),{duration:block.duration,variant:block.bibleVariant,blockId:block.id}),trainingFieldNote(block));card.append(detail);}
+ const illustration=trainingIllustration(exercise);if(illustration)card.append(illustration);$('training-blocks').append(card);
  });
 }
 function renderTrainingCatalogue(){

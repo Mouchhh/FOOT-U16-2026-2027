@@ -2,6 +2,7 @@ const trainingAssistantValid = trainingValid;
 trainingValid = function (session) {
   return (
     trainingAssistantValid(session) &&
+    (session.assistantLevel === undefined || trainingText(session.assistantLevel, 100)) &&
     (session.libraryOnly === undefined ||
       typeof session.libraryOnly === "boolean") &&
     (session.assistantObjectives === undefined ||
@@ -261,6 +262,7 @@ function trainingAssistantGenerateBase(input) {
       : "Commencer avec une opposition progressive et en touches libres ; ajouter une seule contrainte lorsque le groupe réussit régulièrement.");
   Object.assign(session, {
     title: (n.goal + " · " + n.level).slice(0, 100),
+    assistantLevel: n.level,
     players: n.total,
     keepers: n.keepers,
     age: n.age,
@@ -706,16 +708,8 @@ document.addEventListener("DOMContentLoaded", () => {
         row.append(el("h3", "training-assistant-stage-title", "Séquence " + (index + 1) + " · Deux ateliers simultanés · " + stage.minutes + " min"));
       }
       stage.blocks.forEach((block, group) => {
-        const card = clubTrainingBlockCard(block, index, { details: false });
+        const card = clubTrainingBlockCard(block, index, { details: false, session: trainingSessionForBlock(block, session) });
         if (stage.parallel) card.querySelector(".training-sequence-number").textContent = "Groupe " + (group === 0 ? "A" : "B");
-        const allocation = block.custom.adaptation;
-        if (allocation) {
-          const info = el("p", "training-assistant-allocation", allocation.groups.map((g, i) =>
-            (allocation.groups.length > 1 ? "Groupe " + (i + 1) + " : " : "") +
-            (g.players - g.keepers) + " joueurs de champ" + (g.keepers ? " + " + g.keepers + " G" : " · sans gardien")
-          ).join(" · "));
-          card.querySelector(".training-sequence-facts").after(info);
-        }
         row.append(card);
       });
       target.append(row);

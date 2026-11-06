@@ -27,3 +27,12 @@ L’assistant propose « Répartition automatique » ou « Deux ateliers sépar�
 Après un enregistrement réussi (bibliothèque, agenda ou éditeur), le document enregistré reste dans Mes séances ; l’application crée un nouveau brouillon vide et revient à la première étape de Séances. La proposition de l’assistant, les critères, les dates et l’aperçu sont effacés. Si l’enregistrement échoue, aucune réinitialisation n’a lieu. Si seul le nouveau brouillon ne peut pas être écrit, le coach reçoit un message explicite et la saisie reste accessible.
 
 Vérification : `tests/training-assistant-two-reset-browser.py` couvre les groupes pairs/impairs, gardiens, emprise au sol, durée simultanée, PDF, stockage indisponible, sauvegarde, réouverture du formulaire, éditeur, rechargement et petit écran.
+
+
+## Lecture directe des ateliers (272)
+
+La proposition de l’assistant, son PDF et les exercices personnalisés du déroulé dans l’éditeur affichent pour chaque atelier le schéma, la durée, les dimensions, l’organisation et deux consignes courtes extraites du contenu. Un schéma enregistré est repris tel quel ; sans schéma enregistré, un placement indicatif est dessiné pour le premier groupe, avec le nombre réel de joueurs et gardiens. Ce placement ne prétend pas interpréter les consignes ni remplacer le dessin source.
+
+Les adaptations d’effectif, surface et niveau sont dans un bloc distinct. Le niveau saisi est conservé dans `assistantLevel` pour éviter de reprendre par erreur la catégorie héritée du contexte d’équipe. Les fiches importées affichent leurs règles de référence ; leur schéma adapté est conservé et le bouton « Voir la fiche d’origine » reste disponible. Les ateliers générés donnent accès à leurs textes complets via un bouton d’expansion directe. Aucune fiche source ni aucun contenu sauvegardé n’est réécrit par cet affichage.
+
+`tests/training-assistant-workshop-cards-browser.py` vérifie les schémas, extraits, adaptations, accès au texte complet, intégrité des sources, export PDF et affichage mobile.
