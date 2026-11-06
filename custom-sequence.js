@@ -7,10 +7,15 @@ function customRestoreSnapshot(snapshot,step){
 }
 function customRestoreStep(step){return customRestoreSnapshot(simpleState,step);}
 function customSelectStep(step){stopAnimation(true);customRestoreStep(step);simpleSelected=null;renderSimple();saveSimple();}
-function createCustomSequence(){
- stopAnimation(true);const source=structuredClone(simpleState);simpleState={scenario:'custom',step:0,showOpponents:source.showOpponents!==false,tokens:source.tokens,ball:source.ball,customBase:{tokens:structuredClone(source.tokens),ball:structuredClone(source.ball)},customSteps:[[]]};
+function createCustomSequence({fresh=false}={}){
+ stopAnimation(true);
+ const pitch=$('simple-pitch');for(const pointer of [customArrowDrag?.pointer,simpleDrag?.id])if(pointer!==undefined&&pitch.hasPointerCapture(pointer))pitch.releasePointerCapture(pointer);
+ customArrowDrag=null;customLayoutDrag=false;simpleDrag=null;
+ const template=simpleScenarios.eleven;
+ const source=fresh?{showOpponents:true,tokens:template.tokens.map(([label,x,y,side],i)=>({id:'s'+i,label,x,y,side})),ball:{x:template.ball[0],y:template.ball[1]}}:structuredClone(simpleState);simpleState={scenario:'custom',step:0,showOpponents:source.showOpponents!==false,tokens:source.tokens,ball:source.ball,customBase:{tokens:structuredClone(source.tokens),ball:structuredClone(source.ball)},customSteps:[[]]};
  // Une nouvelle séquence ne doit pas écraser celle dont elle provient.
  if(source.sequenceTitle)simpleState.sequenceTitle=source.sequenceTitle+' · personnalisée';
+ if(fresh){simpleState.sequenceTitle='';$('animation-speed').value='1';$('animation-choice').value='forward';if($('simple-library')){$('simple-library').value='';if(typeof simpleLibraryButtons==='function')simpleLibraryButtons();}}
  if(simpleState.sequenceTitle)simpleState.sequenceTitle=simpleState.sequenceTitle.slice(0,100);
  customTool='arrow';simpleSelected=null;renderSimple();saveSimple();
 }

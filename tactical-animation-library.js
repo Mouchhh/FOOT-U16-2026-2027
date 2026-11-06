@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSimple = function(...args) { const value=renderBefore.apply(this,args);freeTitle();return value; };
   $('simple-sequence-name').oninput = event => {simpleState.sequenceTitle=event.target.value;freeTitle();saveSimple();};
   function createAnimation() {
-    createCustomSequence();
+    createCustomSequence({fresh:true});
     delete simpleState.sequenceId;
     simpleState.sequenceTitle='';
     renderSimple();saveSimple();

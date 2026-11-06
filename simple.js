@@ -78,7 +78,7 @@ $('simple-scenario').onchange=e=>{if(confirm('Charger cette situation ? Le table
 for(const [id,side] of [['simple-own','own'],['simple-away','away']])$(id).onclick=()=>{if(simpleState.tokens.length>=40)return notify('40 pions maximum.');const t={id:crypto.randomUUID(),label:String(Array.from({length:40},(_,i)=>i+1).find(n=>!simpleState.tokens.some(t=>t.side===side&&t.label===String(n)))||simpleState.tokens.filter(t=>t.side===side).length+1),side,x:50,y:50};simpleState.tokens.push(t);simpleSelected=t.id;renderSimple();saveSimple();};
 $('simple-label').oninput=e=>{const t=simpleState.tokens.find(t=>t.id===simpleSelected);if(t){t.label=e.target.value;const b=[...simpleTokens.children].find(b=>b.dataset.id===t.id);b.textContent=t.label;saveSimple();}};
 $('simple-remove').onclick=()=>{simpleState.tokens=simpleState.tokens.filter(t=>t.id!==simpleSelected);simpleSelected=null;renderSimple();saveSimple();};
-$('simple-reset').onclick=()=>{if(confirm('Réinitialiser cette situation ?'))loadSimple(simpleState.scenario);};
+$('simple-reset').onclick=()=>{if(!confirm('Réinitialiser ce tableau ? Les animations déjà enregistrées seront conservées.'))return;if(simpleState.scenario==='custom')createCustomSequence({fresh:true});else{stopAnimation(true);loadSimple(simpleState.scenario);}};
 $('simple-pdf').onclick=()=>{document.title='Explication — '+(simpleState.sequenceTitle?.trim()||simpleScenarios[simpleState.scenario].title);window.print();};
 $('simple-eleven').onclick=()=>{if(confirm('Charger 11 contre 11 ? Les pions actuels seront remplacés. Votre composition reste conservée.'))loadSimple('eleven');};
 if(!simpleState)loadSimple('eleven');else renderSimple();
