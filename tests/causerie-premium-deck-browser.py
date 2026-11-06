@@ -35,6 +35,10 @@ with sync_playwright() as p:
      assert int(off.get('x'))>=-100 and int(off.get('y'))>=-100,(i,off.attrib)
      assert int(off.get('x'))+int(ext.get('cx'))<=12192500,(i,off.attrib,ext.attrib)
      assert int(off.get('y'))+int(ext.get('cy'))<=6858100,(i,off.attrib,ext.attrib)
+   for i in range(1,12):
+    root=ET.fromstring(z.read(f'ppt/slides/slide{i}.xml'))
+    assert len([n for n in root.findall('.//p:cNvPr',NS) if n.get('name','').startswith(f'club-ribbon-{i}-')])==3
+    if i in (1,11):assert root.find('p:cSld/p:bg/p:bgPr/a:solidFill/a:srgbClr',NS).get('val')=='0055A5'
    contents=''.join(z.read(s).decode() for s in slides)
    for color in ['0B192C','E31B23','0055A5','B45309','247342']:assert color in contents,color
    assert 'Montserrat' in contents and 'Arial' in contents

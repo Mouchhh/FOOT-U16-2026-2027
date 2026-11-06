@@ -7,7 +7,7 @@ Le modèle est construit dans `causerie-eleven-slides.js` et partagé par les ch
 - Marine `#0b192c`, blanc, accent rouge `#e31b23` ; bleu `#0055a5` pour la possession, orange `#b45309` à la perte et vert `#247342` à la récupération.
 - Logo propre `assets/causerie-logo.jpeg`, transformé en PNG circulaire et placé à la même position sur les onze slides. Cet asset évite le pictogramme parasite présent sur une autre ancienne image du logo.
 - Titres Montserrat gras italique, textes Arial. Titres de 30 pt, ouverture et conclusion jusqu’à 38 pt, chiffres des trois priorités à 40 pt, consignes généralement de 19 à 21 pt. Libellés et dimensions sont secondaires.
-- Fonds marine pour l’ouverture et la conclusion, fonds blancs pour le travail. Filets fins, repères numérotés et puces colorées remplacent les grands cadres répétés.
+- Ouverture et conclusion en bleu club `#0055a5`, signature marine en pied, séparation blanc/rouge avec la photo. Pages de travail blanches avec un en-tête bleu très clair, titres bleus, bandeaux thématiques et ruban bleu/blanc/rouge discret. Les photos restent dans les emplacements réservés sans recouvrir les consignes.
 - Alignement régulier : marge gauche de 0,65 pouce, en-tête hors de la zone de travail, logo en haut à droite, pied de page sous 6,95 pouces.
 
 Les déclarations de polices sont enregistrées dans le PPTX. Les polices ne sont pas intégrées au fichier ; le lecteur doit disposer de Montserrat ou utiliser sa substitution. Arial reste le corps de texte courant. Canva connaît ces familles, mais l’import et la lecture dans un vrai compte restent dépendants du service.
@@ -16,7 +16,7 @@ Les déclarations de polices sont enregistrées dans le PPTX. Les polices ne son
 
 | Slide | Modèle | Hiérarchie |
 | --- | --- | --- |
-| 1 | Ouverture marine + photo verticale | Nom du match fort à gauche ; journée, date et lieu ; logo à droite |
+| 1 | Ouverture bleu club + photo verticale | Nom du match fort à gauche ; journée, date et lieu ; logo à droite |
 | 2 | Composition | Terrain 16:9 centré sur la zone principale ; système et impacteurs à droite |
 | 3 | Contexte éditorial | Deux colonnes Objectifs / Dynamique ; repères du contexte en dessous ; photo latérale si affectée |
 | 4 | Adversaire | Nom, puis trois colonnes : forces, points à exploiter, organisation |
@@ -26,7 +26,7 @@ Les déclarations de polices sont enregistrées dans le PPTX. Les polices ne son
 | 8 | Animation Offensive | Même grille, repère bleu « Avec le ballon » |
 | 9 | Transition DEF / OFF | Même grille, repère vert « À la récupération du ballon » |
 | 10 | CPA | Deux colonnes offensifs / défensifs avec accents bleu / rouge |
-| 11 | Mot d’ordre final | Fond marine, message fort, photo de rassemblement et logo |
+| 11 | Mot d’ordre final | Fond bleu club, message fort, photo de rassemblement et logo |
 
 ## Schémas et ateliers
 
@@ -49,7 +49,7 @@ Les champs non renseignés ne déclenchent pas de slogans ni de paragraphes fict
 - **PowerPoint** : garde le format d’animation choisi, natif ou GIF.
 - **Création dans Canva** : utilise une copie de l’instantané avec animations GIF. Cela ne change ni la causerie ni la préférence PowerPoint du coach. Le même modèle de onze slides est transmis au service configuré.
 
-`causerieEleven.theme` expose la charte, et `causerieEleven.templateVersion` vaut `club-premium-268`.
+`causerieEleven.theme` expose la charte, et `causerieEleven.templateVersion` vaut `club-premium-269`.
 
 ## Vérification et aperçus
 

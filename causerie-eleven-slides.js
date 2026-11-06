@@ -145,7 +145,15 @@
     ) {
       const slide = pptx.addSlide();
       slides.push(slide);
-      slide.background = { color: dark ? NAVY : WHITE };
+      slide.background = { color: dark ? BLUE : WHITE };
+      // Shared club signature: royal blue covers, light editorial headers,
+      // and a restrained blue / white / red ribbon on every slide.
+      if (dark) {
+        rect(slide, 0, 0, 0.14, 6.82, WHITE);
+      } else {
+        rect(slide, 0, 0, 13.333333, 1.6, "F2F6FB");
+        rect(slide, 0, 0, 13.333333, 0.055, accent);
+      }
       if (dark && photos[n]) {
         slide.addImage({
           data: photos[n].portrait,
@@ -155,7 +163,8 @@
           h: 7.5,
           objectName: "club-photo-" + n,
         });
-        rect(slide, 8.82, 0, 0.08, 7.5, RED);
+        rect(slide, 8.76, 0, 0.06, 6.82, WHITE);
+        rect(slide, 8.82, 0, 0.08, 6.82, RED);
       }
       if (photo && photos[n])
         slide.addImage({
@@ -166,13 +175,15 @@
           h: 4.91,
           objectName: "personal-photo-" + n,
         });
+      if (dark) rect(slide, 0, 6.82, 13.333333, 0.68, NAVY);
       rect(slide, 0.65, 0.46, 0.08, 0.27, accent);
       text(slide, kicker, 0.86, 0.48, 10, 0.23, 10, {
         bold: true,
         charSpacing: 1.8,
         color: dark ? "D7E3F1" : accent,
       });
-      if (!dark) heading(slide, title, 0.65, 0.95, 10.8, 0.55, 30);
+      if (!dark)
+        heading(slide, title, 0.65, 0.95, 10.8, 0.55, 30, { color: BLUE });
       slide.addShape(S.ellipse, {
         x: 11.91,
         y: 0.32,
@@ -190,10 +201,16 @@
         objectName: "club-logo-slide-" + n,
       });
       line(slide, 0.65, 6.95, 12.03, dark ? "38506A" : "DCE5EF");
+      for (const [i, color] of [BLUE, WHITE, RED].entries())
+        slide.addShape(S.rect, {
+          x: 0.65 + i * 0.35, y: 6.93, w: 0.35, h: 0.055,
+          line: { transparency: 100 }, fill: { color },
+          objectName: "club-ribbon-" + n + "-" + i,
+        });
       text(slide, "STADE MAYENNAIS  /  CAUSERIE", 0.65, 7.09, 7, 0.18, 8, {
         bold: true,
         charSpacing: 1.2,
-        color: dark ? "DAE5F2" : MUTED,
+        color: dark ? "DAE5F2" : BLUE,
       });
       text(
         slide,
@@ -234,12 +251,12 @@
       });
     }
     function block(slide, label, value, x, y, w, h, { accent = BLUE } = {}) {
-      text(slide, label.toUpperCase(), x, y, w, 0.3, 11, {
+      rect(slide, x, y - 0.06, w, 0.46, accent);
+      text(slide, label.toUpperCase(), x + 0.12, y + 0.04, w - 0.24, 0.3, 11, {
         bold: true,
         charSpacing: 1.2,
-        color: accent,
+        color: WHITE,
       });
-      line(slide, x, y + 0.48, w);
       bullets(slide, value, x, y + 0.7, w, h - 0.7, {
         accent,
         chars: w < 3 ? 60 : w < 4 ? 75 : 135,
@@ -262,7 +279,7 @@
       7.3,
       0.38,
       13,
-      { bold: true, charSpacing: 1.8, color: "AFC8EC" },
+      { bold: true, charSpacing: 1.8, color: WHITE },
     );
     heading(
       slide,
@@ -485,10 +502,12 @@
       const accent = colors[key];
       slide = base(phase.title, phase.slide, { accent, kicker: kickers[key] });
       rect(slide, 0.65, 1.8, 0.055, 4.8, accent);
+      rect(slide, 0.86, 1.8, 2.75, 0.42, accent);
       text(slide, "NOS CONSIGNES", 0.86, 1.85, 2.75, 0.3, 11, {
         bold: true,
-        color: accent,
+        color: WHITE,
         charSpacing: 1,
+        margin: [0, 0.12, 0, 0.12],
       });
       const body = p[phase.field] || "",
         leftPhoto = photos[phase.slide] && choices.length;
@@ -667,7 +686,7 @@
     });
     text(slide, "ENSEMBLE", 0.8, 1.8, 7.3, 0.4, 13, {
       bold: true,
-      color: "AFC8EC",
+      color: WHITE,
       charSpacing: 2.3,
     });
     heading(
@@ -699,7 +718,7 @@
     build,
     fields,
     phases,
-    templateVersion: "club-premium-268",
+    templateVersion: "club-premium-269",
     theme: {
       navy: NAVY,
       blue: BLUE,
