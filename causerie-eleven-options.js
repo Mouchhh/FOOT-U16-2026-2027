@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return (
       previousValid(board) &&
       (board.causerieAnimationVariant === undefined ||
-        ["native", "gif"].includes(board.causerieAnimationVariant)) &&
+        ["video", "native", "gif"].includes(board.causerieAnimationVariant)) &&
       (board.causerieSlideAnimations === undefined ||
         (board.causerieSlideAnimations &&
           typeof board.causerieSlideAnimations === "object" &&
@@ -64,8 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
     format = el("select");
   format.setAttribute("aria-label", "Format des animations des 11 slides");
   format.append(
+    new Option("Vidéo MP4 · pause et reprise", "video"),
     new Option("PowerPoint · trajectoires natives", "native"),
-    new Option("Canva · GIF intégrés", "gif"),
+    new Option("GIF · sans commande de pause", "gif"),
   );
   formatLabel.append(format);
   format.onchange = () =>
@@ -88,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const [key, input] of inputs)
       if (document.activeElement !== input)
         input.value = board.matchPreparation?.[key] || "";
-    format.value = board.causerieAnimationVariant || "native";
+    format.value = board.causerieAnimationVariant || "video";
     assignments.replaceChildren();
     const entries = [...causerieClubSituations.animations()];
     const exercises = causerieClubSituations.exercises();

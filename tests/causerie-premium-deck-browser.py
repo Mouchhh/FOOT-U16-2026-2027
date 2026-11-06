@@ -32,7 +32,7 @@ with sync_playwright() as p:
    slides=[f'ppt/slides/slide{i}.xml' for i in range(1,12)];assert all(s in z.namelist() for s in slides)
    assert not 'ppt/slides/slide12.xml' in z.namelist()
    for i,s in enumerate(slides,1):
-    root=ET.fromstring(z.read(s));assert any(n.get('name')==f'club-logo-slide-{i}' for n in root.findall('.//p:cNvPr',NS)),i
+    root=ET.fromstring(z.read(s));assert any(n.get('name')==f'club-logo-slide-{i}' for n in root.findall('.//p:cNvPr',NS))==(i not in (6,7,8,9)),i
     for x in root.findall('.//a:xfrm',NS):
      off,ext=x.find('a:off',NS),x.find('a:ext',NS)
      if off is None or ext is None:continue
@@ -43,17 +43,17 @@ with sync_playwright() as p:
     root=ET.fromstring(z.read(f'ppt/slides/slide{i}.xml'))
     assert not any(n.get('name','').startswith('club-ribbon-') for n in root.findall('.//p:cNvPr',NS))
     assert 'STADE MAYENNAIS  /  CAUSERIE' not in ''.join(root.itertext())
-    if i==6:assert len(root.findall('.//p:pic',NS))==(1 if variant=='native' else 3), 'Only logo and tactical media, no decorative photo'
+    if i==6:assert len(root.findall('.//p:pic',NS))==(0 if variant=='native' else 2), 'Only logo and tactical media, no decorative photo'
     if i in (1,11):assert root.find('p:cSld/p:bg/p:bgPr/a:solidFill/a:srgbClr',NS).get('val')=='0055A5'
    contents=''.join(z.read(s).decode() for s in slides)
-   for color in ['0B192C','E31B23','0055A5','B45309','247342']:assert color in contents,color
+   for color in ['0B192C','E31B23','0055A5']:assert color in contents,color
    assert 'Montserrat' in contents and 'Arial' in contents
    assert 'Prendre du plaisir à jouer ensemble' in ''.join(ET.fromstring(z.read('ppt/slides/slide5.xml')).itertext())
    for n in [3,5,10]:
     names=[v.get('name','') for v in ET.fromstring(z.read(f'ppt/slides/slide{n}.xml')).findall('.//p:cNvPr',NS)]
     assert f'club-reference-angle-{n}' in names
     assert f'personal-photo-{n}' in names
-   for n in range(2,11):
+   for n in [2,3,4,5,10]:
     names=[v.get('name','') for v in ET.fromstring(z.read(f'ppt/slides/slide{n}.xml')).findall('.//p:cNvPr',NS)]
     assert len([v for v in names if v.startswith(f'club-reference-chevron-{n}-')])==3
    cover=ET.fromstring(z.read('ppt/slides/slide1.xml'))
@@ -73,13 +73,15 @@ with sync_playwright() as p:
    assert 'Imposer notre rythme.' in ''.join(ET.fromstring(z.read('ppt/notesSlides/notesSlide3.xml')).itertext())
    assert 'FIN-INTÉGRALE-DEF' not in z.read('ppt/slides/slide6.xml').decode()
    if variant=='gif':assert 'FIN-INTÉGRALE-DEF' in z.read('ppt/notesSlides/notesSlide6.xml').decode()
-   else:assert 'Garder une couverture derrière la ligne.' in ''.join(ET.fromstring(z.read('ppt/slides/slide6.xml')).itertext())
+   else:assert 'Garder une couverture derrière la ligne.' in ''.join(ET.fromstring(z.read('ppt/notesSlides/notesSlide6.xml')).itertext())
    assert 'FIN-INTÉGRALE-EXERCICE' in z.read('ppt/notesSlides/notesSlide8.xml').decode()
-   assert 'RÈGLES DE L’ATELIER' in ''.join(ET.fromstring(z.read('ppt/slides/slide8.xml')).itertext())
-   assert 'Attirer un adversaire avant de transmettre.' in ''.join(ET.fromstring(z.read('ppt/slides/slide8.xml')).itertext())
-   assert '40 × 32 m' in ''.join(ET.fromstring(z.read('ppt/slides/slide8.xml')).itertext())
+   assert 'RÈGLES DE L’ATELIER' not in ''.join(ET.fromstring(z.read('ppt/slides/slide8.xml')).itertext())
+   assert 'Attirer un adversaire avant de transmettre.' in ''.join(ET.fromstring(z.read('ppt/notesSlides/notesSlide8.xml')).itertext())
+   for n in (6,7,8,9):
+    texts=ET.fromstring(z.read(f'ppt/slides/slide{n}.xml')).findall('.//a:t',NS)
+    assert all((t.text or '') in ('6','8','9','10','●') for t in texts), 'Pitch only; no headings or side information'
    assert bool(ET.fromstring(z.read('ppt/slides/slide6.xml')).findall('p:timing',NS))==(variant=='native')
  # Fixed count does not silently shrink five diagrams to unreadable thumbnails.
  assert page.evaluate('''async()=>{const s=structuredClone(premiumSnapshot);s.board.causerieSlideAnimations.defensive=Array.from({length:5},(_,i)=>({...s.board.causerieSlideAnimations.defensive[0],id:'extra-'+i}));try{await causerieExport.build(s,false);return false;}catch(e){return e.message.includes('maximum 4');}}''')
  assert not errors,errors;b.close()
-print('PASS: premium native/GIF decks, 11 logos and slides, strict palette, two font families, bounded geometry, complete long notes, exercise dimensions, native timing, no source mutation and readable diagram limit.')
+print('PASS: premium native/GIF decks, 11 slides, seven logos and pitch-only phases, strict palette, two font families, bounded geometry, complete long notes, exercise dimensions, native timing, no source mutation and readable diagram limit.')

@@ -134,11 +134,19 @@
     for (const byte of gif.bytes()) binary += String.fromCharCode(byte);
     return "data:image/gif;base64," + btoa(binary);
   }
-  async function append(pptx, hosts) {
+  async function append(pptx, hosts, { variant = "gif" } = {}) {
     for (const host of hosts) {
-      const custom = host.exercise.custom,
-        data = await diagram(custom),
-        box = host.box;
+      const custom = host.exercise.custom, box = host.box;
+      if (variant === 'video' && custom.board?.frames.length > 1) {
+        const { recordPitch } = await import('./causerie-video.js');
+        const board=structuredClone(custom.board),source=document.createElement('canvas');
+        const video=await recordPitch({duration:(board.frames.length-1)*board.seconds*1000,width:1152,height:720,render(canvas,elapsed){
+          drawExerciseBoard(source,board,exerciseInterpolated(board,elapsed/(board.seconds*1000)));
+          canvas.getContext('2d').drawImage(source,0,0,canvas.width,canvas.height);
+        }});
+        host.slide.addMedia({type:'video',...video,...box,extn:'mp4'});
+      } else {
+      const data = await diagram(custom);
       if (data) host.slide.addImage({ data, ...box });
       else
         host.slide.addText(
@@ -147,6 +155,7 @@
             .join("\n\n") || "Aucun schéma enregistré pour cet exercice.",
           { ...box, fontSize: 12, color: "09182A", margin: 0, fit: "shrink" },
         );
+      }
       host.slide.addNotes(
         [
           custom.title,

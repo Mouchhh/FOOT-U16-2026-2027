@@ -1,4 +1,4 @@
-"""Canva receives the same club deck with GIFs, without changing the PPT preference.
+"""Canva receives the same club deck with MP4s, without changing the PPT preference.
 All gateway/Canva requests are intercepted. No credentials or document reach a service.
 """
 import io,json,zipfile,xml.etree.ElementTree as ET
@@ -25,10 +25,10 @@ with sync_playwright() as p:
  with zipfile.ZipFile(io.BytesIO(uploads[0])) as z:
   ns={'p':'http://schemas.openxmlformats.org/presentationml/2006/main'}
   for i in range(1,12):
-   root=ET.fromstring(z.read(f'ppt/slides/slide{i}.xml'));assert not root.findall('p:timing',ns)
-   assert any(n.get('name')==f'club-logo-slide-{i}' for n in root.findall('.//p:cNvPr',ns))
-  assert any(name.endswith('.gif') for name in z.namelist())
+   root=ET.fromstring(z.read(f'ppt/slides/slide{i}.xml'));assert not root.findall('.//p:animMotion',ns)
+   assert any(n.get('name')==f'club-logo-slide-{i}' for n in root.findall('.//p:cNvPr',ns))==(i not in (6,7,8,9))
+  assert any(name.endswith('.mp4') for name in z.namelist())
  assert page.evaluate('JSON.stringify(getCompositionBoard())')==before
  assert page.evaluate('getCompositionBoard().causerieAnimationVariant')=='native'
  assert not errors,errors;b.close()
-print('PASS: intercepted Canva import receives branded eleven-slide GIF variant, all logos, no native-only timing; source board and native PPT preference unchanged, no real Canva call.')
+print('PASS: intercepted Canva import receives branded eleven-slide MP4 variant, pitch-only animation slides, no object-motion timing; source board and native PPT preference unchanged, no real Canva call.')

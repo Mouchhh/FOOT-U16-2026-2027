@@ -5,13 +5,13 @@ function mediaName(extension,snapshot=simpleState){return namedDocumentFilename(
 function wrapMediaText(ctx,text,x,y,maxWidth,lineHeight){
  let line='';for(const word of text.split(/\s+/)){const candidate=line?line+' '+word:word;if(ctx.measureText(candidate).width>maxWidth&&line){ctx.fillText(line,x,y);y+=lineHeight;line=word;}else line=candidate;}if(line){ctx.fillText(line,x,y);y+=lineHeight;}return y;
 }
-function renderMedia(canvas,snapshot,landscape,category=state.category){
+function renderMedia(canvas,snapshot,landscape,category=state.category,{pitchOnly=false}={}){
  const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;const s=simpleScenario(snapshot);
  ctx.fillStyle='#f0f4fb';ctx.fillRect(0,0,W,H);
- ctx.fillStyle='#2855a2';ctx.font='bold 22px Arial';ctx.fillText('STADE MAYENNAIS · '+(category||'FOOTBALL À 11')+' · TABLEAU TACTIQUE',48,48);
- ctx.fillStyle='#18345b';ctx.font='bold 36px Arial';ctx.fillText(snapshot.sequenceTitle?.trim()||s.title,48,100,1250);
- const maxW=1250,maxH=860;const aspect=landscape?840/680:680/840;const w=Math.min(maxW,maxH*aspect),h=w/aspect;
- const x=48+(maxW-w)/2,y=148;
+ if(!pitchOnly){ctx.fillStyle='#2855a2';ctx.font='bold 22px Arial';ctx.fillText('STADE MAYENNAIS · '+(category||'FOOTBALL À 11')+' · TABLEAU TACTIQUE',48,48);
+ ctx.fillStyle='#18345b';ctx.font='bold 36px Arial';ctx.fillText(snapshot.sequenceTitle?.trim()||s.title,48,100,1250);}
+ const maxW=pitchOnly?W:1250,maxH=pitchOnly?H:860;const aspect=landscape?840/680:680/840;const w=Math.min(maxW,maxH*aspect),h=w/aspect;
+ const x=(pitchOnly?0:48)+(maxW-w)/2,y=pitchOnly?(H-h)/2:148;
  ctx.fillStyle='#294d37';ctx.fillRect(x,y,w,h);
  for(let i=0;i<10;i++){ctx.fillStyle=i%2?'#2e533c':'#294d37';if(landscape)ctx.fillRect(x+i*w/10,y,w/10+.5,h);else ctx.fillRect(x,y+i*h/10,w,h/10+.5);}
  ctx.save();if(landscape){ctx.translate(x+w,y);ctx.rotate(Math.PI/2);ctx.scale(h/680,w/840);}else{ctx.translate(x,y);ctx.scale(w/680,h/840);}
@@ -34,6 +34,7 @@ function renderMedia(canvas,snapshot,landscape,category=state.category){
   if(p.label.length>4){ctx.font='15px Arial';ctx.fillStyle='#102819';const tw=ctx.measureText(p.label).width;ctx.fillRect(cx-tw/2-5,cy+27,tw+10,23);ctx.fillStyle='#fff';ctx.fillText(p.label,cx,cy+38);}
  });
  const [ballX,ballY]=xy(snapshot.ball.x,snapshot.ball.y);ctx.beginPath();ctx.arc(ballX,ballY,12,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#142c22';ctx.lineWidth=2;ctx.stroke();ctx.beginPath();ctx.arc(ballX,ballY,4,0,Math.PI*2);ctx.fillStyle='#142c22';ctx.fill();
+ if(pitchOnly)return;
  ctx.textAlign='left';ctx.textBaseline='alphabetic';const tx=1360,tw=510;
  ctx.fillStyle='#2855a2';ctx.font='bold 20px Arial';ctx.fillText(s.free?'TABLEAU LIBRE · 11 CONTRE 11':'ÉTAPE '+(snapshot.step+1)+' / '+s.steps.length,tx,190);
  ctx.fillStyle='#18345b';ctx.font='bold 30px Arial';let ty=wrapMediaText(ctx,s.steps[snapshot.step][0],tx,245,tw,40);

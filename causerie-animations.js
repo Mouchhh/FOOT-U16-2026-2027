@@ -84,15 +84,15 @@
     const segments = exportSegments(initial, entry.choice),
       source = createMediaCanvas();
     const canvas = document.createElement("canvas");
-    canvas.width = 960;
-    canvas.height = 540;
+    source.width = canvas.width = 840;
+    source.height = canvas.height = 680;
     const ctx = canvas.getContext("2d", { willReadFrequently: true }),
       gif = GIFEncoder();
     const count = Math.max(2, Math.round(2400 / Number(entry.speed) / 100));
     let palette;
     for (const segment of segments) {
       for (let frame = 0; frame <= count; frame++) {
-        renderMedia(source, interpolateMedia(segment, frame / count), true, "");
+        renderMedia(source, interpolateMedia(segment, frame / count), true, "", {pitchOnly:true});
         ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
         const rgba = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
         // One palette keeps the colors stable throughout the demonstration.
@@ -128,6 +128,23 @@
     for (const host of sequenceHosts) {
       const entry = host.entry, model = frames(entry), slide = host.slide || pptx.addSlide();
       hostNumber++;
+      if (host.slide && options.variant === 'video') {
+        const { recordPitch } = await import('./causerie-video.js');
+        const initial = frames(entry).initial, segments = exportSegments(initial, entry.choice);
+        const source = createMediaCanvas(), perStep = 2400 / Number(entry.speed);source.width=1008;source.height=816;
+        if (!segments.length) {
+          renderMedia(source,initial,true,'',{pitchOnly:true});
+          slide.addImage({data:source.toDataURL('image/png'),...host.box});continue;
+        }
+        const video = await recordPitch({ duration: Math.max(500, segments.length * perStep), width:1008, height:816, render(canvas, elapsed) {
+          const index=Math.min(segments.length-1,Math.floor(elapsed/perStep));
+          const ratio=Math.min(1,(elapsed-index*perStep)/perStep);
+          renderMedia(source, interpolateMedia(segments[index],ratio), true, '', {pitchOnly:true});
+          canvas.getContext('2d').drawImage(source,0,0,canvas.width,canvas.height);
+        }});
+        slide.addMedia({type:'video',...video,...host.box,extn:'mp4'});
+        continue;
+      }
       if (host.slide && options.variant === 'gif') {
         slide.addImage({data: await animationGif(entry), ...host.box});
         continue;
@@ -248,6 +265,8 @@
       });
       }
       const mediaBox = item.host?.box || {x:0.6,y:1,w:12.1,h:6.1};
+      if (item.type === "image/gif" && options.variant === 'video')
+        throw Error('Cette démonstration est un GIF : importez sa version MP4 pour utiliser pause et reprise.');
       if (item.type === "image/gif") {
         const image = new Image();
         image.src = item.data;

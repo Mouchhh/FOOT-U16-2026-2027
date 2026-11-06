@@ -151,11 +151,12 @@
     function base(
       title,
       n,
-      { dark = false, accent = BLUE, kicker = "LE MATCH", photo = false } = {},
+      { dark = false, accent = BLUE, kicker = "LE MATCH", photo = false, bare = false } = {},
     ) {
       const slide = pptx.addSlide();
       slides.push(slide);
       slide.background = { color: dark ? BLUE : WHITE };
+      if (bare) return slide;
       // Shared club signature: royal blue covers, light editorial headers,
       // with a clean lower edge and no repeated footer.
       if (dark) {
@@ -445,18 +446,6 @@
       if (i < goals.length - 1) line(slide, goalsFrame.x, y + goalSlot - 0.15, goalsFrame.w);
     });
     notes(slide, goals);
-    const colors = {
-        defensive: RED,
-        offensive: BLUE,
-        offDef: "B45309",
-        defOff: "247342",
-      },
-      kickers = {
-        defensive: "SANS LE BALLON",
-        offensive: "AVEC LE BALLON",
-        offDef: "À LA PERTE DU BALLON",
-        defOff: "À LA RÉCUPÉRATION DU BALLON",
-      };
     for (const [key, phase] of Object.entries(phases)) {
       const assigned = board.causerieSlideAnimations,
         sequences = assigned
@@ -477,112 +466,18 @@
           phase.title +
             " : sélectionnez au maximum 4 situations pour garder les schémas lisibles dans les 11 slides.",
         );
-      const accent = colors[key];
-      slide = base(phase.title, phase.slide, { accent, kicker: kickers[key] });
-      const textX = 7.4, textW = 5.28;
-      text(slide, "NOS REPÈRES", textX, 1.85, textW, 0.28, 12, { bold: true, color: accent, charSpacing: 1 });
-      line(slide, textX, 2.27, textW, accent);
+      slide = base(phase.title, phase.slide, { bare: true });
       const body = p[phase.field] || "";
-      const singleExercise = choices.length === 1 && choices[0].exercise?.custom.board ? choices[0].exercise.custom : null;
-      const prose = (value, y, h, size = 20) => {
-        if (value.length <= 1400) text(slide, value, textX, y, textW, h, value.length > 500 ? 17 : size);
-        else bullets(slide, value, textX, y, textW, h, { count: 4, chars: 130, size: 18, accent });
-      };
-      if (singleExercise) {
-        prose(body, 2.55, 1.2);
-        text(slide, "RÈGLES DE L’ATELIER", textX, 4.0, textW, 0.28, 12, { bold: true, color: accent });
-        prose(ideas(singleExercise.instructions, 2, 220).join("\n"), 4.48, 2.2, 18);
-      } else prose(body, 2.6, 4.1);
-      const stage = { x: 0.65, y: 1.8, w: 6.15, h: 5.05 };
-      if (!choices.length) {
-        rect(slide, stage.x, stage.y, stage.w, stage.h, "F3F6FA");
-        heading(slide, kickers[key], stage.x + 0.3, 3.25, stage.w - 0.6, 1.05, 26, {
-          color: accent,
-        });
-      } else {
-        const cols = choices.length <= 2 ? 1 : 2,
-          rows = Math.ceil(choices.length / cols),
-          gap = 0.25,
-          tileW = (stage.w - gap * (cols - 1)) / cols,
-          tileH = (stage.h - gap * (rows - 1)) / rows;
-        choices.forEach((choice, i) => {
-          const x = stage.x + (i % cols) * (tileW + gap),
-            y = stage.y + Math.floor(i / cols) * (tileH + gap),
-            custom = choice.exercise?.custom,
-            title =
-              choice.entry?.title ||
-              choice.media?.name ||
-              choice.exercise?.title;
-          const size = choices.length > 2 ? 13 : 16;
-          text(
-            slide,
-            excerpt(title, choices.length > 2 ? 48 : 82),
-            x,
-            y,
-            tileW,
-            0.4,
-            size,
-            { bold: true, align: "center" },
-          );
-          const caption = custom
-            ? [
-                custom.width + " × " + custom.length + " m",
-                excerpt(
-                  choices.length === 1
-                    ? custom.goal || custom.instructions
-                    : ideas(custom.instructions, 1, 75)[0],
-                  choices.length > 2 ? 62 : 120,
-                ),
-              ]
-                .filter(Boolean)
-                .join(" · ")
-            : "";
-          const spaceH = tileH - 0.5 - (caption ? 0.35 : 0),
-            ratio = choice.exercise ? 1.6 : 16 / 9,
-            w = Math.min(tileW, spaceH * ratio),
-            h = w / ratio;
-          const box = {
-            x: x + (tileW - w) / 2,
-            y: y + 0.46 + (spaceH - h) / 2,
-            w,
-            h,
-          };
-          if (choice.exercise && !custom.board) {
-            rect(slide, box.x, box.y, box.w, box.h, "F3F6FA");
-            bullets(
-              slide,
-              custom.instructions,
-              box.x + 0.15,
-              box.y + 0.2,
-              box.w - 0.3,
-              box.h - 0.3,
-              {
-                count: choices.length > 2 ? 2 : 3,
-                chars: 80,
-                size: choices.length > 2 ? 14 : 19,
-                accent,
-              },
-            );
-          } else
-            (choice.exercise ? exerciseHosts : hosts).push({
-              ...choice,
-              slide,
-              box,
-              palette: { navy: NAVY, red: RED, blue: BLUE },
-            });
-          if (caption)
-            text(
-              slide,
-              caption,
-              x,
-              y + tileH - 0.3,
-              tileW,
-              0.3,
-              choices.length > 2 ? 10 : 12,
-              { color: MUTED, align: "center" },
-            );
-        });
-      }
+      const stage = { x: 0.1, y: 0.1, w: 13.133333, h: 7.3 };
+      const cols = choices.length <= 1 ? 1 : 2, rows = Math.max(1, Math.ceil(choices.length / cols));
+      const gap = 0.12, tileW = (stage.w - gap * (cols - 1)) / cols, tileH = (stage.h - gap * (rows - 1)) / rows;
+      choices.forEach((choice, i) => {
+        const custom=choice.exercise?.custom, ratio=choice.exercise?1.6:840/680;
+        const w=Math.min(tileW,tileH*ratio),h=w/ratio;
+        const box={x:stage.x+(i%cols)*(tileW+gap)+(tileW-w)/2,y:stage.y+Math.floor(i/cols)*(tileH+gap)+(tileH-h)/2,w,h};
+        if (!choice.exercise || custom.board) (choice.exercise?exerciseHosts:hosts).push({...choice,slide,box,palette:{navy:NAVY,red:RED,blue:BLUE}});
+        // No invented pitch or on-screen instructions when no drawing is saved.
+      });
       notes(slide, [
         body,
         ...sequences.map((e) => e.title),
@@ -636,21 +531,21 @@
     if (slides.length !== 11)
       throw Error("La présentation doit comporter exactement 11 slides.");
     if (exerciseHosts.length)
-      await causerieClubSituations.append(pptx, exerciseHosts);
+      await causerieClubSituations.append(pptx, exerciseHosts, { variant: board.causerieAnimationVariant || "video" });
     return causerieAnimations.append(
       pptx,
       {
         sequences: hosts.filter((h) => h.entry).map((h) => h.entry),
         media: hosts.filter((h) => h.media).map((h) => h.media),
       },
-      { hosts, variant: board.causerieAnimationVariant || "native" },
+      { hosts, variant: board.causerieAnimationVariant || "video" },
     );
   }
   window.causerieEleven = {
     build,
     fields,
     phases,
-    templateVersion: "club-reference-276",
+    templateVersion: "club-pitch-only-277",
     theme: {
       navy: NAVY,
       blue: BLUE,

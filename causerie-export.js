@@ -222,8 +222,8 @@
   async function createPresentation(popup=null){
    if(busy)return;stopConnectionPoll();lock(true);results.replaceChildren();
    try{
-    status.textContent='Préparation de la causerie pour votre compte Canva…';
-    const canvaSnapshot=structuredClone(snapshot);if(window.causerieEleven)canvaSnapshot.board.causerieAnimationVariant='gif';
+    status.textContent='Création des vidéos pour Canva · gardez cet onglet visible jusqu’à la fin…';
+    const canvaSnapshot=structuredClone(snapshot);if(window.causerieEleven)canvaSnapshot.board.causerieAnimationVariant='video';
     const pptx=await build(canvaSnapshot,include.checked),blob=await pptx.write({outputType:'blob',compression:true});
     const title=snapshot.board.title||snapshot.board.team,title64=btoa(Array.from(new TextEncoder().encode(title),byte=>String.fromCharCode(byte)).join(''));
     let job=await request('/api/imports',{method:'POST',headers:{'Content-Type':'application/vnd.openxmlformats-officedocument.presentationml.presentation','X-Design-Title':title64},body:blob});
@@ -242,7 +242,7 @@
    }catch(error){if(popup&&!popup.closed)popup.close();status.textContent=error.message+' Votre brouillon reste conservé. Vérifiez le dernier import avant de réessayer.';}
    finally{lock(false);checkConnection().catch(()=>{});}
   }
-  upload.onclick=()=>createPresentation(reserveWindow());
+  upload.onclick=()=>createPresentation();
   document.body.append(dialog);
   function refresh(){
    inventory.replaceChildren();
@@ -270,7 +270,7 @@
    const version=open(false);
    if(version===null)return;
    if(!gateway){status.textContent='La création directe dans votre Canva attend l’activation du service par le responsable du site. Vérifiez-la ici ; le bouton PowerPoint reste disponible directement dans votre causerie.';return;}
-   const popup=reserveWindow();launching=true;
+   const popup=null;launching=true;
    status.textContent='Connexion au service Canva… Son réveil peut prendre une minute avec l’offre gratuite.';
    try{
     const connected=await checkConnection();
@@ -290,7 +290,7 @@
    const current=capture(),account=currentUser(),coach=activeCoach.id,team=activeCoachTeam.id;
    const includeLinked=snapshot&&snapshot.board.documentId===current.board.documentId?include.checked:!!current.linked;
    if(!valid(current.board)){pptStatus.textContent='Vérifiez les champs du match avant de télécharger la causerie.';return false;}
-   busy=true;download.disabled=true;download.setAttribute('aria-busy','true');pptStatus.textContent='Création de la présentation complète…';
+   busy=true;download.disabled=true;download.setAttribute('aria-busy','true');pptStatus.textContent='Création de la présentation et des animations · gardez cet onglet visible jusqu’au téléchargement…';
    try{const pptx=await build(current,includeLinked),blob=await pptx.write({outputType:'blob',compression:true});
     if(activeCoach.id!==coach||activeCoachTeam.id!==team||currentUser()!==account)throw Error('Le compte ou l’équipe a changé. Rouvrez votre causerie.');
     mediaDownload(blob,namedDocumentFilename(current.board.title||current.board.team,'pptx'));
