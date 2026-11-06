@@ -16,8 +16,6 @@ with sync_playwright() as p:
  assert select.locator('option').count()==2
  # Discovery must never silently choose a side.
  assert select.input_value()==''
- panel.get_by_role('button',name='Confirmer et ouvrir mon équipe').click()
- assert 'Sélectionnez votre équipe' in panel.inner_text()
  select.select_option(index=1)
  # A changed detail invalidates previously returned results and selection.
  panel.get_by_label('Numéro de l’équipe',exact=True).fill('2')

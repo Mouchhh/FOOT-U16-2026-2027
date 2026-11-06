@@ -3,13 +3,13 @@ const homeFFFKey='vestiaire-fff-standings';coachTeamWorkspaceKeys.add(homeFFFKey
 function homeFFFSource(value) {
   try{const u=new URL(value);return u.protocol==='https:'&&(u.hostname==='fff.fr'||u.hostname.endsWith('.fff.fr'))&&!u.username&&!u.password?u.href:'';}catch{return '';}
 }
-function homeFFFDefaultURL(){return (typeof coachFFFSource==='function'?coachFFFSource():'')||agendaFFFRead().url||'';}
+function homeFFFDefaultURL(){return activeCoachTeam.fffProfile?(typeof coachFFFSource==='function'?coachFFFSource():''):agendaFFFRead().url||'';}
 function homeFFFCompetition(){return activeCoachTeam.fffProfile?activeCoachTeam.label+' · '+activeCoachTeam.fffProfile.level:activeCoachTeam.category||'FFF';}
 function homeFFFNormalize(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');}
 function homeFFFValidate(data){
   return data?.version===1&&Number.isFinite(Date.parse(data.importedAt))&&homeFFFSource(data.sourceURL)&&typeof data.competition==='string'&&data.competition.length<=200&&typeof data.teamName==='string'&&data.teamName.length<=150&&Array.isArray(data.rows)&&data.rows.length>0&&data.rows.length<=80&&new Set(data.rows.map(r=>r.rank)).size===data.rows.length&&data.rows.every(r=>r&&Number.isInteger(r.rank)&&r.rank>0&&r.rank<=100&&typeof r.name==='string'&&r.name.trim()&&r.name.length<=150&&['points','played','wins','draws','losses','goalsFor','goalsAgainst','goalDifference'].every(k=>r[k]===null||Number.isInteger(r[k])&&Math.abs(r[k])<=10000)&&(!r.logo||homeFFFSource(r.logo))&&['played','wins','draws','losses','goalsFor','goalsAgainst'].every(k=>r[k]===null||r[k]>=0))&&Array.isArray(data.matches)&&data.matches.length<=1000&&data.matches.every(m=>trainingDateValid(m.date)&&typeof m.home==='string'&&m.home.length<=150&&typeof m.away==='string'&&m.away.length<=150&&Number.isInteger(m.goalsHome)&&m.goalsHome>=0&&m.goalsHome<100&&Number.isInteger(m.goalsAway)&&m.goalsAway>=0&&m.goalsAway<100);
 }
-function homeFFFRead(){try{const data=JSON.parse(coachStorageGet(homeFFFKey)||'null');const source=typeof coachFFFSource==='function'?coachFFFSource():'';return homeFFFValidate(data)&&(!source||data.sourceURL===source)?data:null;}catch{return null;}}
+function homeFFFRead(){try{const data=JSON.parse(coachStorageGet(homeFFFKey)||'null');const source=typeof coachFFFSource==='function'?coachFFFSource():'';return homeFFFValidate(data)&&(!activeCoachTeam.fffProfile||source&&data.sourceURL===source)?data:null;}catch{return null;}}
 function homeFFFParse(text,{sourceURL,teamName,competition}) {
   if(text.length>4000000)throw Error('Page trop volumineuse (4 Mo maximum).');
   if(!homeFFFSource(sourceURL))throw Error('Indiquez le lien officiel FFF de cette équipe ou de son championnat.');
@@ -77,9 +77,9 @@ function homeFFFImporter(card) {
 function renderHomeFFF(snapshot) {
   const root=$('home-live-widgets');if(!root)return;
   const group=root.querySelector('.home-live-group');if(group){group.classList.add('home-live-group-strip');root.append(group);}
-  const data=homeFFFRead(),card=el('article','home-live-card home-fff-ranking');card.append(el('h2','','Classement · '+(data?.competition||homeFFFCompetition())));if(activeCoachTeam.fffProfile)card.append(el('p','home-live-caption home-fff-team-context',activeCoachTeam.label+' · '+activeCoachTeam.fffProfile.officialName));
+  const data=homeFFFRead(),card=el('article','home-live-card home-fff-ranking');card.append(el('h2','','Classement · '+(data?.competition||homeFFFCompetition())));if(activeCoachTeam.fffProfile)card.append(el('p','home-live-caption home-fff-team-context',activeCoachTeam.label+' · '+(activeCoachTeam.fffProfile.officialName||'liaison FFF à compléter')));
   const actions=el('div','home-fff-actions'),source=el('a','home-live-open','Ouvrir la FFF ↗');source.href=data?.sourceURL||homeFFFDefaultURL();source.hidden=!homeFFFDefaultURL()&&!data;source.target='_blank';source.rel='noopener noreferrer';
-  const importButton=el('button','home-live-open',data?'Mettre à jour le classement':'Importer le classement FFF');importButton.type='button';importButton.onclick=()=>homeFFFImporter(card);actions.append(source,importButton);if(typeof coachFFFOpen==='function'&&clubNetworkBound()){const setup=el('button','home-live-open','Mon équipe FFF');setup.type='button';setup.onclick=()=>coachFFFOpen();actions.append(setup);}
+  const importButton=el('button','home-live-open',data?'Mettre à jour le classement':'Importer le classement FFF');importButton.type='button';importButton.hidden=!!activeCoachTeam.fffProfile&&!homeFFFDefaultURL();importButton.onclick=()=>homeFFFImporter(card);actions.append(source,importButton);if(typeof coachFFFOpen==='function'&&clubNetworkBound()){const setup=el('button','home-live-open','Mon équipe FFF');setup.type='button';setup.onclick=()=>coachFFFOpen();actions.append(setup);}
   if(data){
     const own=homeFFFNormalize(data.teamName),row=data.rows.find(r=>homeFFFNormalize(r.name)===own);
     if(row)card.append(el('strong','home-live-value',row.rank+'e · '+row.points+' pts'));
@@ -91,7 +91,7 @@ function renderHomeFFF(snapshot) {
       if(item.logo||homeFFFNormalize(item.name)===own){const image=el('img');image.src=item.logo||'assets/causerie-logo.jpeg';image.alt='Écusson de '+item.name;image.loading='lazy';image.referrerPolicy='no-referrer';image.onerror=()=>{image.remove();fallback.hidden=false;};fallback.hidden=true;name.append(image);}name.append(fallback,document.createTextNode(item.name));tr.append(name);
       for(const key of ['points','played','wins','draws','losses','goalsFor','goalsAgainst','goalDifference'])tr.append(el('td','',item[key]===null?'—':key==='goalDifference'&&item[key]>0?'+'+item[key]:item[key]));body.append(tr);
     }table.append(body);scroll.append(table);card.append(scroll,el('p','home-live-caption',(data.acquisition==='automatic'?'FFF vérifiée le ':'Données FFF importées le ')+new Date(data.importedAt).toLocaleString('fr-FR')+' · les points officiels sont conservés.'));
-  }else card.append(el('p','home-live-caption','Classement officiel à importer. Aucune position ni différence de buts estimée à partir de résultats incomplets.'));
+  }else card.append(el('p','home-live-caption',activeCoachTeam.fffProfile&&!homeFFFDefaultURL()?'Équipe enregistrée. Associez son lien officiel depuis « Mon équipe FFF » pour afficher le classement.':'Classement officiel à importer. Aucune position ni différence de buts estimée à partir de résultats incomplets.'));
   const refreshStatus=homeFFFRefreshStatus.get(trainingAgendaIdentity());if(refreshStatus){const message=el('p','home-live-caption',refreshStatus);message.setAttribute('role','status');card.append(message);}card.append(actions);root.prepend(card);
   const opponent=homeFFFOpponent(snapshot?.match),form=root.querySelector('.home-live-form');
   if(form){form.append(el('h3','','Face à '+(opponent||'l’adversaire à venir')));const history=homeFFFHistory(opponent,data);

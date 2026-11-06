@@ -2,8 +2,9 @@
 const coachFFFMetadataKey='stade_team_profiles_v1';
 let coachFFFEnsurePending=null;
 function coachFFFProfileValid(profile){
- return profile&&coachTeamValid(profile)&&profile.id!=='unassigned'&&profile.fffProfile?.version===1&&['Masculin','Féminin','Mixte'].includes(profile.fffProfile.gender)&&['Football à 11','Football à 8','Futsal'].includes(profile.fffProfile.format)&&Number.isInteger(profile.fffProfile.number)&&profile.fffProfile.number>=1&&profile.fffProfile.number<=20&&/^\d{4}-\d{4}$/.test(profile.fffProfile.season)&&typeof profile.fffProfile.level==='string'&&profile.fffProfile.level.length<=80&&agendaFFFURL(profile.fffProfile.sourceURL)&&typeof profile.fffProfile.officialName==='string'&&profile.fffProfile.officialName.trim().length>0&&profile.fffProfile.officialName.length<=150;
+ return profile&&coachTeamValid(profile)&&profile.id!=='unassigned'&&profile.fffProfile?.version===1&&['Masculin','Féminin','Mixte'].includes(profile.fffProfile.gender)&&['Football à 11','Football à 8','Futsal'].includes(profile.fffProfile.format)&&Number.isInteger(profile.fffProfile.number)&&profile.fffProfile.number>=1&&profile.fffProfile.number<=20&&/^\d{4}-\d{4}$/.test(profile.fffProfile.season)&&typeof profile.fffProfile.level==='string'&&profile.fffProfile.level.length<=80&&(profile.fffProfile.sourceURL===''||agendaFFFURL(profile.fffProfile.sourceURL))&&typeof profile.fffProfile.officialName==='string'&&(!profile.fffProfile.sourceURL||profile.fffProfile.officialName.trim().length>0)&&profile.fffProfile.officialName.length<=150;
 }
+function coachFFFIdentity(team){const p=team.fffProfile;return JSON.stringify([coachTeamNormalize(team.category),p.gender,p.number,p.format,p.season]);}
 function coachFFFSource(){return coachFFFProfileValid(activeCoachTeam)?activeCoachTeam.fffProfile.sourceURL:'';}
 function coachFFFCandidates(html,sourceURL,category){
  if(typeof html!=='string'||html.length>4000000)throw Error('Page FFF invalide.');
@@ -67,23 +68,27 @@ function coachFFFOpen({add=false}={}){
  const level=field('Championnat / niveau','text',previous?.level||'');level.placeholder='Ex. Départementale 1';
  const season=field('Saison','text',previous?.season||year+'-'+(year+1));season.pattern='[0-9]{4}-[0-9]{4}';
  const search=el('button','primary','Rechercher mon équipe sur la FFF');search.type='button';
- const status=el('p','hint');status.setAttribute('role','status');const results=el('div','coach-fff-results');
- const fallback=el('details'),summary=el('summary','','J’ai le lien officiel de mon équipe');fallback.append(summary);
+ const status=el('p','coach-fff-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');const results=el('div','coach-fff-results');
+ const fallback=el('details'),summary=el('summary','','Associer un lien FFF (facultatif)');fallback.append(summary);
  const urlLabel=el('label','','Lien de l’équipe FFF'),url=el('input');url.type='url';url.value=previous?.sourceURL||'';url.setAttribute('aria-label','Lien de l’équipe FFF');url.placeholder='https://epreuves.fff.fr/competition/club/…/equipe/…/saison';urlLabel.append(url);
  const nameLabel=el('label','','Nom exact de l’équipe sur la FFF'),officialName=el('input');officialName.maxLength=150;officialName.value=previous?.officialName||'';officialName.setAttribute('aria-label','Nom exact de l’équipe sur la FFF');nameLabel.append(officialName);
- fallback.append(urlLabel,nameLabel);
+ fallback.append(el('p','hint','La liaison FFF est facultative pour enregistrer votre équipe. Vous pourrez l’ajouter ensuite depuis « Mon équipe FFF ».'),urlLabel,nameLabel);
  const save=el('button','primary','Confirmer et ouvrir mon équipe');save.type='submit';
  const queue=el('section','coach-fff-queue');queue.setAttribute('aria-label','Équipes à enregistrer');
  const another=el('button','export','+ Ajouter une autre équipe');another.type='button';
  const footer=el('div','coach-fff-footer');footer.append(another,save);
- form.append(queue,search,status,results,fallback,footer);panel.append(form);document.body.append(panel);category.focus();
- let chosen=null,run=0,pending=[],selectedId='',canEditActive=!add;
+ form.append(queue,search,results,fallback,status,footer);panel.append(form);document.body.append(panel);category.focus();
+ let chosen=null,run=0,pending=[],selectedId='',canEditActive=!add,draftId='team-'+crypto.randomUUID();
  const context=()=>JSON.stringify([category.value,gender.value,number.value,format.value,level.value,season.value]);
  const isOwner=()=>clubNetworkBound()&&clubNetworkSession.user.id===userId&&trainingAgendaIdentity()===owner;
+ const checkOwner=()=>{if(isOwner())return true;status.textContent='La connexion ou l’équipe active a changé. Fermez ce panneau puis reconnectez-vous.';return false;};
+ function checkFields(){const invalid=[...grid.querySelectorAll('input,select')].find(control=>!control.checkValidity());if(invalid){status.textContent='Vérifiez le champ « '+invalid.getAttribute('aria-label')+' » : '+invalid.validationMessage;invalid.setAttribute('aria-invalid','true');panel.querySelector('.coach-fff-field-error')?.remove();const detail=el('small','coach-fff-field-error',invalid.validationMessage);detail.id='coach-fff-field-error';invalid.parentElement.append(detail);invalid.setAttribute('aria-describedby',detail.id);invalid.focus();return false;}return true;}
+ form.addEventListener('input',event=>{event.target.removeAttribute('aria-invalid');event.target.removeAttribute('aria-describedby');event.target.parentElement?.querySelector('.coach-fff-field-error')?.remove();});
+ form.addEventListener('invalid',event=>{status.textContent='Vérifiez le champ « '+(event.target.getAttribute('aria-label')||'à compléter')+' » : '+event.target.validationMessage;},true);
  for(const input of [category,gender,number,format,level,season])input.addEventListener('input',()=>{run++;chosen=null;url.value='';officialName.value='';results.replaceChildren();});
  url.oninput=()=>{chosen=null;};officialName.oninput=()=>{chosen=null;};
  search.onclick=async()=>{
-  if(!form.reportValidity())return;
+  if(!checkOwner()||!checkFields())return;
   const currentRun=++run,signature=context();chosen=null;results.replaceChildren();search.disabled=true;status.textContent='Recherche dans les équipes officielles du Stade Mayennais…';
   const clubURL=agendaFFFDefault.split('/equipe/')[0];
   try{
@@ -98,15 +103,16 @@ function coachFFFOpen({add=false}={}){
   finally{search.disabled=false;}
  };
  function entryFromForm(){
-  if(!form.reportValidity())return null;
-  const sourceURL=agendaFFFURL(chosen?.url||url.value),name=(chosen?.label||officialName.value).trim();
-  if(!sourceURL||!name){status.textContent='Sélectionnez votre équipe trouvée sur la FFF ou renseignez son lien officiel et son nom exact.';fallback.open=true;return null;}
+  if(!checkFields())return null;
+  const rawURL=chosen?.url||url.value.trim(),sourceURL=rawURL?agendaFFFURL(rawURL):'',name=(chosen?.label||officialName.value).trim();
+  if(rawURL&&!sourceURL){status.textContent='Le lien FFF n’est pas un lien d’équipe valide. Corrigez-le ou effacez-le pour enregistrer l’équipe sans liaison FFF.';fallback.open=true;url.focus();return null;}
+  if(sourceURL&&!name){status.textContent='Indiquez le nom exact de l’équipe sur la FFF, ou effacez le lien pour l’associer plus tard.';fallback.open=true;officialName.focus();return null;}
   const [start,end]=season.value.split('-').map(Number);if(end!==start+1){status.textContent='La saison doit couvrir deux années consécutives.';return null;}
   const sameIdentity=!previous||(previous.number===Number(number.value)&&previous.gender===gender.value&&previous.format===format.value);
   const existing=canEditActive&&sameIdentity&&activeCoachTeam.id!=='unassigned'&&coachTeamNormalize(category.value)===coachTeamNormalize(activeCoachTeam.category)?activeCoachTeam:null;
-  const entry={id:existing?.id||'team-'+crypto.randomUUID(),label:(category.value+(gender.value==='Féminin'?' Féminines':gender.value==='Mixte'?' Mixte':'')+(format.value==='Futsal'?' Futsal':'')+(Number(number.value)>1?' · Équipe '+number.value:'')).slice(0,60),category:category.value,team:club.value,fffProfile:{version:1,gender:gender.value,number:Number(number.value),format:format.value,level:level.value.trim(),season:season.value,officialName:name,sourceURL}};
+  const entry={id:existing?.id||draftId,label:(category.value+(gender.value==='Féminin'?' Féminines':gender.value==='Mixte'?' Mixte':'')+(format.value==='Futsal'?' Futsal':'')+(Number(number.value)>1?' · Équipe '+number.value:'')).slice(0,60),category:category.value,team:club.value,fffProfile:{version:1,gender:gender.value,number:Number(number.value),format:format.value,level:level.value.trim(),season:season.value,officialName:name,sourceURL}};
   if(!coachFFFProfileValid(entry)){status.textContent='Vérifiez les informations de cette équipe.';return null;}
-  if(pending.some(p=>p.id===entry.id||p.fffProfile.sourceURL===sourceURL&&p.fffProfile.season===season.value)){status.textContent='Cette équipe figure déjà dans votre sélection.';return null;}
+  if(pending.some(p=>p.id===entry.id||coachFFFIdentity(p)===coachFFFIdentity(entry)||sourceURL&&p.fffProfile.sourceURL===sourceURL&&p.fffProfile.season===season.value)){status.textContent='Cette équipe figure déjà dans votre sélection.';return null;}
   return entry;
  }
  function renderQueue(){
@@ -115,38 +121,38 @@ function coachFFFOpen({add=false}={}){
   queue.append(el('h2','','Mes équipes · '+pending.length),el('p','hint','Choisissez l’équipe à ouvrir après l’enregistrement.'));
   for(const entry of pending){
    const row=el('div','coach-fff-queued-team'),label=el('label'),radio=el('input');radio.type='radio';radio.name='coach-fff-primary';radio.value=entry.id;radio.checked=entry.id===selectedId;radio.onchange=()=>{selectedId=entry.id;};
-   label.append(radio,el('strong','',entry.label),el('span','',entry.fffProfile.level+' · '+entry.fffProfile.officialName));
+   label.append(radio,el('strong','',entry.label),el('span','',entry.fffProfile.level+' · '+(entry.fffProfile.officialName||'Liaison FFF à compléter')));
    const remove=el('button','export','Retirer');remove.type='button';remove.setAttribute('aria-label','Retirer '+entry.label+' de la sélection');remove.onclick=()=>{pending=pending.filter(p=>p.id!==entry.id);if(selectedId===entry.id)selectedId=pending[0]?.id||'';renderQueue();};row.append(label,remove);queue.append(row);
   }
   save.textContent='Enregistrer mes équipes et continuer';
  }
  function clearEntry(){
-  run++;chosen=null;canEditActive=false;category.value='';number.value='1';level.value='';url.value='';officialName.value='';results.replaceChildren();fallback.open=false;category.focus();
+  run++;chosen=null;canEditActive=false;draftId='team-'+crypto.randomUUID();category.value='';number.value='1';level.value='';url.value='';officialName.value='';results.replaceChildren();fallback.open=false;category.focus();
  }
  another.onclick=()=>{
-  if(!isOwner())return;
+  if(!checkOwner())return;
   const entry=entryFromForm();if(!entry)return;
   pending.push(entry);if(!selectedId)selectedId=entry.id;renderQueue();clearEntry();status.textContent='Équipe ajoutée à votre sélection. Renseignez la suivante ou enregistrez vos équipes.';
  };
  renderQueue();
  form.onsubmit=async event=>{
-  event.preventDefault();if(!isOwner())return;
+  event.preventDefault();if(!checkOwner())return;
   let entries=[...pending];
   // The blank form after adding an entry does not block completing the batch.
   if(category.value||level.value||url.value||officialName.value||!entries.length){const entry=entryFromForm();if(!entry)return;entries.push(entry);}
-  if(!flushCoachWorkspace()){status.textContent='Enregistrez votre travail actuel avant de changer d’équipe.';return;}
+  try{if(!flushCoachWorkspace()){status.textContent='La sauvegarde du travail ouvert bloque le changement d’équipe. Fermez ce panneau et vérifiez les champs de la séance ou du bilan.';return;}}catch{status.textContent='Le travail ouvert n’a pas pu être sauvegardé. Vérifiez le stockage et réessayez.';return;}
   const activeId=selectedId||entries[0].id;
   for(const control of form.querySelectorAll('input,select,button'))control.disabled=true;
   status.textContent='Enregistrement de vos équipes dans votre compte…';
   try{
-   const user=await clubNetworkRequest('/auth/v1/user');if(!isOwner())return;
+   const user=await clubNetworkRequest('/auth/v1/user');if(!checkOwner()){for(const control of form.querySelectorAll('input,select,button'))control.disabled=false;return;}
    const saved=Array.isArray(user.user_metadata?.[coachFFFMetadataKey])?user.user_metadata[coachFFFMetadataKey].filter(coachFFFProfileValid):[];
-   for(const entry of entries)if(saved.some(p=>p.id!==entry.id&&p.fffProfile.sourceURL===entry.fffProfile.sourceURL&&p.fffProfile.season===entry.fffProfile.season))throw Error('Cette équipe FFF est déjà enregistrée dans votre compte.');
+   for(const entry of entries)if(saved.some(p=>p.id!==entry.id&&(coachFFFIdentity(p)===coachFFFIdentity(entry)||entry.fffProfile.sourceURL&&p.fffProfile.sourceURL===entry.fffProfile.sourceURL&&p.fffProfile.season===entry.fffProfile.season)))throw Error('Cette équipe FFF est déjà enregistrée dans votre compte.');
    const ids=new Set(entries.map(p=>p.id)),profiles=[...saved.filter(p=>!ids.has(p.id)),...entries];if(profiles.length>100)throw Error('100 équipes maximum.');
    await clubNetworkRequest('/auth/v1/user',{method:'PUT',body:{data:{[coachFFFMetadataKey]:profiles,stade_active_team_v1:activeId}}});
-   if(!isOwner())return;
+   if(!checkOwner()){for(const control of form.querySelectorAll('input,select,button'))control.disabled=false;return;}
    coachFFFApplyProfiles(profiles);sessionStorage.setItem(coachTeamSelectionKey,activeId);location.reload();
-  }catch(error){status.textContent=error.message?.startsWith('Cette équipe')?error.message:'Équipes non enregistrées. Vérifiez la connexion puis réessayez.';for(const control of form.querySelectorAll('input,select,button'))control.disabled=false;}
+  }catch(error){status.textContent=error.message?.startsWith('Cette équipe')?error.message:error.status?'Équipes non enregistrées · HTTP '+error.status+(error.code?' · '+error.code:'')+' : '+clubNetworkMessage(error):['QuotaExceededError','SecurityError'].includes(error.name)?'Équipes sauvegardées dans le compte, mais stockage de cet appareil indisponible. Libérez de l’espace puis rechargez.':'Équipes non enregistrées. Vérifiez la connexion puis réessayez.';for(const control of form.querySelectorAll('input,select,button'))control.disabled=false;}
  };
 }
 document.addEventListener('DOMContentLoaded',()=>{
