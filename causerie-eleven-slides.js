@@ -147,9 +147,9 @@
       slides.push(slide);
       slide.background = { color: dark ? BLUE : WHITE };
       // Shared club signature: royal blue covers, light editorial headers,
-      // and a restrained blue / white / red ribbon on every slide.
+      // with a clean lower edge and no repeated footer.
       if (dark) {
-        rect(slide, 0, 0, 0.14, 6.82, WHITE);
+        rect(slide, 0, 0, 0.14, 7.5, WHITE);
       } else {
         rect(slide, 0, 0, 13.333333, 1.6, "F2F6FB");
         rect(slide, 0, 0, 13.333333, 0.055, accent);
@@ -163,8 +163,8 @@
           h: 7.5,
           objectName: "club-photo-" + n,
         });
-        rect(slide, 8.76, 0, 0.06, 6.82, WHITE);
-        rect(slide, 8.82, 0, 0.08, 6.82, RED);
+        rect(slide, 8.76, 0, 0.06, 7.5, WHITE);
+        rect(slide, 8.82, 0, 0.08, 7.5, RED);
       }
       if (photo && photos[n])
         slide.addImage({
@@ -175,7 +175,6 @@
           h: 4.91,
           objectName: "personal-photo-" + n,
         });
-      if (dark) rect(slide, 0, 6.82, 13.333333, 0.68, NAVY);
       rect(slide, 0.65, 0.46, 0.08, 0.27, accent);
       text(slide, kicker, 0.86, 0.48, 10, 0.23, 10, {
         bold: true,
@@ -200,28 +199,6 @@
         h: 0.82,
         objectName: "club-logo-slide-" + n,
       });
-      line(slide, 0.65, 6.95, 12.03, dark ? "38506A" : "DCE5EF");
-      for (const [i, color] of [BLUE, WHITE, RED].entries())
-        slide.addShape(S.rect, {
-          x: 0.65 + i * 0.35, y: 6.93, w: 0.35, h: 0.055,
-          line: { transparency: 100 }, fill: { color },
-          objectName: "club-ribbon-" + n + "-" + i,
-        });
-      text(slide, "STADE MAYENNAIS  /  CAUSERIE", 0.65, 7.09, 7, 0.18, 8, {
-        bold: true,
-        charSpacing: 1.2,
-        color: dark ? "DAE5F2" : BLUE,
-      });
-      text(
-        slide,
-        String(n).padStart(2, "0") + " / 11",
-        11.5,
-        7.08,
-        1.18,
-        0.2,
-        9,
-        { align: "right", bold: true, color: dark ? WHITE : MUTED },
-      );
       return slide;
     }
     function notes(slide, values) {
@@ -324,7 +301,7 @@
     const pitch = await pitchImage(
       { ...board, benchVisible: true, lanes: false },
       true,
-      { nameScale: 1.8 },
+      { nameScale: 1.65, nameWeight: "normal" },
     );
     slide.addImage({
       data: pitch.data,
@@ -509,8 +486,7 @@
         charSpacing: 1,
         margin: [0, 0.12, 0, 0.12],
       });
-      const body = p[phase.field] || "",
-        leftPhoto = photos[phase.slide] && choices.length;
+      const body = p[phase.field] || "";
       const singleExercise =
         choices.length === 1 && choices[0].exercise?.custom.board
           ? choices[0].exercise.custom
@@ -533,40 +509,22 @@
           0.86,
           4.3,
           2.75,
-          leftPhoto ? 0.85 : 2.2,
-          { count: leftPhoto ? 1 : 2, chars: 65, size: 17, accent },
+          2.2,
+          { count: 2, chars: 65, size: 17, accent },
         );
       } else
-        bullets(slide, body, 0.86, 2.4, 2.75, leftPhoto ? 2.55 : 4.05, {
-          count: leftPhoto ? 2 : 3,
+        bullets(slide, body, 0.86, 2.4, 2.75, 4.05, {
+          count: 3,
           chars: 72,
           size: 19,
           accent,
         });
-      if (leftPhoto)
-        slide.addImage({
-          data: photos[phase.slide].landscape,
-          x: 0.92,
-          y: 5.25,
-          w: 2.4,
-          h: 1.3,
-        });
       const stage = { x: 4.05, y: 1.8, w: 8.63, h: 4.96 };
       if (!choices.length) {
-        if (photos[phase.slide])
-          slide.addImage({
-            data: photos[phase.slide].landscape,
-            x: 4.1,
-            y: 2.05,
-            w: 8.4,
-            h: 4.55,
-          });
-        else {
-          rect(slide, 4.05, 1.8, 8.63, 4.96, "F3F6FA");
-          heading(slide, kickers[key], 4.65, 3.25, 7.4, 1.05, 30, {
-            color: accent,
-          });
-        }
+        rect(slide, 4.05, 1.8, 8.63, 4.96, "F3F6FA");
+        heading(slide, kickers[key], 4.65, 3.25, 7.4, 1.05, 30, {
+          color: accent,
+        });
       } else {
         const cols = choices.length === 1 ? 1 : 2,
           rows = Math.ceil(choices.length / cols),
@@ -718,7 +676,7 @@
     build,
     fields,
     phases,
-    templateVersion: "club-premium-269",
+    templateVersion: "club-premium-270",
     theme: {
       navy: NAVY,
       blue: BLUE,

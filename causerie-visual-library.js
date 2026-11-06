@@ -83,7 +83,7 @@
     });
   }
   function assign(items) {
-    const choices = { 1: club[0].id, 11: "club:cercle-equipe" },
+    const choices = { 1: club[0].id, 3: "club:echange-joueurs", 11: "club:cercle-equipe" },
       slots = [1, 11, 3, 4, 5, 10, 2, 6, 7, 8, 9],
       used = new Set();
     for (const item of items.filter((i) => i.role !== "auto")) {

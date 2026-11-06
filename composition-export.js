@@ -35,7 +35,7 @@ function compositionPitch(ctx,rect,landscape,snapshot,images,options){
  if(options.bench)snapshot.players.filter(p=>p.role==='sub').forEach((p,i)=>players.push({...p,x:p.benchX??92-Math.floor(i/7)*11,y:p.benchY??20+(i%7)*10,name:'I/F · '+p.name}));
  players.forEach(p=>{const [px,py]=xy(p.x,p.y),r=p.role==='sub'?radius*.75:radius;compositionPortrait(ctx,minimal?{...p,photo:''}:p,px,py,r,images,snapshot.color);
  if(minimal)return;
- ctx.font='bold '+Math.round(r*.45*(options.nameScale||1))+'px Arial';ctx.textAlign='center';ctx.textBaseline='middle';const name=compositionFit(ctx,p.name,w*.22),tw=ctx.measureText(name).width,height=r*.67*(options.nameScale||1);
+ ctx.font=(options.nameWeight==='normal'?'normal ':'bold ')+Math.round(r*.45*(options.nameScale||1))+'px Arial';ctx.textAlign='center';ctx.textBaseline='middle';const name=compositionFit(ctx,p.name,w*.22),tw=ctx.measureText(name).width,height=r*.67*(options.nameScale||1);
  const left=Math.max(x+6,Math.min(x+w-tw-34,px-tw/2-14)),top=Math.min(y+h-height-6,py+r+10);
  ctx.fillStyle='#102b20';ctx.fillRect(left,top,tw+28,height);ctx.fillStyle='#fff';ctx.fillText(name,left+(tw+28)/2,top+height/2);
  });

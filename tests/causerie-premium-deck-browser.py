@@ -14,7 +14,7 @@ with sync_playwright() as p:
  const objects=[object('a','blue',25,40,'#0055a5'),object('b','blue',55,65,'#0055a5'),object('c','red',50,45,'#e31b23'),object('ball','ball',30,45,'#ffffff'),object('cone','cone',75,30,'#f59e0b')];
  const exercise={id:'demo-exercise',title:'Fixer pour sortir de la pression',custom:{title:'Fixer pour sortir de la pression',goal:'Trouver un partenaire libre après fixation',organisation:'Deux équipes et un appui. Zone de 40 × 32 mètres.',instructions:'Attirer un adversaire avant de transmettre. Changer le rythme à la passe vers l’avant. FIN-INTÉGRALE-EXERCICE',material:'Ballons, chasubles, coupelles',success:'Le joueur libre reçoit orienté.',kind:'possession',width:40,length:32,board:{version:1,lines:true,seconds:1,frames:[{objects},{objects:objects.map(o=>({...o,x:Math.min(90,o.x+12)}))}]}}};
  board.causerieSlideAnimations={defensive:[sequence('def-a','Coulisser et protéger l’axe')],offensive:[],offDef:[sequence('loss','Freiner pour reformer le bloc')],defOff:[sequence('win','Trouver la première passe') ]};board.causerieSlideExercises={defensive:[],offensive:[exercise],offDef:[],defOff:[]};
- window.premiumSnapshot={board,linked:null,demonstrations:{sequences:[],media:[]},photos:{choices:{1:'club:celebration-equipe',3:'club:groupe-piste',6:'club:action-ballon',11:'club:cercle-equipe'},items:[]},landscape:true};window.premiumSourceBefore=JSON.stringify(premiumSnapshot);
+ window.premiumSnapshot={board,linked:null,demonstrations:{sequences:[],media:[]},photos:{choices:{1:'club:celebration-equipe',3:'club:echange-joueurs',6:'club:action-ballon',11:'club:cercle-equipe'},items:[]},landscape:true};window.premiumSourceBefore=JSON.stringify(premiumSnapshot);
  }''')
  for variant in ['native','gif']:
   page.evaluate('(variant)=>premiumSnapshot.board.causerieAnimationVariant=variant',variant)
@@ -37,7 +37,9 @@ with sync_playwright() as p:
      assert int(off.get('y'))+int(ext.get('cy'))<=6858100,(i,off.attrib,ext.attrib)
    for i in range(1,12):
     root=ET.fromstring(z.read(f'ppt/slides/slide{i}.xml'))
-    assert len([n for n in root.findall('.//p:cNvPr',NS) if n.get('name','').startswith(f'club-ribbon-{i}-')])==3
+    assert not any(n.get('name','').startswith('club-ribbon-') for n in root.findall('.//p:cNvPr',NS))
+    assert 'STADE MAYENNAIS  /  CAUSERIE' not in ''.join(root.itertext())
+    if i==6:assert len(root.findall('.//p:pic',NS))==(1 if variant=='native' else 2), 'Only logo and tactical media, no decorative photo'
     if i in (1,11):assert root.find('p:cSld/p:bg/p:bgPr/a:solidFill/a:srgbClr',NS).get('val')=='0055A5'
    contents=''.join(z.read(s).decode() for s in slides)
    for color in ['0B192C','E31B23','0055A5','B45309','247342']:assert color in contents,color

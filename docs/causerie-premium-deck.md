@@ -7,8 +7,8 @@ Le modèle est construit dans `causerie-eleven-slides.js` et partagé par les ch
 - Marine `#0b192c`, blanc, accent rouge `#e31b23` ; bleu `#0055a5` pour la possession, orange `#b45309` à la perte et vert `#247342` à la récupération.
 - Logo propre `assets/causerie-logo.jpeg`, transformé en PNG circulaire et placé à la même position sur les onze slides. Cet asset évite le pictogramme parasite présent sur une autre ancienne image du logo.
 - Titres Montserrat gras italique, textes Arial. Titres de 30 pt, ouverture et conclusion jusqu’à 38 pt, chiffres des trois priorités à 40 pt, consignes généralement de 19 à 21 pt. Libellés et dimensions sont secondaires.
-- Ouverture et conclusion en bleu club `#0055a5`, signature marine en pied, séparation blanc/rouge avec la photo. Pages de travail blanches avec un en-tête bleu très clair, titres bleus, bandeaux thématiques et ruban bleu/blanc/rouge discret. Les photos restent dans les emplacements réservés sans recouvrir les consignes.
-- Alignement régulier : marge gauche de 0,65 pouce, en-tête hors de la zone de travail, logo en haut à droite, pied de page sous 6,95 pouces.
+- Ouverture et conclusion en bleu club `#0055a5`, séparation blanc/rouge avec la photo. Pages de travail blanches avec un en-tête bleu très clair, titres bleus, bandeaux thématiques. Les photos restent dans les emplacements réservés sans recouvrir les consignes.
+- Alignement régulier : marge gauche de 0,65 pouce, en-tête hors de la zone de travail, logo en haut à droite, sans bandeau ni signature répétés en bas.
 
 Les déclarations de polices sont enregistrées dans le PPTX. Les polices ne sont pas intégrées au fichier ; le lecteur doit disposer de Montserrat ou utiliser sa substitution. Arial reste le corps de texte courant. Canva connaît ces familles, mais l’import et la lecture dans un vrai compte restent dépendants du service.
 
@@ -49,11 +49,11 @@ Les champs non renseignés ne déclenchent pas de slogans ni de paragraphes fict
 - **PowerPoint** : garde le format d’animation choisi, natif ou GIF.
 - **Création dans Canva** : utilise une copie de l’instantané avec animations GIF. Cela ne change ni la causerie ni la préférence PowerPoint du coach. Le même modèle de onze slides est transmis au service configuré.
 
-`causerieEleven.theme` expose la charte, et `causerieEleven.templateVersion` vaut `club-premium-269`.
+`causerieEleven.theme` expose la charte, et `causerieEleven.templateVersion` vaut `club-premium-270`.
 
 ## Vérification et aperçus
 
-- `tests/causerie-premium-deck-browser.py` : fichiers PPTX natif et GIF réels, 11 logos, palette, deux familles de polices, positions dans la slide, intégralité des notes longues, règles/dimensions d’exercice, timing natif, limite de situations et absence de mutation de la source.
+- `tests/causerie-premium-deck-browser.py` : fichiers PPTX natif et GIF réels, 11 logos, absence de pied de page et de photos décoratives sur les animations, palette, deux familles de polices, positions dans la slide, intégralité des notes longues, règles/dimensions d’exercice, timing natif, limite de situations et absence de mutation de la source.
 - `tests/causerie-premium-canva-browser.py` : import via service entièrement simulé, même charte et 11 slides, GIF sans trajectoires réservées à PowerPoint, préférence native inchangée. Aucun document ni identifiant réel n’est transmis à Canva.
 - Tests existants : `causerie-eleven-slides-browser.py`, `causerie-club-situations-browser.py`, `causerie-export-photos-browser.py`.
 
@@ -64,3 +64,7 @@ python3 scripts/preview-causerie-pptx.py /tmp/causerie-premium-native.pptx /tmp/
 ```
 
 Le script rend la géométrie du XML du PPTX avec Pillow, les images et les premiers états des animations. Cet aperçu est un contrôle statique approximatif, pas le moteur de rendu PowerPoint ni une preuve de lecture des animations dans Canva. Les trajectoires sont vérifiées séparément dans le XML des fichiers réels.
+
+## Ajustements visuels 270
+
+Les onze slides ne portent plus de bandeau inférieur, de signature répétée ni de compteur. La composition utilise des noms Arial en graisse normale et une taille légèrement réduite, sans changer les joueurs ni les positions. Le contexte utilise par défaut la photo « Échange entre joueurs » ; les photos personnelles affectées au contexte restent prioritaires. Les slides 6 à 9 affichent uniquement les consignes et les schémas/animations sélectionnés, sans photo décorative, pour conserver toute la place aux situations tactiques.
