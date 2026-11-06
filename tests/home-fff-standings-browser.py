@@ -23,5 +23,18 @@ with sync_playwright() as p:
  assert '2–1' in page.locator('.home-live-form').inner_text()
  for width in [390,320]:
   page.set_viewport_size({'width':width,'height':1000});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
+ # Automatic login refresh uses the authenticated relay and preserves last good data.
+ page.evaluate("""()=>{window.fffCalls=0;window.fffResponseHTML='<table><tr><th>Rg</th><th>Equipe</th><th>Pts</th></tr><tr><td>1</td><td>Club automatique</td><td>17</td></tr></table>';clubNetworkBound=()=>true;clubNetworkRequest=async(path,options)=>{window.fffCalls++;window.fffPath=path;await new Promise(r=>setTimeout(r,50));return {sourceURL:options.body.sourceURL,html:fffResponseHTML,fetchedAt:'2026-11-06T12:00:00.000Z'}};document.dispatchEvent(new Event('club-session-ready'));homeFFFRefresh()}""")
+ page.wait_for_function('homeFFFRead()?.acquisition==="automatic"')
+ assert page.evaluate('fffCalls')==1
+ assert page.evaluate('fffPath')=='/functions/v1/fff-standings'
+ assert page.evaluate('homeFFFRead().rows[0].points')==17
+ assert 'FFF vérifiée le' in page.locator('.home-fff-ranking').inner_text()
+ page.evaluate("""async()=>{window.fffGood=coachStorageGet(homeFFFKey);clubNetworkRequest=async()=>{throw Error('503')};await homeFFFRefresh()}""")
+ assert page.evaluate('coachStorageGet(homeFFFKey)===fffGood')
+ assert 'dernier classement conservé' in page.locator('.home-fff-ranking').inner_text()
+ # A JS-only/unrecognised upstream page must never replace official points.
+ page.evaluate("""async()=>{clubNetworkRequest=async(p,o)=>({sourceURL:o.body.sourceURL,html:'<main>Loading</main>',fetchedAt:new Date().toISOString()});await homeFFFRefresh()}""")
+ assert page.evaluate('coachStorageGet(homeFFFKey)===fffGood')
  assert not errors,errors;b.close()
 print('PASS: explicit FFF source, official points preserved, goals/difference table, stable import typing, history, scoped storage and mobile')

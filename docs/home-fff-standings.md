@@ -13,3 +13,21 @@ Les confrontations affichent soit les matchs du jeu de données FFF importé, so
 JSON : `{ "rows": [{ "rank": 1, "name": "Nom officiel", "points": 0, "played": 0, "wins": 0, "draws": 0, "losses": 0, "goalsFor": 0, "goalsAgainst": 0, "goalDifference": 0, "logo": "https://cdn.fff.fr/..." }], "matches": [{ "date": "2026-01-01", "home": "Équipe A", "away": "Équipe B", "goalsHome": 0, "goalsAway": 0 }] }`. Les exemples ne sont jamais chargés dans l’application comme résultats réels.
 
 Vérification : `tests/home-fff-standings-browser.py` utilise uniquement des tableaux fictifs, vérifie les points conservés, les écarts de buts, la stabilité de la saisie, le cloisonnement et le mobile.
+
+## Actualisation à chaque connexion (version 280)
+
+L'événement authentifié `club-session-ready` déclenche une requête sans cache vers `/functions/v1/fff-standings`. Les appels simultanés sont regroupés. La réponse est validée par le même parseur que l'import : une page vide, une page rendue uniquement en JavaScript ou une erreur FFF ne remplace jamais le dernier classement. La date « FFF vérifiée le » n'apparaît qu'après lecture et validation d'un tableau réel. Un changement d'équipe/compte ou un import manuel intervenu pendant la requête empêche son écriture tardive.
+
+### Installation nécessaire côté Supabase
+
+Le frontend seul sur GitHub Pages ne peut pas garantir l'accès interdomaines à la FFF. Déployer le relais fourni :
+
+```sh
+supabase login
+supabase link --project-ref uesbqljrcaugwcbzijcj
+supabase functions deploy fff-standings --no-verify-jwt
+```
+
+`--no-verify-jwt` désactive seulement la validation JWT de la passerelle : la fonction vérifie elle-même chaque Bearer auprès de `/auth/v1/user` pour supporter les clés publiables actuelles. Aucune clé secrète n'est exposée au navigateur. Les variables SUPABASE_URL et SUPABASE_ANON_KEY sont fournies par les Edge Functions. Seules les pages HTTPS de compétition de `epreuves.fff.fr` sont acceptées ; pas de redirection, de credentials FFF transmis ni d'URL arbitraire. Réponse non mise en cache, lecture plafonnée à 4 Mo et délai limité.
+
+Ce déploiement n'a pas été réalisé dans l'environnement de développement (pas de CLI/session administrateur Supabase disponible). L'accès FFF y reste bloqué en 403. Il faut donc encore vérifier une page officielle depuis le relais déployé ; si la FFF ne renvoie qu'une coque JavaScript, il faudra connecter son endpoint de classement officiel identifié, et non annoncer une actualisation réussie. Les tests navigateur simulent une réponse de relais ; ils ne prouvent pas un accès FFF réel.

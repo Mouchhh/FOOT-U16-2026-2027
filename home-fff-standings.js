@@ -90,9 +90,9 @@ function renderHomeFFF(snapshot) {
     for(const item of data.rows){const tr=el('tr');if(homeFFFNormalize(item.name)===own)tr.classList.add('home-fff-own');tr.append(el('td','',item.rank));const name=el('td','home-fff-club'),fallback=el('span','home-fff-logo',item.name.split(/\s+/).slice(0,2).map(s=>s[0]).join('').toUpperCase());
       if(item.logo||homeFFFNormalize(item.name)===own){const image=el('img');image.src=item.logo||'assets/causerie-logo.jpeg';image.alt='Écusson de '+item.name;image.loading='lazy';image.referrerPolicy='no-referrer';image.onerror=()=>{image.remove();fallback.hidden=false;};fallback.hidden=true;name.append(image);}name.append(fallback,document.createTextNode(item.name));tr.append(name);
       for(const key of ['points','played','wins','draws','losses','goalsFor','goalsAgainst','goalDifference'])tr.append(el('td','',item[key]===null?'—':key==='goalDifference'&&item[key]>0?'+'+item[key]:item[key]));body.append(tr);
-    }table.append(body);scroll.append(table);card.append(scroll,el('p','home-live-caption','Données FFF importées le '+new Date(data.importedAt).toLocaleDateString('fr-FR')+' · les points officiels sont conservés.'));
+    }table.append(body);scroll.append(table);card.append(scroll,el('p','home-live-caption',(data.acquisition==='automatic'?'FFF vérifiée le ':'Données FFF importées le ')+new Date(data.importedAt).toLocaleString('fr-FR')+' · les points officiels sont conservés.'));
   }else card.append(el('p','home-live-caption','Classement officiel à importer. Aucune position ni différence de buts estimée à partir de résultats incomplets.'));
-  card.append(actions);root.prepend(card);
+  const refreshStatus=homeFFFRefreshStatus.get(trainingAgendaIdentity());if(refreshStatus){const message=el('p','home-live-caption',refreshStatus);message.setAttribute('role','status');card.append(message);}card.append(actions);root.prepend(card);
   const opponent=homeFFFOpponent(snapshot?.match),form=root.querySelector('.home-live-form');
   if(form){form.append(el('h3','','Face à '+(opponent||'l’adversaire à venir')));const history=homeFFFHistory(opponent,data);
     if(history.length)for(const match of history)form.append(el('p','home-live-caption',match.date.split('-').reverse().join('/')+' · '+match.home+' '+match.goalsHome+'–'+match.goalsAway+' '+match.away+' · '+match.source));
@@ -103,3 +103,29 @@ document.addEventListener('DOMContentLoaded',()=>{
   const render=renderHomeWidgets;renderHomeWidgets=function(){const snapshot=render();renderHomeFFF(snapshot);return snapshot;};
   if(document.body.classList.contains('home-mode'))renderHomeWidgets();
 });
+
+// One request per login/context; refreshes never overwrite another coach/team.
+const homeFFFRefreshes=new Map(),homeFFFRefreshStatus=new Map();
+async function homeFFFRefresh(){
+ if(typeof clubNetworkBound!=='function'||!clubNetworkBound())return;
+ const owner=trainingAgendaIdentity(),current=homeFFFRead(),sourceURL=current?.sourceURL||homeFFFDefaultURL();
+ if(!sourceURL)return;
+ if(homeFFFRefreshes.has(owner))return homeFFFRefreshes.get(owner);
+ const initial=coachStorageGet(homeFFFKey);
+ const task=(async()=>{
+  homeFFFRefreshStatus.set(owner,'Actualisation FFF en cours…');renderHomeWidgets();
+  try{
+   const response=await clubNetworkRequest('/functions/v1/fff-standings',{method:'POST',body:{sourceURL}});
+   if(owner!==trainingAgendaIdentity()||!clubNetworkBound())return;
+   if(response?.sourceURL!==sourceURL||typeof response.html!=='string'||!Number.isFinite(Date.parse(response.fetchedAt)))throw Error('Invalid response');
+   const data=homeFFFParse(response.html,{sourceURL,teamName:current?.teamName||agendaClubSchedule()?.team||activeCoachTeam.team||'',competition:current?.competition||homeFFFCompetition()});
+   // A manual import made while the request was pending takes precedence.
+   if(coachStorageGet(homeFFFKey)!==initial)return;
+   data.fetchedAt=response.fetchedAt;data.importedAt=response.fetchedAt;data.acquisition='automatic';
+   coachStorageSet(homeFFFKey,JSON.stringify(data));homeFFFRefreshStatus.set(owner,'Classement FFF actualisé.');
+  }catch{if(owner===trainingAgendaIdentity())homeFFFRefreshStatus.set(owner,'Actualisation FFF indisponible · dernier classement conservé.');}
+  finally{homeFFFRefreshes.delete(owner);if(owner===trainingAgendaIdentity())renderHomeWidgets();}
+ })();
+ homeFFFRefreshes.set(owner,task);return task;
+}
+document.addEventListener('club-session-ready',()=>homeFFFRefresh());
