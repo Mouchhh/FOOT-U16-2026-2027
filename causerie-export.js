@@ -101,14 +101,14 @@
  }
  window.causerieExport={textPages,collect,capture,build};
  document.addEventListener('DOMContentLoaded',()=>{
-  let snapshot=null,busy=false,ownerAtOpen=null,connectionPoll=null,viewVersion=0;
+  let snapshot=null,busy=false,ownerAtOpen=null,connectionPoll=null,viewVersion=0,createAfterConnection=false;
   const configured=!!window.CLUB_CANVA_GATEWAY;
   let gateway=null;
   try{if(configured){const url=new URL(window.CLUB_CANVA_GATEWAY);if(url.protocol!=='https:'||url.username||url.password||url.pathname!=='/'||url.search||url.hash)throw Error();gateway=url.origin;}}catch{}
   const dialog=el('dialog','causerie-dialog');dialog.id='causerie-dialog';dialog.setAttribute('aria-labelledby','causerie-heading');
-  const heading=el('div','section-heading'),title=el('h2','','Préparer ma causerie pour Canva');title.id='causerie-heading';
+  const heading=el('div','section-heading'),title=el('h2','','Créer ma causerie dans Canva');title.id='causerie-heading';
   const close=el('button','icon-button','×');close.type='button';close.setAttribute('aria-label','Fermer la préparation Canva');heading.append(title,close);dialog.append(heading);
-  dialog.append(el('p','hint','La présentation comporte exactement 11 diapositives. Choisissez jusqu’à quatre situations par phase. La version PowerPoint conserve le format choisi ; la création dans Canva utilise des GIF pour les démonstrations. Les textes de projection restent modifiables, avec les versions complètes dans les notes du présentateur.'));
+  dialog.append(el('p','hint','La présentation comporte exactement 11 diapositives. Choisissez jusqu’à quatre situations par phase. La version PowerPoint conserve le format choisi ; la création dans Canva utilise des vidéos MP4 pour les démonstrations. Les textes de projection restent modifiables, avec les versions complètes dans les notes du présentateur.'));
   const summary=el('p','causerie-summary');dialog.append(summary);
   const label=el('label','causerie-option'),include=el('input');include.type='checkbox';include.id='causerie-linked';label.append(include,document.createTextNode('Inclure la vue épurée liée à cette composition'));dialog.append(label);
   const details=el('details'),count=el('summary'),inventory=el('ul');count.textContent='Vérifier les informations reprises';details.append(count,inventory);dialog.append(details);
@@ -168,7 +168,7 @@
   }
   async function checkConnection(checkJob=false){
    const value=await request('/api/status');
-   account.textContent=value.connected?'Votre compte Canva est connecté. Seul le clic « Créer dans mon Canva » envoie cette préparation à Canva.':'Votre compte Canva n’est pas connecté. Autorisez la connexion pour créer votre présentation directement dans votre compte.';
+   account.textContent=value.connected?'Votre compte Canva est connecté. Le clic de création envoie cette préparation à Canva.':'Votre compte Canva n’est pas connecté. Autorisez la connexion pour créer votre présentation directement dans votre compte.';
    upload.disabled=!value.connected||busy;disconnect.disabled=!value.connected||busy;connect.textContent=value.connected?'Reconnecter Canva':'Connecter Canva';
    if(checkJob&&value.latest_job_id){
     if(!/^[a-zA-Z0-9_-]{1,80}$/.test(value.latest_job_id))throw Error('Identifiant d’import invalide.');
@@ -211,7 +211,7 @@
     },2500);
    }catch(error){if(popup&&!popup.closed)popup.close();status.textContent=error.message;}
   }
-  connect.onclick=()=>startAuthorization();
+  connect.onclick=()=>startAuthorization(null,createAfterConnection?createPresentation:null);
   refreshConnection.onclick=()=>checkConnection(true).catch(error=>{status.textContent=error.message;});
   disconnect.onclick=async()=>{
    if(busy)return;stopConnectionPoll();lock(true);
@@ -256,7 +256,7 @@
   function open(check=true){
    if(busy)return null;
    if(!window.causerieLayout?.analyze){notify('Actualisez le site pour charger la présentation, puis réessayez.');return null;}
-   viewVersion++;
+   viewVersion++;createAfterConnection=false;
    stopConnectionPoll();results.replaceChildren();ownerAtOpen=currentUser();snapshot=capture();include.checked=window.causerieEleven?false:!!snapshot.linked;label.hidden=!!window.causerieEleven||!snapshot.linked;
    summary.textContent='Document ouvert : '+(snapshot.board.title||snapshot.board.team);
    status.textContent='Cette version reprend le document au moment de l’ouverture de cette fenêtre. Fermez et rouvrez après une modification.';
@@ -265,20 +265,29 @@
    return viewVersion;
   }
   let launching=false;
+  window.causerieExport.openPreparation=open;
   window.causerieExport.createAndOpen=async()=>{
    if(busy||launching)return;
-   const version=open(false);
-   if(version===null)return;
-   if(!gateway){status.textContent='La création directe dans votre Canva attend l’activation du service par le responsable du site. Vérifiez-la ici ; le bouton PowerPoint reste disponible directement dans votre causerie.';return;}
-   const popup=null;launching=true;
-   status.textContent='Connexion au service Canva… Son réveil peut prendre une minute avec l’offre gratuite.';
+   launching=true;
    try{
+    const version=open(false);
+    if(version===null)return;
+    if(!gateway){status.textContent='La création directe dans votre Canva attend l’activation du service par le responsable du site. Le téléchargement PowerPoint reste disponible.';return;}
+    status.textContent='Connexion au service Canva… Son réveil peut prendre une minute avec l’offre gratuite.';
     const connected=await checkConnection();
-    if(version!==viewVersion||!dialog.open){if(popup&&!popup.closed)popup.close();return;}
-    if(connected)await createPresentation(popup);else await startAuthorization(popup,createPresentation);
-   }
-   catch(error){if(popup&&!popup.closed)popup.close();status.textContent=error.message;}
-   finally{launching=false;}
+    if(version!==viewVersion||!dialog.open)return;
+    if(connected)await createPresentation();
+    else{
+     createAfterConnection=true;
+     status.textContent='Cliquez sur « Connecter Canva » pour autoriser votre compte. La création démarrera après votre autorisation.';
+     connect.focus();
+    }
+   }catch(error){
+    const message=error.message||'La création Canva n’a pas pu démarrer.';
+    status.textContent=message;
+    if($('causerie-ppt-status'))$('causerie-ppt-status').textContent='Canva : '+message;
+    if(!dialog.open)notify('Canva : '+message);
+   }finally{launching=false;}
   };
   include.onchange=refresh;close.onclick=()=>{if(!busy)dialog.close();};
   dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
@@ -301,7 +310,7 @@
   download.onclick=()=>window.causerieExport.downloadCurrent();
   for(const target of [document.querySelector('#match-plan-form .report-actions'),$('composition-export')?.parentElement]){
    if(!target)continue;
-   const button=el('button','export','Causerie · Canva');button.type='button';button.dataset.causerieExport='true';button.onclick=open;if(target.closest('#match-plan-form')){const row=el('div','causerie-direct-actions');row.setAttribute('role','group');row.setAttribute('aria-label','Exporter la causerie');row.append(button,download,pptStatus);target.append(row);}else target.append(button);
+   const button=el('button','export','Causerie · Canva');button.type='button';button.dataset.causerieExport='true';button.onclick=()=>window.causerieExport.createAndOpen();if(target.closest('#match-plan-form')){const row=el('div','causerie-direct-actions');row.setAttribute('role','group');row.setAttribute('aria-label','Exporter la causerie');row.append(button,download,pptStatus);target.append(row);}else target.append(button);
   }
   const lastPage=document.querySelector('#terrain-page-2 .terrain-team-section');
   if(lastPage){

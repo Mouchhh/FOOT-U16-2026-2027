@@ -70,3 +70,13 @@ essai du coach après publication reste nécessaire. Le réveil Render est gér�
 une reprise bornée des seules lectures de l’état de connexion ; les créations ne
 sont pas répétées automatiquement. Fermer la fenêtre pendant ce réveil annule
 l’intention de création, même si la réponse du serveur arrive plus tard.
+
+## Bouton de création dans la causerie (291)
+
+Le bouton visible « Créer / voir ma causerie dans Canva » conservait le handler de l'ancienne fenêtre de préparation. Il lance désormais `createAndOpen`, également utilisé par le raccourci personnel : l'état du compte est vérifié puis, s'il est connecté, le document courant est préparé et importé. Le lien d'édition renvoyé par Canva est proposé dans la fenêtre ; aucun onglet vide n'est ouvert pendant l'encodage.
+
+Si le compte n'est pas connecté, le formulaire affiche une invitation explicite à cliquer sur « Connecter Canva ». Ce clic réel réserve la fenêtre OAuth synchroniquement pour éviter les blocages de popup après une vérification réseau asynchrone. Après l'autorisation, l'import demandé est lancé. L'ancien bouton purement préparatoire conserve son ouverture sans import et le helper `openPreparation` permet de tester ce parcours séparément.
+
+Le lancement est protégé contre les clics répétés. Les erreurs qui surviennent avant l'ouverture de la fenêtre sont aussi affichées à côté des actions de la causerie et n'entraînent plus de rejet de Promise sans retour utilisateur. La préférence PPT et le brouillon restent conservés ; Canva reçoit un clone en version MP4.
+
+`tests/canva-create-button-browser.py` clique sur le vrai bouton de l'éditeur, vérifie un import unique, l'absence d'onglet vide, l'autorisation par clic explicite puis l'import, et une erreur de préparation visible. Les requêtes du service et de Canva sont simulées. Le test premium vérifie séparément le fichier PPTX transmis avec MP4. La lecture de `/health` du service Render réel a été tentée et répétée avec accès réseau : elle est refusée par la passerelle de cet environnement avant connexion au service (CONNECT 403). Aucun résultat de disponibilité réelle ni consentement/import réel dans Canva n'est revendiqué.
