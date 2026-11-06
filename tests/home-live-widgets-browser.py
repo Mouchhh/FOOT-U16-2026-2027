@@ -9,7 +9,9 @@ with sync_playwright() as p:
  page.wait_for_function('typeof homeWidgetsSnapshot==="function"')
  page.evaluate('workspaceNavigation.run("view-home")')
  page.wait_for_selector('#home-live-widgets .home-live-card')
- assert page.locator('#home-live-widgets .home-live-card').count()==4
+ assert page.locator('#home-live-widgets .home-live-card').count()==3
+ assert page.locator('.home-fff-ranking').count()==0
+ assert 'Classement' not in page.locator('#home-live-widgets').inner_text()
  assert '92%' not in page.locator('#home-live-widgets').inner_text()
  page.evaluate('''()=>{
  squadSave([{id:'p1',name:'Alice',number:1,photo:'',position:'Milieu'}]);
