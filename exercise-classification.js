@@ -1,3 +1,4 @@
+const clubGamePhaseColors=Object.freeze({ball:"2855A2",loss:"B45309",win:"247342",off:"B92635",ludic:"F2C94C"});
 // Grands axes et sous-parties de l’image fournie par le coach.
 const bmfCategories={
  ball:{label:'Mon équipe possède le ballon'},

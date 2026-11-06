@@ -13,7 +13,7 @@ function homeWidgetsSnapshot(){
  const scored=reports.filter(r=>/^\d+$/.test(String(r.info.goalsFor))&&/^\d+$/.test(String(r.info.goalsAgainst))).slice(0,5);
  const form=scored.map(r=>Number(r.info.goalsFor)>Number(r.info.goalsAgainst)?'V':Number(r.info.goalsFor)===Number(r.info.goalsAgainst)?'N':'D');
  const upcoming=kind=>events.filter(e=>e.kind===kind&&!elapsed(e)).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')))[0]||null;
- return {now,rate:rate(recent),active:new Set(recent.filter(e=>e.status==='present').map(e=>e.playerId)).size,sessions:keys.length,unknown:Math.max(0,keys.length*monthly.length-recent.filter(e=>['present','absent'].includes(e.status)).length),delta:currentRate!==null&&oldRate!==null?currentRate-oldRate:null,scored,form,points:form.reduce((n,v)=>n+(v==='V'?3:v==='N'?1:0),0),match:upcoming('match'),training:upcoming('training'),recommendation:reports[0]?.plan?.priority||reports[0]?.plan?.sessionObjective||''};
+ return {now,rate:rate(recent),active:new Set(recent.filter(e=>e.status==='present').map(e=>e.playerId)).size,sessions:keys.length,unknown:Math.max(0,keys.length*monthly.length-recent.filter(e=>['present','absent'].includes(e.status)).length),delta:currentRate!==null&&oldRate!==null?currentRate-oldRate:null,scored,form,points:form.reduce((n,v)=>n+(v==='V'?3:v==='N'?1:0),0),match:upcoming('match'),training:typeof trainingAgendaNext==='function'?trainingAgendaNext():upcoming('training'),recommendation:reports[0]?.plan?.priority||reports[0]?.plan?.sessionObjective||''};
 }
 function renderHomeWidgets(){
  const root=$('home-live-widgets');if(!root)return;const s=homeWidgetsSnapshot();root.replaceChildren();
@@ -33,12 +33,12 @@ function renderHomeWidgets(){
  training.append(el('strong','home-live-value',event?homeDayLabel(event.date,s.now.day):'À planifier'));
  training.append(el('h3','','Ce qui est prévu'),el('p','',event?[event.title,event.session?.themes?.join(' · '),event.time].filter(Boolean).join(' · '):'Aucune prochaine séance dans l’agenda.'));
  training.append(el('h3','','Conseil issu du dernier bilan'),el('p','',s.recommendation||'Renseignez une priorité dans votre prochain bilan pour retrouver ici votre axe de travail.'));
- const open=el('button','home-live-open',event?'Ouvrir / Préparer la séance →':'Ouvrir l’agenda →');open.type='button';open.onclick=()=>{if(event?.session){loadTraining(event.session);if(currentTraining.id===event.session.id)workspaceNavigation.run('view-training',()=>trainingWizard.go(3));}else if(event?.open)event.open();else workspaceNavigation.run('view-coach-agenda',()=>workspaceFlows.agenda.go(1));};training.append(open);
+ const open=el('button','home-live-open',event?'Ouvrir / Préparer la séance →':'Ouvrir l’agenda →');open.type='button';open.onclick=()=>{if(event&&typeof trainingAgendaOpen==='function'){trainingAgendaOpen(event);return;}if(event?.session){loadTraining(event.session);if(currentTraining.id===event.session.id)workspaceNavigation.run('view-training',()=>trainingWizard.go(3));}else if(event?.open)event.open();else workspaceNavigation.run('view-coach-agenda',()=>workspaceFlows.agenda.go(1));};training.append(open);return s;
 }
 document.addEventListener('DOMContentLoaded',()=>{
  const root=el('section');root.id='home-live-widgets';root.setAttribute('aria-label','Tableau de bord de mon équipe');document.querySelector('.home-hero').after(root);
- let frame=0;const refresh=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{if(document.body.classList.contains('home-mode'))renderHomeWidgets();});};
+ let frame=0;const refresh=(event)=>{if(event?.target?.closest?.('#home-fff-import,.home-fff-actions'))return;cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{if(document.body.classList.contains('home-mode')&&!$('home-fff-import'))renderHomeWidgets();});};
  const old=renderHomeQuick;renderHomeQuick=function(){old();refresh();};
- for(const name of ['click','change','input','club-session-ready','workspace-draft-changed'])document.addEventListener(name,refresh);window.addEventListener('storage',refresh);window.addEventListener('focus',refresh);
+ for(const name of ['click','change','input','club-session-ready','workspace-draft-changed','training-library-updated','agenda-recurrence-updated'])document.addEventListener(name,refresh);window.addEventListener('storage',refresh);window.addEventListener('focus',refresh);
  new MutationObserver(refresh).observe(document.body,{attributes:true,attributeFilter:['class']});setInterval(refresh,60000);refresh();
 });

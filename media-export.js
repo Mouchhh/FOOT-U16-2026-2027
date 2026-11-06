@@ -5,7 +5,7 @@ function mediaName(extension,snapshot=simpleState){return namedDocumentFilename(
 function wrapMediaText(ctx,text,x,y,maxWidth,lineHeight){
  let line='';for(const word of text.split(/\s+/)){const candidate=line?line+' '+word:word;if(ctx.measureText(candidate).width>maxWidth&&line){ctx.fillText(line,x,y);y+=lineHeight;line=word;}else line=candidate;}if(line){ctx.fillText(line,x,y);y+=lineHeight;}return y;
 }
-function renderMedia(canvas,snapshot,landscape,category=state.category,{pitchOnly=false}={}){
+function renderMedia(canvas,snapshot,landscape,category=state.category,{pitchOnly=false,phaseColor=null}={}){
  const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;const s=simpleScenario(snapshot);
  ctx.fillStyle='#f0f4fb';ctx.fillRect(0,0,W,H);
  if(!pitchOnly){ctx.fillStyle='#2855a2';ctx.font='bold 22px Arial';ctx.fillText('STADE MAYENNAIS · '+(category||'FOOTBALL À 11')+' · TABLEAU TACTIQUE',48,48);
@@ -26,7 +26,7 @@ function renderMedia(canvas,snapshot,landscape,category=state.category,{pitchOnl
  const xy=(px,py)=>landscape?[x+(100-py)*w/100,y+px*h/100]:[x+px*w/100,y+py*h/100];
  simpleActions(snapshot).forEach(({id,x:ex,y:ey,type})=>{
   const p=id==='ball'?snapshot.ball:snapshot.tokens.find(p=>p.id===id);if(!p)return;const [ax,ay]=xy(p.x,p.y),[bx,by]=xy(ex,ey);if(Math.hypot(bx-ax,by-ay)<6)return;
-  ctx.save();ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.setLineDash(type==='pass'?[10,8]:[]);ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();ctx.setLineDash([]);
+  ctx.save();ctx.strokeStyle=phaseColor||'#fff';ctx.lineWidth=3;ctx.setLineDash(type==='pass'?[10,8]:[]);ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.stroke();ctx.setLineDash([]);
   const a=Math.atan2(by-ay,bx-ax);ctx.beginPath();ctx.moveTo(bx-13*Math.cos(a-.45),by-13*Math.sin(a-.45));ctx.lineTo(bx,by);ctx.lineTo(bx-13*Math.cos(a+.45),by-13*Math.sin(a+.45));ctx.stroke();ctx.restore();
  });
  snapshot.tokens.filter(p=>p.side!=='away'||snapshot.showOpponents!==false).forEach(p=>{

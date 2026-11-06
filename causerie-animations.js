@@ -75,7 +75,7 @@
     }
     return { initial, steps };
   }
-  async function animationGif(entry) {
+  async function animationGif(entry, phaseColor=null) {
     const { GIFEncoder, quantize, applyPalette } = await import(
       "./vendor/gifenc/gifenc.esm.js"
     );
@@ -92,7 +92,7 @@
     let palette;
     for (const segment of segments) {
       for (let frame = 0; frame <= count; frame++) {
-        renderMedia(source, interpolateMedia(segment, frame / count), true, "", {pitchOnly:true});
+        renderMedia(source, interpolateMedia(segment, frame / count), true, "", {pitchOnly:true,phaseColor});
         ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
         const rgba = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
         // One palette keeps the colors stable throughout the demonstration.
@@ -133,20 +133,20 @@
         const initial = frames(entry).initial, segments = exportSegments(initial, entry.choice);
         const source = createMediaCanvas(), perStep = 2400 / Number(entry.speed);source.width=1008;source.height=816;
         if (!segments.length) {
-          renderMedia(source,initial,true,'',{pitchOnly:true});
+          renderMedia(source,initial,true,'',{pitchOnly:true,phaseColor:host.palette?.accent?'#'+host.palette.accent:null});
           slide.addImage({data:source.toDataURL('image/png'),...host.box});continue;
         }
         const video = await recordPitch({ duration: Math.max(500, segments.length * perStep), width:1008, height:816, render(canvas, elapsed) {
           const index=Math.min(segments.length-1,Math.floor(elapsed/perStep));
           const ratio=Math.min(1,(elapsed-index*perStep)/perStep);
-          renderMedia(source, interpolateMedia(segments[index],ratio), true, '', {pitchOnly:true});
+          renderMedia(source, interpolateMedia(segments[index],ratio), true, '', {pitchOnly:true,phaseColor:host.palette?.accent?'#'+host.palette.accent:null});
           canvas.getContext('2d').drawImage(source,0,0,canvas.width,canvas.height);
         }});
         slide.addMedia({type:'video',...video,...host.box,extn:'mp4'});
         continue;
       }
       if (host.slide && options.variant === 'gif') {
-        slide.addImage({data: await animationGif(entry), ...host.box});
+        slide.addImage({data: await animationGif(entry,host.palette?.accent?"#"+host.palette.accent:null), ...host.box});
         continue;
       }
       if (!host.slide) {

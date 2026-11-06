@@ -45,6 +45,13 @@
         ))
     );
   };
+  let fontPromise;
+  function presentationFonts(){
+    return fontPromise ||= Promise.all([
+      new FontFace('Montserrat','url(assets/fonts/montserrat/Montserrat-Italic.ttf)',{style:'italic',weight:'100 900'}),
+      new FontFace('Calistoga','url(assets/fonts/calistoga/Calistoga-Regular.ttf)'),
+    ].map(async font=>document.fonts.add(await font.load()))).catch(error=>{fontPromise=null;throw error;});
+  }
   let logoPromise;
   function logo() {
     return (
@@ -86,6 +93,7 @@
       .map((s) => excerpt(s.replace(/^[-•]\s*/, ""), limit));
   }
   async function build(pptx, snapshot, style, { pitchImage }) {
+    await presentationFonts();
     const board = snapshot.board,
       p = board.matchPreparation || {},
       S = pptx.ShapeType;
@@ -97,7 +105,7 @@
     ]);
     pptx.theme = {
       headFontFace: "Montserrat",
-      bodyFontFace: "Arial",
+      bodyFontFace: "Calistoga",
       lang: "fr-FR",
     };
     const angularPhotos = {};
@@ -120,7 +128,9 @@
         y,
         w,
         h,
-        fontFace: "Arial",
+        fontFace: slide === slides[0] || slide === slides[10] ? "Montserrat" : "Calistoga",
+        bold: slide === slides[0] || slide === slides[10],
+        italic: slide === slides[0] || slide === slides[10],
         fontSize: size,
         color: NAVY,
         margin: 0,
@@ -128,6 +138,7 @@
         fit: "shrink",
         paraSpaceAfterPt: 8,
         ...extra,
+        ...((extra.fontFace || (slide === slides[0] || slide === slides[10] ? "Montserrat" : "Calistoga")) === "Calistoga" ? {bold:false,italic:false} : {}),
       });
     };
     const rect = (slide, x, y, w, h, color) =>
@@ -165,7 +176,7 @@
         rect(slide, 0, 0, 13.333333, 0.045, BLUE);
         for (let i = 0; i < 3; i++) slide.addShape(S.chevron, {
           x: 0.65 + i * 0.29, y: 0.43, w: 0.24, h: 0.25,
-          fill: { color: BLUE }, line: { transparency: 100 },
+          fill: { color: accent }, line: { transparency: 100 },
           objectName: "club-reference-chevron-" + n + "-" + i,
         });
       }
@@ -192,11 +203,13 @@
       }
       if (dark) rect(slide, 0.65, 0.46, 0.08, 0.27, accent);
       text(slide, kicker, dark ? 0.86 : 1.66, 0.48, 9, 0.23, 10, {
-        bold: true, charSpacing: 1.6, color: dark ? "D7E3F1" : MUTED,
+        fontFace: "Montserrat", bold: true, italic: true, charSpacing: 1.6, color: dark ? "D7E3F1" : accent,
       });
       if (!dark)
-        heading(slide, title, 0.65, 0.92, 10.8, 0.55, 30, { color: NAVY });
-      if (!dark) { line(slide, 0.65, 1.56, 12.03); rect(slide, 0.65, 1.54, 0.85, 0.04, accent); }
+        heading(slide, title, 0.65, 0.92, 10.8, 0.55, 30, { color: accent });
+      const progressWidth = 12.03, progressY = dark ? 1.35 : 1.54, progressColor = dark ? WHITE : accent;
+      line(slide, 0.65, progressY + 0.02, progressWidth, dark ? "547BAD" : "DCE5EF");
+      slide.addShape(S.rect,{x:0.65,y:progressY,w:progressWidth*n/11,h:0.055,line:{transparency:100},fill:{color:progressColor},objectName:'club-slide-progress-'+n});
       slide.addShape(S.ellipse, {
         x: 11.91,
         y: 0.32,
@@ -243,7 +256,7 @@
     }
     function block(slide, label, value, x, y, w, h, { accent = BLUE } = {}) {
       text(slide, label.toUpperCase(), x, y, w, 0.3, 12, {
-        bold: true, charSpacing: 1.1, color: NAVY,
+        fontFace: "Montserrat", bold: true, italic: true, charSpacing: 1.1, color: accent,
       });
       line(slide, x, y + 0.45, w, accent);
       if (String(value || "").length <= 1400)
@@ -276,7 +289,7 @@
       photos[1] ? 7.3 : 11.5,
       1.7,
       38,
-      { color: WHITE, fontFace: "Arial", bold: true, italic: false },
+      { color: WHITE },
     );
     const dateLabel = p.date
       ? new Intl.DateTimeFormat("fr-FR", {
@@ -475,11 +488,11 @@
         const custom=choice.exercise?.custom, ratio=choice.exercise?1.6:840/680;
         const w=Math.min(tileW,tileH*ratio),h=w/ratio;
         const box={x:stage.x+(i%cols)*(tileW+gap)+(tileW-w)/2,y:stage.y+Math.floor(i/cols)*(tileH+gap)+(tileH-h)/2,w,h};
-        if (!choice.exercise || custom.board) (choice.exercise?exerciseHosts:hosts).push({...choice,slide,box,palette:{navy:NAVY,red:RED,blue:BLUE}});
+        if (!choice.exercise || custom.board) (choice.exercise?exerciseHosts:hosts).push({...choice,slide,box,palette:{navy:NAVY,red:RED,blue:BLUE,accent:clubGamePhaseColors[{defensive:"off",offDef:"loss",offensive:"ball",defOff:"win"}[key]]}});
         // No invented pitch or on-screen instructions when no drawing is saved.
       });
       notes(slide, [
-        body,
+        "Nos idées de jeu", body,
         ...sequences.map((e) => e.title),
         ...choices
           .filter((c) => c.exercise && !c.exercise.custom.board)
@@ -497,10 +510,10 @@
     const cpaFrame = bodyFrame(10), sw = cpaFrame.w,
       sc = (sw - 0.6) / 2;
     block(slide, "Offensifs", p.setPiecesFor, cpaFrame.x, 2, sc, 3.9, {
-      accent: BLUE,
+      accent: clubGamePhaseColors.ball,
     });
     block(slide, "Défensifs", p.setPiecesAgainst, cpaFrame.x + 0.6 + sc, 2, sc, 3.9, {
-      accent: RED,
+      accent: clubGamePhaseColors.off,
     });
     text(slide, excerpt(p.specific, 350), cpaFrame.x, 6.25, sw, 0.4, 14, {
       color: MUTED,
@@ -545,14 +558,14 @@
     build,
     fields,
     phases,
-    templateVersion: "club-pitch-only-277",
+    templateVersion: "club-typography-279",
     theme: {
       navy: NAVY,
       blue: BLUE,
       red: RED,
       white: WHITE,
       heading: "Montserrat",
-      body: "Arial",
+      body: "Calistoga",
     },
   };
 })();

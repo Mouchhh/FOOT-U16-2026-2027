@@ -9,7 +9,7 @@ with sync_playwright() as p:
  page.wait_for_function('typeof homeWidgetsSnapshot==="function"')
  page.evaluate('workspaceNavigation.run("view-home")')
  page.wait_for_selector('#home-live-widgets .home-live-card')
- assert page.locator('#home-live-widgets .home-live-card').count()==3
+ assert page.locator('#home-live-widgets .home-live-card').count()==4
  assert '92%' not in page.locator('#home-live-widgets').inner_text()
  page.evaluate('''()=>{
  squadSave([{id:'p1',name:'Alice',number:1,photo:'',position:'Milieu'}]);
@@ -35,7 +35,7 @@ with sync_playwright() as p:
   assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
   assert page.locator('#home-live-widgets').is_visible()
   page.screenshot(path=f'/tmp/home-live-{w}.png',full_page=True)
- page.locator('.home-live-open').click()
+ page.locator('.home-live-training .home-live-open').click()
  page.wait_for_function('document.body.classList.contains("training-mode")')
  assert page.evaluate('currentTraining.title')=='Sortie de balle'
  assert not errors,errors

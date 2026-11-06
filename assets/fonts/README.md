@@ -2,8 +2,7 @@
 
 These unmodified font files are loaded locally and only when exporting a
 presentation. The current eleven-slide club template uses Montserrat bold italic for headings
-and Arial for body text. Calistoga remains available for the earlier reference
-template. These exports do not change the site's normal typography.
+and Calistoga for body text. Opening and closing slides use Montserrat bold italic throughout. These exports do not change the site's normal typography.
 
 - `calistoga/Calistoga-Regular.ttf`: https://github.com/google/fonts/tree/main/ofl/calistoga
 - `montserrat/Montserrat-Italic.ttf`: the variable `Montserrat-Italic[wght].ttf`

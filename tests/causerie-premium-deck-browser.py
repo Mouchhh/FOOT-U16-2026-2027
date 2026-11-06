@@ -47,7 +47,7 @@ with sync_playwright() as p:
     if i in (1,11):assert root.find('p:cSld/p:bg/p:bgPr/a:solidFill/a:srgbClr',NS).get('val')=='0055A5'
    contents=''.join(z.read(s).decode() for s in slides)
    for color in ['0B192C','E31B23','0055A5']:assert color in contents,color
-   assert 'Montserrat' in contents and 'Arial' in contents
+   assert 'Montserrat' in contents and 'Calistoga' in contents
    assert 'Prendre du plaisir à jouer ensemble' in ''.join(ET.fromstring(z.read('ppt/slides/slide5.xml')).itertext())
    for n in [3,5,10]:
     names=[v.get('name','') for v in ET.fromstring(z.read(f'ppt/slides/slide{n}.xml')).findall('.//p:cNvPr',NS)]
@@ -60,9 +60,23 @@ with sync_playwright() as p:
    for run in cover.findall('.//a:r',NS):
     prop=run.find('a:rPr',NS)
     assert prop is not None and prop.get('b')=='1'
-    assert prop.find('a:latin',NS).get('typeface')=='Arial'
-    assert prop.get('i')!='1'
+    assert prop.find('a:latin',NS).get('typeface')=='Montserrat'
+    assert prop.get('i')=='1'
    assert 'Montserrat' in z.read('ppt/slides/slide11.xml').decode()
+   progress=[]
+   for n in [1,2,3,4,5,10,11]:
+    root=ET.fromstring(z.read(f'ppt/slides/slide{n}.xml'))
+    shape=next(shape for shape in root.findall('.//p:sp',NS) if shape.find('p:nvSpPr/p:cNvPr',NS).get('name')==f'club-slide-progress-{n}')
+    width=int(shape.find('p:spPr/a:xfrm/a:ext',NS).get('cx'))
+    full=12.03*914400
+    assert abs(width/full-n/11)<0.0001
+    progress.append(width/full)
+    if n not in (1,11):
+     title=next(r for r in root.findall('.//a:r',NS) if r.find('a:t',NS) is not None and r.find('a:t',NS).text in ['La composition d’équipe','La dynamique du groupe','Informations adversaire','Nos idées fortes','CPA · Coups de pied arrêtés'])
+     prop=title.find('a:rPr',NS);assert prop.get('b')=='1' and prop.get('i')=='1'
+     assert prop.find('a:latin',NS).get('typeface')=='Montserrat'
+   assert progress==sorted(progress)
+
    assert 'Rester solidaires jusqu’au coup de sifflet final.' in ''.join(ET.fromstring(z.read('ppt/slides/slide3.xml')).itertext())
    assert 'Garder une couverture derrière chaque pression.' in ''.join(ET.fromstring(z.read('ppt/slides/slide4.xml')).itertext())
    assert 'Informations adversaire' in ''.join(ET.fromstring(z.read('ppt/slides/slide4.xml')).itertext())

@@ -272,7 +272,7 @@ function trainingAssistantGenerateBase(input) {
     duration,
     themes: [n.focus],
     creationMode: "assisted",
-    libraryOnly: true,
+    libraryOnly: !session.agendaLink,
     notes:
       "Objectif du coach : " +
       n.goal +
@@ -886,9 +886,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function commit(scheduled) {
     if (!ready()) return;
-    const next = structuredClone(session);
+    let next = structuredClone(session);
     next.libraryOnly = scheduled ? false : session.libraryOnly !== false;
-    if (scheduled) {
+    if (scheduled || next.agendaLink) {
       if (
         !trainingDateValid(date.value) ||
         !/^([01]\d|2[0-3]):[0-5]\d$/.test(time.value)
@@ -916,6 +916,8 @@ document.addEventListener("DOMContentLoaded", () => {
       schedule.open = true;
       return;
     }
+    try { if(typeof trainingAgendaPrepareSave==='function')next=trainingAgendaPrepareSave(next); }
+    catch(error){status.textContent=error.message;return;}
     next.updatedAt = new Date().toISOString();
     if (!trainingValid(next)) {
       status.textContent = "Vérifiez les informations avant d’enregistrer.";
@@ -930,6 +932,7 @@ document.addEventListener("DOMContentLoaded", () => {
       trainingLibrary = library;
       renderTrainingLibrary();
       renderCoachAgenda();
+      document.dispatchEvent(new CustomEvent('training-library-updated'));
       const message = scheduled
         ? "Séance enregistrée dans Mes séances et dans l’agenda."
         : "Séance enregistrée dans Mes séances.";

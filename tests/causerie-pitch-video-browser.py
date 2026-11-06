@@ -18,10 +18,24 @@ with sync_playwright() as p:
  window.premiumSnapshot={board,linked:null,demonstrations:{sequences:[],media:[]},photos:{choices:{1:'club:celebration-equipe',3:'club:echange-joueurs',5:'club:entree-terrain',10:'club:encadrement',6:'club:action-ballon',11:'club:cercle-equipe'},items:[]},landscape:true};window.premiumSourceBefore=JSON.stringify(premiumSnapshot);
  }''')
  page.evaluate("premiumSnapshot.board.causerieAnimationVariant='video'")
+ assert page.evaluate("""()=>{
+  const initial=causerieAnimations.frames(premiumSnapshot.board.causerieSlideAnimations.defensive[0]).initial;
+  for(const [key,value] of Object.entries(clubGamePhaseColors).filter(([k])=>k!=='ludic')){
+   const node=document.createElement('section');node.className='training-assistant-intention';node.dataset.intention=key;document.body.append(node);
+   const rgb=[0,2,4].map(i=>parseInt(value.slice(i,i+2),16));
+   if(getComputedStyle(node).borderLeftColor!=='rgb('+rgb.join(', ')+')')throw Error('Phase color diverges from training');node.remove();
+   const canvas=document.createElement('canvas');canvas.width=1008;canvas.height=816;
+   renderMedia(canvas,initial,true,'',{pitchOnly:true,phaseColor:'#'+value});
+   const data=canvas.getContext('2d').getImageData(0,0,1008,816).data;let found=0;
+   for(let i=0;i<data.length;i+=4)if(data[i]===rgb[0]&&data[i+1]===rgb[1]&&data[i+2]===rgb[2])found++;
+   if(found<10)throw Error('Phase arrow color missing');
+  }return true;
+ }""")
+
  before=page.evaluate('JSON.stringify(premiumSnapshot)')
  with page.expect_download(timeout=120000) as dl:
   page.evaluate("""async()=>{const deck=await causerieExport.build(premiumSnapshot,false);const blob=await deck.write({outputType:'blob'});mediaDownload(blob,'causerie-video.pptx');}""")
- target='/workspace/shared/Causerie-Stade-Mayennais-terrains-video-v7.pptx';dl.value.save_as(target)
+ target='/tmp/causerie-pitch-video-test.pptx';dl.value.save_as(target)
  assert page.evaluate('JSON.stringify(premiumSnapshot)')==before
  with zipfile.ZipFile(target) as z:
   assert z.testzip() is None
@@ -48,6 +62,7 @@ with sync_playwright() as p:
     assert sum(1 for pixel in difference.get_flattened_data() if max(pixel)>30)>500,'Actual player/ball movement must be encoded'
 
   assert 'Garder une couverture derrière la ligne.' in ''.join(ET.fromstring(z.read('ppt/notesSlides/notesSlide6.xml')).itertext())
+  assert 'Nos idées de jeu' in ''.join(ET.fromstring(z.read('ppt/notesSlides/notesSlide6.xml')).itertext())
  # Confirm actual browser playback can pause and resume the encoded file in place.
  data=Path('/tmp/causerie-video-check-0.mp4').read_bytes()
  import base64

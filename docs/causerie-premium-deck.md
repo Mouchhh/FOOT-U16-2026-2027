@@ -6,13 +6,13 @@ La référence visuelle est le PDF « Copie de PROJET DE JEU » fourni par le co
 
 Le modèle reprend cette organisation graphique, sans reprendre ses consignes propres à US Laval, ses noms de joueurs, ni ses formulations. Il conserve les onze slides validées de l’application. La référence répète une page de transition OFF/DEF ; cette répétition n’est pas ajoutée au modèle.
 
-Le générateur commun PowerPoint/Canva se trouve dans `causerie-eleven-slides.js`. Format 16:9, 13,333 × 7,5 pouces ; version `club-pitch-only-277`.
+Le générateur commun PowerPoint/Canva se trouve dans `causerie-eleven-slides.js`. Format 16:9, 13,333 × 7,5 pouces ; version `club-typography-279`.
 
 ## Signature graphique
 
 - Marine `#0b192c`, bleu `#0055a5`, blanc et rouge `#e31b23`. La perte utilise l’orange `#b45309` ; la récupération le vert `#247342`.
 - Logo propre `assets/causerie-logo.jpeg` sur les pages éditoriales ; aucun logo ni texte sur les quatre pages d’animations.
-- Titres Montserrat gras italiques, texte Arial. Couverture en Arial gras sans italique, conformément au choix du coach. Les polices sont déclarées, pas incorporées au PPTX.
+- Titres et textes hauts Montserrat gras italiques, textes courants Calistoga. Les couvertures 1 et 11 utilisent Montserrat gras italique pour tous leurs textes. Les polices sont déclarées, pas incorporées au PPTX.
 - Pages de travail blanches, trois chevrons bleus, titre marine et filet fin. Pas de bandeau ni signature répétée en pied de page.
 - Photos personnelles ou du club détourées en diagonale à gauche sur les pages éditoriales, à distance du texte. L’effet est un masque graphique, pas une modification de la photo sauvegardée.
 - Pages tactiques : uniquement les terrains, sans titre, consignes latérales, dimensions ni décorations ; les consignes restent dans les notes.
@@ -70,3 +70,10 @@ Les navigateurs doivent prendre en charge MediaRecorder MP4 (Chrome/Edge/Safari 
 
 
 Pour un aperçu PDF fidèle, `scripts/causerie-pptx-static-posters.py source.pptx copie-statique.pptx` crée une copie utilisant les images d’aperçu réelles des MP4. Cette copie peut être convertie avec LibreOffice ; le PPTX animé d’origine reste intact. Cela évite les pages blanches de certains convertisseurs PDF qui ignorent les images d’aperçu des objets vidéo.
+
+
+## Typographie, couleurs et progression (279)
+
+Les couvertures 1 et 11 et tous les titres utilisent Montserrat gras italique. Le corps est en Calistoga, chargé depuis les fichiers OFL locaux. Les titres, chevrons et indicateur de progression partagent l’accent de leur page. La petite ligne est conservée comme rail ; son remplissage vaut `numéro de slide / 11`, avec une largeur de rail identique sur toutes les pages pour une progression physiquement croissante.
+
+Les pages 6–9 restent strictement limitées aux terrains, sans titre ni barre ajoutée. Leurs notes portent le libellé « Nos idées de jeu ». Les flèches des séquences tactiques utilisent les valeurs communes à la bibliothèque et aux séances : possession `#2855a2`, sans ballon `#b92635`, perte `#b45309`, récupération `#247342`. Les dessins personnels et les couleurs de rôles des joueurs sont conservés ; aucun contenu source n’est réécrit.
