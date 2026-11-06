@@ -266,7 +266,7 @@
       photos[1] ? 7.3 : 11.5,
       1.7,
       38,
-      { color: WHITE },
+      { color: WHITE, fontFace: "Arial", bold: true, italic: false },
     );
     const dateLabel = p.date
       ? new Intl.DateTimeFormat("fr-FR", {
@@ -278,20 +278,18 @@
         }).format(new Date(p.date + "T12:00:00Z"))
       : "";
     line(slide, 0.8, 4.55, 1.1, RED);
-    if (p.round || dateLabel) rect(slide, 0.8, 4.8, 7.3, 0.75, NAVY);
-    if (p.venue) rect(slide, 0.8, 5.65, 7.3, 0.62, NAVY);
     text(
       slide,
       [p.round, dateLabel].filter(Boolean).join(" · "),
       0.8,
-      4.95,
+      4.9,
       7.3,
       0.65,
       18,
-      { color: "D7E3F1" },
+      { color: "D7E3F1", bold: true },
     );
     text(slide, excerpt(p.venue, 100), 0.8, 5.7, 7.3, 0.5, 16, {
-      color: "D7E3F1",
+      color: "D7E3F1", bold: true,
     });
     notes(slide, [
       ...causerieExport.collect(board).map((f) => f.label + " : " + f.value),
@@ -692,7 +690,7 @@
     build,
     fields,
     phases,
-    templateVersion: "club-premium-274",
+    templateVersion: "club-premium-275",
     theme: {
       navy: NAVY,
       blue: BLUE,

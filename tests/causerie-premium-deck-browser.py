@@ -44,6 +44,13 @@ with sync_playwright() as p:
    contents=''.join(z.read(s).decode() for s in slides)
    for color in ['0B192C','E31B23','0055A5','B45309','247342']:assert color in contents,color
    assert 'Montserrat' in contents and 'Arial' in contents
+   cover=ET.fromstring(z.read('ppt/slides/slide1.xml'))
+   for run in cover.findall('.//a:r',NS):
+    prop=run.find('a:rPr',NS)
+    assert prop is not None and prop.get('b')=='1'
+    assert prop.find('a:latin',NS).get('typeface')=='Arial'
+    assert prop.get('i')!='1'
+   assert 'Montserrat' in z.read('ppt/slides/slide11.xml').decode()
    assert 'Rester solidaires jusqu’au coup de sifflet final.' in ''.join(ET.fromstring(z.read('ppt/slides/slide3.xml')).itertext())
    assert 'Garder une couverture derrière chaque pression.' in ''.join(ET.fromstring(z.read('ppt/slides/slide4.xml')).itertext())
    assert 'Informations adversaire' in ''.join(ET.fromstring(z.read('ppt/slides/slide4.xml')).itertext())
