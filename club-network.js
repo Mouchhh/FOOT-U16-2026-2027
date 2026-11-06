@@ -72,7 +72,9 @@ async function clubNetworkRequest(path,{method='GET',body,auth=true,retry=true}=
  if(auth){if(!clubNetworkSession)throw clubNetworkError('Connexion requise',401);if(clubNetworkSession.expires_at*1000<Date.now()+30000)await clubNetworkRefreshSession();}
  const headers={apikey:clubNetworkConfig.publishableKey,'Content-Type':'application/json'};
  if(auth)headers.Authorization='Bearer '+clubNetworkSession.access_token;
- const operation=path.startsWith('/auth/v1/token?grant_type=password')?'identification':path.startsWith('/auth/')?'authentification':path.startsWith('/rest/v1/club_members?')?'profil du club':path.startsWith('/rest/')?'données du club':'service';
+ const endpoint=path.split('?')[0];
+ const dataOperation=({'/rest/v1/club_documents':method==='GET'?'lecture des documents':'documents','/rest/v1/rpc/club_publish_document':'envoi du document','/rest/v1/rpc/club_remove_document':'suppression du document','/rest/v1/rpc/club_presence_ping':'présence des éducateurs','/rest/v1/rpc/club_connected_coaches':'liste des éducateurs connectés','/rest/v1/rpc/club_educator_activity':'activité des éducateurs','/rest/v1/rpc/club_reference_overview':'repères du club'})[endpoint]||'données du club';
+ const operation=path.startsWith('/auth/v1/token?grant_type=password')?'identification':path.startsWith('/auth/')?'authentification':path.startsWith('/rest/v1/club_members?')?'profil du club':path.startsWith('/rest/')?dataOperation:'service';
  const diagnose=(error,label)=>{error.diagnostic='auth-181 / '+operation+' / '+label;return error;};
  let response,text;
  try{
@@ -286,6 +288,9 @@ async function clubNetworkFlushPending(){
     else if(latest&&row){latest.expected={revision:row.revision,id:row.id};localStorage.setItem(clubNetworkPendingKey(job.kind,job.id),JSON.stringify(latest));}
    }catch(error){
     if(error.code==='40001'){
+     // Stop repeating a refused write even if fetching the remote version times out.
+     const conflicted=clubNetworkPending(job.kind,job.id);
+     if(conflicted?.stamp===job.stamp){conflicted.conflict=true;localStorage.setItem(clubNetworkPendingKey(job.kind,job.id),JSON.stringify(conflicted));}
      const found=await clubNetworkRequest('/rest/v1/club_documents?'+new URLSearchParams({select:'*',owner_id:'eq.'+clubNetworkSession.user.id,kind:'eq.'+job.kind,source_id:'eq.'+job.id,limit:'1'})),remote=found?.[0];
      const payload=clubNetworkLibrary(job.kind).find(p=>clubNetworkPayloadId(job.kind,p)===job.id);
      if(job.op==='delete'&&!remote||job.op==='save'&&remote&&remote.owner_id===clubNetworkSession.user.id&&remote.kind===job.kind&&remote.source_id===job.id&&clubNetworkPayloadValid(job.kind,remote.payload)&&clubNetworkSamePayload(remote.payload,payload)){
