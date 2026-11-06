@@ -1,79 +1,58 @@
-# Modèle de causerie Stade Mayennais — 11 diapositives
+# Causerie Stade Mayennais — modèle inspiré du projet de jeu
 
-## Charte et principes
+## Référence et périmètre
 
-Le modèle est construit dans `causerie-eleven-slides.js` et partagé par les chemins PowerPoint et Canva. Format 16:9, 13,333 × 7,5 pouces.
+La référence visuelle est le PDF « Copie de PROJET DE JEU » fourni par le coach (13 pages). Il distingue le contexte, les informations adverses, les ingrédients du match, les animations et transitions, les CPA et le message final. Sa signature repose sur les photos en diagonale, les chevrons bleus et les schémas à gauche des consignes.
 
-- Marine `#0b192c`, blanc, accent rouge `#e31b23` ; bleu `#0055a5` pour la possession, orange `#b45309` à la perte et vert `#247342` à la récupération.
-- Logo propre `assets/causerie-logo.jpeg`, transformé en PNG circulaire et placé à la même position sur les onze slides. Cet asset évite le pictogramme parasite présent sur une autre ancienne image du logo.
-- Titres Montserrat gras italique, textes Arial. Titres de 30 pt, ouverture et conclusion jusqu’à 38 pt, chiffres des trois priorités à 40 pt, consignes généralement de 19 à 21 pt. Libellés et dimensions sont secondaires.
-- Ouverture et conclusion en bleu club `#0055a5`, séparation blanc/rouge avec la photo. Pages de travail blanches avec un en-tête bleu très clair, titres bleus, bandeaux thématiques. Les photos restent dans les emplacements réservés sans recouvrir les consignes.
-- Alignement régulier : marge gauche de 0,65 pouce, en-tête hors de la zone de travail, logo en haut à droite, sans bandeau ni signature répétés en bas.
+Le modèle reprend cette organisation graphique, sans reprendre ses consignes propres à US Laval, ses noms de joueurs, ni ses formulations. Il conserve les onze slides validées de l’application. La référence répète une page de transition OFF/DEF ; cette répétition n’est pas ajoutée au modèle.
 
-Les déclarations de polices sont enregistrées dans le PPTX. Les polices ne sont pas intégrées au fichier ; le lecteur doit disposer de Montserrat ou utiliser sa substitution. Arial reste le corps de texte courant. Canva connaît ces familles, mais l’import et la lecture dans un vrai compte restent dépendants du service.
+Le générateur commun PowerPoint/Canva se trouve dans `causerie-eleven-slides.js`. Format 16:9, 13,333 × 7,5 pouces ; version `club-reference-276`.
 
-## Structure des modèles
+## Signature graphique
 
-| Slide | Modèle | Hiérarchie |
+- Marine `#0b192c`, bleu `#0055a5`, blanc et rouge `#e31b23`. La perte utilise l’orange `#b45309` ; la récupération le vert `#247342`.
+- Logo propre `assets/causerie-logo.jpeg`, au même emplacement sur les onze slides.
+- Titres Montserrat gras italiques, texte Arial. Couverture en Arial gras sans italique, conformément au choix du coach. Les polices sont déclarées, pas incorporées au PPTX.
+- Pages de travail blanches, trois chevrons bleus, titre marine et filet fin. Pas de bandeau ni signature répétée en pied de page.
+- Photos personnelles ou du club détourées en diagonale à gauche sur les pages éditoriales, à distance du texte. L’effet est un masque graphique, pas une modification de la photo sauvegardée.
+- Pages tactiques sans photo décorative : schémas à gauche, consignes à droite, couleur de phase en rappel discret.
+- Les couvertures d’ouverture et de conclusion gardent leur grand aplat bleu et leur photo de groupe, déjà validés.
+
+## Les onze pages
+
+| Slide | Contenu | Mise en page |
 | --- | --- | --- |
-| 1 | Ouverture bleu club + photo verticale | Nom du match fort à gauche ; journée, date et lieu ; logo à droite |
-| 2 | Composition | Terrain 16:9 centré sur la zone principale ; système et impacteurs à droite |
-| 3 | Contexte éditorial | Deux colonnes Objectifs / Dynamique ; repères du contexte en dessous ; photo latérale si affectée |
-| 4 | Adversaire | Nom, puis trois colonnes : forces, points à exploiter, organisation |
-| 5 | Trois idées fortes | Grands chiffres 01 / 02 / 03 et une priorité par colonne |
-| 6 | Animation Défensive | Repère rouge, consignes à gauche, schémas centrés à droite |
-| 7 | Transition OFF / DEF | Même grille, repère orange « À la perte du ballon » |
-| 8 | Animation Offensive | Même grille, repère bleu « Avec le ballon » |
-| 9 | Transition DEF / OFF | Même grille, repère vert « À la récupération du ballon » |
-| 10 | CPA | Deux colonnes offensifs / défensifs avec accents bleu / rouge |
-| 11 | Mot d’ordre final | Fond bleu club, message fort, photo de rassemblement et logo |
+| 1 | Match, journée, date, lieu | Titre blanc gras, bleu club et photo verticale |
+| 2 | Composition et impacteurs/finisseurs | Terrain sans doublon du banc ; liste du banc à droite ; noms fins |
+| 3 | Dynamique et contexte | Quatre repères si quatre points saisis ; contexte intégral ; photo diagonale si le volume le permet ; aucun bloc Objectifs |
+| 4 | Informations adversaire | Texte libre complet ; forces, points à exploiter et organisation seulement si renseignés |
+| 5 | Idées fortes / ingrédients | Une ligne distincte par idée saisie, jusqu’aux quatre champs existants ; photo diagonale |
+| 6 | Animation défensive | Schémas à gauche ; repères et variantes de bloc rédigés par le coach à droite |
+| 7 | Transition OFF/DEF | Perte du ballon ; même grille tactique, accent orange |
+| 8 | Animation offensive | Sorties de balle/situations sélectionnées ; règles et dimensions à proximité |
+| 9 | Transition DEF/OFF | Récupération du ballon ; même grille tactique, accent vert |
+| 10 | CPA | Responsabilités et consignes offensives/défensives rédigées par le coach ; photo diagonale |
+| 11 | Mot d’ordre final | Grand message blanc et photo de rassemblement |
 
-## Schémas et ateliers
+## Comparaison du contenu
 
-La zone tactique des slides 6–9 mesure 8,63 × 4,96 pouces. Une situation bénéficie d’un grand schéma ; deux situations sont côte à côte ; trois ou quatre utilisent une grille à deux colonnes. Préférer une ou deux situations lorsque le groupe doit lire des détails fins.
+Toutes les grandes phases de la référence sont couvertes : pas de nouvelle slide obligatoire. Les points à mieux restituer étaient la quatrième idée forte (désormais indépendante), les différentes variantes d’une phase et les consignes CPA. Les textes ordinaires jusqu’à 1 400 caractères sont affichés entièrement dans leur zone ; les contenus exceptionnellement longs donnent un extrait de projection et restent complets dans les notes du présentateur.
 
-Les exports sont limités à quatre situations combinées par phase (animations, exercices et médias). La sélection bloque le cinquième ajout et le générateur refuse aussi une ancienne sélection trop longue, sans supprimer aucune situation. Il ne crée pas de diapositives supplémentaires ni de vignettes minuscules pour faire tenir vingt schémas.
+Les conditions du match (extérieur, revêtement, etc.) peuvent être rédigées dans le contexte ; les déclencheurs et variantes de bloc dans leurs phases ; les tireurs et responsabilités dans les CPA. Le générateur n’invente pas ces éléments et n’ajoute pas de champs ou de slogans artificiels. `contextObjective`, retiré de la slide 3 à la demande du coach, reste dans ses notes.
 
-Les schémas d’exercices conservent leur rapport 8:5 ; les animations tactiques utilisent 16:9. Les emplacements sont centrés dans chaque cellule. Les dimensions réelles de l’exercice apparaissent sous le terrain. Pour un exercice unique, les règles essentielles sont placées dans la colonne des consignes ; pour plusieurs exercices, une règle courte accompagne chaque schéma. Un exercice sans terrain enregistré reste une fiche de consignes : aucun schéma technique n’est inventé.
+## Schémas et animations
 
-Les animations PowerPoint conservent leurs trajectoires natives, leurs objets et leurs identifiants. Les grands terrains natifs utilisent le marine et les couleurs du modèle, avec des pions et numéros agrandis. Les GIF et les schémas personnels gardent leurs couleurs source.
+La zone des schémas des slides 6–9 mesure 6,15 × 5,05 pouces à gauche ; les consignes disposent de 5,28 pouces à droite. Une situation est agrandie ; deux se placent l’une au-dessus de l’autre, comme dans la référence ; trois ou quatre utilisent une grille. La limite combinée reste quatre situations pour préserver la lisibilité.
 
-## Textes et intégrité
+Les terrains gardent leur proportion (16:9 pour les animations tactiques, 8:5 pour les exercices personnalisés). Les photos décoratives ne remplacent pas une situation absente. Les sélections, déplacements natifs PowerPoint, GIF, schémas personnels, règles sources et notes sont conservés. Les textes du coach ne sont pas réécrits par le modèle.
 
-Le modèle de projection sélectionne quelques phrases ou lignes des textes saisis, avec un nombre et une longueur bornés. Il ne reformule pas les consignes, ne produit pas de nouvelles tactiques et ne touche pas aux données enregistrées. Les textes complets sont conservés dans les notes de la diapositive, y compris les règles des exercices. Les retours à la ligne du nom de match et du mot d’ordre sont respectés.
+Les photos sont affectées automatiquement depuis les préférences, avec une priorité aux visuels personnels. Le club fournit les couvertures, le contexte, les idées fortes et les CPA par défaut. Les affectations stockées restent intactes.
 
-Les champs non renseignés ne déclenchent pas de slogans ni de paragraphes fictifs. Le modèle évite les répétitions « À compléter ». Les photos de la bibliothèque des préférences continuent à être affectées automatiquement ; les photos de contenu sont placées dans une colonne ou dans un encart secondaire pour ne pas masquer les schémas.
+## Vérification
 
-## Chemins d’export
+- `tests/causerie-premium-deck-browser.py` : onze slides, charte, quatre idées distinctes, quatre points de dynamique complets, masques photo/chevrons, limites géométriques, versions native et GIF, notes longues, intégrité des sources.
+- `tests/causerie-eleven-slides-browser.py` : export depuis l’interface, deux animations sur la slide 6, identifiants de timing uniques, association des mouvements aux formes, notes et mobile.
+- `tests/causerie-premium-canva-browser.py` : transfert Canva entièrement simulé ; même modèle avec GIF ; aucune écriture réelle dans Canva.
+- `tests/causerie-export-photos-browser.py` : photos personnelles, rechargement, isolation des équipes, export et mobile.
 
-- **PowerPoint** : garde le format d’animation choisi, natif ou GIF.
-- **Création dans Canva** : utilise une copie de l’instantané avec animations GIF. Cela ne change ni la causerie ni la préférence PowerPoint du coach. Le même modèle de onze slides est transmis au service configuré.
-
-`causerieEleven.theme` expose la charte, et `causerieEleven.templateVersion` vaut `club-premium-275`.
-
-## Vérification et aperçus
-
-- `tests/causerie-premium-deck-browser.py` : fichiers PPTX natif et GIF réels, 11 logos, absence de pied de page et de photos décoratives sur les animations, palette, deux familles de polices, positions dans la slide, intégralité des notes longues, règles/dimensions d’exercice, timing natif, limite de situations et absence de mutation de la source.
-- `tests/causerie-premium-canva-browser.py` : import via service entièrement simulé, même charte et 11 slides, GIF sans trajectoires réservées à PowerPoint, préférence native inchangée. Aucun document ni identifiant réel n’est transmis à Canva.
-- Tests existants : `causerie-eleven-slides-browser.py`, `causerie-club-situations-browser.py`, `causerie-export-photos-browser.py`.
-
-Pour produire une planche de contrôle depuis le fichier exporté :
-
-```bash
-python3 scripts/preview-causerie-pptx.py /tmp/causerie-premium-native.pptx /tmp/causerie-premium-preview.png
-```
-
-Le script rend la géométrie du XML du PPTX avec Pillow, les images et les premiers états des animations. Cet aperçu est un contrôle statique approximatif, pas le moteur de rendu PowerPoint ni une preuve de lecture des animations dans Canva. Les trajectoires sont vérifiées séparément dans le XML des fichiers réels.
-
-## Ajustements visuels 270
-
-Les onze slides ne portent plus de bandeau inférieur, de signature répétée ni de compteur. La composition utilise des noms Arial en graisse normale et une taille légèrement réduite, sans changer les joueurs ni les positions. Le contexte utilise par défaut la photo « Échange entre joueurs » ; les photos personnelles affectées au contexte restent prioritaires. Les slides 6 à 9 affichent uniquement les consignes et les schémas/animations sélectionnés, sans photo décorative, pour conserver toute la place aux situations tactiques.
-
-
-## Slide 3 — dynamique complète (274)
-
-Le bloc « Nos objectifs » est retiré de la projection. Les anciennes valeurs de `contextObjective` restent conservées dans les notes, sans toucher à la causerie enregistrée. Les points de `contextDynamics` sont tous affichés, sans limite aux deux premiers ni troncature par caractère, dans une grille de cartes numérotées (deux colonnes, quatre cartes pour quatre points). Les retours à la ligne et fins de phrase délimitent les points. Un contexte distinct reste intégralement affiché au-dessus ; sans dynamique explicite, le texte de contexte constitue les points de la grille.
-
-Titre Montserrat gras, texte Arial gras de 21 pt (16 pt pour les contenus denses), repères blancs sur pastilles marine/bleues, cartes bleu très clair à bordure fine. La photo n’empiète pas sur la grille. La slide 11 est conservée. La slide 1 conserve sa présentation ouverte sans aplats derrière la date et le lieu ; tous ses textes sont en Arial gras, son titre sans italique.
-
-La slide 4 porte le titre « Informations adversaire » et exporte le texte libre entier ; il n’est plus assimilé à un simple nom. Les forces, points à exploiter et l’organisation des anciennes causeries apparaissent seulement s’ils sont renseignés. Aucun système de jeu adverse n’est inventé comme valeur de remplacement. Le contexte et les informations adverses restent sur les mêmes slides du modèle de onze pages ; les textes très longs utilisent l’ajustement à la zone disponible du lecteur PowerPoint.
+Les PDF de contrôle sont convertis avec LibreOffice ; ils affichent un état fixe des animations. Leur contrôle visuel ne remplace pas une lecture animée dans Microsoft PowerPoint ni un import dans un compte Canva réel.

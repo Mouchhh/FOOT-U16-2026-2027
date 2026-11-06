@@ -28,7 +28,7 @@ with sync_playwright() as p:
   with zipfile.ZipFile(path) as z:
    assert z.testzip() is None
    slides=sorted([n for n in z.namelist() if re.fullmatch(r'ppt/slides/slide\d+\.xml',n)],key=lambda n:int(re.search(r'(\d+)\.xml',n)[1]));assert len(slides)==11
-   titles=['CHAMPIONNAT','La composition','Le contexte','L’adversaire','Nos idées fortes','Animation Défensive','Transition OFF / DEF','Animation Offensive','Transition DEF / OFF','CPA','ENSEMBLE']
+   titles=['CHAMPIONNAT','La composition','La dynamique du groupe','Informations adversaire','Nos idées fortes','Animation Défensive','Transition OFF / DEF','Animation Offensive','Transition DEF / OFF','CPA','ENSEMBLE']
    for name,title in zip(slides,titles):assert title in ''.join(ET.fromstring(z.read(name)).itertext()),(name,title)
    for n in [6,7,8,9]:
     root=ET.fromstring(z.read('ppt/slides/slide'+str(n)+'.xml'))

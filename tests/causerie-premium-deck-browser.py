@@ -8,16 +8,20 @@ with sync_playwright() as p:
  page.goto('http://localhost:3016/?mode=local');page.wait_for_function('window.causerieEleven&&window.causerieExportPhotos')
  page.evaluate(r'''()=>{
  const board=structuredClone(getCompositionBoard());board.title='Causerie · exemple de mise en page';board.formation='4-3-3';
- board.matchPreparation={...newMatchPreparation(),title:'APERÇU · EXEMPLE DE MISE EN PAGE',match:'STADE MAYENNAIS / ADVERSAIRE',date:'2026-11-07',round:'Journée 6',venue:'À l’extérieur',contextObjective:'Imposer notre rythme. Jouer ensemble jusqu’au bout.',contextDynamics:'Garder notre confiance.\nAccepter les temps faibles.\nSe parler pour rester organisés.\nFaire les efforts ensemble jusqu’au bout.',context:'Un groupe prêt à faire les efforts ensemble.\nUn déplacement qui demande de la concentration.\nEntrer dans le match dès les premières minutes.\nGarder nos repères quand le rythme change.\nRester solidaires jusqu’au coup de sifflet final.',opponent:'Adversaire · exemple.\nUne équipe qui cherche rapidement ses attaquants.\nIdentifier les espaces libres avant de recevoir.\nGarder une couverture derrière chaque pression.',opponentStrengths:'Jeu direct vers les attaquants. Présence sur les seconds ballons.',opponentWeaknesses:'Espace derrière le premier rideau. Côtés à exploiter.',opponentAnimation:'4-4-2 · bloc médian',objectives:['Jouer simple et vers l’avant','Rester proches pour défendre','Accélérer après la récupération',''],defensive:'Fermer l’axe et orienter vers le côté. Coulisser ensemble. '+('Texte complet du coach à conserver dans les notes. '.repeat(35))+'FIN-INTÉGRALE-DEF',offensive:'Écarter pour libérer l’intérieur. Fixer avant de trouver le troisième joueur.',transitionOffDef:'Freiner immédiatement le porteur. Les partenaires protègent l’axe.',transitionDefOff:'Lever la tête dès la récupération. Chercher la profondeur si elle est libre.',setPiecesFor:'Attaquer les zones définies. Être présents au second ballon.',setPiecesAgainst:'Rester concentrés sur les marquages. Sortir ensemble après le dégagement.',closingMessage:'JOUER ENSEMBLE.\nFAIRE LES EFFORTS ENSEMBLE.'};
+ for(let i=0;i<3;i++)board.players.push({...board.players[0],id:100+i,name:'Impacteur '+(i+1),number:12+i,role:'sub',photo:''});
+ board.matchPreparation={...newMatchPreparation(),title:'APERÇU · EXEMPLE DE MISE EN PAGE',match:'STADE MAYENNAIS / ADVERSAIRE',date:'2026-11-07',round:'Journée 6',venue:'À l’extérieur',contextObjective:'Imposer notre rythme. Jouer ensemble jusqu’au bout.',contextDynamics:'Garder notre confiance.\nAccepter les temps faibles.\nSe parler pour rester organisés.\nFaire les efforts ensemble jusqu’au bout.',context:'Un groupe prêt à faire les efforts ensemble.\nUn déplacement qui demande de la concentration.\nEntrer dans le match dès les premières minutes.\nGarder nos repères quand le rythme change.\nRester solidaires jusqu’au coup de sifflet final.',opponent:'Adversaire · exemple.\nUne équipe qui cherche rapidement ses attaquants.\nIdentifier les espaces libres avant de recevoir.\nGarder une couverture derrière chaque pression.',opponentStrengths:'Jeu direct vers les attaquants. Présence sur les seconds ballons.',opponentWeaknesses:'Espace derrière le premier rideau. Côtés à exploiter.',opponentAnimation:'4-4-2 · bloc médian',objectives:['Jouer simple et vers l’avant','Rester proches pour défendre','Accélérer après la récupération','Prendre du plaisir à jouer ensemble'],defensive:'BLOC HAUT :\nOrienter la première relance vers un côté.\nLe partenaire proche couvre la sortie du porteur.\n\nBLOC MÉDIAN :\nCoulisser ensemble et fermer les passes intérieures.\nGarder une couverture derrière la ligne.',offensive:'Écarter pour libérer l’intérieur. Fixer avant de trouver le troisième joueur.',transitionOffDef:'Freiner immédiatement le porteur. Les partenaires protègent l’axe.',transitionDefOff:'Lever la tête dès la récupération. Chercher la profondeur si elle est libre.',setPiecesFor:'Attaquer les zones définies. Être présents au second ballon.',setPiecesAgainst:'Rester concentrés sur les marquages. Sortir ensemble après le dégagement.',closingMessage:'JOUER ENSEMBLE.\nFAIRE LES EFFORTS ENSEMBLE.'};
  const sequence=(id,title)=>{const initial={tokens:[{id:'6',label:'6',side:'own',x:25,y:45},{id:'8',label:'8',side:'own',x:45,y:35},{id:'10',label:'10',side:'own',x:60,y:65},{id:'9',label:'9',side:'away',x:65,y:45}],ball:{x:30,y:50}};return {id,title,updatedAt:new Date().toISOString(),speed:'1',choice:'forward',state:{sequenceId:id,sequenceTitle:title,scenario:'custom',step:0,tokens:structuredClone(initial.tokens),ball:{...initial.ball},customBase:initial,customSteps:[[{id:'6',x:50,y:40,type:'move'},{id:'ball',x:50,y:40,type:'pass'}]]}};};
  const object=(id,type,x,y,color)=>({id,type,x,y,color,label:type==='blue'?'6':'',rotation:0,scale:1});
  const objects=[object('a','blue',25,40,'#0055a5'),object('b','blue',55,65,'#0055a5'),object('c','red',50,45,'#e31b23'),object('ball','ball',30,45,'#ffffff'),object('cone','cone',75,30,'#f59e0b')];
  const exercise={id:'demo-exercise',title:'Fixer pour sortir de la pression',custom:{title:'Fixer pour sortir de la pression',goal:'Trouver un partenaire libre après fixation',organisation:'Deux équipes et un appui. Zone de 40 × 32 mètres.',instructions:'Attirer un adversaire avant de transmettre. Changer le rythme à la passe vers l’avant. FIN-INTÉGRALE-EXERCICE',material:'Ballons, chasubles, coupelles',success:'Le joueur libre reçoit orienté.',kind:'possession',width:40,length:32,board:{version:1,lines:true,seconds:1,frames:[{objects},{objects:objects.map(o=>({...o,x:Math.min(90,o.x+12)}))}]}}};
- board.causerieSlideAnimations={defensive:[sequence('def-a','Coulisser et protéger l’axe')],offensive:[],offDef:[sequence('loss','Freiner pour reformer le bloc')],defOff:[sequence('win','Trouver la première passe') ]};board.causerieSlideExercises={defensive:[],offensive:[exercise],offDef:[],defOff:[]};
- window.premiumSnapshot={board,linked:null,demonstrations:{sequences:[],media:[]},photos:{choices:{1:'club:celebration-equipe',3:'club:echange-joueurs',6:'club:action-ballon',11:'club:cercle-equipe'},items:[]},landscape:true};window.premiumSourceBefore=JSON.stringify(premiumSnapshot);
+ board.causerieSlideAnimations={defensive:[sequence('def-a','Bloc haut · orienter ensemble'),sequence('def-b','Bloc médian · protéger l’axe')],offensive:[],offDef:[sequence('loss','Freiner pour reformer le bloc')],defOff:[sequence('win','Trouver la première passe') ]};board.causerieSlideExercises={defensive:[],offensive:[exercise],offDef:[],defOff:[]};
+ window.premiumSnapshot={board,linked:null,demonstrations:{sequences:[],media:[]},photos:{choices:{1:'club:celebration-equipe',3:'club:echange-joueurs',5:'club:entree-terrain',10:'club:encadrement',6:'club:action-ballon',11:'club:cercle-equipe'},items:[]},landscape:true};window.premiumSourceBefore=JSON.stringify(premiumSnapshot);
  }''')
  for variant in ['native','gif']:
-  page.evaluate('(variant)=>premiumSnapshot.board.causerieAnimationVariant=variant',variant)
+  page.evaluate(r'''variant=>{
+   premiumSnapshot.board.causerieAnimationVariant=variant;
+   if(variant==='gif')premiumSnapshot.board.matchPreparation.defensive+='\n'+('Texte complet du coach à conserver dans les notes. '.repeat(35))+'FIN-INTÉGRALE-DEF';
+  }''',variant)
   before=page.evaluate('JSON.stringify(premiumSnapshot)')
   with page.expect_download(timeout=120000) as dl:
    page.evaluate('''async()=>{const deck=await causerieExport.build(premiumSnapshot,false);const blob=await deck.write({outputType:'blob'});mediaDownload(blob,'causerie-premium-exemple.pptx');}''')
@@ -39,11 +43,19 @@ with sync_playwright() as p:
     root=ET.fromstring(z.read(f'ppt/slides/slide{i}.xml'))
     assert not any(n.get('name','').startswith('club-ribbon-') for n in root.findall('.//p:cNvPr',NS))
     assert 'STADE MAYENNAIS  /  CAUSERIE' not in ''.join(root.itertext())
-    if i==6:assert len(root.findall('.//p:pic',NS))==(1 if variant=='native' else 2), 'Only logo and tactical media, no decorative photo'
+    if i==6:assert len(root.findall('.//p:pic',NS))==(1 if variant=='native' else 3), 'Only logo and tactical media, no decorative photo'
     if i in (1,11):assert root.find('p:cSld/p:bg/p:bgPr/a:solidFill/a:srgbClr',NS).get('val')=='0055A5'
    contents=''.join(z.read(s).decode() for s in slides)
    for color in ['0B192C','E31B23','0055A5','B45309','247342']:assert color in contents,color
    assert 'Montserrat' in contents and 'Arial' in contents
+   assert 'Prendre du plaisir à jouer ensemble' in ''.join(ET.fromstring(z.read('ppt/slides/slide5.xml')).itertext())
+   for n in [3,5,10]:
+    names=[v.get('name','') for v in ET.fromstring(z.read(f'ppt/slides/slide{n}.xml')).findall('.//p:cNvPr',NS)]
+    assert f'club-reference-angle-{n}' in names
+    assert f'personal-photo-{n}' in names
+   for n in range(2,11):
+    names=[v.get('name','') for v in ET.fromstring(z.read(f'ppt/slides/slide{n}.xml')).findall('.//p:cNvPr',NS)]
+    assert len([v for v in names if v.startswith(f'club-reference-chevron-{n}-')])==3
    cover=ET.fromstring(z.read('ppt/slides/slide1.xml'))
    for run in cover.findall('.//a:r',NS):
     prop=run.find('a:rPr',NS)
@@ -60,7 +72,8 @@ with sync_playwright() as p:
    assert 'Imposer notre rythme.' not in ''.join(context.itertext())
    assert 'Imposer notre rythme.' in ''.join(ET.fromstring(z.read('ppt/notesSlides/notesSlide3.xml')).itertext())
    assert 'FIN-INTÉGRALE-DEF' not in z.read('ppt/slides/slide6.xml').decode()
-   assert 'FIN-INTÉGRALE-DEF' in z.read('ppt/notesSlides/notesSlide6.xml').decode()
+   if variant=='gif':assert 'FIN-INTÉGRALE-DEF' in z.read('ppt/notesSlides/notesSlide6.xml').decode()
+   else:assert 'Garder une couverture derrière la ligne.' in ''.join(ET.fromstring(z.read('ppt/slides/slide6.xml')).itertext())
    assert 'FIN-INTÉGRALE-EXERCICE' in z.read('ppt/notesSlides/notesSlide8.xml').decode()
    assert 'RÈGLES DE L’ATELIER' in ''.join(ET.fromstring(z.read('ppt/slides/slide8.xml')).itertext())
    assert 'Attirer un adversaire avant de transmettre.' in ''.join(ET.fromstring(z.read('ppt/slides/slide8.xml')).itertext())

@@ -100,6 +100,16 @@
       bodyFontFace: "Arial",
       lang: "fr-FR",
     };
+    const angularPhotos = {};
+    for (const n of [3, 4, 5, 10]) if (photos[n]) {
+      const image = new Image(); image.src = photos[n].portrait; await image.decode();
+      const canvas = document.createElement("canvas"); canvas.width = 520; canvas.height = 1100;
+      const c = canvas.getContext("2d");
+      c.beginPath();c.moveTo(125,0);c.lineTo(520,0);c.lineTo(395,1100);c.lineTo(0,1100);c.closePath();c.clip();
+      const scale = Math.max(520 / image.naturalWidth, 1100 / image.naturalHeight);
+      c.drawImage(image, (520-image.naturalWidth*scale)/2, (1100-image.naturalHeight*scale)/2, image.naturalWidth*scale, image.naturalHeight*scale);
+      angularPhotos[n] = canvas.toDataURL("image/png");
+    }
     const slides = [],
       hosts = [],
       exerciseHosts = [];
@@ -151,8 +161,12 @@
       if (dark) {
         rect(slide, 0, 0, 0.14, 7.5, WHITE);
       } else {
-        rect(slide, 0, 0, 13.333333, 1.6, "F2F6FB");
-        rect(slide, 0, 0, 13.333333, 0.055, accent);
+        rect(slide, 0, 0, 13.333333, 0.045, BLUE);
+        for (let i = 0; i < 3; i++) slide.addShape(S.chevron, {
+          x: 0.65 + i * 0.29, y: 0.43, w: 0.24, h: 0.25,
+          fill: { color: BLUE }, line: { transparency: 100 },
+          objectName: "club-reference-chevron-" + n + "-" + i,
+        });
       }
       if (dark && photos[n]) {
         slide.addImage({
@@ -166,23 +180,22 @@
         rect(slide, 8.76, 0, 0.06, 7.5, WHITE);
         rect(slide, 8.82, 0, 0.08, 7.5, RED);
       }
-      if (photo && photos[n])
-        slide.addImage({
-          data: photos[n].portrait,
-          x: 9.8,
-          y: 1.7,
-          w: 2.9,
-          h: 4.91,
-          objectName: "personal-photo-" + n,
+      if (photo && angularPhotos[n]) {
+        slide.addShape(S.rtTriangle, {
+          x: 0, y: 3.8, w: 2.85, h: 3.7,
+          fill: { color: BLUE }, line: { transparency: 100 },
+          objectName: "club-reference-angle-" + n,
         });
-      rect(slide, 0.65, 0.46, 0.08, 0.27, accent);
-      text(slide, kicker, 0.86, 0.48, 10, 0.23, 10, {
-        bold: true,
-        charSpacing: 1.8,
-        color: dark ? "D7E3F1" : accent,
+        slide.addImage({ data: angularPhotos[n], x: 0.15, y: 1.72, w: 2.7, h: 5.55,
+          objectName: "personal-photo-" + n });
+      }
+      if (dark) rect(slide, 0.65, 0.46, 0.08, 0.27, accent);
+      text(slide, kicker, dark ? 0.86 : 1.66, 0.48, 9, 0.23, 10, {
+        bold: true, charSpacing: 1.6, color: dark ? "D7E3F1" : MUTED,
       });
       if (!dark)
-        heading(slide, title, 0.65, 0.95, 10.8, 0.55, 30, { color: BLUE });
+        heading(slide, title, 0.65, 0.92, 10.8, 0.55, 30, { color: NAVY });
+      if (!dark) { line(slide, 0.65, 1.56, 12.03); rect(slide, 0.65, 1.54, 0.85, 0.04, accent); }
       slide.addShape(S.ellipse, {
         x: 11.91,
         y: 0.32,
@@ -228,20 +241,16 @@
       });
     }
     function block(slide, label, value, x, y, w, h, { accent = BLUE } = {}) {
-      rect(slide, x, y - 0.06, w, 0.46, accent);
-      text(slide, label.toUpperCase(), x + 0.12, y + 0.04, w - 0.24, 0.3, 11, {
-        bold: true,
-        charSpacing: 1.2,
-        color: WHITE,
+      text(slide, label.toUpperCase(), x, y, w, 0.3, 12, {
+        bold: true, charSpacing: 1.1, color: NAVY,
       });
-      bullets(slide, value, x, y + 0.7, w, h - 0.7, {
-        accent,
-        chars: w < 3 ? 60 : w < 4 ? 75 : 135,
-        size: 21,
-      });
+      line(slide, x, y + 0.45, w, accent);
+      if (String(value || "").length <= 1400)
+        text(slide, value, x, y + 0.7, w, h - 0.7, String(value || "").length > 500 ? 17 : 21);
+      else bullets(slide, value, x, y + 0.7, w, h - 0.7, { accent, chars: 150, size: 18 });
     }
-    function photoBodyWidth(n) {
-      return photos[n] ? 8.7 : 12.03;
+    function bodyFrame(n, photo = !!photos[n]) {
+      return photo ? { x: 3.35, w: 9.33 } : { x: 0.65, w: 12.03 };
     }
     let slide = base("Infos match", 1, {
       dark: true,
@@ -299,7 +308,7 @@
     ]);
     slide = base("La composition d’équipe", 2, { kicker: "NOTRE ÉQUIPE" });
     const pitch = await pitchImage(
-      { ...board, benchVisible: true, lanes: false },
+      { ...board, benchVisible: false, lanes: false },
       true,
       { nameScale: 1.65, nameWeight: "normal" },
     );
@@ -368,45 +377,40 @@
       const count = filled.reduce((sum, section) => sum + String(section.value).length, 0);
       const withPhoto = !!photos[n] && count <= 650;
       const page = base(title, n, { kicker, photo: withPhoto });
-      const width = withPhoto ? 8.7 : 12.03;
+      const frame = bodyFrame(n, withPhoto), width = frame.w;
       const primary = filled.find(section => section.primary);
       const secondary = filled.filter(section => section !== primary);
-      const panel = (section, x, y, w, h) => {
-        rect(page, x, y, w, 0.42, section.accent || BLUE);
-        text(page, section.label.toUpperCase(), x + 0.13, y + 0.08, w - 0.26, 0.28, 10, {
-          bold: true, charSpacing: 1.1, color: WHITE,
-        });
-        text(page, String(section.value).trim(), x + 0.04, y + 0.65, w - 0.08, h - 0.65,
-          String(section.value).length > 500 ? 16 : 20, { breakLine: false, paraSpaceAfterPt: 10 });
-      };
+      const panel = (section, x, y, w, h) => block(page, section.label, section.value, x, y, w, h, { accent: section.accent || BLUE });
       if (primary && secondary.length) {
         const primaryWidth = width * 0.6 - 0.2;
-        panel(primary, 0.65, 1.85, primaryWidth, 4.95);
+        panel(primary, frame.x, 1.85, primaryWidth, 4.95);
         const slot = (4.95 - (secondary.length - 1) * 0.22) / secondary.length;
-        secondary.forEach((section, index) => panel(section, 1.05 + primaryWidth, 1.85 + index * (slot + 0.22), width - primaryWidth - 0.4, slot));
+        secondary.forEach((section, index) => panel(section, frame.x + 0.4 + primaryWidth, 1.85 + index * (slot + 0.22), width - primaryWidth - 0.4, slot));
       } else {
         const columns = Math.max(1, filled.length), gap = 0.35, w = (width - gap * (columns - 1)) / columns;
-        filled.forEach((section, index) => panel(section, 0.65 + index * (w + gap), 1.85, w, 4.95));
+        filled.forEach((section, index) => panel(section, frame.x + index * (w + gap), 1.85, w, 4.95));
       }
       notes(page, sections.map(section => section.value));
       return page;
     }
-    slide = base("La dynamique du groupe", 3, { kicker: "LE CONTEXTE DU MATCH" });
+    const contextPhoto = !!photos[3] && (String(p.context || "").length + String(p.contextDynamics || "").length <= 850);
+    slide = base("La dynamique du groupe", 3, { kicker: "LE CONTEXTE DU MATCH", photo: contextPhoto });
+    const contextFrame = bodyFrame(3, contextPhoto);
     const dynamicText = String(p.contextDynamics || p.context || "").trim();
     const dynamicPoints = dynamicText.split(/\n+|(?<=\.)\s+/)
       .map(value => value.trim()).filter(Boolean);
     const hasContext = !!(p.contextDynamics && String(p.context || "").trim());
     if (hasContext) {
-      rect(slide, 0.65, 1.8, 0.055, 1.05, BLUE);
-      text(slide, String(p.context).trim(), 0.87, 1.82, 11.5, 1.08, 16, { color: MUTED });
+      rect(slide, contextFrame.x, 1.8, 0.045, 1.05, BLUE);
+      text(slide, String(p.context).trim(), contextFrame.x + 0.18, 1.82, contextFrame.w - 0.18, 1.08, 16, { color: MUTED });
     }
     const dynamicTop = hasContext ? 3.12 : 1.85;
     const columns = dynamicPoints.length === 1 ? 1 : 2;
     const rows = Math.max(1, Math.ceil(dynamicPoints.length / columns));
-    const gap = 0.28, cardWidth = (12.03 - gap * (columns - 1)) / columns;
+    const gap = 0.28, cardWidth = (contextFrame.w - gap * (columns - 1)) / columns;
     const cardHeight = (6.85 - dynamicTop - gap * (rows - 1)) / rows;
     dynamicPoints.forEach((point, index) => {
-      const x = 0.65 + (index % columns) * (cardWidth + gap);
+      const x = contextFrame.x + (index % columns) * (cardWidth + gap);
       const y = dynamicTop + Math.floor(index / columns) * (cardHeight + gap);
       slide.addShape(S.roundRect, {
         x, y, w: cardWidth, h: cardHeight, radius: 0.12,
@@ -431,32 +435,15 @@
       { label: "Points à exploiter", value: p.opponentWeaknesses },
       { label: "Organisation", value: p.opponentAnimation, accent: NAVY },
     ]);
-    slide = base("Nos idées fortes", 5, {
-      kicker: "TROIS REPÈRES POUR JOUER ENSEMBLE",
-      photo: true,
+    slide = base("Nos idées fortes", 5, { kicker: "NOS INGRÉDIENTS POUR CE MATCH", photo: true });
+    const goalsFrame = bodyFrame(5), goals = (p.objectives || []).filter(value => String(value).trim());
+    const goalSlot = 4.95 / Math.max(1, goals.length);
+    goals.forEach((goal, i) => {
+      const y = 1.95 + i * goalSlot;
+      text(slide, String(i + 1).padStart(2, "0"), goalsFrame.x, y + 0.04, 0.65, 0.42, 22, { color: BLUE, bold: true });
+      text(slide, goal, goalsFrame.x + 0.95, y, goalsFrame.w - 1.0, goalSlot - 0.25, goal.length > 180 ? 18 : 25, { bold: true });
+      if (i < goals.length - 1) line(slide, goalsFrame.x, y + goalSlot - 0.15, goalsFrame.w);
     });
-    const gw = photoBodyWidth(5),
-      gc = (gw - 0.8) / 3,
-      goals = p.objectives || [];
-    for (let i = 0; i < 3; i++) {
-      const x = 0.65 + i * (gc + 0.4);
-      heading(slide, String(i + 1).padStart(2, "0"), x, 2.05, gc, 0.65, 40, {
-        color: i === 0 ? RED : BLUE,
-      });
-      line(slide, x, 3, gc);
-      heading(
-        slide,
-        excerpt(
-          i === 2 ? goals.slice(2).filter(Boolean).join(" · ") : goals[i],
-          110,
-        ),
-        x,
-        3.35,
-        gc,
-        2.65,
-        24,
-      );
-    }
     notes(slide, goals);
     const colors = {
         defensive: RED,
@@ -492,55 +479,28 @@
         );
       const accent = colors[key];
       slide = base(phase.title, phase.slide, { accent, kicker: kickers[key] });
-      rect(slide, 0.65, 1.8, 0.055, 4.8, accent);
-      rect(slide, 0.86, 1.8, 2.75, 0.42, accent);
-      text(slide, "NOS CONSIGNES", 0.86, 1.85, 2.75, 0.3, 11, {
-        bold: true,
-        color: WHITE,
-        charSpacing: 1,
-        margin: [0, 0.12, 0, 0.12],
-      });
+      const textX = 7.4, textW = 5.28;
+      text(slide, "NOS REPÈRES", textX, 1.85, textW, 0.28, 12, { bold: true, color: accent, charSpacing: 1 });
+      line(slide, textX, 2.27, textW, accent);
       const body = p[phase.field] || "";
-      const singleExercise =
-        choices.length === 1 && choices[0].exercise?.custom.board
-          ? choices[0].exercise.custom
-          : null;
+      const singleExercise = choices.length === 1 && choices[0].exercise?.custom.board ? choices[0].exercise.custom : null;
+      const prose = (value, y, h, size = 20) => {
+        if (value.length <= 1400) text(slide, value, textX, y, textW, h, value.length > 500 ? 17 : size);
+        else bullets(slide, value, textX, y, textW, h, { count: 4, chars: 130, size: 18, accent });
+      };
       if (singleExercise) {
-        bullets(slide, body, 0.86, 2.4, 2.75, 1.2, {
-          count: 1,
-          chars: 80,
-          size: 19,
-          accent,
-        });
-        text(slide, "RÈGLES DE L’ATELIER", 0.86, 3.85, 2.75, 0.3, 11, {
-          bold: true,
-          color: accent,
-          charSpacing: 0.6,
-        });
-        bullets(
-          slide,
-          singleExercise.instructions,
-          0.86,
-          4.3,
-          2.75,
-          2.2,
-          { count: 2, chars: 65, size: 17, accent },
-        );
-      } else
-        bullets(slide, body, 0.86, 2.4, 2.75, 4.05, {
-          count: 3,
-          chars: 72,
-          size: 19,
-          accent,
-        });
-      const stage = { x: 4.05, y: 1.8, w: 8.63, h: 4.96 };
+        prose(body, 2.55, 1.2);
+        text(slide, "RÈGLES DE L’ATELIER", textX, 4.0, textW, 0.28, 12, { bold: true, color: accent });
+        prose(ideas(singleExercise.instructions, 2, 220).join("\n"), 4.48, 2.2, 18);
+      } else prose(body, 2.6, 4.1);
+      const stage = { x: 0.65, y: 1.8, w: 6.15, h: 5.05 };
       if (!choices.length) {
-        rect(slide, 4.05, 1.8, 8.63, 4.96, "F3F6FA");
-        heading(slide, kickers[key], 4.65, 3.25, 7.4, 1.05, 30, {
+        rect(slide, stage.x, stage.y, stage.w, stage.h, "F3F6FA");
+        heading(slide, kickers[key], stage.x + 0.3, 3.25, stage.w - 0.6, 1.05, 26, {
           color: accent,
         });
       } else {
-        const cols = choices.length === 1 ? 1 : 2,
+        const cols = choices.length <= 2 ? 1 : 2,
           rows = Math.ceil(choices.length / cols),
           gap = 0.25,
           tileW = (stage.w - gap * (cols - 1)) / cols,
@@ -639,15 +599,15 @@
       kicker: "ÊTRE PRÊTS DANS LES DEUX SURFACES",
       photo: true,
     });
-    const sw = photoBodyWidth(10),
+    const cpaFrame = bodyFrame(10), sw = cpaFrame.w,
       sc = (sw - 0.6) / 2;
-    block(slide, "Offensifs", p.setPiecesFor, 0.65, 2, sc, 3.9, {
+    block(slide, "Offensifs", p.setPiecesFor, cpaFrame.x, 2, sc, 3.9, {
       accent: BLUE,
     });
-    block(slide, "Défensifs", p.setPiecesAgainst, 1.25 + sc, 2, sc, 3.9, {
+    block(slide, "Défensifs", p.setPiecesAgainst, cpaFrame.x + 0.6 + sc, 2, sc, 3.9, {
       accent: RED,
     });
-    text(slide, excerpt(p.specific, 180), 0.65, 6.25, sw, 0.4, 14, {
+    text(slide, excerpt(p.specific, 350), cpaFrame.x, 6.25, sw, 0.4, 14, {
       color: MUTED,
     });
     notes(slide, [p.setPiecesFor, p.setPiecesAgainst, p.specific]);
@@ -690,7 +650,7 @@
     build,
     fields,
     phases,
-    templateVersion: "club-premium-275",
+    templateVersion: "club-reference-276",
     theme: {
       navy: NAVY,
       blue: BLUE,
