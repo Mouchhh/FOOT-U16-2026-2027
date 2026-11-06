@@ -18,7 +18,7 @@ with sync_playwright() as p:
  panel.get_by_label('Catégorie',exact=True).select_option('U17')
  panel.get_by_label('Championnat / niveau',exact=True).fill('Départementale 1')
  panel.locator('summary').click()
- panel.get_by_label('Lien de l’équipe FFF',exact=True).fill('https://epreuves.fff.fr/competition/club/548126-st-mayennais-f-c/equipe/2026_25254_U17_7/saison')
+ panel.get_by_label('Lien de l’équipe FFF',exact=True).fill('https://epreuves.fff.fr/competition/club/548126-st-mayennais-f-c/equipe/2026_25254_U17_7/classement')
  panel.get_by_label('Nom exact de l’équipe sur la FFF',exact=True).fill('Stade Mayennais U17')
  # A second legacy editor opening while setup is active must remain suspended.
  page.evaluate('document.getElementById("coach-editor").showModal()')
@@ -27,6 +27,6 @@ with sync_playwright() as p:
  page.evaluate("()=>{coachFFFApplyProfiles=profiles=>{window.saved=profiles;throw Error('stop before reload')}}")
  panel.get_by_role('button',name='Confirmer et ouvrir mon équipe',exact=True).click()
  page.wait_for_function('window.saved?.length===1')
- assert page.evaluate('meta.stade_team_profiles_v1[0].fffProfile.sourceURL.endsWith("/saison")')
+ assert page.evaluate('meta.stade_team_profiles_v1[0].fffProfile.sourceURL.endsWith("/classement")')
  assert not errors,errors;b.close()
 print('PASS: setup remains clickable above existing/new dialogs, keyboard focus stays inside, prior editor restores and valid FFF team reaches save')

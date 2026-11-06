@@ -15,6 +15,8 @@ with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1366,'height':900});errors=[]
  page.on('pageerror',lambda e:errors.append(str(e)));page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function("typeof agendaFFFParse==='function' && window.trainingWizard")
  assert page.evaluate('(u)=>agendaFFFURL(u)',URL)==URL
+ assert page.evaluate('(u)=>agendaFFFURL(u)',URL.replace('/saison','/classement'))==URL.replace('/saison','/classement')
+ assert page.evaluate('(u)=>agendaFFFURL(u)',URL.replace('/saison','/classement/'))==URL.replace('/saison','/classement')
  assert page.evaluate("agendaFFFURL('https://epreuves.fff.fr.evil.example/competition/club/1/equipe/2/saison')")==''
  parsed=page.evaluate('([t,u])=>agendaFFFParse(t,u)',[ICS,URL]);assert parsed[0]['time']=='18:00'
  assert page.evaluate("agendaFFFDate('20260705T230000Z').date")=='2026-07-06'

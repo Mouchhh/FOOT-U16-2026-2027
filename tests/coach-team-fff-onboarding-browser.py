@@ -14,6 +14,8 @@ with sync_playwright() as p:
  panel.get_by_role('button',name='Rechercher mon équipe sur la FFF').click()
  select=panel.get_by_label('Équipe officielle trouvée',exact=True)
  assert select.locator('option').count()==2
+ # Both FFF team page variants resolve to a single choice, preferring standings.
+ assert page.evaluate("""()=>coachFFFCandidates('<a href=\"/competition/club/548126-st-mayennais-f-c/equipe/2026_25254_U17_7/saison\">U17</a><a href=\"/competition/club/548126-st-mayennais-f-c/equipe/2026_25254_U17_7/classement\">U17 D1</a>',agendaFFFDefault,'U17').map(c=>c.url)""")==['https://epreuves.fff.fr/competition/club/548126-st-mayennais-f-c/equipe/2026_25254_U17_7/classement']
  # Discovery must never silently choose a side.
  assert select.input_value()==''
  select.select_option(index=1)

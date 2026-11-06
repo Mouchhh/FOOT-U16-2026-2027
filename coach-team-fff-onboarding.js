@@ -8,16 +8,18 @@ function coachFFFIdentity(team){const p=team.fffProfile;return JSON.stringify([c
 function coachFFFSource(){return coachFFFProfileValid(activeCoachTeam)?activeCoachTeam.fffProfile.sourceURL:'';}
 function coachFFFCandidates(html,sourceURL,category){
  if(typeof html!=='string'||html.length>4000000)throw Error('Page FFF invalide.');
- const page=new DOMParser().parseFromString(html,'text/html'),seen=new Set(),result=[];
+ const page=new DOMParser().parseFromString(html,'text/html'),seen=new Map(),result=[];
  for(const link of page.querySelectorAll('a[href]')){
   let url;try{url=agendaFFFURL(new URL(link.getAttribute('href'),sourceURL).href);}catch{continue;}
-  if(!url||seen.has(url))continue;
+  if(!url)continue;
   const label=(link.textContent||link.getAttribute('aria-label')||link.getAttribute('title')||'').replace(/\s+/g,' ').trim().slice(0,150);
   if(!label)continue;
   const key=coachTeamNormalize(label+' '+decodeURIComponent(url)),wanted=coachTeamNormalize(category);
   const matches=/^u\d+$/.test(wanted)?new RegExp('(?:^|[^a-z0-9])'+wanted+'(?:[^0-9]|$)').test(key):key.includes(wanted);
   if(!matches)continue;
-  seen.add(url);result.push({url,label});
+  const teamURL=url.replace(/\/(saison|classement)$/,'');
+  if(seen.has(teamURL)){if(url.endsWith('/classement'))result[seen.get(teamURL)]={url,label};continue;}
+  seen.set(teamURL,result.length);result.push({url,label});
  }
  return result.slice(0,80);
 }
@@ -70,7 +72,7 @@ function coachFFFOpen({add=false}={}){
  const search=el('button','primary','Rechercher mon équipe sur la FFF');search.type='button';
  const status=el('p','coach-fff-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');const results=el('div','coach-fff-results');
  const fallback=el('details'),summary=el('summary','','Associer un lien FFF (facultatif)');fallback.append(summary);
- const urlLabel=el('label','','Lien de l’équipe FFF'),url=el('input');url.type='url';url.value=previous?.sourceURL||'';url.setAttribute('aria-label','Lien de l’équipe FFF');url.placeholder='https://epreuves.fff.fr/competition/club/…/equipe/…/saison';urlLabel.append(url);
+ const urlLabel=el('label','','Lien de l’équipe FFF'),url=el('input');url.type='url';url.value=previous?.sourceURL||'';url.setAttribute('aria-label','Lien de l’équipe FFF');url.placeholder='https://epreuves.fff.fr/competition/club/…/equipe/…/classement';urlLabel.append(url);
  const nameLabel=el('label','','Nom exact de l’équipe sur la FFF'),officialName=el('input');officialName.maxLength=150;officialName.value=previous?.officialName||'';officialName.setAttribute('aria-label','Nom exact de l’équipe sur la FFF');nameLabel.append(officialName);
  fallback.append(el('p','hint','La liaison FFF est facultative pour enregistrer votre équipe. Vous pourrez l’ajouter ensuite depuis « Mon équipe FFF ».'),urlLabel,nameLabel);
  const save=el('button','primary','Confirmer et ouvrir mon équipe');save.type='submit';save.id='coach-fff-save';
