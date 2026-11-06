@@ -36,5 +36,10 @@ with sync_playwright() as p:
  # A JS-only/unrecognised upstream page must never replace official points.
  page.evaluate("""async()=>{clubNetworkRequest=async(p,o)=>({sourceURL:o.body.sourceURL,html:'<main>Loading</main>',fetchedAt:new Date().toISOString()});await homeFFFRefresh()}""")
  assert page.evaluate('coachStorageGet(homeFFFKey)===fffGood')
+ assert 'aucun classement HTML exploitable' in page.locator('.home-fff-ranking').inner_text()
+ page.evaluate("""async()=>{clubNetworkRequest=async()=>{const e=Error('FFF');e.code='fff_http_error';e.upstreamStatus=403;e.reference='00000000-0000-4000-8000-000000000000';throw e};await homeFFFRefresh()}""")
+ assert 'HTTP 403' in page.locator('.home-fff-ranking').inner_text()
+ assert '00000000-0000-4000-8000-000000000000' in page.locator('.home-fff-ranking').inner_text()
+ assert page.evaluate('coachStorageGet(homeFFFKey)===fffGood')
  assert not errors,errors;b.close()
 print('PASS: explicit FFF source, official points preserved, goals/difference table, stable import typing, history, scoped storage and mobile')

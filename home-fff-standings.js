@@ -106,6 +106,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 // One request per login/context; refreshes never overwrite another coach/team.
 const homeFFFRefreshes=new Map(),homeFFFRefreshStatus=new Map();
+function homeFFFErrorMessage(error){
+ const messages={fff_timeout:'La récupération FFF a dépassé le délai autorisé.',fff_network_error:'Connexion impossible entre Supabase et la FFF.',fff_redirect_not_allowed:'La FFF redirige vers une page non prise en charge.',fff_too_many_redirects:'La page FFF renvoie trop de redirections.',fff_empty_response:'La FFF a renvoyé une page vide.',fff_page_too_large:'La page FFF dépasse la taille autorisée.',configuration_missing:'Configuration du relais Supabase incomplète.',fff_markup_unrecognized:'Page FFF reçue, mais aucun classement HTML exploitable : les données peuvent être chargées séparément.',fff_relay_missing:'Le relais Supabase fff-standings est introuvable.',auth_service_unavailable:'La connexion au compte doit être vérifiée.'};
+ const message=messages[error?.code]||(['fff_http_error','fff_upstream_error'].includes(error?.code)?'La FFF a renvoyé HTTP '+(Number.isInteger(error.upstreamStatus)?error.upstreamStatus:'en erreur')+'.':error?.status===404?'Le relais Supabase fff-standings est introuvable.':'Actualisation FFF indisponible');
+ return message+(error?.reference?' Réf. '+error.reference:'');
+}
 async function homeFFFRefresh(){
  if(typeof clubNetworkBound!=='function'||!clubNetworkBound())return;
  const owner=trainingAgendaIdentity(),current=homeFFFRead(),sourceURL=current?.sourceURL||homeFFFDefaultURL();
@@ -118,12 +123,12 @@ async function homeFFFRefresh(){
    const response=await clubNetworkRequest('/functions/v1/fff-standings',{method:'POST',body:{sourceURL}});
    if(owner!==trainingAgendaIdentity()||!clubNetworkBound())return;
    if(response?.sourceURL!==sourceURL||typeof response.html!=='string'||!Number.isFinite(Date.parse(response.fetchedAt)))throw Error('Invalid response');
-   const data=homeFFFParse(response.html,{sourceURL,teamName:activeCoachTeam.fffProfile?.officialName||current?.teamName||agendaClubSchedule()?.team||activeCoachTeam.team||'',competition:activeCoachTeam.fffProfile?homeFFFCompetition():current?.competition||homeFFFCompetition()});
+   let data;try{data=homeFFFParse(response.html,{sourceURL,teamName:activeCoachTeam.fffProfile?.officialName||current?.teamName||agendaClubSchedule()?.team||activeCoachTeam.team||'',competition:activeCoachTeam.fffProfile?homeFFFCompetition():current?.competition||homeFFFCompetition()});}catch{const error=new Error('FFF markup');error.code='fff_markup_unrecognized';throw error;}
    // A manual import made while the request was pending takes precedence.
    if(coachStorageGet(homeFFFKey)!==initial)return;
    data.fetchedAt=response.fetchedAt;data.importedAt=response.fetchedAt;data.acquisition='automatic';
    coachStorageSet(homeFFFKey,JSON.stringify(data));homeFFFRefreshStatus.set(owner,'Classement FFF actualisé.');
-  }catch{if(owner===trainingAgendaIdentity())homeFFFRefreshStatus.set(owner,homeFFFRead()?'Actualisation FFF indisponible · dernier classement conservé.':'Actualisation FFF indisponible · aucun classement récupéré pour cette équipe.');}
+  }catch(error){if(owner===trainingAgendaIdentity())homeFFFRefreshStatus.set(owner,homeFFFErrorMessage(error)+(homeFFFRead()?' · dernier classement conservé.':' · aucun classement récupéré pour cette équipe.'));}
   finally{homeFFFRefreshes.delete(owner);if(owner===trainingAgendaIdentity())renderHomeWidgets();}
  })();
  homeFFFRefreshes.set(owner,task);return task;

@@ -94,7 +94,7 @@ function coachFFFOpen({add=false}={}){
    const label=el('label','','Équipe officielle trouvée'),select=el('select');select.setAttribute('aria-label','Équipe officielle trouvée');select.append(new Option('Confirmer l’équipe exacte…',''),...candidates.map(c=>new Option(c.label,c.url)));label.append(select);results.append(label);
    select.onchange=()=>{chosen=candidates.find(c=>c.url===select.value)||null;if(chosen){url.value=chosen.url;officialName.value=chosen.label;}};
    status.textContent=candidates.length+' équipe(s) trouvée(s). Vérifiez la catégorie, le numéro et le championnat avant de confirmer.';
-  }catch{if(isOwner()&&currentRun===run){status.textContent='La FFF ne permet pas la recherche pour le moment. Ouvrez sa page officielle puis collez le lien de votre équipe ci-dessous.';fallback.open=true;const link=el('a','home-live-open','Ouvrir les équipes du club sur la FFF ↗');link.href=clubURL;link.target='_blank';link.rel='noopener noreferrer';results.append(link);}}
+  }catch(error){if(isOwner()&&currentRun===run){status.textContent=homeFFFErrorMessage(error)+' Ouvrez la page officielle puis collez le lien de votre équipe ci-dessous.';fallback.open=true;const link=el('a','home-live-open','Ouvrir les équipes du club sur la FFF ↗');link.href=clubURL;link.target='_blank';link.rel='noopener noreferrer';results.append(link);}}
   finally{search.disabled=false;}
  };
  function entryFromForm(){

@@ -85,6 +85,7 @@ async function clubNetworkRequest(path,{method='GET',body,auth=true,retry=true}=
   }
   const operation=path.startsWith('/auth/v1/token?grant_type=password')?'identification':path.startsWith('/auth/')?'authentification':path.startsWith('/rest/v1/club_members?')?'profil du club':path.startsWith('/rest/')?'données du club':'service';
   const error=clubNetworkError('Requête refusée',response.status,code);
+  if(path==='/functions/v1/fff-standings'){if(Number.isInteger(result?.upstreamStatus)&&result.upstreamStatus>=100&&result.upstreamStatus<=599)error.upstreamStatus=result.upstreamStatus;if(typeof result?.reference==='string'&&/^[a-f0-9-]{36}$/.test(result.reference))error.reference=result.reference;}
   error.diagnostic='auth-181 / '+operation+' / HTTP '+response.status+' / '+(/^[a-zA-Z0-9_]{1,64}$/.test(code)?code:'sans code');
   throw error;
  }

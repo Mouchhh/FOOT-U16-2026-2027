@@ -49,3 +49,13 @@ Le panneau de configuration permet de préparer plusieurs équipes avant une seu
 Le sélecteur d'équipe existant en haut conserve son fonctionnement avec contexte figé et rechargement sécurisé. Sur le contexte sélectionné, la reconnexion déclenche l'actualisation avec son propre lien FFF. Le titre et la légende du classement identifient l'équipe active ; la clé de cache comporte l'identifiant de cette équipe. Un échec FFF sur U15 conserve seulement le classement U15, jamais celui des U17. Aucune donnée réelle FFF supplémentaire n'a été obtenue avec cette évolution.
 
 `tests/coach-multi-team-fff-browser.py` parcourt la saisie de deux équipes, la prévention des doublons, le choix initial U15, l'enregistrement dans le compte, puis les clics réels du sélecteur supérieur U15 → U17 → U15. Les classements simulés, leurs sources et les clés de cache restent séparés, y compris lors d'un échec réseau.
+
+## Relais Supabase : diagnostic précis (283)
+
+Remplacer intégralement le code de la fonction `fff-standings` par `supabase/functions/fff-standings/index.ts`, déployer et conserver la vérification JWT de passerelle désactivée (l'authentification utilisateur reste vérifiée dans la fonction).
+
+Le relais suit au maximum trois redirections vers les mêmes pages de compétition HTTPS autorisées. Il conserve le lien source original dans sa réponse, n'envoie jamais le Bearer utilisateur à la FFF et limite la lecture à 4 Mo. Un délai global de 18 secondes comprend les redirections et la lecture pour rester sous les 20 secondes du client.
+
+Les réponses d'erreur incluent `code`, `stage`, `reference` et éventuellement `upstreamStatus`. Les logs `FFF :` ne contiennent pas de jetons ni le contenu des réponses. Le site affiche le refus HTTP FFF exact, un délai dépassé, une redirection non autorisée ou une page reçue sans classement HTML exploitable. Le dernier classement validé est préservé. Ces diagnostics ne constituent pas un contournement d'un refus FFF et ne prouvent pas que l'accès public fonctionne depuis Supabase.
+
+Le réseau de développement refuse encore l'accès direct à la FFF (403 de la passerelle de sortie). Les tests du relais simulent donc succès, refus 403, timeout, redirections autorisées/interdites, boucle et taille excessive. La vérification réelle consiste à déployer le nouveau script puis se reconnecter au site : le message d'accueil fournit désormais l'erreur exploitable sans parcourir les journaux Supabase.
