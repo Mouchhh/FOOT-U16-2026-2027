@@ -26,7 +26,7 @@ function clubSaveRender(){
   const summary=el('summary'),label=el('span');label.id='club-save-label';label.setAttribute('role','status');label.setAttribute('aria-live','polite');summary.append(label);
   const panel=el('div','club-save-panel'),detail=el('p');detail.id='club-save-detail';
   const retry=el('button','export','Réessayer');retry.id='club-save-retry';retry.type='button';retry.onclick=()=>{if(clubNetworkSyncPromise){clubSaveStatus('pending','Une synchronisation est déjà en cours. Le site attend la réponse de Supabase.');return;}clubSaveStatus('pending','Nouvelle tentative de synchronisation…');clubNetworkQueueSync({force:true});};
-  const resolve=el('button','export','Voir le conflit');resolve.id='club-save-resolve';resolve.type='button';resolve.onclick=()=>{$('view-club-network').click();root.open=false;};
+  const resolve=el('button','export','Voir le conflit');resolve.id='club-save-resolve';resolve.type='button';resolve.onclick=()=>{root.open=false;clubNetworkShowConflicts();};
   panel.append(el('strong','','Documents enregistrés'),detail,el('p','hint','Les brouillons restent sur cet appareil jusqu’au clic sur « Enregistrer ». Le partage est réservé aux éducateurs autorisés.'),retry,resolve);root.append(summary,panel);document.querySelector('.header-actions').prepend(root);
  }
  root.hidden=!clubNetworkBound();root.dataset.state=clubSaveState.state;
@@ -37,6 +37,41 @@ function clubSaveRender(){
  $('club-save-resolve').hidden=!clubSaveState.conflict;
 }
 function clubNetworkStatus(message){for(const id of ['club-network-status','club-sync-status','club-network-list-status'])$(id).textContent=message;}
+function clubNetworkShowConflicts(){
+ if(!clubNetworkBound())return;
+ $('club-sync-conflicts')?.remove();
+ const owner=clubNetworkSession.user.id,team=activeCoachTeam.id;
+ const dialog=el('dialog','report-panel');dialog.id='club-sync-conflicts';
+ dialog.style.cssText='width:min(760px,calc(100vw - 32px));max-height:85vh;overflow:auto;padding:24px;border:1px solid #cbd8ec;border-radius:18px;color:#0b192c;background:white';
+ const heading=el('h2','','Documents en conflit');heading.id='club-sync-conflicts-title';dialog.setAttribute('aria-labelledby',heading.id);
+ const close=el('button','export','Fermer');close.type='button';close.onclick=()=>dialog.close();
+ dialog.append(heading,el('p','hint','Vos copies locales sont conservées. Consultez le document concerné avant de choisir la version à ouvrir.'));
+ const jobs=clubNetworkPendingJobs().filter(job=>job.conflict);
+ if(!jobs.length)dialog.append(el('p','','Aucun conflit en attente pour cette équipe.'));
+ for(const job of jobs){
+  const local=clubNetworkLibrary(job.kind).find(p=>clubNetworkPayloadId(job.kind,p)===job.id);
+  const remote=clubNetworkRows.find(row=>row.owner_id===owner&&row.kind===job.kind&&row.source_id===job.id);
+  const title=local?.title||remote?.title||clubNetworkKinds[job.kind];
+  const card=el('section','report-panel'),actions=el('div','report-actions');
+  card.append(el('h3','',title),el('p','hint',clubNetworkKinds[job.kind]+(remote?' · version partagée '+remote.revision:' · version partagée à actualiser')));
+  const current=()=>clubNetworkBound()&&clubNetworkSession.user.id===owner&&activeCoachTeam.id===team&&clubNetworkPending(job.kind,job.id)?.stamp===job.stamp;
+  if(local){
+   const backup=el('button','export','Télécharger ma copie locale (.json)');backup.type='button';backup.onclick=()=>{if(!current())return;const payload=clubNetworkLibrary(job.kind).find(p=>clubNetworkPayloadId(job.kind,p)===job.id);if(!payload)return;mediaDownload(new Blob([JSON.stringify({kind:job.kind,payload},null,2)],{type:'application/json'}),'copie-locale-'+job.id.replace(/[^a-zA-Z0-9-]/g,'_')+'.json');};actions.append(backup);
+  }
+  if(remote){
+   const preview=el('button','export','Consulter la version partagée');preview.type='button';preview.onclick=()=>{if(!current())return;dialog.close();clubNetworkRun(()=>clubNetworkOpen(remote,true));};actions.append(preview);
+   // The existing own-document opener preserves differing drafts and unsent saves.
+   // Special effectif/animation importers have their own resolution flows.
+   if(local&&!local.squadDirectory&&!local.pionExplanation&&job.op==='save'){
+    const open=el('button','primary','Conserver ma copie et ouvrir la version partagée');open.type='button';open.onclick=()=>{if(!current())return;dialog.close();clubNetworkRun(()=>clubNetworkOpen(remote));};actions.append(open);
+    card.append(el('p','hint','En ouvrant la version partagée, vos différences seront gardées dans votre bibliothèque sous « Copie locale avant ouverture ».'));
+   }
+  }
+  card.append(actions);dialog.append(card);
+ }
+ dialog.append(close);dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();
+}
+
 function clubNetworkMessage(error){
  if(['QuotaExceededError','SecurityError'].includes(error?.name))return 'Le stockage de cet appareil est plein ou indisponible. Votre travail ouvert reste disponible ; libérez de l’espace puis réessayez.';
  if(error?.code==='local_queue_storage')return 'Le stockage de la file de partage est indisponible. Le journal local est conservé ; libérez de l’espace puis utilisez Réessayer.';
@@ -143,6 +178,7 @@ function clubNetworkRenderState(){
 }
 function clubNetworkClear(){
  $('workspace-recovery-dialog')?.close();
+ $('club-sync-conflicts')?.close();
  clubSaveLocalErrors.clear();clubSaveLocalConflicts.clear();clubSaveState={state:'pending',detail:'Vérification des documents enregistrés…',conflict:false};if($('club-save-indicator'))$('club-save-indicator').hidden=true;
  clubNetworkRetryAfter=0;clubNetworkFailures=0;
  clubNetworkGeneration++;clearInterval(clubNetworkTimer);clubNetworkTimer=null;clubNetworkSession=null;clubNetworkMember=null;clubNetworkMembers=[];clubNetworkRows=[];clubNetworkPreview=null;clubNetworkSources=[];clubNetworkCachedVersions.clear();clubNetworkConnected=[];clubNetworkActivity=[];clubNetworkActivityState='loading';clubNetworkPresenceState='loading';clubNetworkPresenceWriteState='loading';if(typeof clubAccountClear==='function')clubAccountClear();$('club-connected-names').replaceChildren();$('club-connected-count').textContent='';$('club-connected-status').textContent='';
