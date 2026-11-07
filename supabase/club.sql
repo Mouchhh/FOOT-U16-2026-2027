@@ -68,7 +68,7 @@ begin
    returning * into result;
  end if;
  if result.id is null then
-  raise exception 'Version modifiée : récupérer la version partagée avant de réessayer' using errcode = '40001';
+  raise exception 'Version modifiée : récupérer la version partagée avant de réessayer' using errcode = 'PT409';
  end if;
  return result;
 end; $$;
@@ -83,7 +83,7 @@ begin
  end if;
  delete from public.club_documents where id=p_id and owner_id=auth.uid() and revision=p_expected_revision;
  if not found then
-  raise exception 'Version modifiée ou document non autorisé' using errcode = '40001';
+  raise exception 'Version modifiée ou document non autorisé' using errcode = 'PT409';
  end if;
 end; $$;
 revoke all on function public.club_remove_document(uuid,integer) from public,anon;

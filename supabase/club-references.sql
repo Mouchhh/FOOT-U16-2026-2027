@@ -71,7 +71,7 @@ begin
  if p_approve is null then raise exception 'Décision manquante' using errcode='22023';end if;
  select * into doc from public.club_documents where id=p_document_id for update;
  if not found or doc.revision is distinct from p_expected_revision then
-  raise exception 'Le document a changé : consultez sa nouvelle version' using errcode='40001';
+  raise exception 'Le document a changé : consultez sa nouvelle version' using errcode='PT409';
  end if;
  doc_pole:=public.club_document_pole(doc.kind,doc.payload);
  if doc_pole is null then

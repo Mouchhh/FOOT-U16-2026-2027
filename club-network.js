@@ -43,7 +43,7 @@ function clubNetworkMessage(error){
  if(error?.code==='local_library_conflict')return 'Une autre fenêtre a modifié votre bibliothèque. Votre brouillon reste conservé ; rechargez avant de réenregistrer.';
  if(error?.code==='local_save_interrupted')return 'Un enregistrement local a été interrompu. Ouvrez « Mon espace · agenda → Brouillons & récupération », récupérez les copies utiles puis enregistrez-les pour reprendre le partage.';
  if(error?.code==='document_invalid')return 'Le document à partager est introuvable ou invalide sur cet appareil. Ouvrez-le et enregistrez-le à nouveau.';
- if(error?.code==='40001')return 'Conflit de version : une autre version existe. Ouvrez « Travail du club » et récupérez votre version partagée avant de reporter vos changements. Rien n’a été écrasé.';
+ if(['40001','PT409'].includes(error?.code))return 'Conflit de version : une autre version existe. Ouvrez « Travail du club » et récupérez votre version partagée avant de reporter vos changements. Rien n’a été écrasé.';
  if(error?.code==='invalid_credentials')return 'Adresse e-mail ou mot de passe incorrect. Réessayez ou utilisez « Mot de passe oublié ? ».';
  if(['user_already_exists','email_exists'].includes(error?.code))return 'Ce compte existe déjà. Connectez-vous ou utilisez « Mot de passe oublié ? ».';
  if(error?.code==='weak_password')return 'Choisissez un mot de passe plus solide, avec au moins 12 caractères, et évitez les mots de passe courants.';
@@ -288,7 +288,7 @@ async function clubNetworkFlushPending(){
     if(latest?.stamp===job.stamp)localStorage.removeItem(clubNetworkPendingKey(job.kind,job.id));
     else if(latest&&row){latest.expected={revision:row.revision,id:row.id};localStorage.setItem(clubNetworkPendingKey(job.kind,job.id),JSON.stringify(latest));}
    }catch(error){
-    if(error.code==='40001'){
+    if(['40001','PT409'].includes(error.code)){
      // Stop repeating a refused write even if fetching the remote version times out.
      const conflicted=clubNetworkPending(job.kind,job.id);
      if(conflicted?.stamp===job.stamp){conflicted.conflict=true;localStorage.setItem(clubNetworkPendingKey(job.kind,job.id),JSON.stringify(conflicted));}

@@ -36,7 +36,7 @@ do $$declare doc public.club_documents;v jsonb;begin
  v:=public.club_reference_overview();
  if not (v->>'can_review')::boolean or v->'references'->0->>'reviewer_id' is distinct from auth.uid()::text then raise exception 'Lead approval missing';end if;
  -- Lead can endorse but cannot modify another educator's original.
- begin perform public.club_publish_document('training','exercise','Overwrite','{}',1,doc.id);raise exception 'Lead overwrote source';exception when serialization_failure then null;end;
+ begin perform public.club_publish_document('training','exercise','Overwrite','{}',1,doc.id);raise exception 'Lead overwrote source';exception when sqlstate 'PT409' then null;end;
 end $$;
 reset role;
 -- Idempotent migration must retain the decision and designated responsible.
@@ -56,7 +56,7 @@ end $$;
 set request.jwt.claim.sub='00000000-0000-4000-8000-000000000001';
 do $$declare doc public.club_documents;v jsonb;begin
  select * into doc from public.club_documents where source_id='exercise';
- begin perform public.club_review_reference(doc.id,1,true);raise exception 'Stale review accepted';exception when serialization_failure then null;end;
+ begin perform public.club_review_reference(doc.id,1,true);raise exception 'Stale review accepted';exception when sqlstate 'PT409' then null;end;
  perform public.club_review_reference(doc.id,2,true);
  perform public.club_review_reference(doc.id,2,false);
  v:=public.club_reference_overview();if v->'references'->0->>'reviewer_id' is not null then raise exception 'Withdraw did not apply';end if;

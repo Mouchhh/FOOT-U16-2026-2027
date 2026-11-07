@@ -65,7 +65,7 @@ do $$begin
  perform public.club_publish_document('composition','demo','Démonstration','{}',0);
  if (select count(*) from public.club_documents)<>1 then raise exception 'Own document missing';end if;
  if exists(select 1 from public.club_documents where title='Privé') then raise exception 'Foreign document visible';end if;
- begin perform public.club_remove_document('00000000-0000-4000-8000-000000000099',1);raise exception 'Foreign removal allowed';exception when serialization_failure then null;end;
+ begin perform public.club_remove_document('00000000-0000-4000-8000-000000000099',1);raise exception 'Foreign removal allowed';exception when sqlstate 'PT409' then null;end;
 end $$;
 -- Ordinary educators retain their original access and are not reclassified.
 set request.jwt.claim.sub='00000000-0000-4000-8000-000000000001';
