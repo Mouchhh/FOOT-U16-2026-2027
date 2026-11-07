@@ -100,6 +100,15 @@ function clubNetworkMessage(error){
  }
  return 'Connexion interrompue ou service indisponible. Les enregistrements locaux sont conservés ; la synchronisation réessaiera à la reconnexion.';
 }
+function clubNetworkLocalSaveMessage(error,key){
+ const label=({'vestiaire-saves':'la bibliothèque des compositions','vestiaire-training-library':'la bibliothèque des séances','vestiaire-reports':'la bibliothèque des bilans','vestiaire-draft':'le brouillon de composition','vestiaire-training-draft':'le brouillon de séance','vestiaire-report-draft':'le brouillon de bilan'})[key]||'ce document';
+ if(error?.name==='QuotaExceededError')return 'Le quota de stockage du navigateur est atteint pour '+label+'. Cette modification n’est pas enregistrée. Gardez l’onglet ouvert et exportez le document avant de gérer les copies locales. N’effacez pas les données du site.';
+ if(error?.name==='SecurityError')return 'Le navigateur refuse le stockage de '+label+'. Cette modification n’est pas enregistrée. Vérifiez les autorisations de stockage du site ; gardez l’onglet ouvert.';
+ if(error?.code)return clubNetworkMessage(error);
+ const name=/^[A-Za-z]{1,40}$/.test(error?.name||'')?error.name:'Error';
+ return 'Enregistrement local impossible pour '+label+' — local-302 / '+name+'. Gardez l’onglet ouvert et exportez le document. Transmettez cette référence pour identifier la cause.';
+}
+
 function clubNetworkError(message,status=0,code=''){const error=new Error(message);error.status=status;error.code=code;return error;}
 async function clubNetworkRequest(path,{method='GET',body,auth=true,retry=true}={}){
  if(!clubNetworkReady)throw Error('Service non configuré.');
@@ -530,7 +539,7 @@ coachStorageSet=function(key,value){
    localStorage.setItem(clubNetworkSaveJournalKey(key),JSON.stringify({key,value,jobs}));staged=true;
   }
   clubNetworkOriginalStorageSet(key,value);clubSaveLocalErrors.delete(key);clubSaveLocalConflicts.delete(key);
- }catch(error){if(staged){try{localStorage.removeItem(clubNetworkSaveJournalKey(key));}catch{}}clubSaveLocalErrors.add(key);clubSaveStatus('error','Le stockage sur cet appareil a échoué : cette modification n’est pas enregistrée. Le document ouvert reste disponible ; libérez de l’espace puis réessayez.');throw error;}
+ }catch(error){if(staged){try{localStorage.removeItem(clubNetworkSaveJournalKey(key));}catch{}}clubSaveLocalErrors.add(key);clubSaveStatus('error',clubNetworkLocalSaveMessage(error,key));throw error;}
  if(!kind||!clubNetworkBound())return;
  try{clubNetworkRepairSaves();clubNetworkStatus('Enregistré sur cet appareil · synchronisation avec le club…');clubNetworkQueueSync();}
  catch{clubSaveLocalErrors.add('queue:'+key);clubSaveStatus('error','Enregistré sur cet appareil, mais la préparation du partage a échoué. Le journal est conservé ; utilisez Réessayer après avoir libéré de l’espace.');clubNetworkStatus('Enregistré sur cet appareil ; partage non confirmé.');}
