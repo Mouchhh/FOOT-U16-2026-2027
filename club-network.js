@@ -432,8 +432,10 @@ async function clubNetworkRun(action){
 }
 async function clubNetworkAfterLogin(session){
  clubNetworkStoreSession(session);if(!await clubNetworkLoadMember())return;
- await clubNetworkSync();if(!clubNetworkBound())return;clearInterval(clubNetworkTimer);clubNetworkTimer=setInterval(()=>{if(!document.hidden)clubNetworkQueueSync();},30000);
+ // Membership is verified above. Document transfer must not delay opening the workspace.
+ if(!clubNetworkBound())return;clearInterval(clubNetworkTimer);clubNetworkTimer=setInterval(()=>{if(!document.hidden)clubNetworkQueueSync();},30000);
  const url=new URL(location.href);url.searchParams.delete('auth');history.replaceState(history.state,'',url.href);if(typeof showClubHome==='function')showClubHome();else clubNetworkShowView();document.dispatchEvent(new CustomEvent('club-session-ready'));
+ clubNetworkQueueSync().catch(error=>clubNetworkStatus(clubNetworkMessage(error)));
 }
 async function clubNetworkLogout(){
  if(!flushCoachWorkspace())return;
