@@ -78,7 +78,8 @@ async function clubNetworkRequest(path,{method='GET',body,auth=true,retry=true}=
  const diagnose=(error,label)=>{error.diagnostic='auth-181 / '+operation+' / '+label;return error;};
  let response,text;
  try{
-  const signal=AbortSignal.timeout(20000);
+  // Uploads can contain diagrams and player photos; reads retain a short timeout.
+  const signal=AbortSignal.timeout(endpoint==='/rest/v1/rpc/club_publish_document'?90000:20000);
   response=await fetch(clubNetworkBase+path,{method,headers,body:body===undefined?undefined:JSON.stringify(body),credentials:'omit',referrerPolicy:'no-referrer',cache:'no-store',signal});
   text=await response.text();
  }catch(cause){
@@ -260,7 +261,7 @@ async function clubNetworkLoadMember(){
 async function clubNetworkPublish(source,expected=clubNetworkKnownVersion(source.kind,source.id)){
  if(!clubNetworkBound()||!clubNetworkPayloadValid(source.kind,source.payload))throw Error('Document invalide');
  if(new Blob([JSON.stringify(source.payload)]).size>7*1024*1024)throw clubNetworkError('Document trop volumineux',400);
- const response=await clubNetworkRequest('/rest/v1/rpc/club_publish_document',{method:'POST',body:{p_kind:source.kind,p_source_id:source.id,p_title:source.title,p_payload:source.payload,p_expected_revision:expected.revision,p_expected_id:expected.id}});
+ const response=await clubNetworkRequest('/rest/v1/rpc/club_publish_document?select=id,owner_id,kind,source_id,revision,updated_at',{method:'POST',body:{p_kind:source.kind,p_source_id:source.id,p_title:source.title,p_payload:source.payload,p_expected_revision:expected.revision,p_expected_id:expected.id}});
  const row=Array.isArray(response)?response[0]:response;if(!row||row.owner_id!==clubNetworkSession.user.id||row.source_id!==source.id||!Number.isInteger(row.revision))throw Error('Réponse invalide');
  clubNetworkRememberVersion(source.kind,source.id,row.revision,row.id);return row;
 }
