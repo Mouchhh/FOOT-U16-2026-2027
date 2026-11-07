@@ -331,6 +331,15 @@ function clubNetworkSamePayload(a,b){
  if(a===b)return true;if(!a||!b||typeof a!=='object'||typeof b!=='object'||Array.isArray(a)!==Array.isArray(b))return false;
  const keys=Object.keys(a);return keys.length===Object.keys(b).length&&keys.every(k=>Object.hasOwn(b,k)&&clubNetworkSamePayload(a[k],b[k]));
 }
+function clubNetworkCanRememberLoadedVersion(known,isOpen,opened,payload){
+ // Recover a lost tab-local revision only when the open draft is exactly the server copy.
+ // Never advance the base of a draft that differs or already has a known revision.
+ if(!isOpen)return true;
+ if(known.revision!==0||!opened||!payload)return false;
+ // Draft autosave refreshes this timestamp even when no document content changed.
+ const local={...opened},remote={...payload};delete local.updatedAt;delete remote.updatedAt;
+ return clubNetworkSamePayload(local,remote);
+}
 async function clubNetworkFlushPending(){
  const generation=clubNetworkGeneration;
  const execute=async()=>{
@@ -403,7 +412,8 @@ async function clubNetworkSync(){
     const isOpen=row.kind==='composition'&&typeof terrainHasDraftId==='function'?(row.payload.pionExplanation?simpleState.sequenceId===row.source_id:terrainHasDraftId(row.source_id)):clubNetworkPayloadId(row.kind,opened)===row.source_id;
     clubNetworkSetLibrary(row.kind,[structuredClone(row.payload),...list.filter(p=>clubNetworkPayloadId(row.kind,p)!==row.source_id)]);
     clubNetworkCachedVersions.set(row.kind+':'+row.source_id,{id:row.id,revision:row.revision});
-    if(!isOpen)clubNetworkRememberVersion(row.kind,row.source_id,row.revision,row.id);
+    const openSnapshot=row.kind==='composition'?(row.payload.pionExplanation?null:typeof getTerrainDraftFor==='function'?getTerrainDraftFor(row.payload):opened):opened;
+    if(clubNetworkCanRememberLoadedVersion(known,isOpen,openSnapshot,row.payload))clubNetworkRememberVersion(row.kind,row.source_id,row.revision,row.id);
    }
    const ownIds=new Set(all.filter(r=>r.owner_id===clubNetworkSession.user.id).map(r=>r.kind+':'+r.source_id));
    for(const kind of Object.keys(clubNetworkKinds)){
