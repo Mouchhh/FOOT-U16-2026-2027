@@ -223,6 +223,23 @@ function clubNetworkMarkPending(kind,id,op,initialExpected=null,stamp=crypto.ran
 }
 // A write-ahead record survives a reload between library storage and outbox storage.
 function clubNetworkSaveJournalKey(key){return coachStorageKey('vestiaire-save-journal:'+key);}
+function clubNetworkEncodeJournal(key,value,jobs){
+ if(value.length>8192&&typeof LZString!=='undefined'){
+  const packed=LZString.compressToUTF16(value);
+  if(packed.length<value.length)return JSON.stringify({key,value:packed,valueEncoding:'lz-utf16-v1',jobs});
+ }
+ return JSON.stringify({key,value,jobs});
+}
+function clubNetworkParseJournal(raw){
+ const record=JSON.parse(raw);
+ if(record?.valueEncoding){
+  if(record.valueEncoding!=='lz-utf16-v1'||typeof record.value!=='string'||typeof LZString==='undefined')throw clubNetworkError('Journal à récupérer',0,'local_save_interrupted');
+  const decoded=LZString.decompressFromUTF16(record.value);
+  if(typeof decoded!=='string'||!decoded)throw clubNetworkError('Journal à récupérer',0,'local_save_interrupted');
+  return {...record,value:decoded};
+ }
+ return record;
+}
 function clubNetworkSaveIntents(kind,previous,value){
  const unwrap=x=>kind==='composition'?x?.state:x,old=JSON.parse(previous||'[]').map(unwrap),next=JSON.parse(value).map(unwrap),oldMap=new Map(old.map(p=>[clubNetworkPayloadId(kind,p),JSON.stringify(p)])),ids=new Set(next.map(p=>clubNetworkPayloadId(kind,p))),jobs=[];
  for(const payload of next){const source=clubNetworkSource(kind,payload);if(!source)throw clubNetworkError('Document invalide',400,'document_invalid');if(oldMap.get(source.id)!==JSON.stringify(payload))jobs.push({kind,id:source.id,op:'save',stamp:crypto.randomUUID(),expected:clubNetworkPending(kind,source.id)?.expected||clubNetworkKnownVersion(kind,source.id)});}
@@ -232,7 +249,7 @@ function clubNetworkSaveIntents(kind,previous,value){
 function clubNetworkRepairSaves(skipKey=''){
  for(const kind of Object.keys(clubNetworkKinds)){
   const key=clubNetworkLibraryKey(kind);if(key===skipKey)continue;const journalKey=clubNetworkSaveJournalKey(key),raw=localStorage.getItem(journalKey);if(!raw)continue;
-  try{const record=JSON.parse(raw);if(record?.key!==key||typeof record.value!=='string'||!Array.isArray(record.jobs)||!record.jobs.every(j=>j?.kind===kind&&typeof j.id==='string'&&j.id&&typeof j.stamp==='string'&&['save','delete'].includes(j.op)&&j.expected&&Number.isInteger(j.expected.revision)&&j.expected.revision>=0))throw Error('Journal invalide');
+  try{const record=clubNetworkParseJournal(raw);if(record?.key!==key||typeof record.value!=='string'||!Array.isArray(record.jobs)||!record.jobs.every(j=>j?.kind===kind&&typeof j.id==='string'&&j.id&&typeof j.stamp==='string'&&['save','delete'].includes(j.op)&&j.expected&&Number.isInteger(j.expected.revision)&&j.expected.revision>=0))throw Error('Journal invalide');
    if(coachStorageGet(key)!==record.value)throw clubNetworkError('Enregistrement interrompu',0,'local_save_interrupted');
    for(const job of record.jobs)if(clubNetworkPending(job.kind,job.id)?.stamp!==job.stamp)clubNetworkMarkPending(job.kind,job.id,job.op,job.expected,job.stamp);
    localStorage.removeItem(journalKey);clubSaveLocalErrors.delete('queue:'+key);
@@ -243,7 +260,7 @@ function clubNetworkRecoveryArchivePrefix(){return 'vestiaire-private-recovery:'
 function clubNetworkRecoveryArchives(){
  const prefix=clubNetworkRecoveryArchivePrefix(),archives=[];
  for(let i=0;i<localStorage.length;i++){const archiveKey=localStorage.key(i);if(!archiveKey?.startsWith(prefix))continue;
-  try{const stored=localStorage.getItem(archiveKey),entry=JSON.parse(stored),record=JSON.parse(entry.raw);
+  try{const stored=localStorage.getItem(archiveKey),entry=JSON.parse(stored),record=clubNetworkParseJournal(entry.raw);
    if(entry.version!==1||!Object.hasOwn(clubNetworkKinds,entry.kind)||entry.key!==clubNetworkLibraryKey(entry.kind)||record.key!==entry.key||typeof record.value!=='string'||!Array.isArray(record.jobs)||!Array.isArray(JSON.parse(record.value)))continue;
    archives.push({...entry,record,archiveKey,stored});
   }catch{}
@@ -251,7 +268,7 @@ function clubNetworkRecoveryArchives(){
  return archives;
 }
 function clubNetworkArchiveInterruptedSave(key,raw){
- const record=JSON.parse(raw),kind=Object.keys(clubNetworkKinds).find(k=>clubNetworkLibraryKey(k)===key);
+ const record=clubNetworkParseJournal(raw),kind=Object.keys(clubNetworkKinds).find(k=>clubNetworkLibraryKey(k)===key);
  if(!kind||record?.key!==key||typeof record.value!=='string'||!Array.isArray(record.jobs)||!Array.isArray(JSON.parse(record.value)))throw clubNetworkError('Journal à récupérer',0,'local_save_interrupted');
  if(clubNetworkRecoveryArchives().some(entry=>entry.key===key&&entry.raw===raw))return;
  const entry={version:1,kind,key,at:new Date().toISOString(),raw};
@@ -263,7 +280,7 @@ function clubNetworkPrepareRecovery(){
  // une bibliothèque : un journal d’un autre type ne doit pas bloquer la copie.
  for(const kind of Object.keys(clubNetworkKinds)){
   const key=clubNetworkLibraryKey(kind),journalKey=clubNetworkSaveJournalKey(key),raw=localStorage.getItem(journalKey);if(!raw)continue;
-  const record=JSON.parse(raw);if(coachStorageGet(key)===record.value)continue;
+  const record=clubNetworkParseJournal(raw);if(coachStorageGet(key)===record.value)continue;
   clubNetworkArchiveInterruptedSave(key,raw);
   if(localStorage.getItem(journalKey)===raw)localStorage.removeItem(journalKey);
   clubSaveLocalErrors.delete('queue:'+key);
@@ -275,11 +292,11 @@ function clubNetworkRecoveryCandidates(){
   for(const job of record.jobs.filter(j=>j?.op==='save')){const payload=list.find(p=>clubNetworkPayloadId(kind,p)===job.id),signature=kind+':'+JSON.stringify(payload);
    if(clubNetworkPayloadValid(kind,payload)&&coachTeamOwns(payload)&&!payload.squadDirectory&&!seen.has(signature)){seen.add(signature);candidates.push({kind,payload,at});}}
  }catch{}};
- for(const kind of Object.keys(clubNetworkKinds)){try{collect(kind,JSON.parse(localStorage.getItem(clubNetworkSaveJournalKey(clubNetworkLibraryKey(kind)))||'null'));}catch{}}
+ for(const kind of Object.keys(clubNetworkKinds)){try{collect(kind,clubNetworkParseJournal(localStorage.getItem(clubNetworkSaveJournalKey(clubNetworkLibraryKey(kind)))||'null'));}catch{}}
  // Older unscoped journals/archives remain read-only; offer only this team's payloads.
- for(const kind of Object.keys(clubNetworkKinds)){try{collect(kind,JSON.parse(localStorage.getItem(coachTeamBaseKey('vestiaire-save-journal:'+clubNetworkLibraryKey(kind)))||'null'));}catch{}}
+ for(const kind of Object.keys(clubNetworkKinds)){try{collect(kind,clubNetworkParseJournal(localStorage.getItem(coachTeamBaseKey('vestiaire-save-journal:'+clubNetworkLibraryKey(kind)))||'null'));}catch{}}
  const legacyPrefix='vestiaire-private-recovery:'+clubNetworkBase+':'+activeCoach.id+':';
- for(let n=0;n<localStorage.length;n++){const key=localStorage.key(n);if(!key?.startsWith(legacyPrefix)||key.startsWith(legacyPrefix+'team:'))continue;try{const entry=JSON.parse(localStorage.getItem(key));if(Object.hasOwn(clubNetworkKinds,entry.kind))collect(entry.kind,JSON.parse(entry.raw),entry.at);}catch{}}
+ for(let n=0;n<localStorage.length;n++){const key=localStorage.key(n);if(!key?.startsWith(legacyPrefix)||key.startsWith(legacyPrefix+'team:'))continue;try{const entry=JSON.parse(localStorage.getItem(key));if(Object.hasOwn(clubNetworkKinds,entry.kind))collect(entry.kind,clubNetworkParseJournal(entry.raw),entry.at);}catch{}}
  for(const entry of clubNetworkRecoveryArchives())collect(entry.kind,entry.record,entry.at);
  return candidates;
 }
@@ -534,9 +551,9 @@ coachStorageSet=function(key,value){
   if(kind&&clubNetworkBound()){
    clubNetworkRepairSaves(key);
    let existing=localStorage.getItem(clubNetworkSaveJournalKey(key));
-   if(existing&&coachStorageGet(key)===JSON.parse(existing).value){clubNetworkRepairSaves();existing=null;}
+   if(existing&&coachStorageGet(key)===clubNetworkParseJournal(existing).value){clubNetworkRepairSaves();existing=null;}
    const previous=coachStorageGet(key);if(coachLibraryBaselines.has(key)&&coachLibraryBaselines.get(key)!==previous&&previous!==value){clubSaveLocalConflicts.add(key);throw clubNetworkError('Bibliothèque changée dans un autre onglet',0,'local_library_conflict');}if(existing)clubNetworkArchiveInterruptedSave(key,existing);const jobs=clubNetworkSaveIntents(kind,previous,value);
-   localStorage.setItem(clubNetworkSaveJournalKey(key),JSON.stringify({key,value,jobs}));staged=true;
+   localStorage.setItem(clubNetworkSaveJournalKey(key),clubNetworkEncodeJournal(key,value,jobs));staged=true;
   }
   clubNetworkOriginalStorageSet(key,value);clubSaveLocalErrors.delete(key);clubSaveLocalConflicts.delete(key);
  }catch(error){if(staged){try{localStorage.removeItem(clubNetworkSaveJournalKey(key));}catch{}}clubSaveLocalErrors.add(key);clubSaveStatus('error',clubNetworkLocalSaveMessage(error,key));throw error;}
