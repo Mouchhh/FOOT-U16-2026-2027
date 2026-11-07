@@ -25,7 +25,7 @@ function clubSaveRender(){
   root=el('details','club-save-indicator');root.id='club-save-indicator';
   const summary=el('summary'),label=el('span');label.id='club-save-label';label.setAttribute('role','status');label.setAttribute('aria-live','polite');summary.append(label);
   const panel=el('div','club-save-panel'),detail=el('p');detail.id='club-save-detail';
-  const retry=el('button','export','Réessayer');retry.id='club-save-retry';retry.type='button';retry.onclick=()=>{if(clubNetworkSyncPromise)return;clubSaveStatus('pending','Nouvelle tentative de synchronisation…');clubNetworkQueueSync();};
+  const retry=el('button','export','Réessayer');retry.id='club-save-retry';retry.type='button';retry.onclick=()=>{if(clubNetworkSyncPromise){clubSaveStatus('pending','Une synchronisation est déjà en cours. Le site attend la réponse de Supabase.');return;}clubSaveStatus('pending','Nouvelle tentative de synchronisation…');clubNetworkQueueSync({force:true});};
   const resolve=el('button','export','Voir le conflit');resolve.id='club-save-resolve';resolve.type='button';resolve.onclick=()=>{$('view-club-network').click();root.open=false;};
   panel.append(el('strong','','Documents enregistrés'),detail,el('p','hint','Les brouillons restent sur cet appareil jusqu’au clic sur « Enregistrer ». Le partage est réservé aux éducateurs autorisés.'),retry,resolve);root.append(summary,panel);document.querySelector('.header-actions').prepend(root);
  }
@@ -307,10 +307,10 @@ async function clubNetworkFlushPending(){
  };
  if(navigator.locks)await navigator.locks.request('vestiaire-sync:'+clubNetworkBase+':'+activeCoach.id,execute);else await execute();
 }
-function clubNetworkQueueSync(){
+function clubNetworkQueueSync({force=false}={}){
  // Focus, visibility and periodic events share one outstanding request.
  if(clubNetworkQueue)return clubNetworkQueue;
- if(Date.now()<clubNetworkRetryAfter)return Promise.resolve();
+ if(!force&&Date.now()<clubNetworkRetryAfter)return Promise.resolve();
  clubNetworkQueue=Promise.resolve().then(()=>clubNetworkSync()).finally(()=>{clubNetworkQueue=null;});return clubNetworkQueue;
 }
 async function clubNetworkSync(){

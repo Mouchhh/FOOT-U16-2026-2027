@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
 const source=fs.readFileSync('club-network.js','utf8');
-const flush=source.slice(source.indexOf('async function clubNetworkFlushPending(){'),source.indexOf('function clubNetworkQueueSync(){'));
+const flush=source.slice(source.indexOf('async function clubNetworkFlushPending(){'),source.indexOf('function clubNetworkQueueSync('));
 let job,remote=[],failRead=true,writes=0;
 const payload={id:'document',title:'Local preserved'};
 const ctx=vm.createContext({URLSearchParams,
