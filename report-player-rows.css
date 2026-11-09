@@ -43,3 +43,8 @@
 .report-presence-badge[data-upcoming="true"] { border-style: dashed; }
 .report-presence-badge:focus-visible { outline: 2px solid var(--club-logo-red,#e41f28); outline-offset: 3px; }
 .report-row-day .report-presence-native { position: absolute; width: 1px; height: 1px; min-height: 0; padding: 0; border: 0; opacity: 0; pointer-events: none; overflow: hidden; }
+
+/* Keep explicit roster association usable on narrow player rows. */
+#report-players-panel .report-row-attendance:has(.report-attendance-player-link) { flex: 0 1 260px; max-width: 100%; }
+#report-players-panel .report-attendance-player-link { min-width: 0; width: 100%; margin: 0; }
+#report-players-panel .report-attendance-player-link select { min-width: 0; width: 100%; max-width: 100%; font-size: 16px; }

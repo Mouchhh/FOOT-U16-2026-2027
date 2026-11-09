@@ -15,9 +15,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const from = trainingWeekStart(anchor);
     return {includeFuture: true, year: playerStatsSeason(anchor), from, cutoff: agendaCalendarAdd(from, 6)};
   }
-  function attendanceControls(player, events, options) {
+  function attendanceControls(player, events, options, reportRow) {
     const group = el('div', 'report-row-attendance');
-    if (!player) return group;
+    if (!player) {
+      if (!reportRow) return group;
+      const roster = squadPlayers();
+      if (!roster.length) {
+        group.append(el('small', 'hint', 'Ajoutez les fiches joueurs dans Votre effectif pour pointer leurs présences.'));
+        return group;
+      }
+      const label = el('label', 'report-field report-attendance-player-link', 'Fiche joueur pour les présences'),picker = el('select');
+      picker.setAttribute('aria-label', 'Associer la fiche de ' + reportRow.name);
+      picker.append(new Option('Associer à votre effectif…', ''));
+      const used = new Set(currentReport.players.filter(row => row.id !== reportRow.id).map(row => playerStatsResolve(row)?.id).filter(Boolean));
+      for (const candidate of roster) {
+        const option = new Option(candidate.name + ' · n° ' + candidate.number, candidate.id);
+        option.disabled = used.has(candidate.id);picker.append(option);
+      }
+      const reportId = currentReport.id, owner = activeCoach.id + ':' + activeCoachTeam.id;
+      picker.onchange = () => {
+        if (currentReport.id !== reportId || owner !== activeCoach.id + ':' + activeCoachTeam.id) return;
+        const row = currentReport.players.find(candidate => candidate.id === reportRow.id);
+        const selected = squadPlayers().find(candidate => candidate.id === picker.value);
+        if (!row || !selected || currentReport.players.some(candidate => candidate.id !== row.id && playerStatsResolve(candidate)?.id === selected.id)) { picker.value = '';return; }
+        row.squadPlayerId = selected.id;row.name = selected.name;row.number = String(selected.number);
+        reportAutosave();renderReportContent();
+      };
+      label.append(picker);group.append(label);
+      return group;
+    }
     for (const event of events) {
       const label = el('div', 'report-row-day');
       const weekday = new Intl.DateTimeFormat('fr-FR', {weekday: 'short', timeZone: 'UTC'}).format(new Date(event.date + 'T12:00:00Z'));
@@ -95,16 +121,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const options = week();
     const events = playerAttendanceSessions.events(options).sort((a,b) => playerAttendanceSessions.occurrenceKey(a).localeCompare(playerAttendanceSessions.occurrenceKey(b)));
     panel.querySelector('.report-row-period')?.remove();
+    panel.querySelector('.report-row-attendance-empty')?.remove();
     {
       const caption = el('p', 'hint report-row-period', 'Présences · semaine du ' + options.from.split('-').reverse().join('/') + ' · clic : présent / absent / à confirmer');
       panel.prepend(caption);
+    }
+    if (!events.length) {
+      const empty = el('div', 'report-panel report-row-attendance-empty');
+      empty.setAttribute('role', 'status');
+      const end = options.cutoff.split('-').reverse().join('/');
+      empty.append(el('p', '', 'Aucune séance de l’agenda pour cette équipe du ' + options.from.split('-').reverse().join('/') + ' au ' + end + '. Les jours de présence apparaissent quand les entraînements sont programmés sur cette semaine.'));
+      if (!trainingDateValid(currentReport.info.date)) empty.append(el('p', 'hint', 'Le bilan n’a pas encore de date de match : la semaine actuelle est affichée. Renseignez la date du match pour retrouver ses séances.'));
+      const configure = el('button', 'export', 'Configurer les jours de séance');
+      configure.type = 'button';
+      configure.onclick = () => agendaRecurringConfigure();
+      empty.append(configure);
+      panel.querySelector('.report-row-period').after(empty);
     }
     // Rebuild only presence controls when the agenda changes; preserve active statistics inputs.
     for (const node of panel.querySelectorAll('.report-player-row-ready')) {
       const row = currentReport.players.find(r => r.id === node.dataset.reportPlayer);
       let player = row && playerStatsResolve(row);
       if (!player && node.dataset.attendanceRosterId) player = squadPlayers().find(p => p.id === node.dataset.attendanceRosterId);
-      node.querySelector('.report-row-attendance')?.replaceWith(attendanceControls(player, events, options));
+      node.querySelector('.report-row-attendance')?.replaceWith(attendanceControls(player, events, options, row));
     }
     for (const card of panel.querySelectorAll('.report-player:not(.report-player-row-ready)')) {
       card.classList.add('report-player-row-ready');
@@ -113,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const player = playerStatsResolve(row);
       const heading = card.querySelector('.section-heading');
       const quick = el('div', 'report-row-quick');
-      quick.append(attendanceControls(player, events, options));
+      quick.append(attendanceControls(player, events, options, row));
       for (const name of ['Minutes jouées', 'Cartons jaunes', 'Cartons rouges']) {
         const input = card.querySelector('[aria-label="' + name + '"]') || [...card.querySelectorAll('label')].find(l => l.querySelector('span')?.textContent === name)?.querySelector('input');
         if (input) { input.setAttribute('aria-label', name); quick.append(input.closest('label')); }
@@ -131,9 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const roster = squadPlayers().filter(p => !currentReport.preparation?.imported || currentReport.players.some(r => playerStatsResolve(r)?.id === p.id));
       const entries = [...roster.map(player => ({player, row: currentReport.players.find(r => playerStatsResolve(r)?.id === player.id)})), ...currentReport.players.filter(r => !playerStatsResolve(r)).map(row => ({row, player:null}))];
       const entry = entries[index]; if (!entry) continue;
+      if (entry.row) line.dataset.reportPlayer = entry.row.id;
       if (entry.player) line.dataset.attendanceRosterId = entry.player.id;
       line.querySelector(':scope > span').textContent = entry.player?.name || entry.row?.name || 'Joueur';
-      line.insertBefore(attendanceControls(entry.player, events, options), line.querySelector('label'));
+      line.insertBefore(attendanceControls(entry.player, events, options, entry.row), line.querySelector('label'));
       for (const [key, title] of [['yellowCards','Cartons jaunes'],['redCards','Cartons rouges']]) {
         const field = reportField(title, entry.row?.[key] ?? '', value => {
           entry.row = ensureRow(entry.player, entry.row);
