@@ -43,8 +43,8 @@ Une conversation n’a pas automatiquement accès au travail des autres : transm
 
 ## Activation future de l’autonomie
 
-Configuration désactivée par défaut. L’heure de 19 h, Europe/Paris, est une proposition, pas un rendez-vous programmé. Changer `automation_enabled` seul ne lance rien.
+Configuration désactivée par défaut. Le bilan est demandé à 8 h 30, Europe/Paris. Le workflow de récapitulatif Git est décrit dans [ENVOI-QUOTIDIEN.md](ENVOI-QUOTIDIEN.md) ; il ne lance pas les agents IA. Changer `automation_enabled` seul ne lance rien.
 
 Il reste à sélectionner un service d’exécution avec modèle/API, un plafond de budget, l’horaire et le canal privé de remise du rapport. Ne jamais mettre de clé dans ChatGPT ou dans le dépôt : utiliser le gestionnaire de secrets du service. L’exécutant devra imposer des limites de temps/coût, des permissions en lecture par défaut, des branches isolées, des tests et un arrêt d’urgence. Les migrations, publications, dépenses et contacts externes doivent rester derrière une approbation effective.
 
-Aucune collecte de données clients ou de mineurs pour alimenter ces agents par défaut. Aucun workflow planifié n’est installé tant que ces éléments ne sont pas configurés.
+Aucune collecte de données clients ou de mineurs pour alimenter ces agents par défaut. Le workflow de bilan Git est distinct de cette future exécution autonome des agents. L’envoi e-mail reste désactivé tant que ses paramètres privés ne sont pas configurés.

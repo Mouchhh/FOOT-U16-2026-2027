@@ -1,0 +1,42 @@
+name: Bilan quotidien — 8 h 30 Paris
+on:
+  workflow_dispatch:
+  schedule:
+    # Un seul créneau est retenu par le script selon l'heure d'été/hiver.
+    - cron: '30 6 * * *'
+    - cron: '30 7 * * *'
+permissions:
+  contents: read
+concurrency:
+  group: daily-report
+  cancel-in-progress: false
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+          persist-credentials: false
+      - name: Choisir le créneau de Paris
+        id: slot
+        env:
+          REPORT_SCHEDULE: ${{ github.event.schedule }}
+        run: python3 scripts/daily-report.py --gate
+      - name: Générer le bilan dans le résumé GitHub
+        if: steps.slot.outputs.run == 'true'
+        run: python3 scripts/daily-report.py >> "$GITHUB_STEP_SUMMARY"
+      - name: Envoyer le bilan par e-mail
+        if: steps.slot.outputs.run == 'true' && vars.REPORT_EMAIL_ENABLED == 'true'
+        env:
+          REPORT_SMTP_HOST: ${{ secrets.REPORT_SMTP_HOST }}
+          REPORT_SMTP_USER: ${{ secrets.REPORT_SMTP_USER }}
+          REPORT_SMTP_PASSWORD: ${{ secrets.REPORT_SMTP_PASSWORD }}
+          REPORT_FROM: ${{ secrets.REPORT_FROM }}
+          REPORT_TO: ${{ secrets.REPORT_TO }}
+        run: python3 scripts/daily-report.py --send
+      - name: Indiquer que l'envoi reste désactivé
+        if: steps.slot.outputs.run == 'true' && vars.REPORT_EMAIL_ENABLED != 'true'
+        run: echo 'E-mail non envoyé — configurer les secrets puis REPORT_EMAIL_ENABLED=true.' >> "$GITHUB_STEP_SUMMARY"

@@ -3,8 +3,8 @@
   "project": "Le Vestiaire — plateforme football",
   "timezone": "Europe/Paris",
   "automation_enabled": false,
-  "daily_report_time": "19:00",
-  "report_time_status": "proposition à confirmer",
+  "daily_report_time": "08:30",
+  "report_time_status": "horaire demandé, bilan de la veille ; e-mail soumis à configuration privée",
   "agents": [
     {
       "id": "00-direction",
