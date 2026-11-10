@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "project": "Le Vestiaire — plateforme football",
+  "timezone": "Europe/Paris",
+  "automation_enabled": false,
+  "daily_report_time": "19:00",
+  "report_time_status": "proposition à confirmer",
+  "agents": [
+    {
+      "id": "00-direction",
+      "pole": "Direction",
+      "name": "Directeur produit",
+      "instructions": "agents/00-direction.md"
+    },
+    {
+      "id": "01-produit-football",
+      "pole": "Produit",
+      "name": "Responsable produit football",
+      "instructions": "agents/01-produit-football.md"
+    },
+    {
+      "id": "02-developpement",
+      "pole": "Technique",
+      "name": "Développeur application",
+      "instructions": "agents/02-developpement.md"
+    },
+    {
+      "id": "03-donnees",
+      "pole": "Technique",
+      "name": "Responsable données et sauvegardes",
+      "instructions": "agents/03-donnees.md"
+    },
+    {
+      "id": "04-design",
+      "pole": "Design",
+      "name": "Designer ergonomie et accessibilité",
+      "instructions": "agents/04-design.md"
+    },
+    {
+      "id": "05-medias",
+      "pole": "Technique",
+      "name": "Responsable animations et exports",
+      "instructions": "agents/05-medias.md"
+    },
+    {
+      "id": "06-qualite",
+      "pole": "Qualité",
+      "name": "Responsable tests",
+      "instructions": "agents/06-qualite.md"
+    },
+    {
+      "id": "07-securite",
+      "pole": "Sécurité",
+      "name": "Responsable sécurité et confidentialité",
+      "instructions": "agents/07-securite.md"
+    },
+    {
+      "id": "08-exploitation",
+      "pole": "Exploitation",
+      "name": "Responsable déploiement et performances",
+      "instructions": "agents/08-exploitation.md"
+    },
+    {
+      "id": "09-marketing",
+      "pole": "Marketing",
+      "name": "Responsable marketing",
+      "instructions": "agents/09-marketing.md"
+    },
+    {
+      "id": "10-commercial",
+      "pole": "Commercial",
+      "name": "Responsable commercial",
+      "instructions": "agents/10-commercial.md"
+    },
+    {
+      "id": "11-administratif",
+      "pole": "Administratif et finances",
+      "name": "Responsable administratif et financier",
+      "instructions": "agents/11-administratif.md"
+    },
+    {
+      "id": "12-support",
+      "pole": "Support clients",
+      "name": "Responsable accompagnement des clubs",
+      "instructions": "agents/12-support.md"
+    }
+  ]
+}
