@@ -41,5 +41,22 @@ class Tests(unittest.TestCase):
                 m.send_report('Bilan')
             self.assertIn('REPORT_TO',str(caught.exception))
             self.assertNotIn('private',str(caught.exception))
+    def test_disconnect_stage_and_no_retry(self):
+        env = {key:'private' for key in ['REPORT_SMTP_HOST','REPORT_SMTP_USER','REPORT_SMTP_PASSWORD','REPORT_FROM','REPORT_TO']}
+        with patch.dict(m.os.environ,env,clear=True), patch.object(m.smtplib,'SMTP_SSL') as smtp:
+            smtp.return_value.login.side_effect=m.smtplib.SMTPServerDisconnected('private response')
+            with self.assertRaises(m.EmailTransportError) as caught:
+                m.send_report('Bilan')
+            self.assertIn('authentification',str(caught.exception))
+            self.assertNotIn('private',str(caught.exception))
+            smtp.return_value.send_message.assert_not_called()
+            self.assertEqual(smtp.call_count,1)
+    def test_accepted_mail_survives_quit_disconnect(self):
+        env = {key:'private' for key in ['REPORT_SMTP_HOST','REPORT_SMTP_USER','REPORT_SMTP_PASSWORD','REPORT_FROM','REPORT_TO']}
+        with patch.dict(m.os.environ,env,clear=True), patch.object(m.smtplib,'SMTP_SSL') as smtp:
+            smtp.return_value.send_message.return_value={}
+            smtp.return_value.quit.side_effect=m.smtplib.SMTPServerDisconnected('private response')
+            m.send_report('Bilan')
+            smtp.return_value.send_message.assert_called_once()
+            smtp.return_value.close.assert_called_once()
 if __name__=='__main__': unittest.main()
-

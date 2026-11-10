@@ -52,6 +52,10 @@ class EmailConfigurationError(ValueError):
     """Diagnostic contrôlé contenant uniquement les noms des paramètres."""
 
 
+class EmailTransportError(RuntimeError):
+    """Diagnostic par étape sans réponse privée du serveur."""
+
+
 def send_report(body):
     required = ['REPORT_SMTP_HOST', 'REPORT_SMTP_USER', 'REPORT_SMTP_PASSWORD', 'REPORT_FROM', 'REPORT_TO']
     missing = [name for name in required if not os.environ.get(name, '').strip()]
@@ -65,10 +69,38 @@ def send_report(body):
     message['From'] = os.environ['REPORT_FROM']
     message['To'] = os.environ['REPORT_TO']
     message.set_content(body)
-    # Pas de retry automatique : éviter un doublon si l'accusé de réception se perd.
-    with smtplib.SMTP_SSL(os.environ['REPORT_SMTP_HOST'], 465, context=ssl.create_default_context(), timeout=30) as server:
-        server.login(os.environ['REPORT_SMTP_USER'], os.environ['REPORT_SMTP_PASSWORD'])
-        server.send_message(message)
+    # Ne jamais retenter automatiquement l'envoi : son résultat peut être ambigu.
+    server = None
+    phase = 'connexion TLS au serveur (port 465)'
+    try:
+        server = smtplib.SMTP_SSL(os.environ['REPORT_SMTP_HOST'].strip(), 465,
+                                 context=ssl.create_default_context(), timeout=30)
+        phase = 'authentification'
+        server.login(os.environ['REPORT_SMTP_USER'].strip(), os.environ['REPORT_SMTP_PASSWORD'])
+        phase = 'transmission du message'
+        refused = server.send_message(message)
+        if refused:
+            raise EmailTransportError('Au moins un destinataire a été refusé. Vérifier REPORT_TO sans relancer avant contrôle de la boîte.')
+    except smtplib.SMTPAuthenticationError:
+        raise
+    except EmailTransportError:
+        raise
+    except Exception as error:
+        raise EmailTransportError(
+            f'Envoi non confirmé : {phase} — {type(error).__name__}. '
+            'Vérifier REPORT_SMTP_HOST (smtp.gmail.com pour Gmail). '
+            'Contrôler la réception avant une relance ; aucun nouvel envoi automatique effectué.'
+        ) from None
+    finally:
+        if server is not None:
+            # send_message a déjà reçu la réponse finale avant de revenir.
+            # Une erreur de fermeture ne doit ni annuler cette preuve ni masquer l'erreur initiale.
+            try:
+                server.quit()
+            except (OSError, smtplib.SMTPException):
+                pass
+            finally:
+                server.close()
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -86,7 +118,7 @@ def main():
     if args.send:
         try:
             send_report(body)
-        except EmailConfigurationError as error:
+        except (EmailConfigurationError, EmailTransportError) as error:
             raise SystemExit(str(error)) from None
         except smtplib.SMTPAuthenticationError:
             raise SystemExit("Authentification SMTP refusée. Vérifier REPORT_SMTP_USER et le mot de passe d’application dans REPORT_SMTP_PASSWORD.") from None
