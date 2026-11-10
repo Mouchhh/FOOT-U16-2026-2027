@@ -48,11 +48,18 @@ def build_report(now):
               'Consulter GitHub Actions pour les résultats des exécutions. Les messages de commit sont des déclarations de leurs auteurs.', '']
     return '\n'.join(lines)
 
+class EmailConfigurationError(ValueError):
+    """Diagnostic contrôlé contenant uniquement les noms des paramètres."""
+
+
 def send_report(body):
     required = ['REPORT_SMTP_HOST', 'REPORT_SMTP_USER', 'REPORT_SMTP_PASSWORD', 'REPORT_FROM', 'REPORT_TO']
-    missing = [name for name in required if not os.environ.get(name)]
+    missing = [name for name in required if not os.environ.get(name, '').strip()]
     if missing:
-        raise ValueError('Configuration e-mail manquante : ' + ', '.join(missing))
+        raise EmailConfigurationError('Secrets GitHub manquants ou vides : ' + ', '.join(missing) + '. Les créer dans Settings > Secrets and variables > Actions > Secrets (pas Variables).')
+    for name in required:
+        if '\n' in os.environ[name] or '\r' in os.environ[name]:
+            raise EmailConfigurationError('Le secret ' + name + ' contient un retour à la ligne. Le saisir sur une seule ligne.')
     message = EmailMessage()
     message['Subject'] = body.splitlines()[0].removeprefix('# ')
     message['From'] = os.environ['REPORT_FROM']
@@ -79,6 +86,10 @@ def main():
     if args.send:
         try:
             send_report(body)
+        except EmailConfigurationError as error:
+            raise SystemExit(str(error)) from None
+        except smtplib.SMTPAuthenticationError:
+            raise SystemExit("Authentification SMTP refusée. Vérifier REPORT_SMTP_USER et le mot de passe d’application dans REPORT_SMTP_PASSWORD.") from None
         except Exception as error:
             # Ne pas imprimer les réponses SMTP qui peuvent contenir des adresses.
             raise SystemExit(f'Envoi non confirmé ({type(error).__name__}). Vérifier la configuration privée et la boîte destinataire avant de relancer.') from None

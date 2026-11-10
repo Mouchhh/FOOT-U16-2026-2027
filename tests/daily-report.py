@@ -25,4 +25,21 @@ class Tests(unittest.TestCase):
         with patch.dict(m.os.environ,{},clear=True), patch.object(m.smtplib,'SMTP_SSL') as smtp:
             with self.assertRaises(ValueError): m.send_report('Bilan')
             smtp.assert_not_called()
+    def test_missing_secret_diagnostic_never_contains_values(self):
+        env = dict(REPORT_SMTP_HOST='smtp.gmail.com', REPORT_SMTP_USER='private-user', REPORT_SMTP_PASSWORD='private-password', REPORT_FROM='private-from')
+        with patch.dict(m.os.environ,env,clear=True), patch.object(m.smtplib,'SMTP_SSL') as smtp:
+            with self.assertRaises(m.EmailConfigurationError) as caught:
+                m.send_report('Bilan')
+            self.assertIn('REPORT_TO',str(caught.exception))
+            self.assertNotIn('private-',str(caught.exception))
+            smtp.assert_not_called()
+    def test_newline_diagnostic_redacts_value(self):
+        env = {key:'private' for key in ['REPORT_SMTP_HOST','REPORT_SMTP_USER','REPORT_SMTP_PASSWORD','REPORT_FROM','REPORT_TO']}
+        env['REPORT_TO']='private\naddress'
+        with patch.dict(m.os.environ,env,clear=True):
+            with self.assertRaises(m.EmailConfigurationError) as caught:
+                m.send_report('Bilan')
+            self.assertIn('REPORT_TO',str(caught.exception))
+            self.assertNotIn('private',str(caught.exception))
 if __name__=='__main__': unittest.main()
+
