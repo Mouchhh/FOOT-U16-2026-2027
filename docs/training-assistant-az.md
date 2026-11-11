@@ -77,3 +77,7 @@ Retour du coach : la séance doit suivre la logique de base enseignée par la FF
   - « ✎ Modifier cet exercice » : la séance part dans l’éditeur et la fiche de l’exercice s’ouvre ;
   - « ＋ Créer mon exercice ici » : la séance part dans l’éditeur et une fiche **vide** (schéma vide) s’ouvre à la place de cet exercice ; à l’enregistrement, seule cette étape est remplacée (durée et autres étapes conservées, sans données de l’ancienne fiche — `trainingCustomFreshId` dans `training-custom.js`) ;
   - « Choisir dans une liste » (repliée) : jusqu’à 8 fiches compatibles et « Exercice écrit par l’assistant ».
+
+### Plusieurs petits groupes (312)
+
+Un atelier peut se jouer en **plusieurs groupes identiques** : avec 20 + 2, le premier atelier vise de petits formats (environ 5 joueurs, ex. plusieurs toros), les suivants grandissent jusqu’à la moitié du groupe environ (`trainingAssistantWorkshopRank` → taille visée de 5 à N/2), et le jeu final reste l’exercice le plus grand (tout le groupe quand l’espace le permet). Le découpage en groupes est celui de l’adaptation des fiches (`suppliedExerciseBlock`), avec le contrôle d’espace habituel. L’échauffement exclut aussi les jeux réduits, conservations et possessions (opposition).

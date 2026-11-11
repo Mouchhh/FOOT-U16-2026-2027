@@ -668,15 +668,28 @@ function trainingAssistantAddPhysical(session, kind, needs) {
   if (!trainingValid(next)) throw Error("Le travail physique ne peut pas être ajouté à cette séance.");
   return next;
 }
-function trainingAssistantBibleTarget(block, role, objectives, needs) {
+// Rank of a workshop stage among the workshop stages (0-based) and their count.
+function trainingAssistantWorkshopRank(session, blockId) {
+  const roles = trainingAssistantBibleRoles(session),
+    stages = trainingSessionStages(session).filter((st) => st.blocks.every((b) => roles.get(b.id) === "workshop"));
+  return { index: Math.max(0, stages.findIndex((st) => st.blocks.some((b) => b.id === blockId))), count: stages.length };
+}
+function trainingAssistantBibleTarget(block, role, objectives, needs, rank = null) {
   const players = block.workshopPlayers ?? needs.total,
+    // Workshops go from small formats played in several groups (e.g. 4 toros of 5)
+    // up to about half the group; the final game stays the largest.
+    half = Math.max(6, Math.round(players / 2)),
+    workshopRef = !rank || rank.count <= 1
+      ? Math.max(6, Math.round((5 + half) / 2))
+      : Math.round(5 + ((half - 5) * rank.index) / (rank.count - 1)),
     target = {
       activation: { objectives: ["ludic-activation"], phases: ["activation"], warmup: true },
       workshop: {
         objectives: [block.clubObjective].filter(Boolean),
         phases: ["situation", "jeu", "opposition"],
         // Workshops aim at smaller / medium formats than the final game.
-        sizeRef: Math.max(6, Math.round(players * 0.6)),
+        sizeRef: workshopRef,
+        split: true,
       },
       game: { objectives: [...objectives], phases: ["jeu", "opposition"], sizeRef: players, large: true },
       cool: { objectives: ["ludic-cool"], phases: [] },
@@ -701,7 +714,7 @@ function trainingAssistantBibleTarget(block, role, objectives, needs) {
 // duels go to the next stages (they are small formats, so they come first there).
 function trainingAssistantOppositionFree(meta, exercise) {
   const text = String(meta.titre || "") + " " + String(exercise?.sub || "");
-  return !/\bcontre\b|toro|rondo|duel|opposition|\bmatch\b/i.test(text) && !["jeu", "opposition"].includes(meta.phase);
+  return !/\bcontre\b|toro|rondo|duel|opposition|\bmatch\b|jeu r[ée]duit|conservation|possession|[0-9] ?c ?[0-9]/i.test(text) && !["jeu", "opposition"].includes(meta.phase);
 }
 function trainingAssistantWarmupPenalty(meta) {
   const title = String(meta.titre || "");
@@ -719,7 +732,7 @@ function trainingAssistantBibleScore(meta, target) {
     outside =
       players < meta.effectif_min
         ? meta.effectif_min - players
-        : players > meta.effectif_max && !target.warmup && !target.physical
+        : players > meta.effectif_max && !target.warmup && !target.physical && !target.split
           ? players - meta.effectif_max
           : 0,
     dims = [...meta.dimensions].sort((a, b) => a - b),
@@ -907,7 +920,7 @@ function trainingAssistantUseBible(session, needs, objectives, random = Math.ran
   next.blocks.forEach((b) => (b.assistantSource = "generated"));
   for (let index = 0; index < next.blocks.length; index++) {
     const original = next.blocks[index],
-      target = trainingAssistantBibleTarget(original, roles.get(original.id), objectives, needs);
+      target = trainingAssistantBibleTarget(original, roles.get(original.id), objectives, needs, trainingAssistantWorkshopRank(next, original.id));
     // Workshops may fall back to small playful formats (toros, reduced games).
     const targets = roles.get(original.id) === "workshop"
       ? [target, { ...target, objectives: ["ludic-situation"] }]
@@ -956,7 +969,7 @@ function trainingAssistantOrderBySize(session, needs, objectives, baseline) {
       const source = content.stage.blocks[group] || content.stage.blocks[0],
         meta = exerciseReferenceIndex.get(source.assistantMetaId),
         index = next.blocks.findIndex((b) => b.id === slotBlock.id),
-        target = trainingAssistantBibleTarget(next.blocks[index], roles.get(slotBlock.id), objectives, needs),
+        target = trainingAssistantBibleTarget(next.blocks[index], roles.get(slotBlock.id), objectives, needs, trainingAssistantWorkshopRank(next, slotBlock.id)),
         candidate = trainingAssistantTryBible(next, index, meta, target, needs, baseline.get(slotBlock.id) || 0, true);
       if (!candidate) return session;
       // The moved sheet keeps the objective it was chosen for.
@@ -1161,7 +1174,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // size between its neighbours so the progression (largest last) is kept.
   function slotTarget(block) {
     const role = trainingAssistantBibleRoles(session).get(block.id),
-      target = trainingAssistantBibleTarget(block, role, bibleObjectives, bibleNeeds);
+      target = trainingAssistantBibleTarget(block, role, bibleObjectives, bibleNeeds, trainingAssistantWorkshopRank(session, block.id));
     return ["workshop", "game"].includes(role)
       ? { ...target, ...trainingAssistantSizeWindow(session, block.id) }
       : target;

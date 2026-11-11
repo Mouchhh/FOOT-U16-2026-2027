@@ -44,6 +44,9 @@ with sync_playwright() as p:
   if(phys&&bl[pi].assistantPhysical!==phys)throw Error('physical subtype lost');
   out.push(sizes.length);}return out;}''')
  assert all(x>=1 for x in order),order
+ # 20 + 2: workshops start with small formats played in several groups (e.g. toros), not only 11 v 11.
+ split=page.evaluate('''()=>{const s=trainingAssistantGenerate({objectives:['ball-build','win-forward','loss-press'],level:'U16',players:'20 + 2',space:'full',organisation:'auto',duration:90});const n=trainingAssistantNeeds({goal:'Séance',objective:'ball-build',level:'U16',players:'20 + 2',space:'full'});const r=trainingAssistantUseBible(s,n,['ball-build','win-forward','loss-press']);const roles=trainingAssistantBibleRoles(r.session);return r.session.blocks.filter(b=>roles.get(b.id)==='workshop'&&b.assistantMetaId).map(b=>b.custom.adaptation.groups.length);}''')
+ assert split and split[0]>=3,split
  # UI: generation shows diagrams, swap one sequence, restore the written exercise, save without markers.
  page.locator('#view-training').evaluate('e=>e.click()');page.locator('#training-assistant-open').click();form=page.locator('.training-assistant-form')
  # Warm-up, motor work and cool-down are not selectable intentions; physical work is an option.
