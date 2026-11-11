@@ -41,3 +41,25 @@ Les adaptations d’effectif, surface et niveau sont dans un bloc distinct. Le n
 ## Schémas d’origine (273)
 
 Les exercices importés réutilisent `suppliedReferenceBoard`, exactement le même moteur, les mêmes paramètres de référence et le même SVG que la miniature de la bibliothèque. Le passage par le convertisseur de l’atelier libre n’est plus utilisé pour leur aperçu. Le schéma de référence reste distinct des adaptations d’effectif et de dimensions. Les dessins personnels sont conservés. Les ateliers générés sans exercice associé n’affichent plus de placement générique : ils invitent à associer une fiche de la bibliothèque. Aucun schéma de remplacement n’est inventé.
+
+
+## Exercices de la Bible dans la séance (307)
+
+À la demande du coach, l’assistant ne se contente plus d’ateliers écrits sans schéma : chaque séquence est remplie automatiquement avec une fiche de la Bible (`exerciseReferenceIndex`), adaptée au groupe par `suppliedExerciseBlock` et affichée avec son schéma d’origine.
+
+- **Rôle par étape** (`trainingAssistantBibleRoles`) : première étape = activation (`ludic-activation`), étapes centrales = ateliers ciblés (`clubObjective`), avant-dernière = jeu appliqué (objectifs choisis), dernière = retour au calme (`ludic-cool`). En « Deux ateliers séparés », les blocs A et B d’une étape ont le même rôle et chacun son effectif (`workshopPlayers` / `workshopKeepers`) et sa zone (même calcul que `trainingAssistantGenerateTwo`).
+- **Classement** (`trainingAssistantBibleCandidates`) : objectif du club, gardiens disponibles, puis le plus proche en effectif, dimensions, âge de référence et phase ; une fiche n’est jamais utilisée deux fois dans la séance. Les fiches à l’effectif « à vérifier » sont exclues (comme les anciennes recommandations).
+- **Sécurité** : la durée, l’installation et la récupération de la séquence générée sont conservées ; un remplacement qui ajoute un avertissement d’emprise (`trainingStageReview`) ou invalide la séance est refusé. Une fiche conçue pour un autre âge n’est prise qu’en dernier recours, avec l’avertissement affiché sur la carte.
+- Bouton **« ↻ Autre exercice »** sous chaque séquence : un clic remplace l’exercice par une autre fiche de la Bible qui convient (tirage au hasard parmi les plus proches, mêmes contrôles d’effectif, d’espace et de temps). Masqué quand la Bible n’a aucune fiche pour cette étape (retour au calme).
+- **« Changer d’exercice »** sous chaque séquence : 5 autres fiches compatibles, ou « Exercice écrit par l’assistant » qui restaure la copie d’origine (gardée en mémoire, jamais modifiée).
+- Chaque sous-groupe adapté doit avoir l’effectif minimum et les gardiens de la fiche. La carte affiche le rythme de référence de la fiche quand elle en donne un (effort / récupération, valeurs d’origine) ; le budget de la séquence reste celui affiché au-dessus, même après un ajustement de durée dans l’éditeur. Une adaptation d’âge tolérée est écrite en tête des consignes (« À adapter : … »).
+- Le retour au calme reste écrit tant que la Bible n’a pas de fiche de ce type ; la carte l’indique.
+- Les marqueurs internes (`assistantSource`, `assistantSourceId`, `assistantWarnings`) sont retirés avant l’enregistrement et l’envoi vers l’éditeur. Les fiches de la Bible ne sont jamais réécrites.
+- L’ancien encadré « Exercices de référence compatibles » est remplacé par ces choix.
+
+Vérification : `tests/training-assistant-bible-browser.py` (sélection, doublons, temps, emprises, échange, restauration, enregistrement, mobile) et `tests/exercise-reference-index-browser.py`.
+
+### Durée choisie et échauffement (308)
+
+- Champ **« Durée de la séance »** : selon l’âge (75 min avant U16, 90 min ensuite, comme avant) ou 60, 75, 90, 105, 120 min. L’échauffement (15 min, 12 min sous 75 min) et le retour au calme (10 min, 8 min sous 75 min) gardent une durée fixe ; le reste est partagé entre atelier(s) et jeu appliqué dans le même rapport qu’avant. Les textes des séquences écrites indiquent ces temps.
+- La première étape s’appelle **« Échauffement »** (titre « Échauffement · nom de la fiche » quand une fiche de la Bible est utilisée). L’échauffement **change à chaque génération** : tirage au hasard parmi toutes les fiches d’échauffement de la Bible qui conviennent au groupe et à l’espace (circuits de passes, toros, rondos, gammes techniques, FIFA 11+…). Les jeux de poursuite / relais et les circuits athlétiques ne viennent qu’après. Pour un grand groupe, l’échauffement est réalisé en plusieurs groupes identiques.

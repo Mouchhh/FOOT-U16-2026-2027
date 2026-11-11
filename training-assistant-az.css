@@ -36,3 +36,10 @@ body.training-mode #training-space.training-assistant-open > .reports-heading > 
 body.training-mode #training-space.training-assistant-open > .training-progress,
 body.training-mode #training-space.training-assistant-open > .training-step-footer,
 body.training-mode #training-space.training-assistant-open > #training-status { display:none !important; }
+/* Bible exercises chosen by the assistant: per-sequence chooser and notes. */
+.training-assistant-bible-choice{margin-top:10px}
+.training-assistant-bible-choice select{width:100%;min-width:0;max-width:100%}
+.training-assistant-bible-note{margin:8px 0 0;font-size:13px}
+.training-assistant-bible-tools{display:grid;gap:8px;margin-top:12px}
+.training-assistant-bible-another{justify-self:start;min-height:44px}
+.training-assistant-bible-tools .training-assistant-bible-choice{margin-top:0}

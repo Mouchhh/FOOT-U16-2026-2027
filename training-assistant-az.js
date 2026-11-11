@@ -249,10 +249,27 @@ function trainingAssistantGenerateBase(input) {
     ],
   };
   const [title, instructions, behaviour, constraint] = patterns[n.focus];
-  const duration = n.age < 16 ? 75 : 90,
-    times = n.age < 16 ? [15, 25, 25, 10] : [15, 30, 35, 10],
+  // The coach may choose the total time (45–150 min); otherwise 75 min before U16, 90 after.
+  const requested = Number(input.duration),
+    chosen = Number.isInteger(requested) && requested >= 45 && requested <= 150,
+    duration = chosen ? requested : n.age < 16 ? 75 : 90,
+    ratio = n.age < 16 ? [25, 25] : [30, 35],
+    warmMinutes = duration >= 75 ? 15 : 12,
+    coolMinutes = duration >= 75 ? 10 : 8,
+    middle = duration - warmMinutes - coolMinutes,
+    mainMinutes = Math.round((middle * ratio[0]) / (ratio[0] + ratio[1])),
+    times = [warmMinutes, mainMinutes, middle - mainMinutes, coolMinutes],
     setups = [1, 3, n.age < 16 ? 2 : 4, 0],
-    rests = [2, n.age < 16 ? 4 : 3, n.age < 16 ? 2 : 3, 5];
+    rests = [2, n.age < 16 ? 4 : 3, n.age < 16 ? 2 : 3, Math.min(5, coolMinutes - 3)];
+  const seriesText = (minutes, setupMinutes, length) =>
+    setupMinutes +
+    " minutes d’installation, puis " +
+    (minutes - setupMinutes) +
+    " minutes de jeu en séries d’environ " +
+    length +
+    " minutes avec récupération entre les séries : " +
+    minutes +
+    " minutes au total.";
   const levelAdvice =
     (n.age < 15
       ? "Consignes courtes et démonstration avant la première série. "
@@ -287,12 +304,18 @@ function trainingAssistantGenerateBase(input) {
   });
   const phases = [
     {
-      title: "1. Échauffement / Activation",
+      title: "1. Échauffement",
       groups: warm,
       kind: "circuit",
       goal: "Préparer progressivement le groupe pour " + n.goal + ".",
       instructions:
-        "1 minute d’organisation, puis 3 minutes de mobilité et de conduite souple et 3 séquences de 3 minutes de passes et déplacements avec prise d’information. Une minute de récupération entre les séquences. Les gardiens participent au jeu au pied. Augmenter progressivement la vitesse, sans course maximale à froid.",
+        // 15 min: 1 + 3 + 3×3 + 2×1 ; 12 min: 1 + 2 + 3×2.5 + 2×0.75 (rounded wording).
+        (warmMinutes >= 15
+          ? "1 minute d’organisation, puis 3 minutes de mobilité et de conduite souple et 3 séquences de 3 minutes de passes et déplacements avec prise d’information. Une minute de récupération entre les séquences."
+          : "1 minute d’organisation, puis 2 minutes de mobilité et de conduite souple et 3 séquences de 2 minutes 30 de passes et déplacements avec prise d’information. 45 secondes de récupération entre les séquences.") +
+        " Les gardiens participent au jeu au pied. Augmenter progressivement la vitesse, sans course maximale à froid. Total : " +
+        warmMinutes +
+        " minutes.",
       success:
         "Tous les joueurs sont actifs et la qualité des appuis et des passes reste maîtrisée.",
     },
@@ -310,9 +333,7 @@ function trainingAssistantGenerateBase(input) {
         "\n" +
         levelAdvice +
         "\n" +
-        (n.age < 16
-          ? "3 minutes d’installation, puis 3 séries de 6 minutes avec 2 minutes de récupération entre les séries : 25 minutes au total."
-          : "3 minutes d’installation, puis 4 séries de 6 minutes avec 1 minute de récupération entre les séries : 30 minutes au total."),
+        seriesText(times[1], setups[1], 6),
       success:
         "Observer sur plusieurs actions si le comportement attendu apparaît, puis ajuster une seule contrainte à la fois.",
     },
@@ -327,9 +348,7 @@ function trainingAssistantGenerateBase(input) {
         "\n" +
         roleNotes +
         "\n" +
-        (n.age < 16
-          ? "2 minutes d’installation, puis 3 séries de 7 minutes avec 1 minute de récupération entre les séries : 25 minutes au total."
-          : "4 minutes d’installation, puis 4 séries de 7 minutes avec 1 minute de récupération entre les séries : 35 minutes au total.") +
+        seriesText(times[2], setups[2], 7) +
         " Dernière série en jeu libre pour observer le transfert.",
       success:
         "Les joueurs réinvestissent le principe sans rappel permanent du coach.",
@@ -347,7 +366,8 @@ function trainingAssistantGenerateBase(input) {
       kind: "circuit",
       goal: "Faire le point sur " + n.goal + " et récupérer.",
       instructions:
-        "5 minutes de marche et de mobilité douce, 3 minutes d’échanges : ce qui a fonctionné, ce qui reste difficile, un repère à retenir. Prévoir 2 minutes pour l’hydratation et le rangement collectif.",
+        (coolMinutes - 5) +
+        " minutes de marche et de mobilité douce, 3 minutes d’échanges : ce qui a fonctionné, ce qui reste difficile, un repère à retenir. Prévoir 2 minutes pour l’hydratation et le rangement collectif.",
       success:
         "Chaque joueur repart avec un repère simple à réutiliser au prochain entraînement.",
     },
@@ -523,7 +543,7 @@ function trainingAssistantGenerate(input) {
     gameTail;
   session.blocks.forEach((block, i) => {
     block.custom.title = block.custom.title.replace(/^\d+\.\s*/, "");
-    if (i === 0) block.custom.title = "Activation ludique";
+    if (i === 0) block.custom.title = "Échauffement";
   });
   session.bmfCategory = bmfSubcategories[first].axis;
   session.bmfObjective = first;
@@ -551,6 +571,246 @@ function trainingAssistantGenerate(input) {
       "Ajustez les critères : cette séance ne peut pas être enregistrée.",
     );
   return session;
+}
+// The assistant fills each sequence with an exercise of the Bible (with its original
+// diagram), adapted to the group; its written workshop stays only as a fallback.
+function trainingAssistantBibleRoles(session) {
+  const stages = trainingSessionStages(session),
+    roles = new Map();
+  stages.forEach((stage, index) => {
+    const role =
+      index === 0
+        ? "activation"
+        : index === stages.length - 1
+          ? "cool"
+          : index === stages.length - 2
+            ? "game"
+            : "workshop";
+    for (const block of stage.blocks) roles.set(block.id, role);
+  });
+  return roles;
+}
+function trainingAssistantBibleTarget(block, role, objectives, needs) {
+  const target = {
+    activation: { objectives: ["ludic-activation"], phases: ["activation"], warmup: true },
+    workshop: {
+      objectives: [block.clubObjective].filter(Boolean),
+      phases: ["situation", "jeu", "opposition"],
+    },
+    game: { objectives: [...objectives], phases: ["jeu", "opposition"] },
+    cool: { objectives: ["ludic-cool"], phases: [] },
+  }[role];
+  if (role === "workshop" && !target.objectives.length)
+    target.objectives = [...objectives];
+  return {
+    ...target,
+    players: block.workshopPlayers ?? needs.total,
+    keepers: block.workshopKeepers ?? needs.keepers,
+    bounds: block.parallelId
+      ? [Math.floor((needs.bounds[0] - 3) / 2), needs.bounds[1]]
+      : [...needs.bounds],
+    age: needs.age || 0,
+  };
+}
+// Any real warm-up with the ball suits the coach (passing circuit, toro, rondo, ball
+// work, FIFA 11+…); only tag/relay games and athletic circuits come after them.
+function trainingAssistantWarmupPenalty(meta) {
+  const title = String(meta.titre || "");
+  if (/athl[ée]ti|physique|sprint|vitesse/i.test(title)) return 4;
+  return meta.source === "games" ? 6 : 0;
+}
+function trainingAssistantBibleScore(meta, target) {
+  // A warm-up circuit for 12 is run in several identical groups for a larger squad.
+  const players = target.players,
+    outside =
+      players < meta.effectif_min
+        ? meta.effectif_min - players
+        : players > meta.effectif_max && !target.warmup
+          ? players - meta.effectif_max
+          : 0,
+    dims = [...meta.dimensions].sort((a, b) => a - b),
+    room = [...target.bounds].sort((a, b) => a - b),
+    overflow =
+      Math.max(0, dims[0] - room[0]) + Math.max(0, (dims[1] || 0) - room[1]),
+    refAge = Number(
+      String(meta.niveau_reference || "").match(/U(\d+)/i)?.[1] ||
+        (/senior/i.test(meta.niveau_reference) ? 18 : 0),
+    );
+  return (
+    outside * 3 +
+    // For a warm-up the reference headcount does not matter (split into groups).
+    (target.warmup ? 0 : Math.abs(players - meta.effectif_reference) / 4) +
+    Math.ceil(overflow / 10) * 4 +
+    (target.age && refAge ? Math.floor(Math.abs(target.age - refAge) / 2) : 0) +
+    (target.phases.length && !target.phases.includes(meta.phase) ? 3 : 0) +
+    (target.warmup ? trainingAssistantWarmupPenalty(meta) : 0)
+  );
+}
+function trainingAssistantBibleCandidates(target, used = new Set()) {
+  if (!window.exerciseReferenceIndex) return [];
+  const seen = new Set(),
+    out = [];
+  for (const meta of exerciseReferenceIndex.entries) {
+    if (
+      // Like clubExerciseRecommendations: the club objective comes from
+      // clubExerciseClassification, so only unreliable player counts are excluded.
+      meta.effectif_a_verifier ||
+      seen.has(meta.source_id) ||
+      used.has(meta.source_id) ||
+      meta.gardiens > target.keepers
+    )
+      continue;
+    const exercise = exerciseReferenceIndex.resolve(meta.id);
+    if (!exercise) continue;
+    if (!target.objectives.includes(clubExerciseClassification(exercise).objective))
+      continue;
+    seen.add(meta.source_id);
+    out.push({ meta, score: trainingAssistantBibleScore(meta, target) });
+  }
+  return out
+    .sort(
+      (a, b) =>
+        a.score - b.score ||
+        String(a.meta.titre).localeCompare(String(b.meta.titre), "fr"),
+    )
+    .map((c) => c.meta);
+}
+// Adapts one Bible exercise to a generated block; throws when it cannot be placed.
+function trainingAssistantBibleBlock(meta, original, target, needs) {
+  const exercise = exerciseReferenceIndex.resolve(meta.id),
+    context = {
+      players: target.players,
+      keepers: target.keepers,
+      category: needs.level,
+      level: needs.technical === "advanced" ? "confirme" : "dev",
+      moment: "libre",
+      space: target.bounds,
+    };
+  // Engines check keepers and minimum players on the first group only: every
+  // subgroup must be able to play the sheet as written.
+  const plan = suppliedExerciseEngine.adapt(exercise, context),
+    minimum = plan.ex?.players?.[0] ?? exercise.players?.[0] ?? 1;
+  if (plan.groups.some((g) => g.n < minimum || g.k < (plan.needK || 0)))
+    throw Error("Un sous-groupe ne peut pas jouer cette fiche.");
+  const result = suppliedExerciseBlock(exercise, context);
+  const block = result.block;
+  for (const key of [
+    "duration",
+    "setupMinutes",
+    "recoveryMinutes",
+    "parallelId",
+    "workshopPlayers",
+    "workshopKeepers",
+    "clubObjective",
+  ])
+    if (original[key] !== undefined) block[key] = original[key];
+  // Series depend on the sequence's current duration: the card derives them at display
+  // time (clubTrainingBlockSeries), so no stale series for the reference duration is saved.
+  block.custom.instructions = block.custom.instructions
+    .split("\n")
+    .filter((line) => !/^Séries pour le groupe : /.test(line))
+    .join("\n");
+  // A tolerated age warning stays in the saved sheet, not only on the preview card.
+  if (result.warnings.length)
+    block.custom.instructions =
+      "À adapter : " + result.warnings.join(" ") + "\n" + block.custom.instructions;
+  // The first stage keeps its role in the title: « Échauffement · <exercise> ».
+  if (target.warmup)
+    block.custom.title = ("Échauffement · " + block.custom.title).slice(0, 100);
+  block.assistantSource = "bible";
+  block.assistantSourceId = meta.source_id;
+  return { block, warnings: result.warnings };
+}
+// Only an age mismatch may be tolerated (shown on the card); player-count, keeper,
+// space or intensity warnings mean the exercise does not fit this sequence.
+function trainingAssistantAgeOnly(warnings) {
+  return warnings.every((w) => /^Fiche conçue pour /.test(w));
+}
+// One usable replacement for blocks[index], or null: adaptation, warnings, validity
+// and the stage footprint are all checked against the current session.
+function trainingAssistantTryBible(session, index, meta, target, needs, allowedWarnings, tolerant) {
+  let built;
+  try {
+    built = trainingAssistantBibleBlock(meta, session.blocks[index], target, needs);
+  } catch {
+    return null;
+  }
+  if (built.warnings.length && !(tolerant && trainingAssistantAgeOnly(built.warnings)))
+    return null;
+  if (built.warnings.length) built.block.assistantWarnings = built.warnings.slice(0, 3);
+  const candidate = {
+    ...session,
+    blocks: session.blocks.map((b, i) => (i === index ? built.block : b)),
+  };
+  if (
+    !trainingValid(candidate) ||
+    trainingAssistantStageWarnings(candidate, built.block.id).length > allowedWarnings
+  )
+    return null;
+  return candidate;
+}
+function trainingAssistantStageWarnings(session, blockId) {
+  const stage = trainingSessionStages(session).find((s) =>
+    s.blocks.some((b) => b.id === blockId),
+  );
+  return stage ? trainingStageReview(stage, session).warnings : [];
+}
+function trainingAssistantUseBible(session, needs, objectives, random = Math.random) {
+  const generated = session.blocks.map((b) => structuredClone(b));
+  if (!window.exerciseReferenceIndex) return { session, generated };
+  const roles = trainingAssistantBibleRoles(session),
+    baseline = new Map(
+      session.blocks.map((b) => [
+        b.id,
+        trainingAssistantStageWarnings(session, b.id).length,
+      ]),
+    ),
+    used = new Set();
+  let next = structuredClone(session);
+  next.blocks.forEach((b) => (b.assistantSource = "generated"));
+  for (let index = 0; index < next.blocks.length; index++) {
+    const original = next.blocks[index],
+      target = trainingAssistantBibleTarget(
+        original,
+        roles.get(original.id),
+        objectives,
+        needs,
+      );
+    // First an exercise needing no adaptation warning; otherwise the closest one
+    // whose only warning is the age band, kept visible on its card.
+    let candidates = trainingAssistantBibleCandidates(target, used);
+    // Warm-up varies from one session to the next: random order among every fit
+    // scoring close to the best; the rest keeps its ranking as fallback.
+    if (target.warmup && candidates.length) {
+      const limit = trainingAssistantBibleScore(candidates[0], target) + 2;
+      let size = 0;
+      while (size < candidates.length && trainingAssistantBibleScore(candidates[size], target) <= limit) size++;
+      const best = candidates.slice(0, size);
+      for (let i = best.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [best[i], best[j]] = [best[j], best[i]];
+      }
+      candidates = [...best, ...candidates.slice(size)];
+    }
+    pass: for (const tolerant of [false, true])
+      for (const meta of candidates) {
+        const candidate = trainingAssistantTryBible(
+          next,
+          index,
+          meta,
+          target,
+          needs,
+          baseline.get(original.id) || 0,
+          tolerant,
+        );
+        if (!candidate) continue;
+        next = candidate;
+        used.add(meta.source_id);
+        break pass;
+      }
+  }
+  next.duration = trainingSessionStages(next).at(-1)?.end || next.duration;
+  return trainingValid(next) ? { session: next, generated } : { session, generated };
 }
 document.addEventListener("DOMContentLoaded", () => {
   const root = $("training-space"),
@@ -620,6 +880,11 @@ document.addEventListener("DOMContentLoaded", () => {
     new Option("Terrain complet", "full"),
     new Option("Quart de terrain", "quarter"),
   );
+  const sessionDuration = field("Durée de la séance", el("select"));
+  sessionDuration.id = "training-assistant-duration";
+  sessionDuration.append(new Option("Selon l’âge (75 min avant U16, 90 min ensuite)", "auto"));
+  for (const minutes of [60, 75, 90, 105, 120])
+    sessionDuration.append(new Option(minutes + " min", String(minutes)));
   const organisation = field("Organisation du groupe", el("select"));
   organisation.append(new Option("Répartition automatique", "auto"), new Option("Deux ateliers séparés", "two"));
   const generate = el(
@@ -690,7 +955,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }).observe(root, { attributes: true, attributeFilter: ["class"] });
   let session = null,
     owner = "",
-    stale = true;
+    stale = true,
+    generated = [],
+    bibleNeeds = null,
+    bibleObjectives = [];
   form.addEventListener("input", () => {
     if (session) {
       stale = true;
@@ -701,6 +969,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   const context = () => activeCoach.id + ":" + activeCoachTeam.id;
   function renderStages(target) {
+    const roles = trainingAssistantBibleRoles(session);
     for (const [index, stage] of trainingSessionStages(session).entries()) {
       const row = el("section", "training-assistant-stage");
       if (stage.parallel) {
@@ -710,11 +979,120 @@ document.addEventListener("DOMContentLoaded", () => {
       stage.blocks.forEach((block, group) => {
         const card = clubTrainingBlockCard(block, index, { details: false, session: trainingSessionForBlock(block, session) });
         if (stage.parallel) card.querySelector(".training-sequence-number").textContent = "Groupe " + (group === 0 ? "A" : "B");
+        if (block.assistantSource === "generated")
+          card.append(el("p", "hint training-assistant-bible-note", roles.get(block.id) === "cool" ? "Retour au calme proposé par l’assistant : la Bible n’a pas de fiche de ce type." : "Aucun exercice de la Bible ne convient à ce groupe : exercice écrit par l’assistant."));
+        if (target === preview) card.append(bibleChooser(block));
         row.append(card);
       });
       target.append(row);
     }
   }
+  // « Changer d'exercice » replaces one sequence only, with the same group, space and time.
+  function bibleChooser(block) {
+    const index = session.blocks.indexOf(block),
+      label = el("label", "report-field training-assistant-bible-choice", "Changer d’exercice"),
+      select = el("select");
+    select.setAttribute("aria-label", "Changer d’exercice · " + block.custom.title);
+    select.append(new Option("Garder cet exercice", ""));
+    if (bibleNeeds && index >= 0) {
+      const role = trainingAssistantBibleRoles(session).get(block.id),
+        target = trainingAssistantBibleTarget(block, role, bibleObjectives, bibleNeeds),
+        used = new Set(session.blocks.map((b) => b.assistantSourceId).filter(Boolean));
+      const allowed = trainingAssistantStageWarnings({ ...session, blocks: generated }, generated[index].id).length;
+      let shown = 0;
+      // Bounded search keeps the preview responsive on large libraries.
+      for (const meta of trainingAssistantBibleCandidates(target, used).slice(0, 60)) {
+        if (shown >= 5) break;
+        if (!trainingAssistantTryBible(session, index, meta, target, bibleNeeds, allowed, true)) continue;
+        select.append(new Option(clubExerciseText(meta.titre) + " · " + meta.effectif_min + "–" + meta.effectif_max + " joueurs · " + meta.duree + " min", meta.id));
+        shown++;
+      }
+      if (block.assistantSource === "bible" && generated[index])
+        select.append(new Option("Exercice écrit par l’assistant", "__generated"));
+    }
+    select.onchange = () => {
+      if (select.value) replaceBlock(index, select.value);
+    };
+    label.append(select);
+    // One click: another usable Bible exercise for this sequence, drawn at random
+    // among the close fits, so the coach can keep clicking until one suits.
+    const another = el("button", "export training-assistant-bible-another", "↻ Autre exercice");
+    another.type = "button";
+    another.setAttribute("aria-label", "Chercher un autre exercice · " + block.custom.title);
+    another.disabled = !bibleNeeds || index < 0;
+    // No button where the Bible has no sheet of this kind (cool-down today).
+    if (bibleNeeds && index >= 0) {
+      const role = trainingAssistantBibleRoles(session).get(block.id);
+      another.hidden = !trainingAssistantBibleCandidates(
+        trainingAssistantBibleTarget(block, role, bibleObjectives, bibleNeeds),
+      ).length;
+    }
+    another.onclick = () => {
+      if (!ready()) return;
+      const role = trainingAssistantBibleRoles(session).get(block.id),
+        target = trainingAssistantBibleTarget(block, role, bibleObjectives, bibleNeeds),
+        used = new Set(session.blocks.map((b) => b.assistantSourceId).filter(Boolean)),
+        allowed = trainingAssistantStageWarnings({ ...session, blocks: generated }, generated[index].id).length,
+        candidates = trainingAssistantBibleCandidates(target, used);
+      if (!candidates.length) return (status.textContent = "Aucun autre exercice de la Bible ne convient à cette séquence.");
+      const limit = trainingAssistantBibleScore(candidates[0], target) + 4,
+        pool = candidates.filter((m) => trainingAssistantBibleScore(m, target) <= limit),
+        rest = candidates.filter((m) => !pool.includes(m));
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      const pick = [...pool, ...rest].slice(0, 80).find((meta) =>
+        trainingAssistantTryBible(session, index, meta, target, bibleNeeds, allowed, true),
+      );
+      if (!pick) return (status.textContent = "Aucun autre exercice de la Bible ne convient à cette séquence.");
+      replaceBlock(index, pick.id);
+    };
+    const box = el("div", "training-assistant-bible-tools");
+    box.append(another, label);
+    return box;
+  }
+  function replaceBlock(index, choice) {
+    if (!ready()) return;
+    const original = session.blocks[index];
+    if (!original) return;
+    try {
+      let block;
+      if (choice === "__generated") block = structuredClone(generated[index]);
+      else {
+        const meta = exerciseReferenceIndex.get(choice),
+          role = trainingAssistantBibleRoles(session).get(original.id),
+          target = trainingAssistantBibleTarget(original, role, bibleObjectives, bibleNeeds),
+          built = trainingAssistantBibleBlock(meta, original, target, bibleNeeds);
+        block = built.block;
+        if (!trainingAssistantAgeOnly(built.warnings))
+          throw Error("Cet exercice ne convient pas à ce groupe ou à cet espace. La séance est conservée.");
+        if (built.warnings.length) block.assistantWarnings = built.warnings.slice(0, 3);
+      }
+      block.assistantSource = choice === "__generated" ? "generated" : "bible";
+      const blocks = session.blocks.map((b, i) => (i === index ? block : b)),
+        next = { ...session, blocks },
+        written = { ...session, blocks: generated };
+      next.duration = trainingSessionStages(next).at(-1)?.end || session.duration;
+      if (
+        !trainingValid(next) ||
+        trainingAssistantStageWarnings(next, block.id).length >
+          trainingAssistantStageWarnings(written, generated[index].id).length
+      )
+        throw Error("Cet exercice ne tient pas dans cette séquence (place, effectif ou durée). La séance est conservée.");
+      session = next;
+      paint();
+      status.textContent = "Séquence mise à jour.";
+    } catch (error) {
+      status.textContent = error.message || "Cet exercice ne peut pas être utilisé ici.";
+      paint();
+    }
+  }
+  // Assistant-only markers never leave the preview.
+  const cleanSession = (s) => ({
+    ...s,
+    blocks: s.blocks.map(({ assistantSource, assistantSourceId, assistantWarnings, ...b }) => b),
+  });
   function paint() {
     preview.replaceChildren();
     preview.append(
@@ -732,122 +1110,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ),
     );
     renderStages(preview);
-    if (window.exerciseReferenceIndex) {
-      const n = trainingAssistantNeeds({
-        goal: goal.value,
-        objective: selectedObjectives()[0],
-        level: level.value,
-        players: players.value,
-        space: space.value,
-        organisation: organisation.value,
-      });
-      const firstWorkshop = session.blocks.find(b => b.parallelId);
-      if (firstWorkshop) {
-        n.total = firstWorkshop.workshopPlayers;
-        n.keepers = firstWorkshop.workshopKeepers;
-        n.field = n.total - n.keepers;
-        n.bounds = [Math.floor((n.bounds[0] - 3) / 2), n.bounds[1]];
-      }
-      const suggestions = clubExerciseRecommendations(
-        selectedObjectives(),
-        n,
-      ).slice(0, 3);
-      const references = el("section", "training-assistant-references");
-      references.append(el("h3", "", "Exercices de référence compatibles"));
-      if (!suggestions.length)
-        references.append(
-          el(
-            "p",
-            "hint",
-            "Aucune fiche ne correspond exactement à cet effectif, ces gardiens et cet espace. Ajustez les critères ou conservez l’atelier proposé.",
-          ),
-        );
-      for (const ref of suggestions) {
-        const row = el("div", "training-assistant-reference-row"),
-          info = el("div"),
-          actions = el("div", "report-actions");
-        info.append(
-          el("strong", "", clubExerciseText(ref.titre)),
-          el(
-            "small",
-            "",
-            ref.effectif_min +
-              "–" +
-              ref.effectif_max +
-              " joueurs · " +
-              ref.duree +
-              " min · " +
-              ref.surface,
-          ),
-        );
-        const view = el("button", "export", "Voir l’exercice"),
-          use = el("button", "export", "Utiliser dans l’atelier correspondant");
-        view.type = use.type = "button";
-        view.onclick = () =>
-          openSuppliedSheet(exerciseReferenceIndex.resolve(ref.id));
-        const targetObjective = clubExerciseClassification(
-          exerciseReferenceIndex.resolve(ref.id),
-        ).objective;
-        use.disabled = session.blocks.some(
-          (b) =>
-            b.clubObjective === targetObjective &&
-            b.custom.importedExerciseId === ref.source_id,
-        );
-        use.onclick = () => {
-          if (!ready()) return;
-          try {
-            const result = suppliedExerciseBlock(
-              exerciseReferenceIndex.resolve(ref.id),
-              {
-                players: session.blocks.find(b => b.clubObjective === targetObjective)?.workshopPlayers ?? n.total,
-                keepers: session.blocks.find(b => b.clubObjective === targetObjective)?.workshopKeepers ?? n.keepers,
-                category: n.level,
-                level: n.technical === "advanced" ? "confirme" : "dev",
-                moment: "libre",
-                space: n.bounds,
-              },
-            );
-            if (result.warnings.length && !confirm(result.warnings.join("\n")))
-              return;
-            const target = session.blocks.findIndex(
-              (b) => b.clubObjective === targetObjective,
-            );
-            if (target < 1)
-              throw Error(
-                "Cet exercice ne correspond pas à un atelier sélectionné.",
-              );
-            result.block.clubObjective = targetObjective;
-            const original = session.blocks[target];
-            if (original.parallelId) {
-              // Keep a coherent common clock; the source exercise remains intact.
-              result.block.parallelId = original.parallelId;
-              result.block.workshopPlayers = original.workshopPlayers;
-              result.block.workshopKeepers = original.workshopKeepers;
-              result.block.duration = original.duration;
-              result.block.setupMinutes = original.setupMinutes;
-              result.block.recoveryMinutes = original.recoveryMinutes;
-            }
-            const blocks = session.blocks.map((b, i) =>
-                i === target ? result.block : b,
-              ),
-              duration = trainingSessionStages({ ...session, blocks }).at(-1)?.end || 0,
-              next = { ...session, blocks, duration };
-            if (!trainingValid(next))
-              throw Error(
-                "Cette fiche ne peut pas être intégrée dans la durée de cette séance.",
-              );
-            session = next;
-            paint();
-          } catch (error) {
-            status.textContent = error.message;
-          }
-        };
-        actions.append(view, use);
-        row.append(info, actions);
-        references.append(row);
-      }
-      preview.append(references);
-    }
   }
   form.onsubmit = (event) => {
     event.preventDefault();
@@ -861,7 +1123,17 @@ document.addEventListener("DOMContentLoaded", () => {
         players: players.value,
         space: space.value,
         organisation: organisation.value,
+        ...(sessionDuration.value === "auto" ? {} : { duration: Number(sessionDuration.value) }),
       });
+      bibleObjectives = selectedObjectives();
+      bibleNeeds = trainingAssistantNeeds({
+        goal: goal.value || "Séance",
+        objective: bibleObjectives[0],
+        level: level.value,
+        players: players.value,
+        space: space.value,
+      });
+      ({ session, generated } = trainingAssistantUseBible(session, bibleNeeds, bibleObjectives));
       owner = context();
       stale = false;
       for (const b of [edit, save, plan, pdf]) b.disabled = false;
@@ -870,8 +1142,9 @@ document.addEventListener("DOMContentLoaded", () => {
       schedule.open = true;
       paint();
       controls.hidden = false;
+      const fromBible = session.blocks.filter((b) => b.assistantSource === "bible").length;
       status.textContent =
-        "Séance prête : activation, ateliers ciblés, jeu appliqué et retour au calme.";
+        "Séance prête : " + fromBible + " exercice(s) de la Bible sur " + session.blocks.length + " séquence(s). « Changer d’exercice » propose d’autres fiches.";
     } catch (error) {
       status.textContent = error.message;
     }
@@ -886,7 +1159,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function commit(scheduled) {
     if (!ready()) return;
-    let next = structuredClone(session);
+    let next = structuredClone(cleanSession(session));
     next.libraryOnly = scheduled ? false : session.libraryOnly !== false;
     if (scheduled || next.agendaLink) {
       if (
@@ -946,7 +1219,7 @@ document.addEventListener("DOMContentLoaded", () => {
   save.onclick = () => commit(false);
   plan.onclick = () => commit(true);
   edit.onclick = () => {
-    if (ready() && workspaceReplaceDraft("training", session)) {
+    if (ready() && workspaceReplaceDraft("training", cleanSession(session))) {
       stale = true;
       for (const b of [edit, save, plan, pdf]) b.disabled = true;
       status.textContent =
@@ -1011,7 +1284,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   function reset() {
-    session = null; owner = ""; stale = true;
+    session = null; owner = ""; stale = true; generated = []; bibleNeeds = null;
     form.reset(); goal.value = ""; level.value = activeCoachTeam.category || "";
     preview.replaceChildren(); print.replaceChildren();
     date.value = time.value = ""; schedule.open = false;

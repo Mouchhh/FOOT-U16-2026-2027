@@ -134,6 +134,15 @@ trainingDocument = function (...args) {
   return clubCleanExerciseLabels(clubTrainingDocument(...args));
 };
 // Read-only projection: brief extracts and a separate adaptation strip.
+// The sheet's own reference rhythm (series in seconds), shown as written; sheets
+// without explicit series show nothing rather than an invented cadence.
+function clubTrainingBlockSeries(block, source) {
+  const series = source?.series;
+  if (!Array.isArray(series) || !(series[0] > 0)) return "";
+  const time = (sec) => { const m = Math.floor(sec / 60), s = Math.round(sec % 60); return m ? m + " min" + (s ? " " + String(s).padStart(2, "0") : "") : s + " s"; };
+  return "Rythme de référence de la fiche : efforts de " + time(series[0]) +
+    (series[1] > 0 ? ", récupération " + time(series[1]) + " entre les efforts." : ", en continu.");
+}
 function clubTrainingBlockCard(block, index, { details = true, session = null } = {}) {
   const custom = block.custom,
     card = el("article", "training-assistant-phase training-club-sequence training-workshop"),
@@ -213,6 +222,14 @@ function clubTrainingBlockCard(block, index, { details = true, session = null } 
       : "touches libres et opposition progressive ; une seule contrainte à la fois.")));
   if (session && custom.adaptation && (custom.adaptation.players !== session.players || custom.adaptation.keepers !== session.keepers))
     adaptation.append(el("p", "training-alert", "L’effectif a changé : réadaptez cet atelier avant utilisation."));
+  // Bible sheet: the saved age warning, and series derived from the current duration
+  // (recoveries included), so editor changes never leave stale series behind.
+  if (source) {
+    for (const line of String(custom.instructions || "").split("\n"))
+      if (/^À adapter : /.test(line)) adaptation.append(el("p", "training-alert", line));
+    const series = clubTrainingBlockSeries(block, source);
+    if (series) adaptation.append(el("p", "training-block-series", series));
+  }
   card.append(adaptation);
   const more = el("button", "export training-workshop-source", source ? "Voir la fiche d’origine" : "Lire toutes les consignes");
   more.type = "button";

@@ -38,9 +38,10 @@ with sync_playwright() as p:
  assert page.evaluate('currentTraining.blocks[0].custom.importedExerciseId')=='mc-taureau-deux-equipes'
  page.locator('#view-training').evaluate('e=>e.click()');page.locator('#task-training-assistant').click();form=page.locator('.training-assistant-form')
  form.locator('[data-intention=ball]').evaluate('(node)=>node.open=true');form.locator('input[value=ball-control]').check();form.get_by_label('Niveau du groupe',exact=True).fill('U17 Régional');form.get_by_label('Joueurs de champ + gardiens',exact=True).fill('14 + 2');form.get_by_role('button',name='Générer la séance avec l’Assistant',exact=True).click()
- assert page.locator('.training-assistant-reference-row').count()>0
- page.locator('.training-assistant-reference-row').first.get_by_role('button',name='Utiliser dans l’atelier correspondant',exact=True).click()
- assert page.locator('.training-assistant-reference-row button:disabled').count()==1
+ # The assistant now places Bible exercises itself; « Changer d'exercice » swaps one sequence.
+ assert page.locator('.training-assistant-references').count()==0
+ chooser=page.locator('.training-assistant-preview .training-assistant-bible-choice select').nth(1);first=chooser.locator('option').nth(1).get_attribute('value')
+ chooser.select_option(first);assert 'Séquence mise à jour' in page.locator('#training-assistant-az [role=status]').inner_text()
  page.get_by_role('button',name='Ajuster dans l’éditeur',exact=True).click();assert page.evaluate('currentTraining.blocks.length')==4
  assert page.evaluate('!!currentTraining.blocks[1].custom.importedExerciseId&&trainingValid(currentTraining)')
- assert not errors,errors;b.close();print('PASS: 751 additions, 249 unchanged originals, hidden index, four intentions/formats, source-safe add/reload, and real Assistant reference selection.')
+ assert not errors,errors;b.close();print('PASS: 751 additions, 249 unchanged originals, hidden index, four intentions/formats, source-safe add/reload, and real Assistant Bible selection and swap.')
