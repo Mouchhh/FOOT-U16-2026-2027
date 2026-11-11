@@ -102,11 +102,21 @@ function playerStatsResolve(row, roster = squadPlayers()) {
   const name = playerStatsName(row.name);
   if (!name) return null;
   const matches = roster.filter((p) => playerStatsName(p.name) === name);
-  // A number alone or an ambiguous name never links a report to a player.
-  return matches.length === 1 &&
-    (!row.number || String(matches[0].number) === String(row.number))
-    ? matches[0]
-    : null;
+  // An ambiguous name never links a report to a player. Shirt numbers change from
+  // match to match, so they no longer identify a squad profile.
+  return matches.length === 1 ? matches[0] : null;
+}
+// The match number of a squad player in one given report, read only from that
+// report's composition snapshot (never from the profile, which has no number).
+function reportMatchNumber(report, player) {
+  const roster = report?.preparation?.roster || [];
+  const linked = roster.find((r) => r.squadPlayerId === player?.id);
+  if (linked) return String(linked.number);
+  const name = playerStatsName(player?.name);
+  const legacy = roster.filter(
+    (r) => !r.squadPlayerId && name && playerStatsName(r.name) === name,
+  );
+  return legacy.length === 1 ? String(legacy[0].number) : "";
 }
 function playerStatsStamp(row) {
   return Number.isFinite(Date.parse(row.updatedAt))

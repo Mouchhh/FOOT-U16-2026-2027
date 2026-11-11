@@ -207,7 +207,7 @@
         const who = el("div");
         who.append(
           el("strong", "", player.name),
-          el("small", "", "N° " + player.number),
+          el("small", "", squadPositionsLabel(player)),
         );
         const choices = el("div", "report-attendance-choices");
         choices.setAttribute("role", "group");

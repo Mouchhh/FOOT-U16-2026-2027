@@ -10,12 +10,12 @@ with sync_playwright() as p:
  page.locator('#team').fill('Équipe de test');page.locator('#composition-title').fill('Composition de test')
  first_id=page.evaluate('state.players[0].id');second_id=page.evaluate('state.players[1].id');xy=page.evaluate('state.players.slice(0,2).map(p=>[p.x,p.y])')
  page.locator('#players .player').first.click();d=page.locator('#composition-player-picker');assert d.is_visible();assert 'Aucun joueur enregistré' in d.inner_text()
- d.get_by_role('tab',name='Créer un joueur',exact=True).click();d.get_by_label('Prénom',exact=True).fill('Enzo');d.get_by_label('Nom',exact=True).fill('Test');d.get_by_label('Numéro',exact=True).fill('12')
+ d.get_by_role('tab',name='Créer un joueur',exact=True).click();d.get_by_label('Prénom',exact=True).fill('Enzo');d.get_by_label('Nom (facultatif)',exact=True).fill('Test');d.get_by_label('Numéro pour ce match',exact=True).fill('12')
  png=page.evaluate("()=>{const c=document.createElement('canvas');c.width=c.height=50;const x=c.getContext('2d');x.fillStyle='#2855a2';x.fillRect(0,0,50,50);return c.toDataURL('image/png').split(',')[1]}")
  d.get_by_label('Photo du joueur (facultatif)',exact=True).set_input_files({'name':'portrait.png','mimeType':'image/png','buffer':base64.b64decode(png)})
  page.wait_for_function("!document.querySelector('#composition-picker-create button[type=submit]').disabled")
  d.get_by_role('button',name='Enregistrer et placer le joueur',exact=True).click();expect(d).to_have_count(0)
- assert page.evaluate('squadPlayers().length')==1;assert page.evaluate('squadPlayers()[0].name')=='Enzo Test';assert page.evaluate('state.players[0].name')=='Enzo Test';assert page.evaluate('state.players[0].photo===squadPlayers()[0].photo');assert page.evaluate('state.players[0].photo.startsWith("data:image/jpeg")')
+ assert page.evaluate('squadPlayers().length')==1;assert page.evaluate('squadPlayers()[0].name')=='Enzo Test';assert page.evaluate("!('number' in squadPlayers()[0])");assert page.evaluate('state.players[0].number')==12;assert page.locator('#players .player').first.locator('.player-name').inner_text()=='Enzo';assert page.evaluate('state.players[0].name')=='Enzo Test';assert page.evaluate('state.players[0].photo===squadPlayers()[0].photo');assert page.evaluate('state.players[0].photo.startsWith("data:image/jpeg")')
  assert page.evaluate('state.players[0].id')==first_id;assert page.evaluate('state.players.slice(0,2).map(p=>[p.x,p.y])')==xy
  assert page.locator('#team').input_value()=='Équipe de test';assert page.locator('#composition-title').input_value()=='Composition de test';assert page.evaluate("headerNodes.every(n=>document.getElementById(n.id)===n)")
  # Registered player is visible in the real global Effectif page.
@@ -28,7 +28,7 @@ with sync_playwright() as p:
  page.mouse.move(x,y);page.mouse.down();page.mouse.move(x+35,y+25,steps=6);page.mouse.up();expect(d).to_have_count(0);assert page.evaluate('state.players[1].x')!=xy[1][0]
  token=page.locator('#players .player').first;token.focus();token.press('Enter');assert d.is_visible();d.get_by_role('button',name='Autres réglages du pion',exact=True).click();assert page.locator('#editor').is_visible();page.locator('#close').click()
  # A directory write failure cannot alter the composition or create a phantom record.
- page.locator('#players .player').first.click();d.get_by_role('tab',name='Créer un joueur',exact=True).click();d.get_by_label('Prénom',exact=True).fill('Hugo');d.get_by_label('Nom',exact=True).fill('Test');before=page.evaluate('JSON.stringify(state.players)')
+ page.locator('#players .player').first.click();d.get_by_role('tab',name='Créer un joueur',exact=True).click();d.get_by_label('Prénom',exact=True).fill('Hugo');d.get_by_label('Nom (facultatif)',exact=True).fill('Test');before=page.evaluate('JSON.stringify(state.players)')
  page.evaluate("()=>{window.playerWriter=coachStorageSet;coachStorageSet=(k,v)=>{if(k==='vestiaire-saves')throw Error('quota');return playerWriter(k,v)}}")
  d.get_by_role('button',name='Enregistrer et placer le joueur',exact=True).click();assert d.is_visible();assert page.evaluate('squadPlayers().length')==1;assert page.evaluate('JSON.stringify(state.players)')==before
  # If only placement fails, retain the directory record and offer a duplicate-free retry.

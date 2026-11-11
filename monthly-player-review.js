@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const open = el('button', 'player-stat-profile-link', stats.player.name);
       open.type = 'button';
       open.onclick = () => playerStatsOpen(stats.player.id);
-      identity.append(open, el('small', '', stats.player.position || 'Poste à préciser'), squadIdentityBadges(stats.player, stats));
+      identity.append(open, el('small', '', squadPositionsLabel(stats.player)), squadIdentityBadges(stats.player, stats));
       const metrics = el('div', 'monthly-player-metrics');
       metrics.append(el('strong', '', playerStatsDisplay(stats, 'minutes') + ' min'));
       metrics.append(el('span', '', 'Présence : ' + (stats.attendance.rate === null ? '—' : stats.attendance.rate + ' %') + ' · ' + stats.attendance.present + '/' + (stats.attendance.present + stats.attendance.absent) + ' séances pointées'));

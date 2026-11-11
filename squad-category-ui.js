@@ -34,9 +34,6 @@ function squadIdentityBadges(player, stats = null) {
   return strip;
 }
 document.addEventListener("DOMContentLoaded", () => {
-  // Keep historical jersey data for Match, but remove it from Effectif's form and cards.
-  squadNumber.type = "hidden";
-  squadNumber.closest("label").hidden = true;
   const categoryLabel = el("label", "report-field", "Catégorie principale"),
     category = el("input");
   category.maxLength = 30;
@@ -51,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   for (const value of ["", "Disponible", "À confirmer", "Indisponible"])
     status.append(new Option(value || "À renseigner", value));
   statusLabel.append(status);
-  squadPostLabel.after(categoryLabel, statusLabel);
+  squadProfile.root.after(categoryLabel, statusLabel);
   window.squadProfileFields = {
     fill(player) {
       category.value =

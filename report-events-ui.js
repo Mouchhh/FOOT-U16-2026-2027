@@ -95,7 +95,12 @@ function reportEventPlayerField(event, key, label) {
     group.label = title;
     for (const player of players)
       group.append(
-        new Option("N° " + player.number + " · " + player.name, player.id),
+        new Option(
+          (reportMatchNumber(currentReport, player)
+            ? "N° " + reportMatchNumber(currentReport, player) + " · "
+            : "") + player.name,
+          player.id,
+        ),
       );
     select.append(group);
   }

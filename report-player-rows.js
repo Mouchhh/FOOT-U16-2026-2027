@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function ensureRow(player, entry) {
     let row = entry || currentReport.players.find(r => playerStatsResolve(r)?.id === player?.id);
     if (!row && player && currentReport.players.length < 40) {
-      row = {id: crypto.randomUUID(), squadPlayerId: player.id, name: player.name, number: String(player.number || ''), role: 'Titulaire', minutes: '', score: '', note: '', objective: ''};
+      row = {id: crypto.randomUUID(), squadPlayerId: player.id, name: player.name, number: reportMatchNumber(currentReport, player), role: 'Titulaire', minutes: '', score: '', note: '', objective: ''};
       currentReport.players.push(row);
     }
     return row;
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
       picker.append(new Option('Associer à votre effectif…', ''));
       const used = new Set(currentReport.players.filter(row => row.id !== reportRow.id).map(row => playerStatsResolve(row)?.id).filter(Boolean));
       for (const candidate of roster) {
-        const option = new Option(candidate.name + ' · n° ' + candidate.number, candidate.id);
+        const option = new Option(candidate.name + (candidate.nickname ? ' « ' + candidate.nickname + ' »' : ''), candidate.id);
         option.disabled = used.has(candidate.id);picker.append(option);
       }
       const reportId = currentReport.id, owner = activeCoach.id + ':' + activeCoachTeam.id;
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const row = currentReport.players.find(candidate => candidate.id === reportRow.id);
         const selected = squadPlayers().find(candidate => candidate.id === picker.value);
         if (!row || !selected || currentReport.players.some(candidate => candidate.id !== row.id && playerStatsResolve(candidate)?.id === selected.id)) { picker.value = '';return; }
-        row.squadPlayerId = selected.id;row.name = selected.name;row.number = String(selected.number);
+        row.squadPlayerId = selected.id;row.name = selected.name;if (!row.number) row.number = reportMatchNumber(currentReport, selected);
         reportAutosave();renderReportContent();
       };
       label.append(picker);group.append(label);

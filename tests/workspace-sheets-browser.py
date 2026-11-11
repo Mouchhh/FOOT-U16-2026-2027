@@ -32,7 +32,7 @@ with sync_playwright() as p:
  # The real player editor closes after a successful save, but not after failed persistence.
  page.locator('.player-stat-manage summary').click();page.get_by_role('button',name='Modifier Alex Martin',exact=True).click();editor=page.locator('#coach-squad-editor')
  page.evaluate("()=>{window.sheetWriter=coachStorageSet;coachStorageSet=()=>{throw Error('quota');};}")
- editor.get_by_label('Prénom et nom',exact=True).fill('Alex modifié');editor.get_by_role('button',name='Enregistrer le joueur',exact=True).click();assert editor.is_visible()
+ editor.get_by_label('Prénom',exact=True).fill('Alex');editor.get_by_label('Nom (facultatif)',exact=True).fill('modifié');editor.get_by_role('button',name='Enregistrer le joueur',exact=True).click();assert editor.is_visible()
  page.evaluate('()=>{coachStorageSet=window.sheetWriter;}');editor.get_by_role('button',name='Enregistrer le joueur',exact=True).click();assert not editor.is_visible();assert page.evaluate("squadPlayers()[0].name")=='Alex modifié'
  # Destructive decisions use the same single workspace, with a retained confirmation.
  page.locator('#view-reports').click();page.locator('#report-delete').click();delete=page.locator('#document-delete-dialog');assert not delete.evaluate("e=>e.matches(':modal')") and delete.get_attribute('aria-modal')=='true'

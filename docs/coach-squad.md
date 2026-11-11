@@ -6,10 +6,37 @@
 l'effectif. Le même répertoire est accessible par « Mon espace · agenda » →
 « Mes joueurs ».
 
-Créer une fiche avec prénom/nom, numéro, photo et poste habituel, ou utiliser
-« Récupérer les joueurs de la compo » pour enregistrer les joueurs déjà nommés.
-Les pions génériques « Joueur 1 », etc. ne sont pas importés. Recherche par nom
-ou numéro, filtre par poste et modification des fiches sont disponibles.
+Une seule fiche joueur, la même partout (`squad-player-form.js`) : prénom
+(obligatoire), nom, surnom, numéro de licence, **un ou plusieurs postes**, pied
+préféré et photo. **La fiche n'a pas de numéro** : l'effectif est plus large que
+le groupe du week-end, le numéro se choisit dans chaque composition (« Numéro
+pour ce match »). Un même joueur peut porter le 8 dans une compo et le 14 dans
+une autre sans modifier sa fiche.
+
+La fiche se crée depuis « + Nouveau joueur », depuis une place de la composition
+(onglet « Créer un joueur ») ou depuis « Ajouter un joueur » sur le terrain : dans
+les deux derniers cas, elle est d'abord enregistrée dans l'effectif, puis le pion
+est placé. « Récupérer les joueurs de la compo » enregistre les joueurs déjà
+nommés ; les pions génériques « Joueur 1 », etc. ne sont pas importés. Recherche
+par nom ou surnom, filtre par poste (un joueur à plusieurs postes apparaît dans
+chacun) et modification des fiches sont disponibles.
+
+Sur le terrain, un pion lié à une fiche affiche le **surnom**, sinon le prénom ;
+la composition, les rapports et les statistiques gardent le nom complet. Dans
+« Autres réglages du pion », le nom et la photo d'un pion lié viennent de la
+fiche : seuls le numéro et la place de ce match se modifient.
+
+Le numéro proposé pour une place est celui du pion remplacé, sinon le premier
+numéro libre de la composition (1 pour la place de gardien). Dans les rapports,
+le numéro d'un joueur vient uniquement de la composition mémorisée de ce rapport
+(`reportMatchNumber(report, joueur)`), jamais de la fiche ; sans correspondance
+sûre, il reste vide.
+
+Anciennes données : les fiches qui ont encore un numéro ou un poste libre
+(ex. « Défenseur central ») restent valides. Le numéro est conservé en donnée
+mais n'est plus affiché ni utilisé ; le poste libre apparaît comme une case
+cochée et n'est retiré que si le coach la décoche. Prénom et nom d'une ancienne
+fiche sont déduits du nom complet (premier mot / reste).
 
 « Utiliser » permet de remplacer un pion en conservant sa position et son rôle,
 ou d'ajouter le joueur aux Impacteurs / Finisseurs. La photo est copiée dans le
@@ -45,8 +72,11 @@ Une fiche ouverte pendant un rafraîchissement ne peut pas être enregistrée
 silencieusement au-dessus d'une modification distante de la même fiche.
 
 Les photos sont recadrées localement en JPEG carré de 180 px. Le répertoire est
-validé (100 fiches, identifiants uniques, numéros 1–99, photos en données image,
-volume total plafonné) ; un échec local ne remplace pas les données précédentes.
+validé (100 fiches, identifiants uniques, numéro facultatif 1–99 pour les
+anciennes fiches, 4 postes maximum, licence en chiffres/lettres, photos en
+données image, volume total plafonné) ; un échec local ne remplace pas les
+données précédentes. Le champ `position` reste écrit (premier poste) pour les
+écrans qui ne lisent qu'un poste.
 
 ## Vérification
 
@@ -55,6 +85,11 @@ photo, avec simulation à la frontière du service de partage. Il vérifie les
 places, le banc, l'isolation des coachs, le rechargement, les doublons, les
 modifications de profil, la file versionnée, la lecture sur un deuxième navigateur,
 la résolution des conflits, les limites du stockage et l'affichage mobile.
+
+`tests/squad-player-profile-browser.py` vérifie la fiche unique : anciennes
+fiches (numéro, poste libre) chargées et modifiées sans perte, plusieurs postes,
+création depuis « Ajouter un joueur » sans numéro de fiche, surnom sur le pion,
+numéros de match dans les rapports et absence de « undefined ».
 
 `tests/club-network-browser.py` vérifie les parcours de connexion et de partage
 existants avec un Supabase simulé. Ces tests n'utilisent pas les comptes réels

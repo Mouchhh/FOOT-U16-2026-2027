@@ -40,7 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
     bar.hidden=!bar.hidden;toggle.setAttribute('aria-expanded',String(!bar.hidden));
   }
   toggle.onclick=open;
-  $('add-sub').onclick=()=>{bar.hidden=false;toggle.setAttribute('aria-expanded','true');bar.scrollIntoView({block:'nearest'});};
+  // In a composition the button creates/chooses a profile; the bench toggle keeps the count bar.
+  $('add-sub').onclick=()=>{if(window.compositionPlayerPicker?.openNew('sub'))return;bar.hidden=false;toggle.setAttribute('aria-expanded','true');bar.scrollIntoView({block:'nearest'});};
   const renderBefore=render;
   render=function(...args){const value=renderBefore.apply(this,args);for(const node of $('players').querySelectorAll('[data-id^="empty-sub-slot-"]')){node.classList.add('player-empty-sub');node.setAttribute('aria-label','Impacteur / Finisseur libre : choisir un joueur');}return value;};
   render();

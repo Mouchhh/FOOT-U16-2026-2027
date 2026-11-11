@@ -33,7 +33,7 @@ with sync_playwright() as p:
  assert page.evaluate('getCompositionBoard().documentId')==fresh
  # Explicitly choosing a player and formation is the only way to populate the new board.
  page.locator('#match-roster-add').select_option('fresh-player');page.locator('#match-roster-add-button').click()
- assert page.evaluate('getCompositionBoard().players.length')==1
+ assert page.evaluate('getCompositionBoard().players.length')==1;assert page.evaluate("getCompositionBoard().players[0].squadPlayerId==='fresh-player'&&getCompositionBoard().players[0].id!=='fresh-player'")
  page.locator('#formation').select_option('4-4-2')
  assert page.evaluate('getCompositionBoard().formation')=='4-4-2'
  assert page.evaluate('(id)=>JSON.stringify(saves.find(s=>s.state.documentId===id))',original)==snapshot

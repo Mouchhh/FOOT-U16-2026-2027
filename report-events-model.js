@@ -60,7 +60,7 @@ function reportEventsApply(report, roster) {
         id: rowId,
         squadPlayerId: id,
         name: player.name,
-        number: String(player.number),
+        number: reportMatchNumber(report, player),
         role: "Titulaire",
         minutes: "",
         score: "",

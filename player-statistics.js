@@ -56,7 +56,7 @@ function playerStatsReportFields(card, row) {
     );
   for (const player of squadPlayers()) {
     const option = new Option(
-      player.name + " · n° " + player.number,
+      player.name + (player.nickname ? " « " + player.nickname + " »" : ""),
       player.id,
     );
     option.disabled = used.has(player.id);
@@ -74,7 +74,7 @@ function playerStatsReportFields(card, row) {
     const actual = squadPlayers().find((p) => p.id === picker.value);
     if (actual) {
       row.name = actual.name;
-      row.number = String(actual.number);
+      if (!row.number) row.number = reportMatchNumber(currentReport, actual);
     }
     reportAutosave();
     renderReportContent();
@@ -393,7 +393,7 @@ function playerStatsDecorateCards() {
     badges.append(minutes, presence, contributions, discipline);
     const position = card.querySelector(".squad-player-info small");
     if (position)
-      position.textContent = stats.player.position || "Poste à préciser";
+      position.textContent = squadPositionsLabel(stats.player);
     const actions = card.querySelector(".squad-row-actions");
     const manage = el("details", "player-stat-manage");
     manage.append(el("summary", "", "Gérer le joueur"), actions);
@@ -494,7 +494,10 @@ function playerStatsPaintDetail() {
     el(
       "p",
       "hint",
-      [player.position, player.foot ? "Pied : " + player.foot : ""]
+      [
+        squadPlayerPositions(player).join(" · "),
+        player.foot ? "Pied : " + player.foot : "",
+      ]
         .filter(Boolean)
         .join(" · "),
     ),

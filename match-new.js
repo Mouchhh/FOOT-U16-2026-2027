@@ -140,11 +140,11 @@ document.addEventListener("DOMContentLoaded", () => {
       ...squadPlayers()
         .filter(
           (p) =>
-            !getCompositionBoard().players.some(
-              (row) => row.id === p.id || row.squadPlayerId === p.id,
+            !getCompositionBoard().players.some((row) =>
+              squadPionIsPlayer(row, p),
             ),
         )
-        .map((p) => new Option(p.name + " · N° " + p.number, p.id)),
+        .map((p) => new Option(p.name, p.id)),
     );
     select.value = [...select.options].some((o) => o.value === old) ? old : "";
     add.disabled =
@@ -163,16 +163,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const player = squadPlayers().find((p) => p.id === select.value);
     if (
       !player ||
-      state.players.some((p) => p.id === player.id) ||
+      state.players.some((p) => squadPionIsPlayer(p, player)) ||
       state.players.length >= 30
     )
       return;
     const next = structuredClone(state);
     const slot = compositionEmptySlots(next)[0];
+    // Independent pion id: the profile link is squadPlayerId, so a later
+    // replacement of this place cannot keep the profile's identity.
     next.players.push({
-      id: player.id,
+      id: crypto.randomUUID(),
+      squadPlayerId: player.id,
       name: player.name,
-      number: player.number,
+      // Match number: free in this composition (1 for the goalkeeper place).
+      number: compositionFreeNumber(
+        next,
+        slot?.formationSlot === (layouts[next.formation] || layouts["4-3-3"]).length - 1
+          ? 1
+          : undefined,
+      ),
       photo: player.photo,
       role: "starter",
       x: slot?.x ?? 50,

@@ -25,7 +25,7 @@ function renderReportQuickMinutes(root) {
   for (const entry of entries) {
     const name = entry.player?.name || entry.row?.name || "Joueur sans nom";
     const line = el("div", "report-minute-line");
-    const number = entry.player?.number ?? entry.row?.number;
+    const number = entry.row?.number;
     line.append(el("span", "", (number ? "N° " + number + " · " : "") + name));
     const field = reportField(
       "Minutes · " + name,
@@ -37,7 +37,7 @@ function renderReportQuickMinutes(root) {
             id: crypto.randomUUID(),
             squadPlayerId: entry.player.id,
             name: entry.player.name,
-            number: String(entry.player.number || ""),
+            number: reportMatchNumber(currentReport, entry.player),
             role: "Titulaire",
             minutes: "",
             score: "",

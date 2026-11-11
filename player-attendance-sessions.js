@@ -93,7 +93,7 @@
             id: p.id,
             name: p.name,
             status: "uncertain",
-            keeper: /gardien/i.test(p.position),
+            keeper: squadPlayerPositions(p).some((x) => /gardien/i.test(x)),
             included: true,
           }));
       for (const response of batch.responses) {
@@ -113,7 +113,9 @@
             id: player.id,
             name: player.name,
             status: "uncertain",
-            keeper: /gardien/i.test(player.position),
+            keeper: squadPlayerPositions(player).some((x) =>
+              /gardien/i.test(x),
+            ),
             included: true,
           };
           rows.push(row);

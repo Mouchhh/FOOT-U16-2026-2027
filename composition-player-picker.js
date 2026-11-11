@@ -2,9 +2,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   let activeDialog = null,
     gesture = null;
-  const compositionVisible = () =>
+  // New players can be added from any terrain step of a composition (the add
+  // buttons live on the second step); slot editing stays on the first step.
+  const compositionOpen = () =>
     terrainBoardKind === "composition" &&
-    workspaceFlows.terrain.index() === 0 &&
     ![
       "resources-mode",
       "home-mode",
@@ -15,6 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
       "squad-mode",
       "simple-mode",
     ].some((c) => document.body.classList.contains(c));
+  const compositionVisible = () =>
+    compositionOpen() && workspaceFlows.terrain.index() === 0;
   function refresh() {
     const on = compositionVisible();
     if (document.body.classList.contains("composition-slot-editing") !== on)
@@ -32,17 +35,28 @@ document.addEventListener("DOMContentLoaded", () => {
           );
       }
   }
-  function openSlot(id) {
+  function openSlot(id, extra = null) {
     if (activeDialog && !activeDialog.open) {
       activeDialog.remove();
       activeDialog = null;
     }
-    if (activeDialog?.open || !compositionVisible()) return;
+    const usable = () => (extra ? compositionOpen() : compositionVisible());
+    if (activeDialog?.open || !usable()) return;
     const board = getCompositionBoard(),
       slot =
         board.players.find((p) => p.id === id) ||
-        compositionEmptySlots(board).find((p) => p.id === id);
+        compositionEmptySlots(board).find((p) => p.id === id) ||
+        (extra?.id === id ? extra : null);
     const virtual = !board.players.some((p) => p.id === id);
+    // The number belongs to this match only: never copied from the player profile.
+    const keeperSlot =
+      slot?.role !== "sub" &&
+      Number.isInteger(slot?.formationSlot) &&
+      slot.formationSlot ===
+        (layouts[board.formation] || layouts["4-3-3"]).length - 1;
+    const defaultNumber = virtual
+      ? compositionFreeNumber(board, keeperSlot ? 1 : undefined)
+      : slot?.number;
     if (!slot) return;
     const owner = activeCoach.id,
       generation = clubNetworkGeneration,
@@ -52,21 +66,21 @@ document.addEventListener("DOMContentLoaded", () => {
     dialog.id = "composition-player-picker";
     dialog.setAttribute("aria-labelledby", "composition-player-picker-title");
     activeDialog = dialog;
-    let photoValue = "",
-      photoVersion = 0,
-      photoPending = false,
-      createdId = null;
+    let createdId = null;
     const alive = () =>
       owner === activeCoach.id &&
       generation === clubNetworkGeneration &&
-      compositionVisible() &&
+      usable() &&
       (getCompositionBoard().documentId || "draft") === documentId &&
       JSON.stringify(
         getCompositionBoard().players.find((p) => p.id === id) ||
-          compositionEmptySlots(getCompositionBoard()).find((p) => p.id === id),
+          compositionEmptySlots(getCompositionBoard()).find(
+            (p) => p.id === id,
+          ) ||
+          (extra?.id === id ? extra : undefined),
       ) === baseline;
     const heading = el("div", "section-heading"),
-      title = el("h2", "", "Choisir le joueur");
+      title = el("h2", "", extra ? "Ajouter un joueur" : "Choisir le joueur");
     title.id = "composition-player-picker-title";
     const close = el("button", "export", "Fermer");
     close.type = "button";
@@ -75,7 +89,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const context = el(
       "p",
       "hint",
-      virtual
+      extra
+        ? "Nouveau joueur " +
+            (slot.role === "sub" ? "sur le banc" : "sur le terrain") +
+            " · choisissez-le dans votre effectif ou créez sa fiche."
+        : virtual
         ? "Emplacement libre · choisissez un joueur de votre effectif."
         : "Emplacement de " +
             slot.name +
@@ -103,12 +121,12 @@ document.addEventListener("DOMContentLoaded", () => {
     matchNumber.min = 1;
     matchNumber.max = 99;
     matchNumber.step = 1;
-    matchNumber.value = slot.number;
-    matchNumber.placeholder = "Numéro de la fiche joueur";
+    matchNumber.value = defaultNumber;
     matchNumber.oninput = () => (matchNumberDirty = true);
     matchNumber.setAttribute("aria-label", "Numéro pour ce match");
     matchNumberLabel.append(matchNumber);
-    existing.append(matchNumberLabel);
+    const matchNumberBox = el("div", "composition-picker-number");
+    matchNumberBox.append(matchNumberLabel);
     const status = el("p", "composition-picker-status");
     status.setAttribute("role", "status");
     const searchLabel = el(
@@ -124,13 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
     existing.append(searchLabel, list);
     function assignedPlayer(p) {
       return getCompositionBoard().players.find(
-        (x) =>
-          x.id !== id &&
-          (x.squadPlayerId === p.id ||
-            (!x.squadPlayerId &&
-              x.name === p.name &&
-              x.number === p.number &&
-              x.photo === p.photo)),
+        (x) => x.id !== id && squadPionIsPlayer(x, p),
       );
     }
     function assign(p) {
@@ -169,23 +181,29 @@ document.addEventListener("DOMContentLoaded", () => {
         name: target.name,
         number: target.number,
         photo: target.photo,
-        squadPlayerId: target.squadPlayerId,
+        // A legacy pion whose id is a profile id keeps that identity when swapped.
+        squadPlayerId:
+          target.squadPlayerId ??
+          (squadPlayers().some((x) => x.id === target.id)
+            ? target.id
+            : undefined),
       };
       if (other && !virtual) {
         const counterpart = next.players.find((x) => x.id === other.id);
         Object.assign(counterpart, old);
-        if (!old.squadPlayerId) delete counterpart.squadPlayerId;
+        if (!old.squadPlayerId) {
+          delete counterpart.squadPlayerId;
+          // An unlinked identity must not keep a legacy pion id that names another profile.
+          if (squadPlayers().some((x) => x.id === counterpart.id))
+            counterpart.id = crypto.randomUUID();
+        }
       }
       Object.assign(target, {
         name: actual.name,
         number:
           matchNumberDirty && matchNumber.value
             ? Number(matchNumber.value)
-            : (other?.number ??
-              (!virtual &&
-              (slot.squadPlayerId === actual.id || slot.id === actual.id)
-                ? slot.number
-                : actual.number)),
+            : (other?.number ?? defaultNumber),
         photo: actual.photo,
         squadPlayerId: actual.id,
       });
@@ -242,7 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
         render();
         dialog.close();
       };
-      existing.append(updateNumber);
+      matchNumberBox.append(updateNumber);
     }
     const normal = (s) =>
       String(s)
@@ -252,7 +270,13 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderList() {
       list.replaceChildren();
       const rows = squadPlayers().filter((p) =>
-        normal(p.name + " " + p.number).includes(normal(search.value.trim())),
+        normal(
+          p.name +
+            " " +
+            (p.nickname || "") +
+            " " +
+            squadPlayerPositions(p).join(" "),
+        ).includes(normal(search.value.trim())),
       );
       if (!rows.length)
         list.append(
@@ -282,7 +306,8 @@ document.addEventListener("DOMContentLoaded", () => {
           el(
             "p",
             "hint",
-            "N° " + p.number + (p.position ? " · " + p.position : ""),
+            (p.nickname ? "« " + p.nickname + " » · " : "") +
+              squadPositionsLabel(p),
           ),
         );
         row.append(squadCardAvatar(p), info, select);
@@ -292,109 +317,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     search.oninput = renderList;
     const form = el("form", "composition-picker-form");
-    function field(label, type, max) {
-      const wrap = el("label", "report-field", label),
-        input = el("input");
-      input.type = type;
-      if (max) input.maxLength = max;
-      wrap.append(input);
-      form.append(wrap);
-      return input;
-    }
-    const first = field("Prénom", "text", 25),
-      last = field("Nom", "text", 25),
-      number = field("Numéro", "number");
-    first.required = last.required = number.required = true;
-    number.min = 1;
-    number.max = 99;
-    number.value = slot.number || "";
-    first.autocomplete = "given-name";
-    last.autocomplete = "family-name";
-    number.inputMode = "numeric";
-    const file = field("Photo du joueur (facultatif)", "file");
-    file.accept = "image/*";
-    const preview = el("img", "composition-picker-photo");
-    preview.alt = "Photo du nouveau joueur";
-    preview.hidden = true;
-    const removePhoto = el("button", "export", "Retirer la photo");
-    removePhoto.type = "button";
-    removePhoto.hidden = true;
     const submit = el("button", "primary", "Enregistrer et placer le joueur");
     submit.type = "submit";
+    // Same profile form as « Mes joueurs »: the record is created in the squad first.
+    const profile = squadPlayerForm({
+      message: (text) => (status.textContent = text),
+      onBusy: (on) => {
+        submit.disabled = on;
+        if (on) status.textContent = "Préparation de la photo…";
+        else if (status.textContent === "Préparation de la photo…")
+          status.textContent = "";
+      },
+      alive: () =>
+        dialog.open &&
+        owner === activeCoach.id &&
+        generation === clubNetworkGeneration,
+    });
+    profile.fill(null);
     form.append(
+      profile.root,
       el(
         "p",
         "hint",
-        "Prénom et nom : 25 caractères maximum au total. Le joueur sera enregistré dans Votre effectif.",
+        "Le joueur sera enregistré dans Votre effectif. Son numéro se choisit pour ce match, au-dessus.",
       ),
-      preview,
-      removePhoto,
       submit,
     );
     create.append(form);
-    removePhoto.onclick = () => {
-      photoVersion++;
-      photoPending = false;
-      photoValue = "";
-      file.value = "";
-      preview.hidden = removePhoto.hidden = true;
-      submit.disabled = false;
-    };
-    file.onchange = async () => {
-      const image = file.files[0];
-      if (!image) return;
-      if (!image.type.startsWith("image/") || image.size > 15 * 1024 * 1024) {
-        status.textContent = "Choisissez une photo de moins de 15 Mo.";
-        return;
-      }
-      const version = ++photoVersion;
-      photoPending = true;
-      status.textContent = "Préparation de la photo…";
-      submit.disabled = true;
-      let bitmap;
-      try {
-        bitmap = await createImageBitmap(image);
-        const canvas = document.createElement("canvas");
-        canvas.width = canvas.height = 180;
-        const side = Math.min(bitmap.width, bitmap.height);
-        canvas
-          .getContext("2d")
-          .drawImage(
-            bitmap,
-            (bitmap.width - side) / 2,
-            (bitmap.height - side) / 2,
-            side,
-            side,
-            0,
-            0,
-            180,
-            180,
-          );
-        if (
-          version !== photoVersion ||
-          !dialog.open ||
-          owner !== activeCoach.id ||
-          generation !== clubNetworkGeneration
-        )
-          return;
-        photoValue = canvas.toDataURL("image/jpeg", 0.72);
-        preview.src = photoValue;
-        preview.hidden = removePhoto.hidden = false;
-        status.textContent = "";
-      } catch {
-        if (version === photoVersion)
-          status.textContent = "Photo illisible : essayez un JPEG ou PNG.";
-      } finally {
-        bitmap?.close();
-        if (version === photoVersion) {
-          photoPending = false;
-          submit.disabled = false;
-        }
-      }
-    };
     form.onsubmit = (e) => {
       e.preventDefault();
-      if (photoPending || !form.reportValidity()) return;
+      if (profile.busy() || !form.reportValidity()) return;
       if (!alive()) {
         status.textContent =
           "La composition ou le compte a changé. Fermez puis rouvrez cet emplacement.";
@@ -408,28 +360,23 @@ document.addEventListener("DOMContentLoaded", () => {
             "La fiche créée n’est plus disponible dans Votre effectif.";
         return;
       }
-      if (!first.value.trim() || !last.value.trim()) {
-        status.textContent = "Renseignez le prénom et le nom du joueur.";
+      const problem = profile.validate();
+      if (problem) {
+        status.textContent = problem;
         return;
       }
-      const name = (first.value.trim() + " " + last.value.trim()).trim();
-      if (name.length > 25) {
-        status.textContent =
-          "Le prénom et le nom réunis doivent tenir sur 25 caractères.";
+      if (
+        matchNumber.value &&
+        !/^(?:[1-9]|[1-9][0-9])$/.test(matchNumber.value)
+      ) {
+        status.textContent = "Choisissez un numéro entier de 1 à 99.";
         return;
       }
       if (squadPlayers().length >= 100) {
         status.textContent = "Votre effectif contient déjà 100 joueurs.";
         return;
       }
-      const player = {
-        id: crypto.randomUUID(),
-        name,
-        number: Number(number.value),
-        photo: photoValue,
-        position: "",
-        foot: "",
-      };
+      const player = { id: crypto.randomUUID(), ...profile.value() };
       // Directory first: if placement fails, the new player's record still safely exists.
       if (!squadSave([...squadPlayers(), player])) {
         status.textContent =
@@ -437,7 +384,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       createdId = player.id;
-      for (const input of form.querySelectorAll("input")) input.disabled = true;
+      profile.disable();
       submit.textContent = "Réessayer le placement";
       squadRender();
       assign(player);
@@ -461,7 +408,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         existing.hidden = key !== "existing";
         create.hidden = key !== "create";
-        (key === "existing" ? search : first).focus();
+        if (key === "existing") search.focus();
+        else profile.focus();
         status.textContent = "";
       };
       tab.onkeydown = (e) => {
@@ -493,12 +441,20 @@ document.addEventListener("DOMContentLoaded", () => {
       dialog.close();
       legacyEditor(id);
     };
-    dialog.append(heading, context, tabs, existing, create, status, settings);
+    dialog.append(
+      heading,
+      context,
+      matchNumberBox,
+      tabs,
+      existing,
+      create,
+      status,
+      settings,
+    );
     document.body.append(dialog);
     dialog.addEventListener(
       "close",
       () => {
-        photoVersion++;
         dialog.remove();
         if (activeDialog === dialog) activeDialog = null;
       },
@@ -508,8 +464,49 @@ document.addEventListener("DOMContentLoaded", () => {
     dialog.showModal();
     tabs.firstElementChild.click();
   }
+  // « Ajouter un joueur » / « + Impacteur » open the same picker on a new place.
+  function openNew(role = "starter") {
+    if (!compositionOpen()) return false;
+    const board = getCompositionBoard();
+    if (board.players.length >= 30) {
+      notify("30 joueurs maximum sur ce tableau.");
+      return true;
+    }
+    // Reuse a free formation / bench place so two players never share one slot.
+    const free = compositionEmptySlots(board).find((s) =>
+      role === "sub" ? s.role === "sub" : s.role !== "sub",
+    );
+    if (free) {
+      openSlot(free.id, structuredClone(free));
+      return true;
+    }
+    const id = "new-player-" + crypto.randomUUID(),
+      same = board.players.filter((p) =>
+        role === "sub" ? p.role === "sub" : p.role !== "sub",
+      ),
+      key = role === "sub" ? "subSlot" : "formationSlot",
+      used = new Set(
+        same.map((p, i) => (Number.isInteger(p[key]) ? p[key] : i)),
+      );
+    let index = 0;
+    while (used.has(index)) index++;
+    openSlot(id, {
+      id,
+      role,
+      x: 50,
+      y: 50,
+      ...(board.matchCreation === "blank" || role === "sub"
+        ? { [key]: index }
+        : {}),
+      name: "",
+      number: "",
+      photo: "",
+    });
+    return true;
+  }
   const legacyEditor = openEditor;
   openEditor = function (id, role = "starter") {
+    if (id === null && openNew(role)) return;
     if (
       compositionVisible() &&
       getCompositionBoard().players.some((p) => p.id === id)
@@ -618,6 +615,6 @@ document.addEventListener("DOMContentLoaded", () => {
     clear();
     refresh();
   };
-  window.compositionPlayerPicker = { open: openSlot };
+  window.compositionPlayerPicker = { open: openSlot, openNew };
   refresh();
 });

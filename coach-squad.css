@@ -11,3 +11,15 @@
 @media print{.squad-open,.squad-dialog,.squad-editor,.squad-picker{display:none!important}}
 
 .squad-conflict-choice{display:grid;gap:9px;padding:16px 0;border-bottom:1px solid #e3eaf3}.squad-conflict-choice select{max-width:100%;padding:10px;border:1px solid #d9e4f2;border-radius:9px;background:white;color:#23456d}
+/* Shared player profile form (Mes joueurs + composition). */
+.squad-player-form{display:grid;grid-template-columns:1fr 1fr;gap:14px;min-width:0}
+.squad-player-form>.report-field{min-width:0}
+.squad-player-form input:not([type=checkbox]),.squad-player-form select{width:100%;min-width:0;box-sizing:border-box}
+.squad-player-form-wide,.squad-player-positions,.squad-player-form>.squad-photo-preview,.squad-player-form>button{grid-column:1/-1}
+.squad-player-positions{display:flex;flex-wrap:wrap;gap:8px 14px;margin:0;padding:10px 12px;border:1px solid #d9e4f2;border-radius:10px;min-width:0}
+.squad-player-positions legend{padding:0 4px;font-weight:700}
+.squad-player-position{display:inline-flex;align-items:center;gap:6px;min-height:32px;font-weight:600}
+.squad-player-position input{width:18px;height:18px;margin:0}
+.squad-player-form>.squad-photo-preview{justify-self:start}
+@media(max-width:480px){.squad-player-form{grid-template-columns:1fr}}
+#edit-form label[hidden],#edit-form [hidden]{display:none!important}
