@@ -63,3 +63,17 @@ Vérification : `tests/training-assistant-bible-browser.py` (sélection, doublon
 
 - Champ **« Durée de la séance »** : selon l’âge (75 min avant U16, 90 min ensuite, comme avant) ou 60, 75, 90, 105, 120 min. L’échauffement (15 min, 12 min sous 75 min) et le retour au calme (10 min, 8 min sous 75 min) gardent une durée fixe ; le reste est partagé entre atelier(s) et jeu appliqué dans le même rapport qu’avant. Les textes des séquences écrites indiquent ces temps.
 - La première étape s’appelle **« Échauffement »** (titre « Échauffement · nom de la fiche » quand une fiche de la Bible est utilisée). L’échauffement **change à chaque génération** : tirage au hasard parmi toutes les fiches d’échauffement de la Bible qui conviennent au groupe et à l’espace (circuits de passes, toros, rondos, gammes techniques, FIFA 11+…). Les jeux de poursuite / relais et les circuits athlétiques ne viennent qu’après. Pour un grand groupe, l’échauffement est réalisé en plusieurs groupes identiques.
+
+## Logique d'éducateur et édition sur place (310)
+
+Retour du coach : la séance doit suivre la logique de base enseignée par la FFF (pas une vérité absolue), et rester une **proposition à adapter**.
+
+- **Bandeau** sous le titre : la séance proposée est une base qui doit être adaptée (changer, modifier, ajouter, retirer des exercices). Le message de fin de génération le rappelle.
+- **Intentions** : « Échauffement / Activation », « Coordination & motricité » et « Retour au calme » ne sont plus des cases (`trainingAssistantHiddenObjectives`) : échauffement et retour au calme sont dans toutes les séances. Nouveau champ **« Travail physique (facultatif) »** : vitesse, pliométrie – force, endurance – intermittent (fiches `ludic-motor` de la Bible filtrées par mots-clés). Bloc de 10 min (9 + 1 d’installation) pris sur le jeu final : après l’échauffement pour vitesse / pliométrie, avant le retour au calme pour l’endurance.
+- **Ordre** : l’échauffement est **sans adversité** (exclusion stricte des fiches « contre », toro, rondo, duel, opposition, match ou de phase jeu / opposition) ; puis les exercices sont classés **par taille croissante** (effectif de référence, puis surface) : petits formats d’abord (toros, 1 contre 1, 2 contre 2, éventuellement en atelier via « Situations réduites ludiques »), formats moyens au milieu, l’exercice le plus grand et le plus proche du match en dernier avant le retour au calme (`trainingAssistantOrderBySize`). Les remplacements restent dans la fourchette de taille des étapes voisines.
+- **Identité des créneaux** : chaque étape garde son id, son rôle (`assistantRole`) et, pour le physique, son type (`assistantPhysical`) quel que soit l’exercice qui la remplit.
+- **Sous chaque exercice** :
+  - « ↻ Autre exercice » : tirage dans toutes les fiches compatibles, **sans repasser** par celles déjà montrées pour ce créneau tant qu’il en reste ; puis on recommence (message) ;
+  - « ✎ Modifier cet exercice » : la séance part dans l’éditeur et la fiche de l’exercice s’ouvre ;
+  - « ＋ Créer mon exercice ici » : la séance part dans l’éditeur et une fiche **vide** (schéma vide) s’ouvre à la place de cet exercice ; à l’enregistrement, seule cette étape est remplacée (durée et autres étapes conservées, sans données de l’ancienne fiche — `trainingCustomFreshId` dans `training-custom.js`) ;
+  - « Choisir dans une liste » (repliée) : jusqu’à 8 fiches compatibles et « Exercice écrit par l’assistant ».

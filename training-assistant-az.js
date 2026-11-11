@@ -574,6 +574,15 @@ function trainingAssistantGenerate(input) {
 }
 // The assistant fills each sequence with an exercise of the Bible (with its original
 // diagram), adapted to the group; its written workshop stays only as a fallback.
+// Order follows the usual educator logic (FFF base, not an absolute rule): warm-up
+// without opposition first, then exercises of increasing size, the largest and most
+// match-like last before the cool-down.
+const trainingAssistantHiddenObjectives = ["ludic-activation", "ludic-motor", "ludic-cool"];
+const trainingAssistantPhysicalKinds = {
+  speed: { label: "Vitesse", pattern: /vitesse|sprint|d[ée]marrage|r[ée]action|vivacit[ée]|agilit[ée]|explosi/i },
+  plyo: { label: "Pliométrie – force", pattern: /pliom|force|renforcement|gainage|explosi/i },
+  endurance: { label: "Endurance – intermittent", pattern: /intermittent|endurance|a[ée]robie|30-30|15-15|10-20/i },
+};
 function trainingAssistantBibleRoles(session) {
   const stages = trainingSessionStages(session),
     roles = new Map();
@@ -586,25 +595,101 @@ function trainingAssistantBibleRoles(session) {
           : index === stages.length - 2
             ? "game"
             : "workshop";
-    for (const block of stage.blocks) roles.set(block.id, role);
+    // Explicit roles (set after generation) win over positions, e.g. a physical block.
+    for (const block of stage.blocks) roles.set(block.id, block.assistantRole || role);
   });
   return roles;
 }
+function trainingAssistantAssignRoles(session) {
+  const roles = trainingAssistantBibleRoles(session);
+  return { ...session, blocks: session.blocks.map((b) => ({ ...b, assistantRole: roles.get(b.id) })) };
+}
+// A 10-minute physical block (9 + 1 min setup) for the whole group: after the warm-up
+// for speed / plyometrics (fresh legs), before the cool-down for endurance. Its minutes
+// come from the final game, so the session keeps the chosen duration.
+function trainingAssistantAddPhysical(session, kind, needs) {
+  const spec = trainingAssistantPhysicalKinds[kind];
+  if (!spec) return session;
+  const roles = trainingAssistantBibleRoles(session),
+    games = session.blocks.filter((b) => roles.get(b.id) === "game");
+  if (!games.length || games.some((b) => b.duration - 10 < 12 || (b.recoveryMinutes || 0) >= b.duration - 10))
+    throw Error("Séance trop courte pour ajouter un travail physique : choisissez une durée plus longue.");
+  const cool = session.blocks.find((b) => roles.get(b.id) === "cool") || session.blocks.at(-1),
+    block = structuredClone(cool);
+  block.id = crypto.randomUUID();
+  delete block.parallelId;
+  delete block.workshopPlayers;
+  delete block.workshopKeepers;
+  delete block.clubObjective;
+  Object.assign(block, { duration: 9, setupMinutes: 1, recoveryMinutes: 2, assistantRole: "physical", assistantPhysical: kind });
+  Object.assign(block.custom, {
+    title: "Travail physique · " + spec.label,
+    goal: "Développer la qualité physique choisie (" + spec.label.toLowerCase() + ") avec le ballon dès que possible.",
+    instructions:
+      "1 minute d’installation, puis 7 minutes de travail en séries courtes avec récupération active, 2 minutes de récupération finale. Qualité d’exécution avant la quantité ; arrêter un joueur dont la technique se dégrade.",
+    success: "Les efforts restent rapides et propres jusqu’à la dernière série.",
+    kind: "circuit",
+    width: Math.max(6, Math.min(needs.bounds[0] - 2, 30)),
+    length: Math.max(6, Math.min(needs.bounds[1] - 2, 20)),
+  });
+  block.custom.adaptation = {
+    ...block.custom.adaptation,
+    players: needs.total,
+    keepers: needs.keepers,
+    groups: [{ players: needs.total, keepers: needs.keepers }],
+  };
+  // The written final game is re-timed too, so its text matches its shorter slot.
+  const retime = (b) => {
+    const duration = b.duration - 10,
+      setup = b.setupMinutes || 0,
+      total = duration + setup,
+      custom = { ...b.custom };
+    custom.instructions = custom.instructions.replace(
+      /\d+ minutes d’installation, puis \d+ minutes de jeu en séries d’environ (\d+) minutes avec récupération entre les séries : \d+ minutes au total\./,
+      (_, length) =>
+        setup + " minutes d’installation, puis " + duration + " minutes de jeu en séries d’environ " + length +
+        " minutes avec récupération entre les séries : " + total + " minutes au total.",
+    );
+    return {
+      ...b,
+      duration,
+      custom,
+      notes: String(b.notes || "").replace(/Temps du bloc : \d+ min/, "Temps du bloc : " + total + " min"),
+    };
+  };
+  const blocks = session.blocks.map((b) => (roles.get(b.id) === "game" ? retime(b) : b));
+  const at =
+    kind === "endurance"
+      ? blocks.findIndex((b) => roles.get(b.id) === "cool")
+      : blocks.findIndex((b) => roles.get(b.id) !== "activation");
+  blocks.splice(at < 0 ? blocks.length : at, 0, block);
+  const next = { ...session, blocks };
+  next.duration = trainingSessionStages(next).at(-1)?.end || session.duration;
+  if (!trainingValid(next)) throw Error("Le travail physique ne peut pas être ajouté à cette séance.");
+  return next;
+}
 function trainingAssistantBibleTarget(block, role, objectives, needs) {
-  const target = {
-    activation: { objectives: ["ludic-activation"], phases: ["activation"], warmup: true },
-    workshop: {
-      objectives: [block.clubObjective].filter(Boolean),
-      phases: ["situation", "jeu", "opposition"],
-    },
-    game: { objectives: [...objectives], phases: ["jeu", "opposition"] },
-    cool: { objectives: ["ludic-cool"], phases: [] },
-  }[role];
-  if (role === "workshop" && !target.objectives.length)
-    target.objectives = [...objectives];
+  const players = block.workshopPlayers ?? needs.total,
+    target = {
+      activation: { objectives: ["ludic-activation"], phases: ["activation"], warmup: true },
+      workshop: {
+        objectives: [block.clubObjective].filter(Boolean),
+        phases: ["situation", "jeu", "opposition"],
+        // Workshops aim at smaller / medium formats than the final game.
+        sizeRef: Math.max(6, Math.round(players * 0.6)),
+      },
+      game: { objectives: [...objectives], phases: ["jeu", "opposition"], sizeRef: players, large: true },
+      cool: { objectives: ["ludic-cool"], phases: [] },
+      physical: {
+        objectives: ["ludic-motor"],
+        phases: [],
+        physical: trainingAssistantPhysicalKinds[block.assistantPhysical]?.pattern || /./,
+      },
+    }[role] || { objectives: [...objectives], phases: [] };
+  if (role === "workshop" && !target.objectives.length) target.objectives = [...objectives];
   return {
     ...target,
-    players: block.workshopPlayers ?? needs.total,
+    players,
     keepers: block.workshopKeepers ?? needs.keepers,
     bounds: block.parallelId
       ? [Math.floor((needs.bounds[0] - 3) / 2), needs.bounds[1]]
@@ -612,12 +697,21 @@ function trainingAssistantBibleTarget(block, role, objectives, needs) {
     age: needs.age || 0,
   };
 }
-// Any real warm-up with the ball suits the coach (passing circuit, toro, rondo, ball
-// work, FIFA 11+…); only tag/relay games and athletic circuits come after them.
+// Warm-up is opposition-free: circuits, ball work, coordination. Toros, rondos and
+// duels go to the next stages (they are small formats, so they come first there).
+function trainingAssistantOppositionFree(meta, exercise) {
+  const text = String(meta.titre || "") + " " + String(exercise?.sub || "");
+  return !/\bcontre\b|toro|rondo|duel|opposition|\bmatch\b/i.test(text) && !["jeu", "opposition"].includes(meta.phase);
+}
 function trainingAssistantWarmupPenalty(meta) {
   const title = String(meta.titre || "");
   if (/athl[ée]ti|physique|sprint|vitesse/i.test(title)) return 4;
   return meta.source === "games" ? 6 : 0;
+}
+// Size of an exercise for the progression: reference headcount, then surface.
+function trainingAssistantSize(meta) {
+  const dims = meta?.dimensions || [0, 0];
+  return (meta?.effectif_reference || 0) + ((dims[0] || 0) * (dims[1] || 0)) / 100000;
 }
 function trainingAssistantBibleScore(meta, target) {
   // A warm-up circuit for 12 is run in several identical groups for a larger squad.
@@ -625,7 +719,7 @@ function trainingAssistantBibleScore(meta, target) {
     outside =
       players < meta.effectif_min
         ? meta.effectif_min - players
-        : players > meta.effectif_max && !target.warmup
+        : players > meta.effectif_max && !target.warmup && !target.physical
           ? players - meta.effectif_max
           : 0,
     dims = [...meta.dimensions].sort((a, b) => a - b),
@@ -635,15 +729,17 @@ function trainingAssistantBibleScore(meta, target) {
     refAge = Number(
       String(meta.niveau_reference || "").match(/U(\d+)/i)?.[1] ||
         (/senior/i.test(meta.niveau_reference) ? 18 : 0),
-    );
+    ),
+    // The final game prefers a large, match-like surface.
+    filled = Math.min(1, ((dims[0] || 0) * (dims[1] || 0)) / Math.max(1, room[0] * room[1]));
   return (
     outside * 3 +
-    // For a warm-up the reference headcount does not matter (split into groups).
-    (target.warmup ? 0 : Math.abs(players - meta.effectif_reference) / 4) +
+    (target.warmup || target.physical ? 0 : Math.abs((target.sizeRef ?? players) - meta.effectif_reference) / 4) +
     Math.ceil(overflow / 10) * 4 +
     (target.age && refAge ? Math.floor(Math.abs(target.age - refAge) / 2) : 0) +
     (target.phases.length && !target.phases.includes(meta.phase) ? 3 : 0) +
-    (target.warmup ? trainingAssistantWarmupPenalty(meta) : 0)
+    (target.warmup ? trainingAssistantWarmupPenalty(meta) : 0) +
+    (target.large ? (1 - filled) * 3 : 0)
   );
 }
 function trainingAssistantBibleCandidates(target, used = new Set()) {
@@ -660,10 +756,16 @@ function trainingAssistantBibleCandidates(target, used = new Set()) {
       meta.gardiens > target.keepers
     )
       continue;
+    // Replacements keep the progression: size between the neighbouring stages.
+    const size = trainingAssistantSize(meta);
+    if ((target.minSize !== undefined && size < target.minSize) || (target.maxSize !== undefined && size > target.maxSize))
+      continue;
     const exercise = exerciseReferenceIndex.resolve(meta.id);
     if (!exercise) continue;
     if (!target.objectives.includes(clubExerciseClassification(exercise).objective))
       continue;
+    if (target.warmup && !trainingAssistantOppositionFree(meta, exercise)) continue;
+    if (target.physical && !target.physical.test(String(meta.titre || "") + " " + String(exercise.sub || ""))) continue;
     seen.add(meta.source_id);
     out.push({ meta, score: trainingAssistantBibleScore(meta, target) });
   }
@@ -702,8 +804,13 @@ function trainingAssistantBibleBlock(meta, original, target, needs) {
     "workshopPlayers",
     "workshopKeepers",
     "clubObjective",
+    "assistantRole",
+    "assistantPhysical",
   ])
     if (original[key] !== undefined) block[key] = original[key];
+  // The slot keeps its identity (id, role) whatever exercise fills it.
+  block.id = original.id;
+  block.assistantMetaId = meta.id;
   // Series depend on the sequence's current duration: the card derives them at display
   // time (clubTrainingBlockSeries), so no stale series for the reference duration is saved.
   block.custom.instructions = block.custom.instructions
@@ -755,62 +862,110 @@ function trainingAssistantStageWarnings(session, blockId) {
   );
   return stage ? trainingStageReview(stage, session).warnings : [];
 }
+function trainingAssistantShuffle(list, random) {
+  for (let i = list.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+  return list;
+}
+// Middle stages (workshops and final game) in session order, with their exercise size
+// (largest Bible sheet of the stage; null when a written block is part of it).
+function trainingAssistantProgressStages(session) {
+  const roles = trainingAssistantBibleRoles(session);
+  return trainingSessionStages(session)
+    .filter((stage) => stage.blocks.every((b) => ["workshop", "game"].includes(roles.get(b.id))))
+    .map((stage) => ({
+      stage,
+      size: stage.blocks.every((b) => b.assistantMetaId)
+        ? Math.max(...stage.blocks.map((b) => trainingAssistantSize(exerciseReferenceIndex.get(b.assistantMetaId))))
+        : null,
+    }));
+}
+// Size window for replacing blockId: between the previous and next sized stages.
+function trainingAssistantSizeWindow(session, blockId) {
+  const list = trainingAssistantProgressStages(session),
+    at = list.findIndex((x) => x.stage.blocks.some((b) => b.id === blockId));
+  if (at < 0) return {};
+  const before = list.slice(0, at).reverse().find((x) => x.size !== null),
+    after = list.slice(at + 1).find((x) => x.size !== null);
+  return {
+    ...(before ? { minSize: before.size } : {}),
+    ...(after ? { maxSize: after.size } : {}),
+  };
+}
 function trainingAssistantUseBible(session, needs, objectives, random = Math.random) {
+  if (!session.blocks.some((b) => b.assistantRole)) session = trainingAssistantAssignRoles(session);
   const generated = session.blocks.map((b) => structuredClone(b));
   if (!window.exerciseReferenceIndex) return { session, generated };
   const roles = trainingAssistantBibleRoles(session),
     baseline = new Map(
-      session.blocks.map((b) => [
-        b.id,
-        trainingAssistantStageWarnings(session, b.id).length,
-      ]),
+      session.blocks.map((b) => [b.id, trainingAssistantStageWarnings(session, b.id).length]),
     ),
     used = new Set();
   let next = structuredClone(session);
   next.blocks.forEach((b) => (b.assistantSource = "generated"));
   for (let index = 0; index < next.blocks.length; index++) {
     const original = next.blocks[index],
-      target = trainingAssistantBibleTarget(
-        original,
-        roles.get(original.id),
-        objectives,
-        needs,
-      );
-    // First an exercise needing no adaptation warning; otherwise the closest one
-    // whose only warning is the age band, kept visible on its card.
-    let candidates = trainingAssistantBibleCandidates(target, used);
-    // Warm-up varies from one session to the next: random order among every fit
-    // scoring close to the best; the rest keeps its ranking as fallback.
-    if (target.warmup && candidates.length) {
-      const limit = trainingAssistantBibleScore(candidates[0], target) + 2;
-      let size = 0;
-      while (size < candidates.length && trainingAssistantBibleScore(candidates[size], target) <= limit) size++;
-      const best = candidates.slice(0, size);
-      for (let i = best.length - 1; i > 0; i--) {
-        const j = Math.floor(random() * (i + 1));
-        [best[i], best[j]] = [best[j], best[i]];
+      target = trainingAssistantBibleTarget(original, roles.get(original.id), objectives, needs);
+    // Workshops may fall back to small playful formats (toros, reduced games).
+    const targets = roles.get(original.id) === "workshop"
+      ? [target, { ...target, objectives: ["ludic-situation"] }]
+      : [target];
+    search: for (const goal of targets) {
+      let candidates = trainingAssistantBibleCandidates(goal, used);
+      // Warm-up varies from one session to the next: random order among every fit
+      // scoring close to the best; the rest keeps its ranking as fallback.
+      if ((goal.warmup || goal.physical) && candidates.length) {
+        const limit = trainingAssistantBibleScore(candidates[0], goal) + 2;
+        let size = 0;
+        while (size < candidates.length && trainingAssistantBibleScore(candidates[size], goal) <= limit) size++;
+        candidates = [...trainingAssistantShuffle(candidates.slice(0, size), random), ...candidates.slice(size)];
       }
-      candidates = [...best, ...candidates.slice(size)];
+      // First an exercise needing no adaptation warning; otherwise the closest one
+      // whose only warning is the age band, kept visible on its card.
+      for (const tolerant of [false, true])
+        for (const meta of candidates) {
+          const candidate = trainingAssistantTryBible(next, index, meta, goal, needs, baseline.get(original.id) || 0, tolerant);
+          if (!candidate) continue;
+          next = candidate;
+          used.add(meta.source_id);
+          break search;
+        }
     }
-    pass: for (const tolerant of [false, true])
-      for (const meta of candidates) {
-        const candidate = trainingAssistantTryBible(
-          next,
-          index,
-          meta,
-          target,
-          needs,
-          baseline.get(original.id) || 0,
-          tolerant,
-        );
-        if (!candidate) continue;
-        next = candidate;
-        used.add(meta.source_id);
-        break pass;
-      }
   }
+  next = trainingAssistantOrderBySize(next, needs, objectives, baseline);
   next.duration = trainingSessionStages(next).at(-1)?.end || next.duration;
   return trainingValid(next) ? { session: next, generated } : { session, generated };
+}
+// Exercises of the workshop / game stages are moved into the existing time slots by
+// increasing size (the largest, closest to the match, last). Each sheet is re-adapted
+// to its new slot; if one does not fit, the order chosen at selection is kept.
+function trainingAssistantOrderBySize(session, needs, objectives, baseline) {
+  const list = trainingAssistantProgressStages(session),
+    slots = list.filter((x) => x.size !== null);
+  if (slots.length < 2) return session;
+  const contents = [...slots].sort((a, b) => a.size - b.size);
+  if (contents.every((c, i) => c === slots[i])) return session;
+  const roles = trainingAssistantBibleRoles(session);
+  let next = structuredClone(session);
+  for (const [i, slot] of slots.entries()) {
+    const content = contents[i];
+    if (content === slot) continue;
+    for (const [group, slotBlock] of slot.stage.blocks.entries()) {
+      const source = content.stage.blocks[group] || content.stage.blocks[0],
+        meta = exerciseReferenceIndex.get(source.assistantMetaId),
+        index = next.blocks.findIndex((b) => b.id === slotBlock.id),
+        target = trainingAssistantBibleTarget(next.blocks[index], roles.get(slotBlock.id), objectives, needs),
+        candidate = trainingAssistantTryBible(next, index, meta, target, needs, baseline.get(slotBlock.id) || 0, true);
+      if (!candidate) return session;
+      // The moved sheet keeps the objective it was chosen for.
+      if (source.clubObjective) candidate.blocks[index].clubObjective = source.clubObjective;
+      else delete candidate.blocks[index].clubObjective;
+      next = candidate;
+    }
+  }
+  return next;
 }
 document.addEventListener("DOMContentLoaded", () => {
   const root = $("training-space"),
@@ -838,8 +993,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const group = el("details", "training-assistant-intention");
     group.dataset.intention = axis;
     group.append(el("summary", "", category.label));
+    // Warm-up and cool-down are in every session; physical work is a separate option.
     for (const [key, sub] of Object.entries(bmfSubcategories).filter(
-      ([, v]) => v.axis === axis,
+      ([k, v]) => v.axis === axis && !trainingAssistantHiddenObjectives.includes(k),
     )) {
       const label = el("label", "training-assistant-choice"),
         check = el("input");
@@ -885,6 +1041,14 @@ document.addEventListener("DOMContentLoaded", () => {
   sessionDuration.append(new Option("Selon l’âge (75 min avant U16, 90 min ensuite)", "auto"));
   for (const minutes of [60, 75, 90, 105, 120])
     sessionDuration.append(new Option(minutes + " min", String(minutes)));
+  const physical = field("Travail physique (facultatif)", el("select"));
+  physical.id = "training-assistant-physical";
+  physical.append(
+    new Option("Aucun", "none"),
+    new Option("Vitesse", "speed"),
+    new Option("Pliométrie – force", "plyo"),
+    new Option("Endurance – intermittent", "endurance"),
+  );
   const organisation = field("Organisation du groupe", el("select"));
   organisation.append(new Option("Répartition automatique", "auto"), new Option("Deux ateliers séparés", "two"));
   const generate = el(
@@ -922,7 +1086,12 @@ document.addEventListener("DOMContentLoaded", () => {
   for (const button of [edit, save, plan, pdf]) button.type = "button";
   actions.append(edit, save, plan, pdf);
   controls.append(schedule, actions);
-  panel.append(heading, form, status, preview, controls);
+  const advice = el(
+    "p",
+    "training-assistant-advice",
+    "L’assistant propose une base de séance. Elle doit être adaptée à votre groupe : changez, modifiez, ajoutez ou retirez des exercices avant de l’utiliser.",
+  );
+  panel.append(heading, advice, form, status, preview, controls);
   root.querySelector(".training-workspace-tabs").after(panel);
   const tab = el("button", "", "Assistant A à Z");
   tab.type = "button";
@@ -957,6 +1126,7 @@ document.addEventListener("DOMContentLoaded", () => {
     owner = "",
     stale = true,
     generated = [],
+    seenBySlot = new Map(),
     bibleNeeds = null,
     bibleObjectives = [];
   form.addEventListener("input", () => {
@@ -987,70 +1157,121 @@ document.addEventListener("DOMContentLoaded", () => {
       target.append(row);
     }
   }
-  // « Changer d'exercice » replaces one sequence only, with the same group, space and time.
+  // Target of a slot for list / « Autre exercice »: same role, group and space, and a
+  // size between its neighbours so the progression (largest last) is kept.
+  function slotTarget(block) {
+    const role = trainingAssistantBibleRoles(session).get(block.id),
+      target = trainingAssistantBibleTarget(block, role, bibleObjectives, bibleNeeds);
+    return ["workshop", "game"].includes(role)
+      ? { ...target, ...trainingAssistantSizeWindow(session, block.id) }
+      : target;
+  }
+  function slotAllowed(index) {
+    return trainingAssistantStageWarnings({ ...session, blocks: generated }, generated[index].id).length;
+  }
+  function usableAlternatives(block, index, extraExclude = new Set()) {
+    const used = new Set([...session.blocks.map((b) => b.assistantSourceId).filter(Boolean), ...extraExclude]),
+      target = slotTarget(block),
+      allowed = slotAllowed(index),
+      targets = trainingAssistantBibleRoles(session).get(block.id) === "workshop"
+        ? [target, { ...target, objectives: ["ludic-situation"] }]
+        : [target];
+    return { target, allowed, lists: targets.map((t) => ({ target: t, candidates: trainingAssistantBibleCandidates(t, used) })) };
+  }
+  // Under each sequence: another Bible exercise, edit it, or create one's own here;
+  // the full list stays available in a collapsed « Choisir dans une liste ».
   function bibleChooser(block) {
     const index = session.blocks.indexOf(block),
+      box = el("div", "training-assistant-bible-tools"),
+      row = el("div", "training-assistant-bible-actions");
+    const another = el("button", "export training-assistant-bible-another", "↻ Autre exercice"),
+      modify = el("button", "export training-assistant-bible-edit", "✎ Modifier cet exercice"),
+      own = el("button", "export training-assistant-bible-own", "＋ Créer mon exercice ici");
+    for (const b of [another, modify, own]) b.type = "button";
+    another.setAttribute("aria-label", "Chercher un autre exercice · " + block.custom.title);
+    modify.setAttribute("aria-label", "Modifier cet exercice dans l’éditeur · " + block.custom.title);
+    own.setAttribute("aria-label", "Créer mon exercice à la place de · " + block.custom.title);
+    modify.onclick = () => openInEditor(block.id, false);
+    own.onclick = () => openInEditor(block.id, true);
+    row.append(another, modify, own);
+    box.append(row);
+    if (!bibleNeeds || index < 0) {
+      another.hidden = true;
+      return box;
+    }
+    const probe = usableAlternatives(block, index);
+    another.hidden = !probe.lists.some((l) => l.candidates.length);
+    another.onclick = () => {
+      if (!ready()) return;
+      // No back-and-forth: sheets already shown for this slot are skipped until all
+      // compatible ones have been proposed.
+      const seen = seenBySlot.get(block.id) || new Set();
+      if (block.assistantSourceId) seen.add(block.assistantSourceId);
+      seenBySlot.set(block.id, seen);
+      const pick = (exclude) => {
+        const { allowed, lists } = usableAlternatives(block, index, exclude);
+        for (const { target, candidates } of lists) {
+          // Whole unseen pool, so history is only reset when every usable sheet was shown.
+          const pool = trainingAssistantShuffle([...candidates], Math.random);
+          const meta = pool.find((m) => trainingAssistantTryBible(session, index, m, target, bibleNeeds, allowed, true));
+          if (meta) return meta;
+        }
+        return null;
+      };
+      let meta = pick(seen), restarted = false;
+      if (!meta && seen.size) {
+        seen.clear();
+        if (block.assistantSourceId) seen.add(block.assistantSourceId);
+        meta = pick(seen);
+        restarted = true;
+      }
+      if (!meta) return (status.textContent = "Aucun autre exercice de la Bible ne convient à cette séquence.");
+      replaceBlock(index, meta.id);
+      if (restarted) status.textContent = "Toutes les fiches compatibles ont été proposées ; on recommence.";
+    };
+    const details = el("details", "training-assistant-bible-list"),
       label = el("label", "report-field training-assistant-bible-choice", "Changer d’exercice"),
       select = el("select");
+    details.append(el("summary", "", "Choisir dans une liste"));
     select.setAttribute("aria-label", "Changer d’exercice · " + block.custom.title);
     select.append(new Option("Garder cet exercice", ""));
-    if (bibleNeeds && index >= 0) {
-      const role = trainingAssistantBibleRoles(session).get(block.id),
-        target = trainingAssistantBibleTarget(block, role, bibleObjectives, bibleNeeds),
-        used = new Set(session.blocks.map((b) => b.assistantSourceId).filter(Boolean));
-      const allowed = trainingAssistantStageWarnings({ ...session, blocks: generated }, generated[index].id).length;
-      let shown = 0;
-      // Bounded search keeps the preview responsive on large libraries.
-      for (const meta of trainingAssistantBibleCandidates(target, used).slice(0, 60)) {
-        if (shown >= 5) break;
-        if (!trainingAssistantTryBible(session, index, meta, target, bibleNeeds, allowed, true)) continue;
+    let shown = 0;
+    // Bounded search keeps the preview responsive on large libraries.
+    for (const { target, candidates } of probe.lists)
+      for (const meta of candidates.slice(0, 60)) {
+        if (shown >= 8) break;
+        if (!trainingAssistantTryBible(session, index, meta, target, bibleNeeds, probe.allowed, true)) continue;
         select.append(new Option(clubExerciseText(meta.titre) + " · " + meta.effectif_min + "–" + meta.effectif_max + " joueurs · " + meta.duree + " min", meta.id));
         shown++;
       }
-      if (block.assistantSource === "bible" && generated[index])
-        select.append(new Option("Exercice écrit par l’assistant", "__generated"));
-    }
+    if (block.assistantSource === "bible" && generated[index])
+      select.append(new Option("Exercice écrit par l’assistant", "__generated"));
     select.onchange = () => {
       if (select.value) replaceBlock(index, select.value);
     };
     label.append(select);
-    // One click: another usable Bible exercise for this sequence, drawn at random
-    // among the close fits, so the coach can keep clicking until one suits.
-    const another = el("button", "export training-assistant-bible-another", "↻ Autre exercice");
-    another.type = "button";
-    another.setAttribute("aria-label", "Chercher un autre exercice · " + block.custom.title);
-    another.disabled = !bibleNeeds || index < 0;
-    // No button where the Bible has no sheet of this kind (cool-down today).
-    if (bibleNeeds && index >= 0) {
-      const role = trainingAssistantBibleRoles(session).get(block.id);
-      another.hidden = !trainingAssistantBibleCandidates(
-        trainingAssistantBibleTarget(block, role, bibleObjectives, bibleNeeds),
-      ).length;
-    }
-    another.onclick = () => {
-      if (!ready()) return;
-      const role = trainingAssistantBibleRoles(session).get(block.id),
-        target = trainingAssistantBibleTarget(block, role, bibleObjectives, bibleNeeds),
-        used = new Set(session.blocks.map((b) => b.assistantSourceId).filter(Boolean)),
-        allowed = trainingAssistantStageWarnings({ ...session, blocks: generated }, generated[index].id).length,
-        candidates = trainingAssistantBibleCandidates(target, used);
-      if (!candidates.length) return (status.textContent = "Aucun autre exercice de la Bible ne convient à cette séquence.");
-      const limit = trainingAssistantBibleScore(candidates[0], target) + 4,
-        pool = candidates.filter((m) => trainingAssistantBibleScore(m, target) <= limit),
-        rest = candidates.filter((m) => !pool.includes(m));
-      for (let i = pool.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [pool[i], pool[j]] = [pool[j], pool[i]];
-      }
-      const pick = [...pool, ...rest].slice(0, 80).find((meta) =>
-        trainingAssistantTryBible(session, index, meta, target, bibleNeeds, allowed, true),
-      );
-      if (!pick) return (status.textContent = "Aucun autre exercice de la Bible ne convient à cette séquence.");
-      replaceBlock(index, pick.id);
-    };
-    const box = el("div", "training-assistant-bible-tools");
-    box.append(another, label);
+    details.append(label);
+    if (select.options.length > 1) box.append(details);
     return box;
+  }
+  // « Modifier » / « Créer mon exercice ici »: the session goes to the editor (as with
+  // « Ajuster dans l’éditeur »), then the exercise dialog opens on that same block.
+  function openInEditor(blockId, fresh) {
+    if (!ready() || !workspaceReplaceDraft("training", cleanSession(session))) return;
+    stale = true;
+    for (const b of [edit, save, plan, pdf]) b.disabled = true;
+    status.textContent = "Séance envoyée dans l’éditeur : ajustez cet exercice, puis le reste de la séance.";
+    hide();
+    trainingWizard.go(3);
+    const block = currentTraining.blocks.find((b) => b.id === blockId);
+    if (!block) return;
+    if (!fresh) return openCustomTrainingExercise(block);
+    trainingCustomFreshId = block.id;
+    openCustomTrainingExercise({
+      id: block.id,
+      duration: block.duration,
+      custom: { title: "", goal: "", organisation: "", instructions: "", material: "", success: "", kind: "game", width: block.custom.width, length: block.custom.length },
+    });
   }
   function replaceBlock(index, choice) {
     if (!ready()) return;
@@ -1081,6 +1302,12 @@ document.addEventListener("DOMContentLoaded", () => {
       )
         throw Error("Cet exercice ne tient pas dans cette séquence (place, effectif ou durée). La séance est conservée.");
       session = next;
+      // Every sheet shown in this slot (list or button) joins its history.
+      if (block.assistantSourceId) {
+        const seen = seenBySlot.get(block.id) || new Set();
+        seen.add(block.assistantSourceId);
+        seenBySlot.set(block.id, seen);
+      }
       paint();
       status.textContent = "Séquence mise à jour.";
     } catch (error) {
@@ -1091,7 +1318,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Assistant-only markers never leave the preview.
   const cleanSession = (s) => ({
     ...s,
-    blocks: s.blocks.map(({ assistantSource, assistantSourceId, assistantWarnings, ...b }) => b),
+    blocks: s.blocks.map(({ assistantSource, assistantSourceId, assistantWarnings, assistantRole, assistantPhysical, assistantMetaId, ...b }) => b),
   });
   function paint() {
     preview.replaceChildren();
@@ -1133,7 +1360,10 @@ document.addEventListener("DOMContentLoaded", () => {
         players: players.value,
         space: space.value,
       });
+      session = trainingAssistantAssignRoles(session);
+      if (physical.value !== "none") session = trainingAssistantAddPhysical(session, physical.value, bibleNeeds);
       ({ session, generated } = trainingAssistantUseBible(session, bibleNeeds, bibleObjectives));
+      seenBySlot = new Map();
       owner = context();
       stale = false;
       for (const b of [edit, save, plan, pdf]) b.disabled = false;
@@ -1144,7 +1374,7 @@ document.addEventListener("DOMContentLoaded", () => {
       controls.hidden = false;
       const fromBible = session.blocks.filter((b) => b.assistantSource === "bible").length;
       status.textContent =
-        "Séance prête : " + fromBible + " exercice(s) de la Bible sur " + session.blocks.length + " séquence(s). « Changer d’exercice » propose d’autres fiches.";
+        "Proposition prête (" + fromBible + " exercice(s) de la Bible sur " + session.blocks.length + " séquence(s)). C’est une base à adapter : changez, modifiez, ajoutez ou retirez des exercices.";
     } catch (error) {
       status.textContent = error.message;
     }

@@ -43,3 +43,8 @@ body.training-mode #training-space.training-assistant-open > #training-status { 
 .training-assistant-bible-tools{display:grid;gap:8px;margin-top:12px}
 .training-assistant-bible-another{justify-self:start;min-height:44px}
 .training-assistant-bible-tools .training-assistant-bible-choice{margin-top:0}
+.training-assistant-advice{margin:8px 0 16px;padding:12px 14px;border-radius:12px;background:#fff7e0;border:1px solid #f2c94c;color:#5c4400;line-height:1.45;font-weight:600}
+.training-assistant-bible-actions{display:flex;flex-wrap:wrap;gap:8px}
+.training-assistant-bible-actions button{min-height:44px}
+.training-assistant-bible-list summary{cursor:pointer;font-weight:600;color:#2855a2;margin-top:4px}
+@media (max-width:480px){.training-assistant-bible-actions button{flex:1 1 100%}}
