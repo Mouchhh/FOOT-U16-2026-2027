@@ -1,0 +1,18 @@
+/* Zones & lignes de passe : barre d'outils commune (placement tactique et animations). */
+.pitch-annotation-tools{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px}
+.pitch-annotation-tools .tool{min-height:40px;padding:8px 10px;border:1px solid #d9e4f2;border-radius:9px;background:#fff;color:#2855a2;font-weight:600;font-size:13px}
+.pitch-annotation-tools .tool.active{background:#2855a2;color:#fff;border-color:#2855a2}
+.pitch-annotation-colors{display:flex;gap:6px;align-items:center;padding:0 4px}
+.pitch-annotation-swatch{width:30px;height:30px;border-radius:50%;border:2px solid #fff;outline:1px solid #b9c6da;background:var(--swatch);padding:0;cursor:pointer}
+.pitch-annotation-swatch[aria-checked=true]{outline:3px solid #142d50}
+.simple-annotation-box{margin-top:12px;padding:12px;border:1px solid #dce5ef;border-radius:12px;background:#fafbfd}
+.simple-annotation-box>strong{display:block;font-size:13px;color:#142d50}
+.simple-annotation-box.active{border-color:#2855a2;box-shadow:0 0 0 2px #2855a233}
+#zones,#simple-zones{pointer-events:none}
+@media(max-width:480px){.pitch-annotation-tools .tool{flex:1 1 45%}}
+/* Narrow tool column of « Placement tactique ». */
+#tactic-panel-annotate{min-width:0}
+#tactic-panel-annotate .pitch-annotation-tools{display:grid;grid-template-columns:1fr;gap:6px}
+#tactic-panel-annotate .pitch-annotation-tools .tool{width:100%;text-align:left}
+#tactic-panel-annotate .pitch-annotation-colors{flex-wrap:wrap;padding:2px 0}
+#tactic-panel-annotate p{font-size:12px;line-height:1.4}
