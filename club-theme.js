@@ -3,9 +3,10 @@
 // CSSOM (hex, rgb()/rgba() and custom properties), originals kept to switch back.
 (() => {
   const SOURCES = {
-    primary: ["#2855a2", "#214fa0", "#244e95", "#214a90", "#245499"],
-    dark: ["#142d50", "#17385d"],
-    secondary: ["#e41f28"],
+    primary: ["#2855a2", "#214fa0", "#244e95", "#214a90", "#245499", "#0055a5"],
+    // Navy shades, including the blue filter over the home page photos.
+    dark: { "#142d50": 0.45, "#102e58": 0.45, "#17385d": 0.38, "#193c66": 0.35 },
+    secondary: ["#e41f28", "#e31b23"],
   };
   const DEFAULTS = { primary: "#2855a2", secondary: "#e41f28" };
   const originals = new Map(); // CSSStyleDeclaration -> Map(prop -> [value, priority])
@@ -40,7 +41,7 @@
       const delta = luminance(parse(h)) - luminance(parse(DEFAULTS.primary));
       map.set(parse(h).join(","), delta > 0 ? mix(p, [255, 255, 255], Math.min(0.12, delta * 2)) : mix(p, [0, 0, 0], Math.min(0.12, -delta * 2)));
     }
-    for (const h of SOURCES.dark) map.set(parse(h).join(","), mix(p, [0, 0, 0], 0.45));
+    for (const [h, t] of Object.entries(SOURCES.dark)) map.set(parse(h).join(","), mix(p, [0, 0, 0], t));
     for (const h of SOURCES.secondary) map.set(parse(h).join(","), readable(secondary));
     return { custom, map, primary: toHex(p), secondary: toHex(readable(secondary)) };
   }

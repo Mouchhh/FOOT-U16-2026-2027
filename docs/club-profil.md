@@ -10,7 +10,7 @@ Le menu en haut à droite n’affiche que **« Mon profil »** (ouvre Paramètre
 
 ## Couleurs et logo du club
 Paramètres → Détails du club → « Couleurs et logo du club » :
-- **Couleur principale** et **couleur secondaire** (enregistrées avec la fiche club, `primaryColor` / `secondaryColor`). `club-theme.js` remplace dans les feuilles de style du site les bleus du club (#2855a2 et ses variantes), les marines (#142d50, #17385d) et le rouge #e41f28, y compris dans les variables CSS ; l’opacité est conservée. Une couleur trop claire est assombrie jusqu’à un contraste de 4,5:1 avec le texte blanc (indiqué sous le sélecteur). « Couleurs d’origine » rétablit le site. Les maillots / pions, terrains et schémas gardent leurs propres couleurs.
+- **Couleur principale** et **couleur secondaire** (enregistrées avec la fiche club, `primaryColor` / `secondaryColor`). `club-theme.js` remplace dans les feuilles de style du site les bleus du club (#2855a2 et ses variantes), les marines (#142d50, #17385d, et #102e58 / #193c66 du filtre bleu des photos de l’accueil) et les rouges #e41f28 / #e31b23, y compris dans les variables CSS ; l’opacité est conservée. Une couleur trop claire est assombrie jusqu’à un contraste de 4,5:1 avec le texte blanc (indiqué sous le sélecteur). « Couleurs d’origine » rétablit le site. Les maillots / pions, terrains et schémas gardent leurs propres couleurs.
 - **Logo** (PNG/JPEG/WebP, recadré 256 px) : remplace le logo d’origine partout où il est affiché (en-tête, profil, favicon) ; « Retirer le logo » revient au logo d’origine.
 
 ## Bibliothèque photos du club
