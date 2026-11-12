@@ -28,10 +28,50 @@ with sync_playwright() as p:
  assert page.evaluate("clubNetworkPending('training',currentTraining.id).conflict")
  assert page.evaluate('currentTraining.title')=='Brouillon non envoyé'
  page.evaluate("document.querySelector('#club-network-preview').close();clubNetworkShowConflicts()")
- page.once('dialog',lambda d:d.accept());page.locator('#club-sync-conflicts').get_by_role('button',name='Conserver ma copie et ouvrir la version partagée').click()
+ page.once('dialog',lambda d:d.accept());page.locator('#club-sync-conflicts').get_by_role('button',name='Ouvrir la version partagée').click()
  page.wait_for_function("currentTraining.title==='Séance partagée'")
  titles=page.evaluate("trainingLibrary.map(p=>p.title)")
- assert any('Copie locale avant ouverture' in t and 'Séance locale à conserver' in t for t in titles),titles
- assert any('Copie locale avant ouverture' in t and 'Brouillon non envoyé' in t for t in titles),titles
+ assert titles==['Séance partagée'],titles
+ recovery=page.evaluate("clubNetworkRecoveryCandidates().filter(r=>r.kind==='training').map(r=>r.payload.title)")
+ assert 'Séance locale à conserver' in recovery and 'Brouillon non envoyé' in recovery,recovery
  assert not page.evaluate("!!clubNetworkPending('training',currentTraining.id)")
- b.close();print('PASS exact conflict dialog, local JSON backup, read-only preview and resolution preserving local saved copy plus draft')
+ # Clean up only automatic local copies, after checking the complete remote list.
+ migration=page.evaluate("""()=>{
+ const source=structuredClone(currentTraining),base=JSON.stringify(currentTraining);
+ const make=(title)=>({...structuredClone(source),id:crypto.randomUUID(),title});
+ const automatic=make('Copie locale avant ouverture · Ancien doublon');
+ const manual=make('Ma séance (copie)');
+ const queued=make('Copie locale avant ouverture · Enregistrée en attente');
+ const shared=make('Copie locale avant ouverture · Déjà partagée');
+ const rows=[{owner_id:clubNetworkSession.user.id,kind:'training',source_id:shared.id}];
+ clubNetworkSetLibrary('training',[source,automatic,manual,queued,shared]);
+ clubNetworkMarkPending('training',queued.id,'save');
+ clubNetworkRetireLocalCopies(rows);
+ const ids=trainingLibrary.map(p=>p.id);
+ if(ids.includes(automatic.id)||!ids.includes(source.id)||!ids.includes(manual.id)||!ids.includes(queued.id)||!ids.includes(shared.id))throw Error('Wrong cleanup scope');
+ if(JSON.stringify(currentTraining)!==base)throw Error('Started work changed');
+ if(!clubNetworkRecoveryCandidates().some(r=>r.payload.id===automatic.id&&r.payload.title==='Ancien doublon'))throw Error('Recovery missing');
+ const count=clubNetworkRecoveryArchives().length;
+ clubNetworkRetireLocalCopies(rows);
+ if(clubNetworkRecoveryArchives().length!==count)throw Error('Cleanup is not idempotent');
+ const blocked=make('Copie locale avant ouverture · Quota');
+ clubNetworkSetLibrary('training',[...trainingLibrary,blocked]);
+ const original=clubNetworkArchiveInterruptedSave;
+ try{clubNetworkArchiveInterruptedSave=()=>{throw new DOMException('Test quota','QuotaExceededError')};clubNetworkRetireLocalCopies(rows);}
+ finally{clubNetworkArchiveInterruptedSave=original}
+ if(!trainingLibrary.some(p=>p.id===blocked.id))throw Error('Quota lost work');
+ for(const kind of ['report','composition']){
+  const original=kind==='report'?currentReport:getCompositionBoard(),snapshot=JSON.stringify(original);
+  const copy=structuredClone(original),id=crypto.randomUUID();
+  if(kind==='composition')copy.documentId=id;else copy.id=id;
+  copy.title='Copie locale avant ouverture · Archive '+kind;
+  clubNetworkSetLibrary(kind,[structuredClone(original),copy]);
+  clubNetworkRetireLocalCopies(rows);
+  if(clubNetworkLibrary(kind).some(p=>clubNetworkPayloadId(kind,p)===id))throw Error('Copy remains in '+kind);
+  if(!clubNetworkRecoveryCandidates().some(r=>r.kind===kind&&clubNetworkPayloadId(kind,r.payload)===id))throw Error('Recovery missing for '+kind);
+  if(JSON.stringify(original)!==snapshot)throw Error('Started '+kind+' changed');
+ }
+ if(clubNetworkPendingJobs().some(j=>j.op==='delete'))throw Error('Cleanup queued a cloud deletion');
+ return {normal:ids.length,recovery:count,protectedQueued:!!clubNetworkPending('training',queued.id)};
+ }""")
+ b.close();print('PASS conflict without duplicate documents, preserved recovery, automatic-copy cleanup, queued/shared/manual protection, unchanged draft, idempotence and quota guard')

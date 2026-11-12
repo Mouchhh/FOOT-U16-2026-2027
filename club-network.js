@@ -63,8 +63,8 @@ function clubNetworkShowConflicts(){
    // The existing own-document opener preserves differing drafts and unsent saves.
    // Special effectif/animation importers have their own resolution flows.
    if(local&&!local.squadDirectory&&!local.pionExplanation&&job.op==='save'){
-    const open=el('button','primary','Conserver ma copie et ouvrir la version partagée');open.type='button';open.onclick=()=>{if(!current())return;dialog.close();clubNetworkRun(()=>clubNetworkOpen(remote));};actions.append(open);
-    card.append(el('p','hint','En ouvrant la version partagée, vos différences seront gardées dans votre bibliothèque sous « Copie locale avant ouverture ».'));
+    const open=el('button','primary','Ouvrir la version partagée');open.type='button';open.onclick=()=>{if(!current())return;dialog.close();clubNetworkRun(()=>clubNetworkOpen(remote));};actions.append(open);
+    card.append(el('p','hint','La version partagée remplace ce document. Vos différences restent récupérables dans la récupération de secours, sans ajouter de doublon à la bibliothèque.'));
    }
   }
   card.append(actions);dialog.append(card);
@@ -275,6 +275,37 @@ function clubNetworkArchiveInterruptedSave(key,raw){
  // L’archive doit être écrite AVANT le remplacement du journal. Un quota bloque l’écriture.
  localStorage.setItem(clubNetworkRecoveryArchivePrefix()+crypto.randomUUID(),JSON.stringify(entry));
 }
+// Automatic recovery snapshots are not documents in the working library.
+function clubNetworkKeepRecoveryPayloads(kind,payloads){
+ const key=clubNetworkLibraryKey(kind);
+ for(const source of payloads){
+  if(!clubNetworkPayloadValid(kind,source)||!coachTeamOwns(source))continue;
+  const payload=structuredClone(source);
+  payload.title=(payload.title||'').replace(/^Copie locale avant ouverture\s*·\s*/i,'');
+  const id=clubNetworkPayloadId(kind,payload);
+  const value=JSON.stringify(kind==='composition'?[{state:payload}]:[payload]);
+  const jobs=[{kind,id,op:'save',stamp:'recovery:'+id,expected:{revision:0,id:null}}];
+  clubNetworkArchiveInterruptedSave(key,clubNetworkEncodeJournal(key,value,jobs));
+ }
+}
+function clubNetworkRetireLocalCopies(remoteRows){
+ if(!clubNetworkBound()||!Array.isArray(remoteRows))return;
+ for(const kind of Object.keys(clubNetworkKinds)){
+  const list=clubNetworkLibrary(kind),copies=list.filter(payload=>{
+   if(!clubNetworkPayloadValid(kind,payload)||!coachTeamOwns(payload)||!/^Copie locale avant ouverture\s*·/i.test(payload.title||'')||payload.squadDirectory||payload.pionExplanation)return false;
+   const id=clubNetworkPayloadId(kind,payload);
+   return !clubNetworkPending(kind,id)&&!remoteRows.some(row=>row.owner_id===clubNetworkSession.user.id&&row.kind===kind&&row.source_id===id);
+  });
+  if(!copies.length)continue;
+  // Keep a recoverable snapshot before removing clutter. If storage refuses it,
+  // leave the library intact; never publish a server deletion for this cleanup.
+  try{
+   clubNetworkKeepRecoveryPayloads(kind,copies);
+   const ids=new Set(copies.map(payload=>clubNetworkPayloadId(kind,payload)));
+   clubNetworkSetLibrary(kind,list.filter(payload=>!ids.has(clubNetworkPayloadId(kind,payload))));
+  }catch{/* Existing copies remain available until recovery storage is usable. */}
+ }
+}
 function clubNetworkPrepareRecovery(){
  // Déplacer tous les journaux interrompus vers leurs archives avant de reprendre
  // une bibliothèque : un journal d’un autre type ne doit pas bloquer la copie.
@@ -398,6 +429,7 @@ async function clubNetworkSync(){
     if(!Array.isArray(page))throw Error('Réponse invalide');all.push(...page);if(page.length<100)break;
    }
    clubNetworkRows=all;
+   clubNetworkRetireLocalCopies(all);
    for(const metadata of all.filter(r=>r.owner_id===clubNetworkSession.user.id)){
     if(clubNetworkPending(metadata.kind,metadata.source_id))continue;
     const known=clubNetworkKnownVersion(metadata.kind,metadata.source_id),exists=clubNetworkLibrary(metadata.kind).some(p=>clubNetworkPayloadId(metadata.kind,p)===metadata.source_id);
@@ -479,14 +511,14 @@ function clubNetworkImport(openOwn=false,forceCopy=false){
  const kind=row.kind,own=row.owner_id===clubNetworkSession.user.id&&!forceCopy,payload=structuredClone(row.payload),opened=kind==='training'?currentTraining:kind==='report'?currentReport:(typeof getTerrainDraftFor==='function'?getTerrainDraftFor(row.payload):state);
  if(own&&!coachTeamOwns(payload))return notify('Sélectionnez l’équipe de ce document avant de l’ouvrir.');
  if(own){
-  if(!confirm('Ouvrir cette version enregistrée ? Le brouillon courant sera conservé sur cet appareil dans une copie si nécessaire.'))return;
+  if(!confirm('Ouvrir cette version enregistrée ? Votre travail différent restera récupérable, sans créer de doublon dans la bibliothèque.'))return;
   if(document.body.classList.contains('training-mode')&&!applyTrainingForm())return;
   const list=clubNetworkLibrary(kind),pending=clubNetworkPending(kind,row.source_id);
   // Conserver les différences du document ouvert et toute sauvegarde locale non envoyée.
   const backups=[];if(clubNetworkPayloadValid(kind,opened)&&JSON.stringify(opened)!==JSON.stringify(payload))backups.push(opened);
   const unsent=list.find(p=>clubNetworkPayloadId(kind,p)===row.source_id);if(pending&&unsent&&JSON.stringify(unsent)!==JSON.stringify(opened))backups.push(unsent);
-  const copies=backups.map(p=>{const copy=structuredClone(p);if(kind==='composition')copy.documentId=crypto.randomUUID();else copy.id=crypto.randomUUID();copy.title=('Copie locale avant ouverture · '+(copy.title||row.title)).slice(0,100);return copy;});
-  clubNetworkSetLibrary(kind,[payload,...list.filter(p=>clubNetworkPayloadId(kind,p)!==row.source_id),...copies]);localStorage.removeItem(clubNetworkPendingKey(kind,row.source_id));clubNetworkRememberVersion(kind,row.source_id,row.revision,row.id);
+  clubNetworkKeepRecoveryPayloads(kind,backups);
+  clubNetworkSetLibrary(kind,[payload,...list.filter(p=>clubNetworkPayloadId(kind,p)!==row.source_id)]);localStorage.removeItem(clubNetworkPendingKey(kind,row.source_id));clubNetworkRememberVersion(kind,row.source_id,row.revision,row.id);
   if(kind==='training'){currentTraining=payload;saveTrainingDraft();syncTrainingForm();renderTrainingBlocks();renderTrainingCatalogue();$('view-training').click();}
   else if(kind==='report'){currentReport=payload;flushReportDraft();renderReportContent();$('view-reports').click();}
   else{state=payload;render();persist();$('view-pitch').click();}
