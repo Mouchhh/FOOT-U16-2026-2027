@@ -466,7 +466,7 @@ function coachAccountOpen(initialTab = "profile") {
   };
   const club = section(
     "club",
-    "Votre fiche club est conservée sur cet appareil pour votre compte. Elle est commune à vos équipes et ne modifie pas les documents existants ni la charte du site.",
+    "Votre fiche club est conservée sur cet appareil pour votre compte et commune à vos équipes. Ses couleurs et son logo s’appliquent au site ; les documents existants ne sont pas modifiés.",
   );
   coachAccountRenderClub({ panel: club, formIn, field, submit, dirty, owner });
   const teams = section(

@@ -85,9 +85,18 @@ try {
   )
     coachTeams = saved;
 } catch {}
+// Deleted teams stay deleted: old documents or club calendars never bring them back.
+const coachTeamRemovedKey = coachTeamBaseKey("vestiaire-removed-teams");
+let coachTeamRemoved = new Set();
+try {
+  const removed = JSON.parse(localStorage.getItem(coachTeamRemovedKey) || "[]");
+  if (Array.isArray(removed)) coachTeamRemoved = new Set(removed.filter((id) => typeof id === "string" && id !== "unassigned").slice(0, 500));
+} catch {}
+coachTeams = coachTeams.filter((t) => !coachTeamRemoved.has(t.id));
 function coachTeamDiscover(team, persist = false) {
   if (
     !coachTeamValid(team) ||
+    coachTeamRemoved.has(team.id) ||
     coachTeams.some((t) => t.id === team.id) ||
     coachTeams.length >= 100
   )
@@ -284,6 +293,13 @@ function coachTeamAssertUniqueIds(key, incoming) {
   }
 }
 coachStorageSet = function (key, value) {
+  // A deleted team never gets its documents back (unload handlers, other tabs).
+  if (
+    activeCoachTeam.id !== "unassigned" &&
+    (coachLibraryKeys.has(key) || coachTeamWorkspaceKeys.has(key) || String(key).startsWith("vestiaire-save-journal:")) &&
+    coachTeamIsRemoved(activeCoachTeam.id)
+  )
+    throw Error("Cette équipe a été supprimée : rien n’est enregistré.");
   if (coachLibraryKeys.has(key)) {
     const encoded = coachTeamEncodeLibrary(key, value);
     coachTeamAssertUniqueIds(key, JSON.parse(encoded));
@@ -372,6 +388,171 @@ function coachTeamSwitch(id) {
     return false;
   }
 }
+// This coach's local storage keys holding one team's documents and drafts.
+function coachTeamStorageKeys(id) {
+  const prefix = coachTeamBaseKey(""),
+    suffix = ":team:" + id,
+    keys = [];
+  for (let n = 0; n < localStorage.length; n++) {
+    const key = localStorage.key(n);
+    if (!key || !key.startsWith(prefix) || !key.endsWith(suffix)) continue;
+    const base = key.slice(prefix.length, key.length - suffix.length);
+    if (coachLibraryKeys.has(base) || coachTeamWorkspaceKeys.has(base) || base.startsWith("vestiaire-save-journal:"))
+      keys.push(key);
+  }
+  return keys;
+}
+// Everything stored for one team on this device: its scoped keys, plus its records in
+// the historical aggregate libraries and its historical base drafts. Throws on unreadable data.
+function coachTeamInventory(id) {
+  const scoped = coachTeamStorageKeys(id),
+    belongs = (payload) => coachTeamDescriptor(payload).id === id,
+    aggregates = [],
+    drafts = [];
+  let count = 0;
+  // Only documents count for the coach (library rows and drafts), not internal
+  // settings such as navigation or recovery state, which are erased too.
+  const draftNames = ["vestiaire-draft", "vestiaire-training-draft", "vestiaire-report-draft", "vestiaire-gameplan-draft"];
+  for (const key of scoped) {
+    const value = JSON.parse(localStorage.getItem(key)),
+      base = key.slice(coachTeamBaseKey("").length).replace(/:team:.*$/, "");
+    if (coachLibraryKeys.has(base) && Array.isArray(value)) count += value.length;
+    else if (draftNames.includes(base) && value) count++;
+  }
+  for (const name of coachLibraryKeys) {
+    const key = coachTeamBaseKey(name),
+      raw = localStorage.getItem(key);
+    if (raw === null) continue;
+    const rows = JSON.parse(raw);
+    if (!Array.isArray(rows)) throw Error("Bibliothèque illisible");
+    const keep = rows.filter((row) => !belongs(name === "vestiaire-saves" ? row.state : row));
+    if (keep.length !== rows.length) {
+      aggregates.push({ key, keep });
+      count += rows.length - keep.length;
+    }
+  }
+  for (const name of ["vestiaire-draft", "vestiaire-training-draft", "vestiaire-report-draft", "vestiaire-gameplan-draft"]) {
+    const key = coachTeamBaseKey(name),
+      raw = localStorage.getItem(key);
+    if (raw === null) continue;
+    const draft = JSON.parse(raw);
+    if (draft && belongs(draft)) {
+      drafts.push(key);
+      count++;
+    }
+  }
+  return { scoped, aggregates, drafts, count };
+}
+// Writes are refused for a deleted team, even from an older tab or an unload handler.
+function coachTeamIsRemoved(id) {
+  try {
+    const removed = JSON.parse(localStorage.getItem(coachTeamRemovedKey) || "[]");
+    return Array.isArray(removed) && removed.includes(id);
+  } catch {
+    return coachTeamRemoved.has(id);
+  }
+}
+// Deletes a team on this device after an explicit confirmation. Its local documents
+// and drafts are erased; copies already shared with the club are not touched.
+function coachTeamDelete(id) {
+  const team = coachTeams.find((t) => t.id === id);
+  if (!team || id === "unassigned") return;
+  const dialog = el("dialog", "coach-team-dialog coach-team-delete");
+  dialog.setAttribute("aria-labelledby", "coach-team-delete-title");
+  const form = el("form"),
+    title = el("h2", "", "Supprimer « " + team.label + " » ?"),
+    status = el("p", "hint"),
+    actions = el("div", "report-actions"),
+    cancel = el("button", "export", "Annuler"),
+    confirmButton = el("button", "danger", "Supprimer définitivement");
+  let inventory;
+  try {
+    inventory = coachTeamInventory(id);
+  } catch {
+    notify("Suppression impossible : des données de cette équipe sont illisibles. Rien n’a été effacé.");
+    return;
+  }
+  const count = inventory.count;
+  title.id = "coach-team-delete-title";
+  cancel.type = "button";
+  confirmButton.type = "submit";
+  cancel.onclick = () => dialog.close();
+  status.setAttribute("role", "status");
+  actions.append(cancel, confirmButton);
+  form.append(
+    title,
+    el("p", "", "L’équipe et ses " + count + " document(s) enregistrés sur cet appareil (compositions, séances, bilans, brouillons) seront effacés. Cette action est définitive."),
+    el("p", "hint", "Les copies déjà partagées avec le club ne sont pas effacées. Votre effectif d’autres équipes, vos exercices et votre compte ne changent pas."),
+    status,
+    actions,
+  );
+  form.onsubmit = (event) => {
+    event.preventDefault();
+    if (!flushCoachWorkspace()) {
+      status.textContent = "Enregistrez ou corrigez le travail ouvert avant de supprimer une équipe.";
+      return;
+    }
+    let current;
+    try {
+      // Read and validate everything first: an unreadable record cancels the deletion.
+      current = coachTeamInventory(id);
+    } catch {
+      status.textContent = "Suppression annulée : des données de cette équipe sont illisibles. Rien n’a été effacé.";
+      return;
+    }
+    try {
+      // Merge with what other tabs may have written since this page loaded.
+      const storedRemoved = JSON.parse(localStorage.getItem(coachTeamRemovedKey) || "[]"),
+        storedTeams = JSON.parse(localStorage.getItem(coachTeamManifestKey) || "[]"),
+        removed = new Set([...(Array.isArray(storedRemoved) ? storedRemoved.filter((x) => typeof x === "string") : []), ...coachTeamRemoved, id]);
+      localStorage.setItem(coachTeamRemovedKey, JSON.stringify([...removed]));
+      const merged = new Map(
+        [...coachTeams, ...(Array.isArray(storedTeams) ? storedTeams.filter(coachTeamValid) : [])].map((t) => [t.id, t]),
+      );
+      const remaining = [...merged.values()].filter((t) => !removed.has(t.id));
+      localStorage.setItem(coachTeamManifestKey, JSON.stringify(remaining));
+      // Pending club synchronisation of this team is dropped (never sent, never deletes).
+      if (typeof clubNetworkPendingPrefix === "function")
+        for (const key of Object.keys(localStorage))
+          if (key.startsWith(clubNetworkPendingPrefix()))
+            try {
+              if (JSON.parse(localStorage.getItem(key))?.teamId === id) localStorage.removeItem(key);
+            } catch {}
+      for (const key of current.scoped) localStorage.removeItem(key);
+      for (const { key, keep } of current.aggregates) localStorage.setItem(key, JSON.stringify(keep));
+      for (const key of current.drafts) localStorage.removeItem(key);
+      coachTeamRemoved = removed;
+      coachTeams = remaining;
+    } catch {
+      status.textContent = "Suppression incomplète ou impossible : le stockage est indisponible ou illisible. Réessayez.";
+      return;
+    }
+    dialog.dataset.saved = "true";
+    dialog.close();
+    if (id === activeCoachTeam.id) {
+      const next = coachTeams.find((t) => t.id !== "unassigned") || coachTeams[0] || { id: "unassigned" };
+      try {
+        coachTeamRememberView(next.id);
+        sessionStorage.setItem(coachTeamSelectionKey, next.id);
+      } catch {}
+      history.replaceState(null, "", location.href);
+      location.reload();
+    } else notify("Équipe « " + team.label + " » supprimée.");
+  };
+  dialog.append(form);
+  dialog.addEventListener(
+    "close",
+    () => {
+      dialog.remove();
+      coachTeamsRefreshSelector();
+    },
+    { once: true },
+  );
+  document.body.append(dialog);
+  dialog.showModal();
+  cancel.focus();
+  return dialog;
+}
 function coachTeamAddDialog(edit = false, targetTeam = activeCoachTeam) {
   const editedTeam = edit
     ? coachTeams.find((t) => t.id === targetTeam.id)
@@ -423,6 +604,15 @@ function coachTeamAddDialog(edit = false, targetTeam = activeCoachTeam) {
   save.type = "submit";
   status.setAttribute("role", "status");
   form.append(hint, status, save);
+  if (edit && editedTeam.id !== "unassigned") {
+    const remove = el("button", "danger coach-team-remove", "Supprimer cette équipe");
+    remove.type = "button";
+    remove.onclick = () => {
+      dialog.close();
+      coachTeamDelete(editedTeam.id);
+    };
+    form.append(remove);
+  }
   form.onsubmit = (e) => {
     e.preventDefault();
     if (!form.reportValidity()) return;
@@ -462,7 +652,7 @@ function coachTeamAddDialog(edit = false, targetTeam = activeCoachTeam) {
       const merged = new Map(
         [
           ...coachTeams,
-          ...(Array.isArray(stored) ? stored.filter(coachTeamValid) : []),
+          ...(Array.isArray(stored) ? stored.filter((t) => coachTeamValid(t) && !coachTeamRemoved.has(t.id)) : []),
         ].map((t) => [t.id, t]),
       );
       merged.set(entry.id, entry);
@@ -514,4 +704,40 @@ document.addEventListener("DOMContentLoaded", () => {
       coachTeamAddDialog(edit);
     } else coachTeamSwitch(select.value);
   };
+});
+
+// Outermost guard (after every storage wrapper, e.g. save journals of the club network):
+// a deleted team can no longer write anything, and other open tabs leave it at once.
+document.addEventListener("DOMContentLoaded", () => {
+  const teamKey = (key) =>
+    typeof key === "string" &&
+    (coachLibraryKeys.has(key) || coachTeamWorkspaceKeys.has(key) || key.startsWith("vestiaire-save-journal:"));
+  const outer = coachStorageSet;
+  coachStorageSet = function (key, value) {
+    if (activeCoachTeam.id !== "unassigned" && teamKey(key) && coachTeamIsRemoved(activeCoachTeam.id))
+      throw Error("Cette équipe a été supprimée : rien n’est enregistré.");
+    return outer.apply(this, arguments);
+  };
+  if (typeof clubNetworkPendingJobs === "function") {
+    const jobs = clubNetworkPendingJobs;
+    clubNetworkPendingJobs = function () {
+      return coachTeamIsRemoved(activeCoachTeam.id) ? [] : jobs.apply(this, arguments);
+    };
+  }
+  window.addEventListener("storage", (event) => {
+    if (event.key !== coachTeamRemovedKey || activeCoachTeam.id === "unassigned" || !coachTeamIsRemoved(activeCoachTeam.id)) return;
+    notify("Cette équipe a été supprimée dans un autre onglet.");
+    const next = (() => {
+      try {
+        const stored = JSON.parse(localStorage.getItem(coachTeamManifestKey) || "[]");
+        return stored.find((t) => t.id !== "unassigned" && !coachTeamIsRemoved(t.id))?.id || "unassigned";
+      } catch {
+        return "unassigned";
+      }
+    })();
+    try {
+      sessionStorage.setItem(coachTeamSelectionKey, next);
+    } catch {}
+    setTimeout(() => location.reload(), 1200);
+  });
 });

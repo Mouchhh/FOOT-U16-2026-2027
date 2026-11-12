@@ -42,8 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
   options.hidden = true;
   profile.append(profileTrigger, options);
   header.append(profile);
-  const status = el("p", "profile-menu-status");
-  status.setAttribute("role", "status");
   const menus = [
     [picker, trigger, list],
     [profile, profileTrigger, options],
@@ -177,7 +175,17 @@ document.addEventListener("DOMContentLoaded", () => {
             closeMenus();
             coachTeamSwitch(team.id);
           };
-          return button;
+          // Each team can be deleted from the menu (confirmation dialog).
+          const row = el("div", "team-space-row"),
+            remove = el("button", "team-space-remove", "Supprimer");
+          remove.type = "button";
+          remove.setAttribute("aria-label", "Supprimer l’équipe " + team.label);
+          remove.onclick = () => {
+            closeMenus();
+            coachTeamDelete(team.id);
+          };
+          row.append(button, remove);
+          return row;
         }),
     );
   }
@@ -192,36 +200,11 @@ document.addEventListener("DOMContentLoaded", () => {
     options.append(button);
     return button;
   }
-  option("Mon Profil", () => {
+  // The account menu only opens the profile; preferences and logout stay in Paramètres.
+  option("Mon profil", () => {
     closeMenus();
     coachAccountOpen("profile");
   });
-  option("Mes Préférences", () => {
-    closeMenus();
-    coachAccountOpen("preferences");
-  });
-  const logout = option("Se Déconnecter", async () => {
-    logout.disabled = true;
-    status.textContent = "";
-    try {
-      if (clubNetworkBound()) await clubNetworkLogout();
-      else if (flushCoachWorkspace()) {
-        clubNetworkClear();
-        location.assign("accueil.html");
-      } else
-        status.textContent =
-          "Enregistrez votre travail avant de vous déconnecter.";
-      if (clubNetworkBound())
-        status.textContent =
-          "Enregistrez votre travail avant de vous déconnecter.";
-    } catch (error) {
-      status.textContent = clubNetworkMessage(error);
-    } finally {
-      logout.disabled = false;
-    }
-  });
-  logout.className = "coach-profile-logout";
-  options.append(status);
   function refreshProfile() {
     const data = coachAccountRead().profile;
     const label = coachAccountDisplayName() || activeCoach.name;

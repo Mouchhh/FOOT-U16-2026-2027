@@ -14,11 +14,13 @@ with sync_playwright() as p:
     page.locator('#team-space-trigger').press('Escape')
     assert not page.locator('#team-space-list').is_visible()
     page.locator('#coach-profile-trigger').hover();page.locator('#coach-profile-options').wait_for(state='visible')
-    page.get_by_role('button',name='Mes Préférences',exact=True).click()
-    assert page.locator('#account-tab-preferences').get_attribute('aria-selected')=='true'
+    # The account menu only offers « Mon profil ».
+    assert page.locator('#coach-profile-options button').all_inner_texts()==['Mon profil']
+    page.get_by_role('button',name='Mon profil',exact=True).click()
+    assert page.locator('#account-tab-profile').get_attribute('aria-selected')=='true'
     page.locator('#coach-account-dialog .external-modal-close').click()
     page.locator('#coach-account-dialog').wait_for(state='detached')
-    page.locator('#coach-profile-trigger').click();page.locator('#coach-profile-options').get_by_role('button',name='Mon Profil',exact=True).click()
+    page.locator('#coach-profile-trigger').click();page.locator('#coach-profile-options').get_by_role('button',name='Mon profil',exact=True).click()
     assert page.locator('#account-tab-profile').get_attribute('aria-selected')=='true'
     page.locator('#coach-account-dialog').get_by_label('Prénom',exact=True).fill('Alex')
     page.locator('#coach-account-dialog').get_by_label('Nom',exact=True).fill('Martin')
@@ -29,7 +31,7 @@ with sync_playwright() as p:
     page.locator('#team-space-trigger').click()
     page.locator('#coach-profile-trigger').focus();page.locator('#coach-profile-trigger').press('ArrowDown')
     assert not page.locator('#team-space-list').is_visible()
-    assert page.get_by_role('button',name='Mon Profil',exact=True).evaluate('e=>e===document.activeElement')
+    assert page.get_by_role('button',name='Mon profil',exact=True).evaluate('e=>e===document.activeElement')
     page.keyboard.press('Escape')
     # Guard foreign draft writes while retaining the current team's stored payload.
     assert page.evaluate("""()=>{const old=coachStorageGet('vestiaire-report-draft');try{coachStorageSet('vestiaire-report-draft',JSON.stringify({...currentReport,teamContext:{id:'team-foreign',label:'Autre',category:'Autre',team:'Club'}}));return false}catch{return old===coachStorageGet('vestiaire-report-draft')}}""")
@@ -51,12 +53,13 @@ with sync_playwright() as p:
     phone.goto('http://127.0.0.1:3016/?mode=local');phone.locator('#team-space-trigger').wait_for()
     phone.locator('#coach-profile-trigger').tap()
     assert phone.locator('#coach-profile-options').is_visible()
-    phone.get_by_role('button',name='Mon Profil',exact=True).tap()
+    phone.get_by_role('button',name='Mon profil',exact=True).tap()
     assert phone.locator('#account-tab-profile').get_attribute('aria-selected')=='true'
     phone.locator('#coach-account-dialog .external-modal-close').tap()
     phone.evaluate("()=>{window.logoutCalls=0;clubNetworkBound=()=>true;clubNetworkLogout=async()=>{logoutCalls++}}")
-    phone.locator('#coach-profile-trigger').tap()
-    phone.get_by_role('button',name='Se Déconnecter',exact=True).tap()
+    # Logout stays available in Paramètres → Préférences & déconnexion.
+    phone.evaluate("coachAccountOpen('preferences')")
+    phone.locator('#coach-account-dialog').get_by_role('button',name='Se déconnecter',exact=True).tap()
     assert phone.evaluate('logoutCalls')==1
     assert not errors,errors
     touch.close()

@@ -386,3 +386,9 @@ body .coach-account-open.coach-settings-dock {
   flex: 1;
   min-width: 0;
 }
+/* Delete action under each team card. */
+.team-space-row{display:grid;gap:4px;min-width:0}
+.team-space-row .team-space-card{width:100%}
+.team-space-remove{justify-self:start;border:0;background:none;color:#b01f1f;font-size:12px;font-weight:600;padding:4px 2px;cursor:pointer;text-decoration:underline}
+.coach-team-delete .danger,.coach-team-remove{background:#b01f1f;color:#fff;border:0;border-radius:9px;padding:11px 14px;font-weight:700;cursor:pointer}
+.coach-team-remove{margin-top:10px;background:none;color:#b01f1f;border:1px solid #b01f1f}

@@ -82,8 +82,18 @@
         reject(Error("Visuels non enregistrés. Vérifiez l’espace disponible."));
     });
   }
+  // Photos of the club library (Paramètres → Détails du club) replace the original
+  // club photos on the cover, context, ideas, set pieces and conclusion slides.
+  const libraryPhotos = () =>
+    (window.clubPhotoLibrary?.cached() || []).map((p) => ({ id: "library:" + p.id, name: p.name, data: p.data, personal: false }));
+  function clubDefaults() {
+    const library = libraryPhotos();
+    if (!library.length)
+      return { 1: club[0].id, 3: "club:echange-joueurs", 5: "club:entree-terrain", 10: "club:encadrement", 11: "club:cercle-equipe" };
+    return Object.fromEntries([1, 11, 3, 5, 10].map((slide, i) => [slide, library[i % library.length].id]));
+  }
   function assign(items) {
-    const choices = { 1: club[0].id, 3: "club:echange-joueurs", 5: "club:entree-terrain", 10: "club:encadrement", 11: "club:cercle-equipe" },
+    const choices = clubDefaults(),
       slots = [1, 11, 3, 4, 5, 10, 2, 6, 7, 8, 9],
       used = new Set();
     for (const item of items.filter((i) => i.role !== "auto")) {
@@ -140,7 +150,7 @@
         spec = snapshot?.automatic
           ? assign(await read(context))
           : snapshot || assign([]),
-        all = [...club, ...(spec.items || [])],
+        all = [...libraryPhotos(), ...club, ...(spec.items || [])],
         result = {},
         loaded = new Map();
       for (const [n, id] of Object.entries(spec.choices || {})) {

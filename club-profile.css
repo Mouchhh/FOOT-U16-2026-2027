@@ -1,0 +1,17 @@
+/* Paramètres → Détails du club : couleurs, logo et bibliothèque photos. */
+.account-club-identity{border:1px solid #dce5ef;border-radius:12px;padding:14px;margin:0 0 16px;display:grid;gap:10px}
+.account-club-identity legend{font-weight:700;color:#142d50;padding:0 4px}
+.account-club-color{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:8px}
+.account-club-color input[type=color]{width:56px;height:40px;padding:2px;border:1px solid #cbd8e7;border-radius:8px;background:#fff}
+.account-club-color small{grid-column:1/-1}
+.club-photo-library{border:1px solid #dce5ef;border-radius:12px;padding:14px;margin-top:16px}
+.club-photo-library h3{margin:0 0 6px}
+.club-photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:10px}
+.club-photo-item{display:grid;gap:6px;min-width:0}
+.club-photo-item img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;background:#eef1f5}
+.club-photo-item input{width:100%;min-width:0;font-size:12px;padding:6px;border:1px solid #cbd8e7;border-radius:6px}
+.club-photo-item button{font-size:12px;color:#b01f1f;background:none;border:0;text-align:left;padding:2px 0;cursor:pointer;text-decoration:underline}
+.account-club-identity,.club-photo-library{grid-column:1/-1}
+.account-club-identity .account-club-color{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0}
+.account-club-identity .account-club-color small{flex-basis:100%;margin:0}
+.account-club-identity>button{justify-self:start}

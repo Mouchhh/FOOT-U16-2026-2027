@@ -32,6 +32,13 @@ function coachClubDetailsValid(value) {
     text(value.stadium, 120) &&
     email(value.email) &&
     text(value.phone, 40) &&
+    // Club identity (optional): colours applied to the site and logo.
+    (value.primaryColor === undefined || /^#[0-9a-f]{6}$/i.test(value.primaryColor)) &&
+    (value.secondaryColor === undefined || /^#[0-9a-f]{6}$/i.test(value.secondaryColor)) &&
+    (value.logo === undefined ||
+      (typeof value.logo === "string" &&
+        value.logo.length <= 200000 &&
+        /^data:image\/(jpeg|png|webp);base64,[a-zA-Z0-9+/=]+$/.test(value.logo))) &&
     Array.isArray(value.contacts) &&
     value.contacts.length <= 12 &&
     value.contacts.every(
@@ -66,38 +73,104 @@ function coachAccountRenderClub({
   const data = coachClubDetailsRead(),
     brand = el("div", "account-club-brand"),
     logo = el("img");
-  logo.src = "assets/club-logo.jpg";
-  logo.alt = "Logo du Stade Mayennais";
+  let logoValue = data.logo || "";
+  const showLogo = () => {
+    logo.src = logoValue || "assets/club-logo.jpg";
+    logo.alt = logoValue ? "Logo du club" : "Logo du Stade Mayennais";
+  };
+  showLogo();
   logo.width = 80;
   logo.height = 80;
   const identity = el("div");
   identity.append(
     el("h3", "", "Identité du club"),
-    el("p", "hint", "Logo et couleurs de référence de l’application."),
+    el("p", "hint", "Logo et couleurs du club : ils s’appliquent à tout le site sur cet appareil."),
   );
   brand.append(logo, identity);
   panel.append(brand);
-  const colors = el("ul", "account-club-colors");
-  colors.setAttribute("aria-label", "Couleurs officielles");
-  for (const [label, color] of [
-    ["Bleu", "#2855a2"],
-    ["Blanc", "#ffffff"],
-    ["Rouge", "#e41f28"],
-  ]) {
-    const item = el("li"),
-      swatch = el("span", "account-color-swatch");
-    swatch.style.backgroundColor = color;
-    swatch.setAttribute("aria-hidden", "true");
-    item.append(swatch, document.createTextNode(label + " · " + color));
-    colors.append(item);
-  }
-  panel.append(colors);
   const pf = formIn("club", panel),
     name = field(pf.form, "Nom du club", "text", data.name, 70, true),
     city = field(pf.form, "Ville", "text", data.city, 80),
     stadium = field(pf.form, "Nom du stade", "text", data.stadium, 120),
     email = field(pf.form, "E-mail du club", "email", data.email, 254),
     phone = field(pf.form, "Téléphone du club", "tel", data.phone, 40);
+  // Colours and logo, saved with the club sheet.
+  const identityBox = el("fieldset", "account-club-identity");
+  identityBox.append(el("legend", "", "Couleurs et logo du club"));
+  const colorField = (label, value, fallback) => {
+    const wrap = el("label", "report-field account-club-color", label),
+      input = el("input"),
+      applied = el("small", "hint");
+    input.type = "color";
+    input.value = value || fallback;
+    input.setAttribute("aria-label", label);
+    const paint = () => {
+      const used = clubTheme.readable(input.value);
+      applied.textContent = used.toLowerCase() === input.value.toLowerCase() ? "" : "Assombrie à " + used + " pour garder le texte blanc lisible.";
+    };
+    input.oninput = () => {
+      dirty.add("club");
+      paint();
+    };
+    paint();
+    wrap.append(input, applied);
+    identityBox.append(wrap);
+    return input;
+  };
+  const primary = colorField("Couleur principale", data.primaryColor, clubTheme.defaults.primary),
+    secondary = colorField("Couleur secondaire", data.secondaryColor, clubTheme.defaults.secondary),
+    reset = el("button", "export", "Couleurs d’origine"),
+    logoLabel = el("label", "report-field", "Logo du club (PNG ou JPEG)"),
+    logoInput = el("input"),
+    logoRemove = el("button", "export", "Retirer le logo");
+  reset.type = logoRemove.type = "button";
+  reset.onclick = () => {
+    primary.value = clubTheme.defaults.primary;
+    secondary.value = clubTheme.defaults.secondary;
+    primary.oninput();
+    secondary.oninput();
+  };
+  logoInput.type = "file";
+  logoInput.accept = "image/png,image/jpeg,image/webp";
+  logoInput.setAttribute("aria-label", "Logo du club");
+  logoLabel.append(logoInput);
+  logoRemove.hidden = !logoValue;
+  logoRemove.onclick = () => {
+    logoValue = "";
+    logoInput.value = "";
+    logoRemove.hidden = true;
+    showLogo();
+    dirty.add("club");
+  };
+  logoInput.onchange = async () => {
+    const file = logoInput.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/") || file.size > 15 * 1024 * 1024) return (pf.status.textContent = "Choisissez une image de moins de 15 Mo.");
+    let bitmap;
+    try {
+      bitmap = await createImageBitmap(file);
+      const canvas = document.createElement("canvas"),
+        side = 256,
+        scale = Math.min(side / bitmap.width, side / bitmap.height);
+      canvas.width = canvas.height = side;
+      const w = Math.round(bitmap.width * scale),
+        h = Math.round(bitmap.height * scale);
+      canvas.getContext("2d").drawImage(bitmap, (side - w) / 2, (side - h) / 2, w, h);
+      // PNG keeps a transparent background; JPEG if the PNG is too heavy.
+      let value = canvas.toDataURL("image/png");
+      if (value.length > 200000) value = canvas.toDataURL("image/jpeg", 0.85);
+      logoValue = value;
+      logoRemove.hidden = false;
+      showLogo();
+      dirty.add("club");
+    } catch {
+      pf.status.textContent = "Image illisible : essayez un PNG ou un JPEG.";
+    } finally {
+      bitmap?.close();
+    }
+  };
+  identityBox.append(reset, logoLabel, logoRemove);
+  pf.form.prepend(identityBox);
   city.placeholder = "À renseigner";
   stadium.placeholder = "À renseigner";
   phone.autocomplete = "tel";
@@ -165,6 +238,9 @@ function coachAccountRenderClub({
       stadium: stadium.value.trim(),
       email: email.value.trim(),
       phone: phone.value.trim(),
+      ...(primary.value.toLowerCase() !== clubTheme.defaults.primary ? { primaryColor: primary.value.toLowerCase() } : {}),
+      ...(secondary.value.toLowerCase() !== clubTheme.defaults.secondary ? { secondaryColor: secondary.value.toLowerCase() } : {}),
+      ...(logoValue ? { logo: logoValue } : {}),
       contacts: rows.map((row) => ({
         department: row.department.value,
         name: row.name.value.trim(),
@@ -180,6 +256,7 @@ function coachAccountRenderClub({
     try {
       coachStorageSet(coachClubDetailsKey, JSON.stringify(value));
       dirty.delete("club");
+      clubTheme.apply(value);
       pf.status.textContent =
         "Fiche club enregistrée pour votre compte sur cet appareil, commune à vos équipes.";
     } catch (error) {
