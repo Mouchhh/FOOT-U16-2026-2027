@@ -180,8 +180,18 @@
       for (let pass = 0; pass < 2; pass++) {
         const height = pitch.getBoundingClientRect().height;
         if (!height) break;
-        const others = page.scrollHeight - height,
-          target = Math.max(260, Math.min(page.clientHeight - others - 4, maxWidth / ratio));
+        const section = host.closest(".tactic-plan-section");
+        // scrollHeight is at least clientHeight: subtracting the pitch from it
+        // prevents growth after a resize. Measure the actual flow children,
+        // including the closed settings drawer, rather than that minimum.
+        const contentBottom = section
+          ? Math.max(...[...section.children]
+              .filter((child) => !child.hidden && child.getClientRects().length)
+              .map((child) => child.getBoundingClientRect().bottom +
+                (parseFloat(getComputedStyle(child).marginBottom) || 0)))
+          : page.getBoundingClientRect().top + page.scrollHeight;
+        const others = contentBottom - page.getBoundingClientRect().top - height,
+          target = Math.max(section ? 100 : 260, Math.min(page.clientHeight - others - 4, maxWidth / ratio));
         if (Math.abs(target - height) < 2) break;
         pitch.style.setProperty("width", Math.round(target * ratio) + "px", "important");
       }

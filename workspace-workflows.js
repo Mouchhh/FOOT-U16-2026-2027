@@ -29,6 +29,9 @@ document.addEventListener('DOMContentLoaded',()=>{
  const terrainGo=terrainFlow.go;terrainFlow.go=i=>{terrainGo(i);rosterToggle.hidden=i!==0;};for(const id of ['mode-team','mode-focus','mode-simple'])$(id).addEventListener('click',()=>terrainFlow.go(0));
  let previousBoard;$('saved').addEventListener('click',()=>previousBoard=state,true);$('saved').addEventListener('click',()=>{if(state!==previousBoard)terrainFlow.go(0);});let previousSequence;$('simple-sequence-open').addEventListener('click',()=>previousSequence=simpleState,true);$('simple-sequence-open').addEventListener('click',()=>{if(simpleState!==previousSequence)terrainFlow.go(0);});
  terrainMeasure=()=>{const desktop=matchMedia('(min-width:1000px) and (min-height:650px)').matches,page=terrainFlow.pages[0];terrain.style.setProperty('--terrain-pane-height',page.clientHeight+'px');for(const [pitch,container]of [[$('pitch'),workspace.querySelector('.board')],[$('simple-pitch'),simple]]){if(!desktop){pitch.style.removeProperty('width');continue;}if(!pitch.getClientRects().length||terrainFlow.index()!==0)continue;
+  // The compact tactical editor accounts for the controls around its pitch.
+  // Do not overwrite its sizing when the board's ResizeObserver fires.
+  if(pitch.id==='pitch'&&container.classList.contains('tactic-plan')&&typeof tacticFullscreen!=='undefined')continue;
   // Measure controls themselves, never scrollHeight minus the current pitch size:
   // grid columns can make that value grow each time the pitch is resized.
   const team=pitch.id==='pitch',footer=team?container.querySelector('.board-footer'):null;
