@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // A body-level dock avoids the transformed/clipped workspace stacking contexts.
   main.before(nav);
   const paths = {
+    "view-management": '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7M17.5 14v7"/>',
     "view-resources":
       '<path d="M3 5h7l2 2h9v13H3z"/><path d="M7 11h10M7 15h7"/>',
     "view-home": '<path d="m3 10 9-7 9 7v10H6V10"/><path d="M9 20v-7h6v7"/>',
