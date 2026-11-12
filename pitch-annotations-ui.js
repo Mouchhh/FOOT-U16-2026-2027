@@ -1,5 +1,5 @@
-// Zones & pass lines on « Placement tactique » (state.annotations) and on
-// « Animations » (simpleState.annotations, shared by every step of the animation).
+// Zones & pass lines on « Animations » (simpleState.annotations, shared by every
+// step of the animation).
 // Annotation gestures are captured on an ancestor of the pitch, before the token
 // handlers, so a zone or a pass drawn from a token never moves it.
 (() => {
@@ -75,72 +75,9 @@
     return { paint, setPitchId: (fn) => (pitchId = fn) };
   }
 
-  // ---------- Placement tactique ----------
-  {
-    const svg = $("arrows"),
-      zones = document.createElementNS(ns, "g");
-    zones.id = "zones";
-    svg.insertBefore(zones, $("lines"));
-    const tab = document.createElement("button");
-    tab.id = "annotate";
-    tab.type = "button";
-    tab.className = $("arrow").className.replace(/\bactive\b/, "").trim();
-    tab.setAttribute("role", $("arrow").getAttribute("role") || "tab");
-    tab.setAttribute("aria-selected", "false");
-    tab.textContent = "▭ Zones & passes";
-    $("arrow").after(tab);
-    const panel = document.createElement("div");
-    panel.id = "tactic-panel-annotate";
-    panel.className = "tactic-tool-panel";
-    panel.setAttribute("role", "tabpanel");
-    panel.setAttribute("aria-labelledby", "annotate");
-    panel.hidden = true;
-    panel.append(el("p", "", "Glissez sur le terrain pour tracer une zone colorée transparente ou une ligne de passe. Gomme : touchez un élément pour le retirer."));
-    $("tactic-panel-arrow").after(panel);
-    tacticToolTabs.push({ id: "annotate", name: "annotate" });
-    const tools = pitchAnnotationsToolbar("tactic-annotation", {
-      onClear: () => {
-        state.annotations = pitchAnnotationsEmpty();
-        drawArrows();
-        persist();
-      },
-    });
-    panel.append(tools.bar);
-    tab.addEventListener("click", () => {
-      mode = "annotate";
-      $("move").classList.remove("active");
-      $("arrow").classList.remove("active");
-      $("pitch").style.cursor = "crosshair";
-      showTacticTool("annotate");
-      tab.classList.add("active");
-    });
-    for (const id of ["move", "arrow", "tactic-opponents-tab"]) $(id).addEventListener("click", () => tab.classList.remove("active"));
-    const drawBefore = drawArrows;
-    drawArrows = function () {
-      drawBefore();
-      pitchAnnotationsRender(zones, state.annotations);
-    };
-    const c = controller({
-      host: $("pitch").parentElement,
-      layer: zones,
-      pointFn: point,
-      read: () => state.annotations,
-      write: (a) => {
-        state.annotations = a;
-        drawArrows();
-        persist();
-        if (typeof terrainHistoryRecord === "function" && typeof terrainHistoryContext === "function")
-          try {
-            terrainHistoryRecord(terrainHistoryContext(false));
-          } catch {}
-      },
-      isActive: () => mode === "annotate",
-      tools,
-    });
-    c.setPitchId(() => "pitch");
-    drawArrows();
-  }
-
+  // Zones & passes are an Animations tool only (coach's choice): the tactical
+  // placement keeps accepting older documents that carry annotations, without
+  // showing or editing them.
   // ---------- Animations ----------
   {
     // simpleState.annotations is the only source of truth: opening an animation (own
@@ -215,10 +152,12 @@
       pointFn: simplePoint,
       read: () => simpleState?.annotations,
       write,
-      isActive: () => active,
+      // Drawing only happens in the large editor, where the tools are visible.
+      isActive: () => active && $("simple-board").classList.contains("tactic-fs"),
       tools,
     });
     c.setPitchId(() => "simple-pitch");
+    document.addEventListener("tactic-fs-closed", () => setActive(false));
     renderSimple();
   }
 })();

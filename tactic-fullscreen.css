@@ -1,0 +1,58 @@
+/* Tactique : page compacte (sans défilement) + éditeur « Ouvrir en grand » avec zoom. */
+.tactic-compact-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 10px}
+.tactic-compact-actions button{min-height:42px}
+
+/* Compact page: editing tools live in the large editor. */
+#simple-board:not(.tactic-fs)>.simple-toolbar,
+#simple-board:not(.tactic-fs)>.custom-sequence-tools,
+#simple-board:not(.tactic-fs)>.animation-controls,
+#simple-board:not(.tactic-fs)>.simple-team-count,
+#simple-board:not(.tactic-fs)>.simple-edit,
+.terrain-team-section .board.tactic-plan:not(.tactic-fs)>#comfort-match-tools{display:none!important}
+html body .terrain-flow .terrain-team-section .board.tactic-plan:not(.tactic-fs){display:flex!important;justify-content:center;align-items:flex-start;padding:8px!important;height:auto!important;min-height:0!important}
+html body .terrain-flow .terrain-team-section.tactic-plan-section .workspace{height:auto!important;min-height:0!important}
+html body .terrain-flow .board.tactic-plan:not(.tactic-fs) #pitch{margin:0 auto!important}
+/* Tactical plan page: composition-only blocks are not needed, the pitch fits the window. */
+.terrain-team-section.tactic-plan-section>.causerie-archive-strip,
+.terrain-team-section.tactic-plan-section>.match-new-actions{display:none!important}
+.tactic-compact-actions[hidden]{display:none}
+#simple-board:not(.tactic-fs) .tactic-compact-actions{grid-column:1}
+
+/* Large editor. */
+body.tactic-fs-open{overflow:hidden}
+.tactic-fs-bar{position:fixed;top:0;left:0;right:0;z-index:2101;height:56px;display:flex;align-items:center;gap:12px;padding:0 16px;background:#fff;border-bottom:1px solid #dce5ef;box-shadow:0 4px 18px #142d5014}
+.tactic-fs-bar[hidden]{display:none}
+.tactic-fs-title{flex:1;min-width:0;font-size:16px;color:#142d50;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tactic-fs-zoombox{display:flex;align-items:center;gap:6px}
+.tactic-fs-zoom{width:40px;height:40px;border-radius:50%;border:1px solid #cbd8e7;background:#fff;color:#2855a2;font-size:20px;font-weight:700;cursor:pointer}
+.tactic-fs-zoom:disabled{opacity:.35;cursor:default}
+.tactic-fs-zoom-label{min-width:52px;text-align:center;font-weight:700;color:#142d50;font-size:13px}
+.tactic-fs-close{min-height:40px}
+
+.tactic-fs{--fs-zoom:1;position:fixed!important;inset:56px 0 0 0!important;z-index:2100;margin:0!important;max-width:none!important;width:auto!important;height:auto!important;
+  background:#f2f5fa;overflow:auto!important;display:grid!important;grid-template-columns:minmax(260px,340px) minmax(0,1fr)!important;grid-auto-rows:min-content;
+  gap:12px 20px;padding:16px!important;border-radius:0!important;align-items:start}
+.tactic-fs>*{grid-column:1;min-width:0}
+/* Pitch column: sticky, sized from the window height, zoomable. */
+.tactic-fs>#pitch,.tactic-fs>.simple-layout{grid-column:2;grid-row:1 / span 30;position:sticky;top:0;justify-self:center}
+.tactic-fs>.simple-layout{display:block!important;width:auto!important}
+.tactic-fs #pitch,.tactic-fs #simple-pitch{width:calc((100dvh - 100px) * .8095 * var(--fs-zoom))!important;max-width:none!important;height:auto!important;margin:0!important}
+.landscape-mode .tactic-fs #pitch,.landscape-mode .tactic-fs #simple-pitch{width:calc((100dvh - 100px) * 1.2353 * var(--fs-zoom))!important}
+.tactic-fs>#comfort-match-tools{max-height:calc(100dvh - 90px);overflow:auto;position:sticky;top:0}
+.tactic-fs .tactic-compact-actions{display:none}
+
+@media (max-width:767px){
+  .tactic-fs{grid-template-columns:minmax(0,1fr)!important}
+  .tactic-fs>#pitch,.tactic-fs>.simple-layout{grid-column:1;grid-row:1;position:sticky;top:0;z-index:2;background:#f2f5fa;padding-bottom:6px}
+  .tactic-fs #pitch,.tactic-fs #simple-pitch{width:min(calc(100vw - 32px),calc(55dvh * .8095)) !important}
+  .tactic-fs>#pitch,.tactic-fs>.simple-layout{max-width:100%;overflow:auto}
+  .tactic-fs-title{font-size:14px}
+  .tactic-fs-zoombox{display:none}
+  .tactic-fs>#comfort-match-tools{max-height:none;position:static}
+}
+/* Step selector mirrored in the large editor (the original sits on another page). */
+.tactic-fs-steps{display:none}
+.tactic-fs>.tactic-fs-steps:not([hidden]){display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 12px;border:1px solid #dce5ef;border-radius:12px;background:#fff}
+.tactic-fs-steps strong{margin-right:4px;color:#142d50;font-size:13px}
+.tactic-fs-steps button{min-width:38px;min-height:38px;border-radius:50%;border:1px solid #cbd8e7;background:#fff;color:#2855a2;font-weight:700;cursor:pointer}
+.tactic-fs-steps button.active,.tactic-fs-steps button[aria-pressed=true]{background:#2855a2;color:#fff;border-color:#2855a2}

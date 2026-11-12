@@ -28,8 +28,6 @@ function compositionPitch(ctx,rect,landscape,snapshot,images,options){
  ctx.strokeStyle='#d3e5d2';ctx.fillStyle='#d3e5d2';ctx.lineWidth=1.8;
  document.querySelectorAll('#pitch>.markings>*').forEach(shape=>{const n=k=>Number(shape.getAttribute(k));ctx.beginPath();if(shape.tagName.toLowerCase()==='path'){ctx.stroke(new Path2D(shape.getAttribute('d')));return;}if(shape.tagName.toLowerCase()==='rect')ctx.rect(n('x'),n('y'),n('width'),n('height'));else ctx.arc(n('cx'),n('cy'),n('r'),0,Math.PI*2);if(shape.classList.contains('spot'))ctx.fill();else ctx.stroke();});ctx.restore();
  const xy=(px,py)=>landscape?[x+(100-py)*w/100,y+px*h/100]:[x+px*w/100,y+py*h/100];
- // Zones and pass lines go under the arrows and the players, with the « Flèches tactiques » option.
- if(options.arrows&&typeof pitchAnnotationsDrawCanvas==='function')pitchAnnotationsDrawCanvas(ctx,snapshot.annotations,xy,w/632);
  if(options.arrows)snapshot.arrows.forEach(([x1,y1,x2,y2])=>{const [ax,ay]=xy(x1,y1),[bx,by]=xy(x2,y2),a=Math.atan2(by-ay,bx-ax);ctx.strokeStyle='#ffe6a0';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);ctx.lineTo(bx-18*Math.cos(a-.5),by-18*Math.sin(a-.5));ctx.moveTo(bx,by);ctx.lineTo(bx-18*Math.cos(a+.5),by-18*Math.sin(a+.5));ctx.stroke();});
  const minimal=snapshot.boardKind==='plan',radius=Math.min(w,h)*(minimal?.025:.038);
  if(options.opponents&&snapshot.opponents)snapshot.opponents.players.forEach(p=>{const [px,py]=xy(p.x,p.y);compositionPortrait(ctx,p,px,py,radius*.7,images,snapshot.opponents.color);});
@@ -66,7 +64,7 @@ async function compositionPDF(canvas){
 }
 $('composition-export').onclick=()=>{
  compositionExportSnapshot=structuredClone(state);
- $('composition-export-arrows').checked=state.arrows.length>0||!!state.annotations?.zones.length||!!state.annotations?.passes.length;
+ $('composition-export-arrows').checked=state.arrows.length>0;
  $('composition-export-opponents').checked=!!state.opponents?.visible;
  $('composition-export-bench').checked=state.benchVisible!==false&&state.boardKind!=='plan';
  $('composition-export-lanes').checked=state.lanes!==false;
