@@ -582,7 +582,7 @@ function coachTeamAddDialog(edit = false, targetTeam = activeCoachTeam) {
   const label = field("Nom affiché (ex. Seniors A)", 60),
     category = field("Catégorie (ex. Seniors, U15)", 30),
     team = field("Nom de l’équipe", 50);
-  team.value = edit ? editedTeam.team || "Stade Mayennais" : "Stade Mayennais";
+  team.value = edit ? editedTeam.team || "Club démo" : "Club démo";
   if (edit) {
     label.value =
       editedTeam.id === "unassigned" && editedTeam.label === "À classer"

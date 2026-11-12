@@ -6,7 +6,7 @@ function hydrateClubProfile(s){
  if(s.section===undefined)s.section='Masculine';if(s.squad===undefined)s.squad='';if(s.matchDuration===undefined)s.matchDuration='';
  return s;
 }
-function clubTeamName(s){return ['Stade Mayennais',s.category,s.section==='Masculine'?'':s.section,s.squad].filter(Boolean).join(' ').slice(0,50);}
+function clubTeamName(s){return ['Club démo',s.category,s.section==='Masculine'?'':s.section,s.squad].filter(Boolean).join(' ').slice(0,50);}
 function renderClubProfile(){
  const values={'club-category':state.category,'club-section':state.section,'club-squad':state.squad,'club-duration':state.matchDuration,'club-team':state.team};
  for(const [id,value] of Object.entries(values))if(document.getElementById(id).value!==value)document.getElementById(id).value=value;
@@ -18,7 +18,7 @@ for(const [id,key] of [['club-category','category'],['club-section','section'],[
  document.getElementById(id).addEventListener('input',e=>{
   if(key==='matchDuration'){const value=e.target.value;if(value!==''&&(!/^\d{1,3}$/.test(value)||Number(value)<1||Number(value)>180)){e.target.setCustomValidity('Saisissez une durée entre 1 et 180 minutes.');e.target.reportValidity();return;}e.target.setCustomValidity('');}
   const generated=clubTeamName(state);state[key]=e.target.value;
-  if(key!=='matchDuration'&&(state.team===generated||state.team==='Stade Mayennais'))state.team=clubTeamName(state);
+  if(key!=='matchDuration'&&(state.team===generated||state.team==='Club démo'))state.team=clubTeamName(state);
   document.getElementById('team').value=state.team;renderClubProfile();persist();
  });
 }

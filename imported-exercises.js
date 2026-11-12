@@ -76,7 +76,7 @@ function ensureSuppliedLibraries() {
   for (const source of suppliedExerciseEngine.libraries)
     select.append(new Option(names[source.key] || source.source, source.key));
   original.href = "assets/exercises/mycoach-original.html";
-  original.download = "Exercices - Stade Mayennais.html";
+  original.download = "Exercices - Club démo.html";
   original.hidden = true;
   select.onchange = () => {
     select.dataset.filtered = String(!!select.value);

@@ -1,14 +1,14 @@
 // Export local sur canvas : aucun compte, aucune photo ni donnée envoyée à Canva.
 let videoExportJob=null;
 function mediaDownload(blob,name){const url=URL.createObjectURL(blob);const a=el('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);}
-function mediaName(extension,snapshot=simpleState){return namedDocumentFilename(snapshot.sequenceTitle?.trim()||'stade-mayennais-'+snapshot.scenario,extension);}
+function mediaName(extension,snapshot=simpleState){return namedDocumentFilename(snapshot.sequenceTitle?.trim()||'cruza-'+snapshot.scenario,extension);}
 function wrapMediaText(ctx,text,x,y,maxWidth,lineHeight){
  let line='';for(const word of text.split(/\s+/)){const candidate=line?line+' '+word:word;if(ctx.measureText(candidate).width>maxWidth&&line){ctx.fillText(line,x,y);y+=lineHeight;line=word;}else line=candidate;}if(line){ctx.fillText(line,x,y);y+=lineHeight;}return y;
 }
 function renderMedia(canvas,snapshot,landscape,category=state.category,{pitchOnly=false,phaseColor=null}={}){
  const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;const s=simpleScenario(snapshot);
  ctx.fillStyle='#f0f4fb';ctx.fillRect(0,0,W,H);
- if(!pitchOnly){ctx.fillStyle='#2855a2';ctx.font='bold 22px Arial';ctx.fillText('STADE MAYENNAIS · '+(category||'FOOTBALL À 11')+' · TABLEAU TACTIQUE',48,48);
+ if(!pitchOnly){ctx.fillStyle='#2855a2';ctx.font='bold 22px Arial';ctx.fillText('CRUZA · '+(category||'FOOTBALL À 11')+' · TABLEAU TACTIQUE',48,48);
  ctx.fillStyle='#18345b';ctx.font='bold 36px Arial';ctx.fillText(snapshot.sequenceTitle?.trim()||s.title,48,100,1250);}
  const maxW=pitchOnly?W:1250,maxH=pitchOnly?H:860;const aspect=landscape?840/680:680/840;const w=Math.min(maxW,maxH*aspect),h=w/aspect;
  const x=(pitchOnly?0:48)+(maxW-w)/2,y=pitchOnly?(H-h)/2:148;

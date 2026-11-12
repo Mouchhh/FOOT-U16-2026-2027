@@ -10,7 +10,7 @@ for(const name of formationNames){
 }
 $('formation').replaceChildren(...Object.keys(layouts).map(name=>{const o=document.createElement('option');o.value=o.textContent=name;return o;}));
 const names=Array.from({length:11},(_,i)=>'Joueur '+(i+1));
-let state={teamContext:{...activeCoachTeam},team:activeCoachTeam.team||'Stade Mayennais',category:activeCoachTeam.category,section:'Masculine',squad:'',matchDuration:'',formation:'4-3-3',color:'#2855a2',lanes:true,benchVisible:true,clubLogo:'',notes:'',arrows:[],players:names.map((name,i)=>({id:crypto.randomUUID(),name,number:[7,9,11,8,6,10,3,4,5,2,1][i],photo:'',x:layouts['4-3-3'][i][0],y:layouts['4-3-3'][i][1]}))};
+let state={teamContext:{...activeCoachTeam},team:activeCoachTeam.team||'Club démo',category:activeCoachTeam.category,section:'Masculine',squad:'',matchDuration:'',formation:'4-3-3',color:'#2855a2',lanes:true,benchVisible:true,clubLogo:'',notes:'',arrows:[],players:names.map((name,i)=>({id:crypto.randomUUID(),name,number:[7,9,11,8,6,10,3,4,5,2,1][i],photo:'',x:layouts['4-3-3'][i][0],y:layouts['4-3-3'][i][1]}))};
 let saves=[],mode='move',editing=null,photo='',photoPending=false,playerPhotoJob=0,toastTimer;
 try{saves=JSON.parse(coachStorageGet('vestiaire-saves')||'[]');if(!Array.isArray(saves))saves=[];const draft=JSON.parse(coachStorageGet('vestiaire-draft')||'null');if(valid(draft))state=draft;}catch{ }
 if(!state.documentId&&!state.notes.trim()&&!state.arrows.length&&state.players.every(p=>/^Joueur \d+$/.test(p.name))){state.team=activeCoachTeam.team||state.team;state.category=activeCoachTeam.category||state.category;}
@@ -62,7 +62,7 @@ function renderClub(){
  $('lanes').hidden=!visible;
  $('lanes-toggle').classList.toggle('active',visible);
  $('lanes-toggle').setAttribute('aria-pressed',String(visible));
- document.querySelectorAll('.club-logo').forEach(img=>{img.hidden=false;img.src=state.clubLogo||'assets/club-logo.jpg';});
+ document.querySelectorAll('.club-logo').forEach(img=>{img.hidden=false;img.src=state.clubLogo||'assets/cruza-logo.svg';});
  document.querySelector('.club-monogram').hidden=true;
 }
 $('lanes-toggle').onclick=()=>{state.lanes=state.lanes===false;renderClub();persist();};
@@ -111,7 +111,7 @@ function chooseSub(id){
 $('cancel-sub').onclick=()=>$('substitution').close();
 function preparePrint(){
  if(document.body.classList.contains('simple-mode')||document.body.classList.contains('reports-mode')||document.body.classList.contains('training-mode')||document.body.classList.contains('coach-agenda-mode'))return;
- $('print-team').textContent=state.title||state.team||'Stade Mayennais';
+ $('print-team').textContent=state.title||state.team||'Club démo';
  $('print-formation').textContent=(state.category?state.category+' · ':'')+'Formation '+state.formation+' · '+state.players.filter(p=>p.role!=='sub').length+' titulaires'+(state.opponents?.visible?' · '+state.opponents.name+' : '+state.opponents.formation+(document.body.classList.contains('landscape-mode')?' ←':' ↓'):'');
  $('print-notes').textContent=state.notes;
  document.querySelector('.print-notes').hidden=!state.notes.trim();

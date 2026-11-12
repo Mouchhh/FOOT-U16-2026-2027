@@ -3,7 +3,7 @@ const coachClubDetailsKey = "vestiaire-club-details";
 function coachClubDetailsDefaults() {
   return {
     version: 1,
-    name: "Stade Mayennais",
+    name: "Club démo",
     city: "",
     stadium: "",
     email: "",
@@ -75,8 +75,8 @@ function coachAccountRenderClub({
     logo = el("img");
   let logoValue = data.logo || "";
   const showLogo = () => {
-    logo.src = logoValue || "assets/club-logo.jpg";
-    logo.alt = logoValue ? "Logo du club" : "Logo du Stade Mayennais";
+    logo.src = logoValue || "assets/cruza-logo.svg";
+    logo.alt = logoValue ? "Logo du club" : "Logo du Club démo";
   };
   showLogo();
   logo.width = 80;

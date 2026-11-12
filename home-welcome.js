@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  // Rotate all club photographs in the background; keep the old tools hidden.
  homeSlidePaused=homeSlideMotion.matches;updateHomeSlideTimer();
  const hero=document.querySelector('.home-hero'),copy=hero.firstElementChild;copy.classList.add('home-welcome-copy');hero.append($('home-slideshow-controls'));
- const subtitle=copy.querySelector('p:not(#home-date)');subtitle.textContent='Préparez votre semaine : séances, match, causerie et bilan.';subtitle.classList.add('home-welcome-intro');copy.querySelector('.eyebrow').textContent='LE VESTIAIRE · STADE MAYENNAIS';
+ const subtitle=copy.querySelector('p:not(#home-date)');subtitle.textContent='Préparez votre semaine : séances, match, causerie et bilan.';subtitle.classList.add('home-welcome-intro');copy.querySelector('.eyebrow').textContent='LE VESTIAIRE · CRUZA';
  const latest=el('p','home-last-saved');latest.id='home-last-saved';latest.setAttribute('role','status');$('home-greeting').after(latest);
  const players=el('span');players.append(el('strong','','0'),document.createTextNode(' joueurs'));players.firstChild.id='home-player-count';hero.querySelector('.home-stats').append(players);
  const settings=el('details','home-profile-settings');settings.id='home-profile-settings';settings.append(el('summary','','Mon profil et ma connexion'));

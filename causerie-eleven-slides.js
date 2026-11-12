@@ -274,7 +274,7 @@
     let slide = base("Infos match", 1, {
       dark: true,
       accent: RED,
-      kicker: "STADE MAYENNAIS · AVANT-MATCH",
+      kicker: "CRUZA · AVANT-MATCH",
     });
     text(
       slide,

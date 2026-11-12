@@ -8,7 +8,7 @@
    const fonts=[new FontFace('Calistoga','url(assets/fonts/calistoga/Calistoga-Regular.ttf)'),new FontFace('Montserrat','url(assets/fonts/montserrat/Montserrat-Italic.ttf)',{style:'italic',weight:'100 900'})];
    await Promise.all(fonts.map(async font=>document.fonts.add(await font.load())));
    const load=async src=>{const image=new Image();image.src=src;await image.decode();return image;};
-   const [photo,second,logo]=await Promise.all(['assets/photos/celebration-jeunes.jpg','assets/photos/groupe-piste.jpg','assets/causerie-logo.jpeg'].map(load));
+   const [photo,second,logo]=await Promise.all(['assets/cruza-terrain.svg','assets/cruza-terrain.svg','assets/causerie-logo.jpeg'].map(load));
    const canvas=document.createElement('canvas');canvas.width=936;canvas.height=1125;const ctx=canvas.getContext('2d');
    ctx.fillStyle='#fff';ctx.fillRect(0,0,936,1125);ctx.fillStyle='#'+clubBlue;ctx.beginPath();ctx.moveTo(0,188);ctx.lineTo(936,1125);ctx.lineTo(0,1125);ctx.fill();
    function cut(image,points,box){
@@ -92,7 +92,7 @@
  async function build(snapshot,includeLinked,options={}){
   if(!window.causerieLayout?.build)throw Error('La présentation ne peut pas être préparée. Actualisez le site, puis réessayez.');
   const [,style]=await Promise.all([loadLibrary(),window.causerieEleven?Promise.resolve(null):loadStyle()]);
-  const pptx=new window.PptxGenJS();pptx.layout='LAYOUT_WIDE';pptx.author='Stade Mayennais';
+  const pptx=new window.PptxGenJS();pptx.layout='LAYOUT_WIDE';pptx.author='Club démo';
   pptx.subject='Causerie du coach';pptx.title=snapshot.board.title||snapshot.board.team;pptx.lang='fr-FR';
   pptx.theme={headFontFace:'Montserrat',bodyFontFace:'Calistoga',lang:'fr-FR'};
   if(window.causerieEleven) return window.causerieEleven.build(pptx,snapshot,style,{pitchImage,...options});

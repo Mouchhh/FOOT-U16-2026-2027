@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  }
  function exportPDF(s){
   exportPDF.cleanup?.();$('agenda-overview-print')?.remove();const paper=el('section');paper.id='agenda-overview-print';
-  paper.append(el('h1','','Stade Mayennais · Rapport mensuel'),el('p','',[activeCoach.name,activeCoachTeam.name||activeCoachTeam.category||activeCoachTeam.team,s.month].filter(Boolean).join(' · ')),el('p','','Réalisation documentée : '+percent(s.rate)+' · Assiduité : '+percent(s.assiduity)));
+  paper.append(el('h1','','Club démo · Rapport mensuel'),el('p','',[activeCoach.name,activeCoachTeam.name||activeCoachTeam.category||activeCoachTeam.team,s.month].filter(Boolean).join(' · ')),el('p','','Réalisation documentée : '+percent(s.rate)+' · Assiduité : '+percent(s.assiduity)));
   paper.append(summary.cloneNode(true));paper.querySelectorAll('button').forEach(b=>b.remove());
   for(const row of s.rows)paper.append(el('p','',row.event.date+' · '+row.event.title+' · '+(row.done?'Réalisation documentée':row.due?'À confirmer':'À venir')));
   paper.append(el('h2','','Suivi individuel'));

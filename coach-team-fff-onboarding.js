@@ -62,7 +62,7 @@ function coachFFFOpen({add=false}={}){
  function field(label,type,value,options){const wrap=el('label','',label),input=el(options?'select':'input');if(options)input.append(...options.map(v=>new Option(v,v)));else input.type=type;input.value=value;input.required=true;input.setAttribute('aria-label',label);if(!options)input.maxLength=80;wrap.append(input);grid.append(wrap);return input;}
  const previous=!add&&coachFFFProfileValid(activeCoachTeam)?activeCoachTeam.fffProfile:null;
  const now=new Date(),year=now.getMonth()>=6?now.getFullYear():now.getFullYear()-1;
- const club=field('Club','text','Stade Mayennais');club.readOnly=true;
+ const club=field('Club','text','Club démo');club.readOnly=true;
  const category=field('Catégorie','text',add?'':activeCoachTeam.category||'', ['U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18','U19','U20','Seniors','Vétérans']);category.prepend(new Option('Choisir…',''));if(add||!activeCoachTeam.category)category.value='';
  const gender=field('Groupe','text',previous?.gender||'Masculin',['Masculin','Féminin','Mixte']);
  const number=field('Numéro de l’équipe','number',String(previous?.number||1));number.min='1';number.max='20';
@@ -91,8 +91,9 @@ function coachFFFOpen({add=false}={}){
  url.oninput=()=>{chosen=null;};officialName.oninput=()=>{chosen=null;};
  search.onclick=async()=>{
   if(!checkOwner()||!checkFields())return;
-  const currentRun=++run,signature=context();chosen=null;results.replaceChildren();search.disabled=true;status.textContent='Recherche dans les équipes officielles du Stade Mayennais…';
-  const clubURL=agendaFFFDefault.split('/equipe/')[0];
+  const currentRun=++run,signature=context();chosen=null;results.replaceChildren();search.disabled=true;status.textContent='Recherche dans les équipes officielles du Club démo…';
+  const clubURL=(url.value.trim()||agendaFFFDefault).split('/equipe/')[0];
+  if(!clubURL){status.textContent='Renseignez le lien FFF de votre club dans les options ci-dessous.';fallback.open=true;search.disabled=false;return;}
   try{
    const response=await clubNetworkRequest('/functions/v1/fff-standings',{method:'POST',body:{sourceURL:clubURL}});
    if(!isOwner()||currentRun!==run||signature!==context())return;

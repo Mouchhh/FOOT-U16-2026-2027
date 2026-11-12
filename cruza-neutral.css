@@ -1,0 +1,1 @@
+:root{--blue:#0B2E8A;--navy:#071C55;--red:#E4312B;--cream:#F3E9D2}body{background:#faf7ef}.cruza-demo-note{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);z-index:9999;padding:6px 16px;border-radius:20px;background:#071C55;color:#F3E9D2;font:12px sans-serif;pointer-events:none}

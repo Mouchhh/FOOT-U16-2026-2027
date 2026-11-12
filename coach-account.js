@@ -209,7 +209,7 @@ function coachAccountCheckReminders(date = new Date()) {
           new Notification("Votre prochain rendez-vous", {
             body: text,
             tag: key,
-            icon: "assets/club-logo.jpg",
+            icon: "assets/cruza-logo.svg",
           });
         } catch {
           /* The in-app reminder remains available. */

@@ -100,7 +100,7 @@
       });
     }
   }
-  const LOGO = "assets/club-logo.jpg";
+  const LOGO = "assets/cruza-logo.svg";
   let logoObserver = null;
   // Site identity images are recognised by marker (.club-logo, header) or by the
   // original file, not only by their current URL (a composition may carry its own logo).

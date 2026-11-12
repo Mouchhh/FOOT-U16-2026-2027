@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
       img.alt =
         window.CLUB_HOME_SLIDES.find(
           (photo) => photo.src === source.getAttribute("src"),
-        )?.alt || "Photo du Stade Mayennais";
+        )?.alt || "Photo du Club démo";
       item.append(img);
       grid.append(item);
     }

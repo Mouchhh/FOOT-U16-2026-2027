@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  }
  function printPlayer(row){
   if(!row)return;printPlayer.cleanup?.();const paper=el('article');paper.id='player-monthly-print';
-  paper.append(el('p','player-monthly-print-brand','STADE MAYENNAIS · BILAN INDIVIDUEL'),el('h1','',row.player.name),el('p','',row.month+' · '+squadPlayerCategory(row.player)+' · '+squadPositionsLabel(row.player)+' · '+activeCoach.name));
+  paper.append(el('p','player-monthly-print-brand','CRUZA · BILAN INDIVIDUEL'),el('h1','',row.player.name),el('p','',row.month+' · '+squadPlayerCategory(row.player)+' · '+squadPositionsLabel(row.player)+' · '+activeCoach.name));
   const metrics=el('div','player-monthly-print-metrics');metrics.append(indicator('Présence du mois',row.attendance),indicator('Présence Saison',row.season));paper.append(metrics);
   paper.append(el('p','','Temps de jeu : '+playerStatsDisplay(row.stats,'minutes')+' min · Buts : '+playerStatsDisplay(row.stats,'goals')+' · Passes décisives : '+playerStatsDisplay(row.stats,'assists')+' · Cartons J/R : '+playerStatsDisplay(row.stats,'yellowCards')+' / '+playerStatsDisplay(row.stats,'redCards')));
   const table=document.createElement('table'),head=document.createElement('tr');for(const value of ['Date','Match','Statut','Minutes','Buts / passes','Jaunes / rouges'])head.append(el('th','',value));table.append(head);

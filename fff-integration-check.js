@@ -1,5 +1,5 @@
 'use strict';
-const fffProbeURL='https://epreuves.fff.fr/competition/club/548126-st-mayennais-f-c/equipe/2026_25254_U17_7/classement';
+const fffProbeURL='';
 const probe={source:fffProbeURL,lecture:'non testée',tableauHTML:false,cadre:'non vérifié',evenementCadre:'non démarré'};
 const byId=id=>document.getElementById(id);
 function renderProbe(){byId('report').value=JSON.stringify(probe,null,2);}

@@ -6,7 +6,7 @@ function newBlankMatch(context = {}) {
     matchCreation: "blank",
     documentId: crypto.randomUUID(),
     coach: activeCoach.name,
-    team: activeCoachTeam.team || "Stade Mayennais",
+    team: activeCoachTeam.team || "Club démo",
     category: activeCoachTeam.category,
     section: "Masculine",
     squad: "",

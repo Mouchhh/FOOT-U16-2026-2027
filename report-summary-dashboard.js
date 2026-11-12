@@ -16,7 +16,7 @@ function reportSummaryDashboard(report){
  const view=el('article','report-summary-dashboard report-summary-compact'),info=report.info,plan=report.plan,a=report.analysis;
  const away=reportMatchLocation(report).venue==='Extérieur';
  const header=el('section','report-summary-match-banner'),identity=el('div');
- identity.append(el('span','eyebrow','STADE MAYENNAIS · SYNTHÈSE'),el('h2','',report.title||'Bilan du match'),el('strong','report-summary-fixture',(away?[info.opponent,info.team]:[info.team,report.eventType==='training'?'':info.opponent]).filter(Boolean).join(' / ')));
+ identity.append(el('span','eyebrow','CRUZA · SYNTHÈSE'),el('h2','',report.title||'Bilan du match'),el('strong','report-summary-fixture',(away?[info.opponent,info.team]:[info.team,report.eventType==='training'?'':info.opponent]).filter(Boolean).join(' / ')));
  identity.append(el('p','report-summary-match-meta',[info.date,info.time,info.competition,info.round,info.stadium||info.venue,info.category].filter(Boolean).join(' · ')));
  const score=report.eventType==='training'?'Bilan de séance':info.goalsFor!==''&&info.goalsAgainst!==''?(away?info.goalsAgainst:info.goalsFor)+' – '+(away?info.goalsFor:info.goalsAgainst):'Score à renseigner';
  const scores=el('div','report-summary-scores');scores.append(el('div','report-summary-score',score));
