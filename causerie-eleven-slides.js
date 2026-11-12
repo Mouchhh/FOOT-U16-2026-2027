@@ -5,6 +5,10 @@
     RED = "E31B23",
     WHITE = "FFFFFF",
     MUTED = "526780";
+  // Presented order, by content number (1 match info, 2 line-up, 3 context,
+  // 4 opponent, 5 objectives, 6 defensive, 7 OFF/DEF, 8 offensive, 9 DEF/OFF,
+  // 10 set pieces, 11 closing): intro, opponent, context, objectives, line-up…
+  const deckOrder = [1, 4, 3, 5, 2, 6, 7, 8, 9, 10, 11];
   const phases = {
     defensive: { slide: 6, title: "Animation Défensive", field: "defensive" },
     offDef: {
@@ -209,7 +213,8 @@
         heading(slide, title, 0.65, 0.92, 10.8, 0.55, 30, { color: accent });
       const progressWidth = 12.03, progressY = dark ? 1.35 : 1.54, progressColor = dark ? WHITE : accent;
       line(slide, 0.65, progressY + 0.02, progressWidth, dark ? "547BAD" : "DCE5EF");
-      slide.addShape(S.rect,{x:0.65,y:progressY,w:progressWidth*n/11,h:0.055,line:{transparency:100},fill:{color:progressColor},objectName:'club-slide-progress-'+n});
+      // Progress follows the presented order (deckOrder), not the content number.
+      slide.addShape(S.rect,{x:0.65,y:progressY,w:progressWidth*(deckOrder.indexOf(n)+1)/11,h:0.055,line:{transparency:100},fill:{color:progressColor},objectName:'club-slide-progress-'+n});
       slide.addShape(S.ellipse, {
         x: 11.91,
         y: 0.32,
@@ -503,7 +508,7 @@
           ),
       ]);
     }
-    slide = base("CPA · Coups de pied arrêtés", 10, {
+    slide = base("Spécificités & CPA", 10, {
       kicker: "ÊTRE PRÊTS DANS LES DEUX SURFACES",
       photo: true,
     });
@@ -545,7 +550,7 @@
       throw Error("La présentation doit comporter exactement 11 slides.");
     if (exerciseHosts.length)
       await causerieClubSituations.append(pptx, exerciseHosts, { variant: board.causerieAnimationVariant || "video", onProgress });
-    return causerieAnimations.append(
+    const deck = await causerieAnimations.append(
       pptx,
       {
         sequences: hosts.filter((h) => h.entry).map((h) => h.entry),
@@ -553,8 +558,23 @@
       },
       { hosts, variant: board.causerieAnimationVariant || "video", onProgress },
     );
+    // Coach's order: intro / opponent / context, objectives, line-up and defensive
+    // animation, offensive animation, set pieces, closing. Slides are built by content
+    // number (photos, animations and notes stay attached) and only presented in this order.
+    const built = slides.slice(0, 11);
+    if (built.every((s) => pptx._slides.includes(s))) {
+      const rest = pptx._slides.filter((s) => !built.includes(s));
+      pptx._slides.splice(0, pptx._slides.length, ...deckOrder.map((n) => built[n - 1]), ...rest);
+      // PptxGenJS writes slide N to slideN.xml with relationship rId(N+1) and lists
+      // presentation.xml's slides by each slide's own _rId: keep them consistent.
+      pptx._slides.forEach((s, i) => {
+        s._rId = i + 2;
+      });
+    }
+    return deck;
   }
   window.causerieEleven = {
+    order: deckOrder,
     build,
     fields,
     phases,

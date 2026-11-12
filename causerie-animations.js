@@ -242,7 +242,8 @@
           fit: "shrink",
         }),
       );
-      timings.push({ index: pptx._slides.indexOf(slide) + 1, model, objects, box });
+      // The slide itself is kept: its position is resolved at write time, after any reordering.
+      timings.push({ slide, model, objects, box });
     }
     const compatibleMedia = integrated ? options.hosts.filter(host => host.media).map(host => ({...host.media, host})) : [...bundle.media];
     if (!integrated) for (const entry of bundle.sequences)
@@ -300,7 +301,7 @@
       const blob = await originalWrite(options),
         zip = await JSZip.loadAsync(await blob.arrayBuffer());
       const groups = new Map();
-      for (const timing of timings) { if(!groups.has(timing.index)) groups.set(timing.index, []); groups.get(timing.index).push(timing); }
+      for (const timing of timings) { const index = pptx._slides.indexOf(timing.slide) + 1; if (index < 1) continue; if(!groups.has(index)) groups.set(index, []); groups.get(index).push(timing); }
       for (const [slideIndex, slideTimings] of groups) {
         const name = "ppt/slides/slide" + slideIndex + ".xml";
         const doc = new DOMParser().parseFromString(
