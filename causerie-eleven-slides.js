@@ -8,7 +8,7 @@
   // Presented order, by content number (1 match info, 2 line-up, 3 context,
   // 4 opponent, 5 objectives, 6 defensive, 7 OFF/DEF, 8 offensive, 9 DEF/OFF,
   // 10 set pieces, 11 closing): intro, opponent, context, objectives, line-up…
-  const deckOrder = [1, 4, 3, 5, 2, 6, 7, 8, 9, 10, 11];
+  const deckOrder = [1, 4, 3, 5, 6, 7, 8, 9, 2, 10, 11];
   const phases = {
     defensive: { slide: 6, title: "Animation Défensive", field: "defensive" },
     offDef: {
@@ -558,8 +558,8 @@
       },
       { hosts, variant: board.causerieAnimationVariant || "video", onProgress },
     );
-    // Coach's order: intro / opponent / context, objectives, line-up and defensive
-    // animation, offensive animation, set pieces, closing. Slides are built by content
+    // Coach's order: intro / opponent / context, objectives, the four animations,
+    // line-up next to set pieces (keeps the group's attention), closing. Slides are built by content
     // number (photos, animations and notes stay attached) and only presented in this order.
     const built = slides.slice(0, 11);
     if (built.every((s) => pptx._slides.includes(s))) {

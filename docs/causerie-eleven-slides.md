@@ -16,6 +16,8 @@ L’export principal utilise `causerieEleven.build`, avec PptxGenJS et les moteu
 | 10 | CPA pour et contre | `setPiecesFor`, `setPiecesAgainst`, anciens compléments `specific` |
 | 11 | Mot d’ordre final | `closingMessage` ; anciennes notes conservées en notes du présentateur |
 
+Ordre de présentation dans le PPT (`causerieEleven.order`) : infos match (1), adversaire (4), contexte (3), objectifs (5), les quatre animations (6 à 9), composition (2) juste avant les CPA (10) pour garder l’attention du groupe jusqu’au bout, puis mot d’ordre (11). Les numéros ci-dessus restent ceux du contenu.
+
 Les champs de texte, sauf ceux de composition, se trouvent dans `board.matchPreparation`. Les nouveaux champs restent facultatifs pour ouvrir les anciennes causeries. Aucun texte footballistique des PDF n’est imposé au coach ni réécrit. Le texte complet est également enregistré dans les notes du présentateur ; les longs textes visibles s’adaptent à leur zone sans créer de slide supplémentaire.
 
 Dans Causerie → **Présentation · 11 slides**, l’éducateur complète les champs supplémentaires et sélectionne plusieurs animations pour chacune des quatre phases. Les instantanés sont enregistrés dans :
