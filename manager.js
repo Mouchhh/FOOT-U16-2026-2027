@@ -110,7 +110,7 @@
   try{
    const result=demo?fixtures():await rpc('club_management_overview');if(!validOverview(result))throw Error('La réponse du service est incomplète. Réessayez.');
    data=result;$('manager-name').textContent=data.access.display_name;
-   $('club-name').textContent=demo?'Club Horizon · Démo':'Votre club';
+   $('club-name').textContent=demo?'Club Horizon · Démo':(window.CLUB_MANAGEMENT_NAME||'Stade Mayennais');
    $('data-date').textContent=(demo?'Exemple fictif actualisé le ':'Actualisé le ')+new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'}).format(new Date(data.generated_at));
    if(!demo){$('scope').replaceChildren(new Option(data.access.role==='director'?'Tout le club':data.access.categories.join(' · '),'assigned'));$('scope').disabled=true;}
    if(data.truncated){setStatus('La vue présente les 500 derniers documents autorisés sur '+data.total_documents+'. Les indicateurs concernent ces documents chargés, pas tout l’historique du club.');}

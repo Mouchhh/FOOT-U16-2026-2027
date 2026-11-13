@@ -8,6 +8,7 @@ with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
  page=b.new_page(viewport={'width':1600,'height':1100});errors=[];private=[]
  page.on('pageerror',lambda e:errors.append(str(e)))
+ page.route('**/club-cloud-config.js*',lambda r:r.fulfill(content_type='application/javascript',body='window.CLUB_CLOUD_CONFIG={};'))
  page.on('request',lambda r:private.append(r.url) if 'supabase.co' in r.url else None)
  page.goto(base+'/manager.html?demo=1');page.wait_for_selector('#content:not([hidden])');page.evaluate('document.fonts.ready')
  metrics=page.locator('#metrics .metric strong').all_text_contents();assert metrics[0]=='6' and metrics[2]=='4';trainings=int(metrics[1]);reports=int(metrics[3]);assert trainings>5 and reports>3
