@@ -1,8 +1,10 @@
 """Minimal causerie keeps canonical persistence and exports behind lighter controls."""
 from playwright.sync_api import sync_playwright
+import os
+BASE=os.environ.get('TEST_BASE_URL','http://localhost:3016')
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(viewport={'width':1440,'height':1000});errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
- page.goto('http://localhost:3016/?mode=local',wait_until='domcontentloaded')
+ page.goto(BASE+'/?mode=local',wait_until='domcontentloaded')
  page.wait_for_function('document.querySelector(".causerie-clean-editor")')
  page.locator('#view-pitch').click();page.locator('#match-new').click();page.locator('#task-match-causerie').click()
  root=page.locator('#task-causerie')
@@ -14,7 +16,7 @@ with sync_playwright() as p:
  assert root.locator('#match-plan-form > .section-heading .causerie-clean-actions').count()==0
  assert root.locator('.causerie-clean-card').count()==7
  assert root.locator('.causerie-clean-library').count()==4
- assert not root.locator('#match-plan-context').is_visible()
+ assert root.locator('#match-plan-context').is_visible()
  assert page.locator('#workflow-match-links').count()==0
  assert page.locator('#causerie-demos-open').count()==0
  assert 'Gérer mes visuels' not in root.inner_text()
@@ -27,7 +29,8 @@ with sync_playwright() as p:
  assert page.evaluate('valid(getCompositionBoard())')
  for w in [1440,820,390,320]:
   page.set_viewport_size({'width':w,'height':1000});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1'),w
-  assert root.locator('textarea:visible').evaluate_all('(rows)=>rows.every(r=>r.getBoundingClientRect().height>=90&&r.getBoundingClientRect().height<=140&&parseFloat(getComputedStyle(r).fontSize)>=15)')
+  assert root.locator('textarea:visible:not(#match-plan-context)').evaluate_all('(rows)=>rows.every(r=>r.getBoundingClientRect().height>=90&&r.getBoundingClientRect().height<=140&&parseFloat(getComputedStyle(r).fontSize)>=15)')
+  assert root.locator('#match-plan-context').evaluate('(r)=>r.getBoundingClientRect().height')>=90
   assert root.locator('[data-phase=closingMessage] textarea').evaluate('(r)=>r.getBoundingClientRect().height')==90
   assert page.evaluate('(()=>{const actions=document.querySelector(".causerie-clean-actions"),last=document.querySelector("[data-phase=closingMessage]");return actions.getBoundingClientRect().top>=last.getBoundingClientRect().bottom})()')
   page.screenshot(path=f'/tmp/causerie-clean-{w}.png',full_page=True)

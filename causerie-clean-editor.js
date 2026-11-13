@@ -48,6 +48,15 @@ document.addEventListener("DOMContentLoaded", () => {
   $("match-plan-opponent").placeholder =
     "Organisation, forces et points à exploiter…";
   opponent.append(opponentLabel);
+  const context = el("section", "causerie-clean-context"),
+    contextInput = $("match-plan-context"),
+    contextLabel = contextInput.closest("label");
+  context.append(el("h3", "", "Contexte du match"));
+  contextLabel.firstChild.textContent = "Les éléments à partager au groupe";
+  contextInput.rows = 5;
+  contextInput.setAttribute("aria-label", "Contexte du match");
+  contextInput.placeholder = "Enjeu du match, situation du groupe, éléments à prendre en compte…";
+  context.append(contextLabel);
   const grid = el("div", "causerie-clean-grid"),
     cards = new Map();
   const definitions = [
@@ -116,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const exportOptions = el("details", "causerie-export-options");
   exportOptions.append(el("summary", "", "Options d’export"), format);
   header.append(exportOptions);
-  body.append(info, opponent, grid, actions);
+  body.append(info, context, opponent, grid, actions);
   header.after(body);
   form.append(legacy);
   const status = $("causerie-ppt-status");

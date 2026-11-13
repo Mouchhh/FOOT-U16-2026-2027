@@ -1,4 +1,4 @@
-// Fixed eleven-slide deck inspired by the supplied club PDFs; no coaching text is invented.
+// Eleven primary sections; authored text stays visible, with continuation slides when needed.
 (() => {
   const NAVY = "0B192C",
     BLUE = "0055A5",
@@ -80,22 +80,6 @@
       }))
     );
   }
-  function excerpt(value, limit = 130, preserveLines = false) {
-    const text = String(value || "")
-      .replace(preserveLines ? /[^\S\n]+/g : /\s+/g, " ")
-      .trim();
-    return text.length > limit
-      ? text.slice(0, limit - 1).trimEnd() + "…"
-      : text;
-  }
-  function ideas(value, max = 3, limit = 110) {
-    return String(value || "")
-      .split(/\n+|(?<=\.)\s+(?=[A-ZÀ-Ö])/)
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .slice(0, max)
-      .map((s) => excerpt(s.replace(/^[-•]\s*/, ""), limit));
-  }
   async function build(pptx, snapshot, style, { pitchImage, onProgress }) {
     await presentationFonts();
     const board = snapshot.board,
@@ -124,7 +108,9 @@
     }
     const slides = [],
       hosts = [],
-      exerciseHosts = [];
+      exerciseHosts = [],
+      primarySlides = new Map(), continuationSlides = new Map(), contentNumbers = new WeakMap(), darkSlides = new WeakSet(), overflowJobs = [];
+    let authoredFieldId=0;
     const text = (slide, value, x, y, w, h, size = 20, extra = {}) => {
       if (!String(value || "").trim()) return;
       slide.addText(String(value), {
@@ -132,9 +118,9 @@
         y,
         w,
         h,
-        fontFace: slide === slides[0] || slide === slides[10] ? "Montserrat" : "Calistoga",
-        bold: slide === slides[0] || slide === slides[10],
-        italic: slide === slides[0] || slide === slides[10],
+        fontFace: darkSlides.has(slide) ? "Montserrat" : "Calistoga",
+        bold: darkSlides.has(slide),
+        italic: darkSlides.has(slide),
         fontSize: size,
         color: NAVY,
         margin: 0,
@@ -142,7 +128,7 @@
         fit: "shrink",
         paraSpaceAfterPt: 8,
         ...extra,
-        ...((extra.fontFace || (slide === slides[0] || slide === slides[10] ? "Montserrat" : "Calistoga")) === "Calistoga" ? {bold:false,italic:false} : {}),
+        ...((extra.fontFace || (darkSlides.has(slide) ? "Montserrat" : "Calistoga")) === "Calistoga" ? {bold:false,italic:false} : {}),
       });
     };
     const rect = (slide, x, y, w, h, color) =>
@@ -166,10 +152,16 @@
     function base(
       title,
       n,
-      { dark = false, accent = BLUE, kicker = "LE MATCH", photo = false, bare = false } = {},
+      { dark = false, accent = BLUE, kicker = "LE MATCH", photo = false, bare = false, continuation = false } = {},
     ) {
       const slide = pptx.addSlide();
       slides.push(slide);
+      contentNumbers.set(slide, n);
+      if (dark) darkSlides.add(slide);
+      if (continuation) {
+        if (!continuationSlides.has(n)) continuationSlides.set(n, []);
+        continuationSlides.get(n).push(slide);
+      } else primarySlides.set(n, slide);
       slide.background = { color: dark ? BLUE : WHITE };
       if (bare) return slide;
       // Shared club signature: royal blue covers, light editorial headers,
@@ -240,33 +232,24 @@
           : values || "",
       );
     }
-    function bullets(
-      slide,
-      value,
-      x,
-      y,
-      w,
-      h,
-      { count = 3, chars = 110, size = 21, color = NAVY, accent = BLUE } = {},
-    ) {
-      const rows = ideas(value, count, chars);
-      if (!rows.length) return;
-      const slot = h / rows.length;
-      rows.forEach((row, i) => {
-        rect(slide, x, y + i * slot + 0.11, 0.065, 0.065, accent);
-        text(slide, row, x + 0.2, y + i * slot, w - 0.2, slot - 0.12, size, {
-          color,
-        });
-      });
+    // Canva does not reliably reproduce PowerPoint auto-shrink or presenter notes.
+    // Fit visible text at a readable size and paginate the exact remainder, losslessly.
+    function flowText(page, value, x, y, w, h, {size=21,minSize=16,label="Texte du coach",...extra}={}) {
+      value=String(value || "");if(!value.trim())return;
+      const fieldId="causerie-authored-"+(++authoredFieldId);
+      let fontSize=size,pages=[];
+      const paginate=size=>causerieExport.textPages(value,{fontSize:size,fontFace:extra.fontFace||"Calistoga",width:Math.max(.4,w-.12),maxRows:Math.max(1,Math.floor((h*72-5)/(size*1.25)))});
+      for(;fontSize>=minSize;fontSize--){pages=paginate(fontSize);if(pages.length<=1)break;}
+      if(fontSize<minSize){fontSize=minSize;pages=paginate(fontSize);}
+      text(page,pages[0],x,y,w,h,fontSize,{paraSpaceAfterPt:0,...extra,objectName:fieldId});
+      if(pages.length>1)overflowJobs.push({n:contentNumbers.get(page),label,id:fieldId,value:pages.slice(1).join("")});
     }
     function block(slide, label, value, x, y, w, h, { accent = BLUE } = {}) {
       text(slide, label.toUpperCase(), x, y, w, 0.3, 12, {
         fontFace: "Montserrat", bold: true, italic: true, charSpacing: 1.1, color: accent,
       });
       line(slide, x, y + 0.45, w, accent);
-      if (String(value || "").length <= 1400)
-        text(slide, value, x, y + 0.7, w, h - 0.7, String(value || "").length > 500 ? 17 : 21);
-      else bullets(slide, value, x, y + 0.7, w, h - 0.7, { accent, chars: 150, size: 18 });
+      flowText(slide,value,x,y+.7,w,h-.7,{size:21,label});
     }
     function bodyFrame(n, photo = !!photos[n]) {
       return photo ? { x: 3.35, w: 9.33 } : { x: 0.65, w: 12.03 };
@@ -278,7 +261,7 @@
     });
     text(
       slide,
-      excerpt(p.title || "NOTRE RENDEZ-VOUS", 70).toUpperCase(),
+      String(p.title || "NOTRE RENDEZ-VOUS").toUpperCase(),
       0.8,
       1.7,
       7.3,
@@ -288,7 +271,7 @@
     );
     heading(
       slide,
-      excerpt(p.match || board.title || board.team, 130, true),
+      p.match || board.title || board.team,
       0.8,
       2.35,
       photos[1] ? 7.3 : 11.5,
@@ -316,7 +299,7 @@
       18,
       { color: "D7E3F1", bold: true },
     );
-    text(slide, excerpt(p.venue, 100), 0.8, 5.7, 7.3, 0.5, 16, {
+    flowText(slide, p.venue, 0.8, 5.7, 7.3, 0.5, {size:16,label:"Lieu du match",
       color: "D7E3F1", bold: true,
     });
     notes(slide, [
@@ -412,42 +395,11 @@
       notes(page, sections.map(section => section.value));
       return page;
     }
-    const contextPhoto = !!photos[3] && (String(p.context || "").length + String(p.contextDynamics || "").length <= 850);
-    slide = base("La dynamique du groupe", 3, { kicker: "LE CONTEXTE DU MATCH", photo: contextPhoto });
-    const contextFrame = bodyFrame(3, contextPhoto);
-    const dynamicText = String(p.contextDynamics || p.context || "").trim();
-    const dynamicPoints = dynamicText.split(/\n+|(?<=\.)\s+/)
-      .map(value => value.trim()).filter(Boolean);
-    const hasContext = !!(p.contextDynamics && String(p.context || "").trim());
-    if (hasContext) {
-      rect(slide, contextFrame.x, 1.8, 0.045, 1.05, BLUE);
-      text(slide, String(p.context).trim(), contextFrame.x + 0.18, 1.82, contextFrame.w - 0.18, 1.08, 16, { color: MUTED });
-    }
-    const dynamicTop = hasContext ? 3.12 : 1.85;
-    const columns = dynamicPoints.length === 1 ? 1 : 2;
-    const rows = Math.max(1, Math.ceil(dynamicPoints.length / columns));
-    const gap = 0.28, cardWidth = (contextFrame.w - gap * (columns - 1)) / columns;
-    const cardHeight = (6.85 - dynamicTop - gap * (rows - 1)) / rows;
-    dynamicPoints.forEach((point, index) => {
-      const x = contextFrame.x + (index % columns) * (cardWidth + gap);
-      const y = dynamicTop + Math.floor(index / columns) * (cardHeight + gap);
-      slide.addShape(S.roundRect, {
-        x, y, w: cardWidth, h: cardHeight, radius: 0.12,
-        rectRadius: 0.12, fill: { color: "F2F6FB" },
-        line: { color: "DCE5EF", width: 0.6 },
-        objectName: "group-dynamic-point-" + (index + 1),
-      });
-      slide.addShape(S.ellipse, {
-        x: x + 0.22, y: y + 0.22, w: 0.43, h: 0.43,
-        fill: { color: index === 0 ? NAVY : BLUE }, line: { transparency: 100 },
-      });
-      text(slide, String(index + 1).padStart(2, "0"), x + 0.22, y + 0.3, 0.43, 0.23, 10,
-        { color: WHITE, bold: true, align: "center" });
-      text(slide, point, x + 0.88, y + 0.25, cardWidth - 1.12, cardHeight - 0.46,
-        point.length > 170 || rows > 2 ? 16 : 21, { bold: true, color: NAVY });
-    });
-    // Historical objectives remain in notes only, never in the projected slide.
-    notes(slide, [p.contextDynamics, p.context, p.contextObjective]);
+    slide = informationPage("Le contexte du match", 3, "LES REPÈRES À PARTAGER AU GROUPE", [
+      { label: "Contexte du match", value: p.context, primary: true },
+      { label: "Dynamique du groupe", value: p.contextDynamics },
+      { label: "Objectifs du contexte", value: p.contextObjective },
+    ]);
     slide = informationPage("Informations adversaire", 4, "LES INFORMATIONS DU COACH", [
       { label: "Informations", value: p.opponent, primary: true },
       { label: "Forces", value: p.opponentStrengths },
@@ -460,7 +412,7 @@
     goals.forEach((goal, i) => {
       const y = 1.95 + i * goalSlot;
       text(slide, String(i + 1).padStart(2, "0"), goalsFrame.x, y + 0.04, 0.65, 0.42, 22, { color: BLUE, bold: true });
-      text(slide, goal, goalsFrame.x + 0.95, y, goalsFrame.w - 1.0, goalSlot - 0.25, goal.length > 180 ? 18 : 25, { bold: true });
+      flowText(slide,goal,goalsFrame.x+.95,y,goalsFrame.w-1,goalSlot-.25,{size:25,label:"Nos idées fortes",bold:true});
       if (i < goals.length - 1) line(slide, goalsFrame.x, y + goalSlot - 0.15, goalsFrame.w);
     });
     notes(slide, goals);
@@ -482,14 +434,24 @@
       if (choices.length > 4)
         throw Error(
           phase.title +
-            " : sélectionnez au maximum 4 situations pour garder les schémas lisibles dans les 11 slides.",
+            " : sélectionnez au maximum 4 situations pour garder les schémas lisibles dans les 11 rubriques.",
         );
-      slide = base(phase.title, phase.slide, { bare: true });
-      const body = p[phase.field] || "";
-      const stage = { x: 0.1, y: 0.1, w: 13.133333, h: 7.3 };
-      const cols = choices.length <= 1 ? 1 : 2, rows = Math.max(1, Math.ceil(choices.length / cols));
+      const instructions=choices.filter(c=>c.exercise).map(c=>{
+        const custom=c.exercise.custom||{};
+        return [["title","Exercice"],["goal","Objectif"],["organisation","Organisation"],["instructions","Consignes"],["material","Matériel"],["success","Réussite"]]
+          .filter(([key])=>typeof custom[key]==="string"&&custom[key].trim())
+          .map(([key,label])=>label+" : "+custom[key]).join("\n");
+      }).filter(Boolean);
+      const body = [p[phase.field] || "",...instructions].filter(Boolean).join("\n\n");
+      const hasText=!!body.trim(),drawings=choices.filter(c=>!c.exercise||c.exercise.custom?.board);
+      slide = base(phase.title, phase.slide, { bare: !hasText });
+      const stage = hasText
+        ? { x: drawings.length ? 4.2 : .65, y: 1.85, w: drawings.length ? 8.48 : 12.03, h: 5.1 }
+        : { x: .1, y: .1, w: 13.133333, h: 7.3 };
+      if(hasText)flowText(slide,body,.65,1.85,drawings.length?3.2:12.03,5.05,{size:22,minSize:17,label:phase.title});
+      const cols = drawings.length <= 1 ? 1 : 2, rows = Math.max(1, Math.ceil(drawings.length / cols));
       const gap = 0.12, tileW = (stage.w - gap * (cols - 1)) / cols, tileH = (stage.h - gap * (rows - 1)) / rows;
-      choices.forEach((choice, i) => {
+      drawings.forEach((choice, i) => {
         const custom=choice.exercise?.custom, ratio=choice.exercise?1.6:840/680;
         const w=Math.min(tileW,tileH*ratio),h=w/ratio;
         const box={x:stage.x+(i%cols)*(tileW+gap)+(tileW-w)/2,y:stage.y+Math.floor(i/cols)*(tileH+gap)+(tileH-h)/2,w,h};
@@ -520,7 +482,7 @@
     block(slide, "Défensifs", p.setPiecesAgainst, cpaFrame.x + 0.6 + sc, 2, sc, 3.9, {
       accent: clubGamePhaseColors.off,
     });
-    text(slide, excerpt(p.specific, 350), cpaFrame.x, 6.25, sw, 0.4, 14, {
+    flowText(slide, p.specific, cpaFrame.x, 6.25, sw, 0.55, {size:16,label:"Spécificités / mise en place",
       color: MUTED,
     });
     notes(slide, [p.setPiecesFor, p.setPiecesAgainst, p.specific]);
@@ -534,20 +496,26 @@
       color: WHITE,
       charSpacing: 2.3,
     });
-    heading(
+    flowText(
       slide,
-      excerpt(p.closingMessage, 210, true),
+      p.closingMessage,
       0.8,
       2.6,
       photos[11] ? 7.3 : 11.7,
       2.8,
-      38,
-      { color: WHITE },
+      {size:38,minSize:22,label:"Mot d’ordre final",fontFace:"Montserrat",bold:true,italic:true,color:WHITE},
     );
     line(slide, 0.8, 6.15, 1.1, RED);
+    flowText(slide,board.notes,.8,5.3,photos[11]?7.3:11.7,.65,{size:16,label:"Consignes tactiques",color:WHITE});
     notes(slide, [p.closingMessage, board.notes]);
-    if (slides.length !== 11)
-      throw Error("La présentation doit comporter exactement 11 slides.");
+    if (primarySlides.size !== 11) throw Error("Les 11 rubriques de la causerie doivent être présentes.");
+    for(const job of overflowJobs){
+      const chunks=causerieExport.textPages(job.value,{fontSize:20,width:11.9,maxRows:13});
+      chunks.forEach((chunk,index)=>{
+        const extra=base(job.label+" · suite"+(chunks.length>1?" "+(index+1):""),job.n,{continuation:true,kicker:"LE TEXTE COMPLET DU COACH"});
+        text(extra,chunk,.65,1.85,12.03,4.95,20,{paraSpaceAfterPt:0,objectName:job.id});notes(extra,chunk);
+      });
+    }
     if (exerciseHosts.length)
       await causerieClubSituations.append(pptx, exerciseHosts, { variant: board.causerieAnimationVariant || "video", onProgress });
     const deck = await causerieAnimations.append(
@@ -561,15 +529,11 @@
     // Coach's order: intro / opponent / context, objectives, the four animations,
     // line-up next to set pieces (keeps the group's attention), closing. Slides are built by content
     // number (photos, animations and notes stay attached) and only presented in this order.
-    const built = slides.slice(0, 11);
-    if (built.every((s) => pptx._slides.includes(s))) {
-      const rest = pptx._slides.filter((s) => !built.includes(s));
-      pptx._slides.splice(0, pptx._slides.length, ...deckOrder.map((n) => built[n - 1]), ...rest);
-      // PptxGenJS writes slide N to slideN.xml with relationship rId(N+1) and lists
-      // presentation.xml's slides by each slide's own _rId: keep them consistent.
-      pptx._slides.forEach((s, i) => {
-        s._rId = i + 2;
-      });
+    const ordered=deckOrder.flatMap(n=>[primarySlides.get(n),...(continuationSlides.get(n)||[])]);
+    if(ordered.every(page=>pptx._slides.includes(page))){
+      const rest=pptx._slides.filter(page=>!ordered.includes(page));
+      pptx._slides.splice(0,pptx._slides.length,...ordered,...rest);
+      pptx._slides.forEach((page,i)=>{page._rId=i+2;});
     }
     return deck;
   }
@@ -578,7 +542,7 @@
     build,
     fields,
     phases,
-    templateVersion: "club-typography-279",
+    templateVersion: "complete-text-339",
     theme: {
       navy: NAVY,
       blue: BLUE,

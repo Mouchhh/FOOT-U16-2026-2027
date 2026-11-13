@@ -370,7 +370,7 @@
       el(
         "p",
         "hint",
-        "Sélectionnez vos séquences enregistrées : leurs déplacements seront ajoutés en trajectoires natives PowerPoint. Dans la présentation en 11 slides, choisissez la version GIF pour Canva et les phases de jeu dans « Présentation · 11 slides ». Vous pouvez aussi ajouter vos GIF / MP4 d’exercices. Les trajectoires PowerPoint ne sont pas garanties à l’import.",
+        "Sélectionnez vos séquences enregistrées : leurs déplacements seront ajoutés en trajectoires natives PowerPoint. Dans la présentation en 11 rubriques, choisissez la version GIF pour Canva et les phases de jeu dans « Présentation · 11 rubriques ». Vous pouvez aussi ajouter vos GIF / MP4 d’exercices. Les trajectoires PowerPoint ne sont pas garanties à l’import.",
       ),
     );
     const list = el("div"),

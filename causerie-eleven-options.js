@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   const panel = el("details", "causerie-eleven-options");
   panel.id = "causerie-eleven-options";
-  panel.append(el("summary", "", "Présentation · 11 slides"));
+  panel.append(el("summary", "", "Présentation · 11 rubriques"));
   const fields = el("div", "causerie-eleven-fields");
   const inputs = new Map();
   const status = el("p", "hint");

@@ -1,10 +1,12 @@
 from playwright.sync_api import sync_playwright
 from pathlib import Path
+import os
+BASE=os.environ.get("TEST_BASE_URL","http://127.0.0.1:3016")
 import zipfile,re,xml.etree.ElementTree as ET
 ns={'p':'http://schemas.openxmlformats.org/presentationml/2006/main','a':'http://schemas.openxmlformats.org/drawingml/2006/main'}
 with sync_playwright() as p:
  b=p.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox']);page=b.new_page(accept_downloads=True,viewport={'width':1366,'height':1000},reduced_motion='reduce');errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
- page.goto('http://127.0.0.1:3016/?mode=local');page.wait_for_function('window.causerieEleven && window.tacticalAnimationLibrary')
+ page.goto(BASE+'/?mode=local');page.wait_for_function('window.causerieEleven && window.tacticalAnimationLibrary')
  page.locator('#view-pitch').click();page.locator('#match-new').click()
  page.evaluate('''()=>{
  state.title='STADE MAYENNAIS / ÉQUIPE ADVERSE';state.matchPreparation.date='2026-11-08';state.matchPreparation.title='CHAMPIONNAT · EXEMPLE';state.matchPreparation.match='STADE MAYENNAIS / ÉQUIPE ADVERSE';state.matchPreparation.round='Journée 5';state.matchPreparation.venue='Stade · à personnaliser';state.matchPreparation.context='Contexte saisi par le coach';state.matchPreparation.objectives=['Premier axe du coach','Deuxième axe du coach','Troisième axe du coach',''];state.matchPreparation.defensive='Consignes défensives du coach';state.matchPreparation.offensive='Consignes offensives du coach';state.matchPreparation.transitionOffDef='Réaction à la perte · à personnaliser';state.matchPreparation.transitionDefOff='Réaction à la récupération · à personnaliser';state.matchPreparation.setPiecesFor='CPA offensifs · à personnaliser';state.matchPreparation.setPiecesAgainst='CPA défensifs · à personnaliser';state.matchPreparation.closingMessage='Mot d’ordre du coach';
@@ -28,16 +30,16 @@ with sync_playwright() as p:
   with zipfile.ZipFile(path) as z:
    assert z.testzip() is None
    slides=sorted([n for n in z.namelist() if re.fullmatch(r'ppt/slides/slide\d+\.xml',n)],key=lambda n:int(re.search(r'(\d+)\.xml',n)[1]));assert len(slides)==11
-   titles=['CHAMPIONNAT','La composition','La dynamique du groupe','Informations adversaire','Nos idées fortes','Animation Défensive','Transition OFF / DEF','Animation Offensive','Transition DEF / OFF','CPA','ENSEMBLE']
+   titles=['CHAMPIONNAT','Informations adversaire','Le contexte du match','Nos idées fortes','Animation Défensive','Transition OFF / DEF','Animation Offensive','Transition DEF / OFF','La composition','CPA','ENSEMBLE']
    for n,(name,title) in enumerate(zip(slides,titles),1):
-    if n not in (6,7,8,9):assert title in ''.join(ET.fromstring(z.read(name)).itertext()),(name,title)
-   for n in [6,7,8,9]:
+    if n not in (5,6,7,8):assert title in ''.join(ET.fromstring(z.read(name)).itertext()),(name,title)
+   for n in [5,6,7,8]:
     root=ET.fromstring(z.read('ppt/slides/slide'+str(n)+'.xml'))
     assert len(root.findall('p:timing',ns))==(1 if mode=='native' else 0)
     ids=[node.attrib['id'] for node in root.findall('.//p:cTn',ns)];assert len(ids)==len(set(ids))
     shapes={node.attrib['id'] for node in root.findall('.//p:cNvPr',ns)}
     for motion in root.findall('.//p:animMotion',ns):assert motion.find('.//p:spTgt',ns).attrib['spid'] in shapes
-   if mode=='native':assert len(ET.fromstring(z.read('ppt/slides/slide6.xml')).findall('.//p:animMotion',ns))==4
+   if mode=='native':assert len(ET.fromstring(z.read('ppt/slides/slide5.xml')).findall('.//p:animMotion',ns))==4
    else:assert len([n for n in z.namelist() if n.endswith('.gif')])>=2
    assert len([n for n in z.namelist() if re.fullmatch(r'ppt/notesSlides/notesSlide\d+\.xml',n)])==11
  # Selecting a new match must clear optional phase selections and content.
@@ -45,4 +47,4 @@ with sync_playwright() as p:
  for width in [390,320]:
   page.set_viewport_size({'width':width,'height':1000});assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
  assert not errors,errors;b.close()
-print('Exactly eleven ordered slides, two native animations on slide 6, per-phase choices, unique timing ids, notes, Canva GIF variant and mobile passed')
+print('Exactly eleven ordered slides, two native animations on slide 5, per-phase choices, unique timing ids, notes, Canva GIF variant and mobile passed')

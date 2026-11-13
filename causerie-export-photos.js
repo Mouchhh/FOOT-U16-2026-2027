@@ -5,10 +5,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   const key=()=>activeCoach.id+':'+activeCoachTeam.id+':'+getCompositionBoard().documentId;
   function current(){const k=key();if(!sessions.has(k))sessions.set(k,{items:[],choices:{1:club[0].id,11:'club:cercle-equipe'}});return sessions.get(k);}
   const panel=el('section','causerie-photo-export');panel.id='causerie-photo-export';panel.hidden=true;
-  panel.append(el('h3','','Photos du PowerPoint'),el('p','hint','Photos du club ou photos personnelles, sans changer les 11 slides. Couverture et conclusion : colonne photo. Autres slides : encart en haut à droite. Les photos personnelles sont réservées à cet export.'));
+  panel.append(el('h3','','Photos du PowerPoint'),el('p','hint','Photos du club ou photos personnelles, en conservant les 11 rubriques principales. Couverture et conclusion : colonne photo. Autres slides : encart en haut à droite. Les photos personnelles sont réservées à cet export.'));
   const fileLabel=el('label','report-field','Ajouter mes photos'),files=el('input');files.type='file';files.accept='image/jpeg,image/png,image/webp';files.multiple=true;files.setAttribute('aria-label','Ajouter mes photos au PowerPoint');fileLabel.append(files);panel.append(fileLabel);
   const rows=el('div','causerie-photo-rows'),status=el('p','hint');status.setAttribute('role','status');
-  const actions=el('div','report-actions'),download=el('button','primary','Télécharger les 11 slides'),close=el('button','export','Annuler');download.type=close.type='button';actions.append(download,close);panel.append(rows,status,actions);document.querySelector('.causerie-direct-actions').after(panel);
+  const actions=el('div','report-actions'),download=el('button','primary','Télécharger la présentation'),close=el('button','export','Annuler');download.type=close.type='button';actions.append(download,close);panel.append(rows,status,actions);document.querySelector('.causerie-direct-actions').after(panel);
   const titles=['Infos match','Composition','Contexte','Adversaire','Nos idées fortes','Animation Défensive','Transition OFF / DEF','Animation Offensive','Transition DEF / OFF','CPA','Fin de causerie'];
   function sources(){return [...club,...current().items];}
   function paint(){

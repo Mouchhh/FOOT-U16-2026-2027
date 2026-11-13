@@ -39,9 +39,9 @@
   return libraryPromise;
  }
  // Split without trimming, summarizing or discarding characters, including blank lines.
- function textPages(value,{fontSize=19,width=6.6,maxRows=14}={}){
+ function textPages(value,{fontSize=19,width=6.6,maxRows=14,fontFace="Calistoga"}={}){
   if(!value)return [];
-  const ctx=document.createElement('canvas').getContext('2d');ctx.font=fontSize+'pt Calistoga';
+  const ctx=document.createElement('canvas').getContext('2d');ctx.font=fontSize+'pt '+fontFace;
   const pages=[];let chunk='',line='',rows=1;
   for(const char of value){
    const newline=char==='\n',wrap=!newline&&ctx.measureText(line+char).width>width*96;
@@ -108,7 +108,7 @@
   const dialog=el('dialog','causerie-dialog');dialog.id='causerie-dialog';dialog.setAttribute('aria-labelledby','causerie-heading');
   const heading=el('div','section-heading'),title=el('h2','','Créer ma causerie dans Canva');title.id='causerie-heading';
   const close=el('button','icon-button','×');close.type='button';close.setAttribute('aria-label','Fermer la préparation Canva');heading.append(title,close);dialog.append(heading);
-  dialog.append(el('p','hint','La présentation comporte exactement 11 diapositives. Choisissez jusqu’à quatre situations par phase. La version PowerPoint conserve le format choisi ; la création dans Canva utilise des vidéos MP4 pour les démonstrations. Les textes de projection restent modifiables, avec les versions complètes dans les notes du présentateur.'));
+  dialog.append(el('p','hint','La présentation reprend les 11 rubriques de votre causerie. Des diapositives de suite sont ajoutées si un texte est long, pour le conserver intégralement. Choisissez jusqu’à quatre situations par phase. La version PowerPoint conserve le format choisi ; la création dans Canva utilise des vidéos MP4 pour les démonstrations. Les consignes sont visibles sur les diapositives et restent modifiables.'));
   const summary=el('p','causerie-summary');dialog.append(summary);
   const label=el('label','causerie-option'),include=el('input');include.type='checkbox';include.id='causerie-linked';label.append(include,document.createTextNode('Inclure la vue épurée liée à cette composition'));dialog.append(label);
   const details=el('details'),count=el('summary'),inventory=el('ul');count.textContent='Vérifier les informations reprises';details.append(count,inventory);dialog.append(details);
@@ -312,7 +312,7 @@
    try{const pptx=await build(current,includeLinked),blob=await pptx.write({outputType:'blob',compression:true});
     if(activeCoach.id!==coach||activeCoachTeam.id!==team||currentUser()!==account)throw Error('Le compte ou l’équipe a changé. Rouvrez votre causerie.');
     mediaDownload(blob,namedDocumentFilename(current.board.title||current.board.team,'pptx'));
-    pptStatus.textContent='Causerie PowerPoint téléchargée · textes complets dans les notes du présentateur.';return true;
+    pptStatus.textContent='Causerie PowerPoint téléchargée · consignes complètes sur les diapositives.';return true;
    }catch(error){pptStatus.textContent='Export impossible : '+(error.message||'réessayez après avoir vérifié le document.')+' Aucun fichier incomplet n’a été téléchargé.';return false;}
    finally{busy=false;download.disabled=false;download.removeAttribute('aria-busy');}
   };
