@@ -11,7 +11,8 @@
  function fixtures(){
   const educators=[['c1','Camille Laurent'],['c2','Alex Martin'],['c3','Sam Moreau'],['c4','Lou Bernard'],['c5','Noa Petit'],['c6','Charlie Robin']].map(([id,name])=>({id,name,active:true}));
   const entries=[['c1','training','Conserver pour avancer','U17',0],['c2','report','Bilan collectif · Journée 7','U15',1],['c3','composition','Organisation en 4-3-3','SENIORS',2],['c4','training','Se démarquer entre les lignes','U13',3],['c1','composition','Préparer notre animation offensive','U17',4],['c5','training','Défendre ensemble','U19',5],['c2','training','Sortir du pressing','U15',6],['c3','report','Bilan collectif · Journée 6','SENIORS',9],['c6','composition','Notre organisation sans ballon','U11',15],['c6','training','Créer et utiliser les espaces','U11',18],['c4','report','Bilan collectif · Journée 5','U13',21],['c5','composition','Les repères du week-end','U19',24]];
-  return {access:{allowed:true,role:'director',categories:[],display_name:'Direction technique'},generated_at:new Date().toISOString(),total_documents:entries.length,truncated:false,educators,documents:entries.map(([owner_id,kind,title,category,days],i)=>({id:'demo-'+i,owner_id,kind,title,category,team:category+' · Équipe 1',revision:1+(i%3),updated_at:stamp(days)}))};
+  const summaries=window.CruzaManagerDemo.documents().map(d=>({id:d.id,owner_id:d.owner_id,kind:d.kind,title:d.title,category:d.category,team:d.stats.teamContext.team,revision:1,updated_at:d.updated_at}));
+  return {access:{allowed:true,role:'director',categories:[],display_name:'Direction technique'},generated_at:new Date().toISOString(),total_documents:summaries.length+entries.filter(e=>e[1]==='composition').length,truncated:false,educators,documents:summaries.concat(entries.filter(e=>e[1]==='composition').map(([owner_id,kind,title,category,days],i)=>({id:'demo-'+i,owner_id,kind,title,category,team:category+' · Équipe 1',revision:1+(i%3),updated_at:stamp(days)}))).sort((a,b)=>b.updated_at.localeCompare(a.updated_at))};
  }
  function visible(){
   if(!data)return [];
@@ -61,7 +62,7 @@
   if(!list.length)root.append(node('p','empty','Aucun éducateur pour cette recherche.'));
   for(const coach of list){
    const own=docs.filter(d=>d.owner_id===coach.id),allOwn=data.documents.filter(d=>d.owner_id===coach.id),cats=[...new Set(allOwn.map(d=>d.category).filter(Boolean))];
-   const row=node('div','educator-row'),identity=node('div','coach'),names=node('div');names.append(node('strong','',coach.name),node('small','',coach.active?'Éducateur du club':'Compte désactivé'));
+   const row=node('div','educator-row'),identity=node('div','coach'),names=node('div');names.append(node('strong','',coach.name),node('small','',coach.active?'Éducateur du club':'Compte désactivé'));const statsLink=node('button','text-button educator-stat-link','Statistiques →');statsLink.setAttribute('aria-label','Voir les statistiques de '+coach.name);statsLink.onclick=()=>{setTab('statistics');document.dispatchEvent(new CustomEvent('manager-statistics-focus',{detail:{owner:coach.id}}));};names.append(statsLink);
    identity.append(node('span','avatar',coach.name.split(/\s+/).map(s=>s[0]).slice(0,2).join('')),names);
    const categories=node('div','categories');for(const cat of cats.slice(0,3))categories.append(node('span','category-tag',cat));if(!cats.length)categories.append(node('span','category-tag','Non renseignée'));
    const count=node('span','count');count.append(node('b','',String(own.length)),document.createTextNode(' document'+(own.length>1?'s':'')));
@@ -82,13 +83,13 @@
   const older=docs.filter(d=>age(d.updated_at)>=14).length;
   $('priority-text').textContent=older?older+' document'+(older>1?'s ont':' a')+' été partagé'+(older>1?'s':'')+' il y a au moins 14 jours. Un point de départ pour préparer une revue avec les éducateurs.':'Les derniers documents sont à portée de main pour préparer votre prochain échange avec les éducateurs.';
   $('priority-action').textContent=older?'Préparer la revue des documents →':'Consulter les derniers partages →';
-  $('content').hidden=false;
+  $('content').hidden=false;document.dispatchEvent(new CustomEvent('manager-updated'));
  }
  function setTab(value){
-  tab=value;document.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('selected',b.dataset.tab===tab);b.setAttribute('aria-pressed',String(b.dataset.tab===tab));});
-  $('overview-panel').hidden=tab!=='overview';$('educators-panel').hidden=tab==='documents';$('documents-panel').hidden=tab!=='documents';render();
+  tab=value;document.body.classList.toggle('manager-statistics-mode',tab==='statistics');document.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('selected',b.dataset.tab===tab);b.setAttribute('aria-pressed',String(b.dataset.tab===tab));});
+  $('overview-panel').hidden=tab!=='overview';$('educators-panel').hidden=!['overview','educators'].includes(tab);$('documents-panel').hidden=tab!=='documents';$('statistics-panel').hidden=tab!=='statistics';$('metrics').hidden=tab==='statistics';document.querySelector('.period-label').hidden=tab==='statistics';render();
  }
- function demoPayload(doc){return {category:doc.category,team:doc.team,objective:'Créer des repères communs et favoriser la prise de décision.',notes:'Exemple fictif pour découvrir la consultation du travail partagé.',blocks:[{title:'Mise en route',duration:15,objective:'Mobilité et disponibilité autour du porteur.'},{title:'Situation collective',duration:25,objective:'Trouver le joueur libre et progresser ensemble.'},{title:'Retour avec le groupe',duration:5,objective:'Identifier un repère à conserver pour la prochaine séance.'}]};}
+ function demoPayload(doc){const source=window.CruzaManagerDemo.documents().find(d=>d.id===doc.id);if(source)return {...source.stats,notes:'Exemple fictif pour découvrir la consultation du travail partagé.'};return {category:doc.category,team:doc.team,objective:'Créer des repères communs et favoriser la prise de décision.',notes:'Exemple fictif pour découvrir la consultation du travail partagé.',blocks:[{title:'Mise en route',duration:15,objective:'Mobilité et disponibilité autour du porteur.'},{title:'Situation collective',duration:25,objective:'Trouver le joueur libre et progresser ensemble.'},{title:'Retour avec le groupe',duration:5,objective:'Identifier un repère à conserver pour la prochaine séance.'}]};}
  function payloadPreview(payload){
   const root=$('preview-content');root.replaceChildren();let count=0;
   const allowed=new Set(['objective','objectives','notes','title','name','description','instructions','coaching','theme','context','formation','team','category','duration','date','time','message','summary','strengths','improvements']);
@@ -105,7 +106,7 @@
  async function load(){
   if(pending)return;pending=true;$('refresh').disabled=true;requestGeneration++;if($('document-dialog').open)$('document-dialog').close();$('status').hidden=true;
   // Do not leave stale private data visible if authorization or connectivity changed.
-  data=null;$('content').hidden=true;
+  data=null;$('content').hidden=true;document.dispatchEvent(new CustomEvent('manager-reset'));
   try{
    const result=demo?fixtures():await rpc('club_management_overview');if(!validOverview(result))throw Error('La réponse du service est incomplète. Réessayez.');
    data=result;$('manager-name').textContent=data.access.display_name;
@@ -128,5 +129,6 @@
  $('close-document').onclick=()=>{requestGeneration++;$('document-dialog').close();};
  window.addEventListener('pageshow',event=>{if(event.persisted)load();});
  document.addEventListener('visibilitychange',()=>{if(!demo&&document.visibilityState==='visible')load();});
- setTab('overview');load();
+ window.cruzaManager=Object.freeze({request:rpc,context:()=>data?{demo,access:data.access,educators:data.educators,scope:demo?$('scope').value:'assigned',key:data.generated_at,tab}:null});
+ setTab(new URLSearchParams(location.search).get('view')==='statistics'?'statistics':'overview');load();
 })();

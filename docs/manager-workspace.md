@@ -48,3 +48,26 @@ delete from public.club_management_access where user_id='UUID-DU-MEMBRE';
 - `tests/club-management-access.mjs` : PostgreSQL réel embarqué via PGlite. Directeurs/pôles, documents hors périmètre, priorité de catégorie des bilans, refus éducateur/anonyme/inactif, interdiction d’auto-promotion et réexécution migration.
 - `tests/club-management-browser.py` : Chromium système, démonstration et RPC simulées. Navigation, filtres, consultation, autorisation retirée, affichage mobile, absence de requêtes cloud en démo et rendu texte sans exécution HTML.
 - Les tests locaux ne remplacent pas une recette Supabase de production ni des tests Safari/Firefox.
+
+## Statistiques détaillées (deuxième version)
+
+Onglet **Statistiques**, également accessible depuis la fiche d’un éducateur. Filtres éducateur, catégorie et dates ; synthèse par groupe ; séances et pointages par semaine ; assiduité ; thèmes ; moyennes des évaluations de bilans ; scores complets ; joueurs (présence, minutes, buts, passes et cartons) ; export CSV.
+
+Appliquer ensuite `supabase/club-management-statistics.sql`. La nouvelle RPC utilise les mêmes droits actifs et le même périmètre que l’espace Responsable. Elle ne retourne que les champs utiles au calcul : pas de photos, blessures, notes privées, contacts ou corps complet des documents. Limite de 500 documents autorisés, avec avertissement d’historique partiel. Aucun rôle ni nouvelle donnée sportive n’est créé par la migration.
+
+### Sens des indicateurs
+
+- Période basée sur la **date de séance / rencontre**, pas la date de téléversement. Fuseau des échéances : Europe/Paris.
+- Séances : préparations partagées datées, hors modèles `libraryOnly`. Déduplication par propriétaire, équipe, catégorie, date et heure. Le pointage validé le plus récent est conservé ; un brouillon plus récent ne l’écrase pas dans le calcul.
+- Volume préparé : somme des durées de ces préparations, **pas du temps réellement effectué**. Les séances futures peuvent figurer dans les préparations, mais pas dans les présences.
+- Assiduité : présents / (présents + absents). Uniquement pointages validés, à la date et heure correspondantes, non futurs et joueurs inclus. Les réponses à confirmer sont comptées séparément. Pas de fusion par nom ou numéro. Les lignes de bilan non liées à un identifiant d’effectif connu restent signalées et exclues du rapprochement individuel ; leurs minutes renseignées restent dans le cumul des lignes documentées.
+- Matchs : bilans de match partagés et datés non futurs, dédupliqués selon leur filiation `agendaSourceKey / statsEventId / id` et leur rencontre. Les anciens doublons sans filiation ne peuvent pas être reconnus avec certitude. Aucun résultat ne représente une homologation officielle.
+- Victoires/nuls/défaites et buts d’équipe : seulement lorsque les deux scores sont renseignés. Un 0 saisi est valide ; un champ vide ne devient jamais 0.
+- Minutes : cumul des minutes individuelles renseignées dans les bilans, pas la durée des rencontres. Les lignes sans minutes restent signalées.
+- Notes /5 : évaluations déclarées par l’éducateur, avec nombre de bilans par axe. Pas de note automatique du travail d’un éducateur.
+- Joueurs : identifiants liés dans les pointages/bilans ; absence d’une fiche n’implique pas absence d’un joueur à l’effectif. Le même identifiant suivi dans plusieurs équipes reste séparé.
+- Sources locales non partagées (agenda, pointages non enregistrés, brouillons) : **non accessibles au responsable**. Aucune nouvelle synchronisation silencieuse n’a été ajoutée.
+
+### Vérification complémentaire
+
+`node tests/manager-statistics-model.mjs` couvre valeurs manquantes, zéros, dates, futur, doublons, périmètres, catégories absentes et identités. `tests/manager-statistics-browser.py` vérifie filtres, navigation par éducateur, tableaux, export CSV et mobile. Les tests d’accès PostgreSQL incluent la nouvelle RPC.

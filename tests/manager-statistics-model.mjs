@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';const require=createRequire(import.meta.url),{aggregate,groups}=require('../manager-statistics-model.js');
+const opts={now:'2026-11-13T14:00:00Z',from:'2026-11-01',to:'2026-11-30'};
+const base={owner_id:'a',category:'U17',stats:{teamContext:{id:'team-a'}}};
+function training(id,date,rows,at='2026-11-10T20:00:00Z'){return {...base,id,source_id:id,kind:'training',updated_at:at,stats:{...base.stats,date,time:'18:00',duration:90,themes:['Relance'],attendance:{version:1,date,time:'18:00',validatedAt:at,rows}}};}
+const p=(id,status,included=true)=>({id,name:id,status,included});
+const t=training('one','2026-11-10',[p('p1','present'),p('p2','absent'),p('p3','uncertain'),p('not-included','absent',false)]);
+const copy=structuredClone(t);copy.id='copy';copy.updated_at='2026-11-12T20:00:00Z';copy.stats.attendance.validatedAt='2026-11-09T20:00:00Z';copy.stats.attendance.rows=[p('p1','absent')];
+const future=training('future','2026-11-20',[p('p1','present')],'2026-11-12T20:00:00Z');
+const noAttendance=training('unmarked','2026-11-11',[p('p1','present')]);noAttendance.stats.attendance.validatedAt='';
+const wrongDate=training('wrong','2026-11-12',[p('p1','present')]);wrongDate.stats.attendance.date='2026-11-11';
+const report={...base,id:'r1',kind:'report',updated_at:'2026-11-12T19:00:00Z',stats:{...base.stats,id:'r1',statsEventId:'event',info:{date:'2026-11-08',time:'15:00',opponent:'A',goalsFor:'0',goalsAgainst:'0'},ratings:{cohesion:{score:'4'},attack:{score:''}},players:[{id:'row1',squadPlayerId:'p1',name:'Paul',minutes:'0',goals:'0',assists:''},{id:'p1',name:'Paul duplicate',minutes:'90',goals:'1'},{id:'p2',name:'Lou',minutes:'',goals:'1',assists:'0'}]}};
+const oldReport=structuredClone(report);oldReport.id='r-copy';oldReport.updated_at='2026-11-10T20:00:00Z';oldReport.stats.info.goalsFor='5';
+const blank=structuredClone(report);blank.id='rblank';blank.stats.statsEventId='other';blank.stats.info.date='2026-11-01';blank.stats.info.goalsFor='';blank.stats.players=[];
+const invalid=structuredClone(t);invalid.id='invalid-date';invalid.stats.date='2026-99-99';
+const other=structuredClone(t);other.owner_id='b';other.category='U15';other.stats.teamContext.id='team-b';
+let s=aggregate([t,copy,future,noAttendance,wrongDate,report,oldReport,blank,invalid,other],opts);
+assert.equal(s.sessions,5);assert.equal(s.dueSessions,4);assert.equal(s.pointedSessions,2);assert.equal(s.present,2);assert.equal(s.absent,2);assert.equal(s.uncertain,2);assert.equal(s.attendanceRate,50);assert.equal(s.matches,2);assert.equal(s.scoredMatches,1);assert.equal(s.draws,1);assert.equal(s.goalsFor,0);assert.equal(s.playingMinutes,0);assert.equal(s.knownMinuteRows,1);assert.equal(s.missingMinuteRows,1);assert.equal(s.missingDates,1);assert.equal(s.ratings.find(r=>r.key==='cohesion').average,4);assert.equal(s.ratings.find(r=>r.key==='attack').average,null);
+s=aggregate([t,copy],opts);assert.equal(s.present,1);assert.equal(s.absent,1);assert.equal(s.players.length,3);assert.equal(s.sessions,1);
+assert.equal(aggregate([noAttendance],opts).attendanceRate,null);assert.equal(aggregate([future],opts).pointedSessions,0);
+assert.equal(aggregate([t,other],{...opts,owner:'a'}).sessions,1);assert.equal(groups([t,other],opts).length,2);
+assert.equal(aggregate([t],{...opts,from:'2026-11-11'}).sessions,0);
+assert.equal(aggregate([],opts).attendanceRate,null);
+const uncategorized=structuredClone(t);uncategorized.category='';uncategorized.id='missing-category';assert.equal(groups([t,uncategorized],opts).find(g=>g.category==='').sessions,1);assert.equal(aggregate([t,uncategorized],{...opts,category:'__uncategorized__'}).sessions,1);
+const legacy=structuredClone(report);legacy.stats.players=[{id:'report-row-only',name:'Nom sans lien',minutes:'45'}];const unknownIdentity=aggregate([legacy],opts);assert.equal(unknownIdentity.players.length,0);assert.equal(unknownIdentity.unlinkedRows,1);assert.equal(unknownIdentity.playingMinutes,45);
+console.log('PASS statistics: deduplicated occurrences and lineage, latest valid roll call, unknown != absent, missing != zero, future excluded, dates/scopes, linked player identities, subjective ratings.');
