@@ -110,6 +110,11 @@
     return next;
   }
   function matches(report, source) {
+    if (report.eventType === "training") return false;
+    if (report.agendaSourceKey && source.fffFixtureKey)
+      return report.agendaSourceKey === source.fffFixtureKey;
+    if (report.preparation?.sourceCompositionId && source.documentId === report.preparation.sourceCompositionId)
+      return true;
     return (
       report.eventType !== "training" &&
       report.info.date === source.matchPreparation.date &&
@@ -205,7 +210,8 @@
       const automatic =
         matching.length === 1
           ? matching[0]
-          : !hasWork(currentReport)
+          : !hasWork(currentReport) && !currentReport.agendaSourceKey &&
+              !currentReport.info.date && !currentReport.info.opponent
             ? active || (choices.length === 1 ? choices[0] : null)
             : null;
       if (automatic) {
@@ -305,6 +311,7 @@
     }
     root.prepend(section);
   }
+  window.reportCauserieContinuity = { merge, matches, hasWork };
   document.addEventListener("DOMContentLoaded", () => {
     const before = renderReportContent;
     renderReportContent = function () {

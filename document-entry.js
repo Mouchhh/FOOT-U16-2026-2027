@@ -366,6 +366,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (pending) return false;
     if (kind === "report" && reportAutosaveTimer) flushReportDraft();
     if (!workspaceNavigationCanLeave()) return false;
+    // A unique agenda encounter can resume through the same guarded editor path.
+    // Explicit agenda/archive/new-document actions keep their original policy.
+    if (!options.context && !options.force && !options.newDocument && !options.managesContext) {
+      const automatic = window.matchContinuity?.autoEntry(kind);
+      if (automatic) {
+        const readOnly = documentCompletionIsCompleted(kind, automatic) &&
+          !documentCompletionIsEditing(kind, automatic);
+        if (automatic !== current(kind) && !replace(kind, automatic)) return false;
+        openEditor(kind, continuation, kind === "report");
+        if (readOnly) {
+          documentCompletionEndEdit(kind);
+          documentCompletionRefresh();
+        }
+        return true;
+      }
+    }
     const matchContext = documentEntryContext(
         "causerie",
         getCompositionBoard(),
